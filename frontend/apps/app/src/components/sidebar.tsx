@@ -208,7 +208,7 @@ export function SidebarContent({
   return (
     <div
       className={cn(
-        "flex h-full flex-col border-r border-border bg-card transition-[width] duration-slow ease-standard",
+        "flex h-full flex-col border-r border-border/70 bg-surface transition-[width] duration-slow ease-standard",
         collapsed ? "w-20" : "w-72 max-w-full",
       )}
     >
@@ -217,7 +217,7 @@ export function SidebarContent({
         <Link href="/" onClick={onNavigate} className="focus-ring rounded-2xl">
           {collapsed ? (
             <>
-              <BrandMark size={44} className="rounded-2xl" />
+              <BrandMark size={44} />
               <span className="sr-only">{APP_NAME}</span>
             </>
           ) : (
@@ -235,7 +235,7 @@ export function SidebarContent({
               onClick={onNavigate}
               aria-label={collapsed ? "Ask New Doubt" : undefined}
               className={cn(
-                "focus-ring group flex items-center justify-center gap-2 rounded-xl bg-brand font-semibold text-brand-foreground elev-1 transition hover:bg-brand-hover hover:elev-2 active:scale-[0.98]",
+                "focus-ring group flex items-center justify-center gap-2 rounded-xl border border-border bg-card font-semibold text-foreground elev-1 transition hover:bg-surface-2 hover:elev-2 active:scale-[0.98]",
                 collapsed ? "h-11 w-11" : "w-full px-4 py-3 text-sm",
               )}
             >
@@ -320,7 +320,7 @@ export function SidebarContent({
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Search chats"
                   aria-label="Search chats"
-                  className="focus-field h-9 w-full rounded-xl border border-input bg-card pl-8 pr-2 text-sm transition-colors placeholder:text-text-secondary hover:border-text-secondary/40"
+                  className="focus-field h-9 w-full rounded-xl border border-border bg-card pl-8 pr-2 text-sm transition-colors placeholder:text-text-secondary hover:border-text-secondary/40"
                 />
               </div>
             )}
@@ -407,7 +407,7 @@ export function SidebarContent({
       </div>
 
       {/* Only the account here: Settings and Log out are in its menu. */}
-      <div className={cn("shrink-0 border-t border-border bg-card p-2", collapsed && "px-2")}>
+      <div className={cn("shrink-0 border-t border-border/70 bg-surface p-2", collapsed && "px-2")}>
         <DropdownMenu modal={false}>
           <RailTip label={name} collapsed={collapsed}>
             <DropdownMenuTrigger asChild>

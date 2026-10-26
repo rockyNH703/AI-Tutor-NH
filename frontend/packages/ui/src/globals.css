@@ -34,24 +34,24 @@
 @layer base {
   :root {
     /* Warm-neutral page, white surfaces on it. */
-    --background: 220 23.1% 97.5%; /* #F7F8FA */
-    --foreground: 212.7 14.7% 14.7%; /* #20252B: 14.52:1 on background, 15.43:1 on card */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 220.9 39.3% 11%; /* #111827 */
 
     --card: 0 0% 100%;
-    --card-foreground: 212.7 14.7% 14.7%;
+    --card-foreground: 220.9 39.3% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 212.7 14.7% 14.7%;
+    --popover-foreground: 220.9 39.3% 11%;
 
     /* TEXT, not brand. See the note above. */
-    --primary: 213.3 16.4% 10.8%; /* #171B20 */
-    --primary-foreground: 220 23.1% 97.5%;
+    --primary: 220.9 39.3% 11%; /* #111827 */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 216 21.7% 95.5%; /* #F1F3F6 */
-    --secondary-foreground: 213.3 13.4% 26.3%; /* 9.15:1 */
-    --muted: 216 21.7% 95.5%;
-    --muted-foreground: 213 9.5% 41.2%; /* = text-secondary */
-    --accent: 216 21.7% 95.5%;
-    --accent-foreground: 213.3 16.4% 10.8%;
+    --secondary: 210 20% 98%; /* #F9FAFB */
+    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 210 20% 98%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 210 20% 98%;
+    --accent-foreground: 220.9 39.3% 11%;
 
     /* A muted crimson: 5.84:1 on a card and carrying white, 5.50:1 on the page. */
     --destructive: 353 50.8% 46.3%; /* #B23A48 */
@@ -60,21 +60,21 @@
     /* Hairlines that separate surfaces without drawing lines. A field's edge is not decoration:
        it tells you where to type, so `--input` is darker, 3.31:1 on a card and 3.12:1 on the page
        (WCAG 1.4.11). */
-    --border: 214.3 14.9% 90.8%; /* #E4E7EB */
-    --input: 212 6.7% 55.9%; /* #878E96 */
-    --ring: 210 28.8% 43.5%; /* the brand: 4.94:1 on the page, 5.25:1 on a card */
+    --border: 220 13% 91%; /* #E5E7EB */
+    --input: 220 8.9% 46.1%; /* #6B7280 */
+    --ring: 220.9 39.3% 11%;
 
     /* Slate blue: the colour this product ACTS with. 4.94:1 as text on the page, 4.60:1 on
        its soft tint, 5.25:1 carrying white (6.77:1 hovered). */
-    --brand: 210 28.8% 43.5%; /* #4F6F8F */
+    --brand: 220.9 39.3% 11%; /* #111827 */
     --brand-foreground: 0 0% 100%;
-    --brand-soft: 205 40% 94.1%; /* #EAF1F6: the selected row, the brand's quiet tint */
-    --brand-hover: 209 31.2% 36.5%; /* #405E7A */
+    --brand-soft: 210 20% 98%; /* #F9FAFB */
+    --brand-hover: 228 9.8% 10%; /* #17181C */
     /* The tutor's study cards (notes, definitions, steps, answers, quizzes, flashcards…): the New
        Chat button's --brand, 50 points lighter, same hue and saturation. #E9EEF3, measured: foreground
        13.35:1, text-secondary 4.86:1, brand 4.52:1, warning 5.39:1, destructive 5.02:1; success is
        4.36:1, so on a card it colours icons only (their 3:1), never text. */
-    --study-card-background: 210 28.8% 93.5%;
+    --study-card-background: 210 20% 96.5%;
 
     --radius: 0.5rem;
 
@@ -91,9 +91,9 @@
        grows instantly; Settings panes swap instantly; the skeleton, the streaming caret and
        the typing dots breathe (opacity, gone with their element); toasts (sonner) and the
        calendar library animate themselves. Reduced motion (below) removes all of it. */
-    --motion-fast: 150ms;
-    --motion-base: 220ms;
-    --motion-slow: 320ms;
+    --motion-fast: 180ms;
+    --motion-base: 300ms;
+    --motion-slow: 300ms;
     --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
     --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
     --ease-exit: cubic-bezier(0.4, 0, 1, 1);
@@ -102,9 +102,9 @@
        `surface` is a well inside a card (list rows, code); `surface-2` is one step deeper, for
        hover, the student's bubble and skeletons. `text-secondary` names what would otherwise be
        spelt as an opacity on `--primary`. */
-    --surface: 220 23.1% 97.5%;
-    --surface-2: 210 21.4% 94.5%; /* #EEF1F4 */
-    --text-secondary: 213 9.5% 41.2%; /* #5F6873: 5.32:1 page, 5.65:1 card, 4.99:1 surface-2, 4.96:1 brand-soft */
+    --surface: 210 20% 98%; /* #F9FAFB: sidebar and recessed surfaces */
+    --surface-2: 220 13% 95.5%; /* #F2F3F5 */
+    --text-secondary: 220 8.9% 46.1%; /* #6B7280 */
 
     /* The one accent: a muted grey sage. Decoration only (the greeting's gradient, the empty
        state), never a status. 4.90:1 on the page. */
@@ -179,43 +179,43 @@
   .dark {
     /* Near-black with a blue cast, not pure black: black crushes every edge, so surfaces could
        no longer be told apart. */
-    --background: 225 21.1% 7.5%; /* #0F1117 */
-    --foreground: 216 33.3% 97.1%; /* #F5F7FA: 17.58:1 */
+    --background: 240 9.1% 4.3%; /* #0A0A0C */
+    --foreground: 240 5.3% 96.3%; /* #F5F5F6 */
 
-    --card: 222 17.9% 11%; /* #171A21 */
-    --card-foreground: 216 33.3% 97.1%; /* 16.22:1 */
-    --popover: 222 17.9% 11%;
-    --popover-foreground: 216 33.3% 97.1%;
+    --card: 228 10.6% 9.2%; /* #15161A */
+    --card-foreground: 240 5.3% 96.3%;
+    --popover: 228 10.6% 9.2%;
+    --popover-foreground: 240 5.3% 96.3%;
 
-    --primary: 216 33.3% 97.1%;
-    --primary-foreground: 225 21.1% 7.5%;
+    --primary: 240 5.3% 96.3%;
+    --primary-foreground: 240 9.1% 4.3%;
 
-    --secondary: 221.5 17.8% 14.3%;
-    --secondary-foreground: 216.9 23.6% 89.2%; /* 12.24:1 */
-    --muted: 221.5 17.8% 14.3%;
-    --muted-foreground: 220 15.4% 69.4%;
-    --accent: 221.5 17.8% 14.3%;
-    --accent-foreground: 216 33.3% 97.1%;
+    --secondary: 230 9.7% 12.2%; /* #1C1D22 */
+    --secondary-foreground: 240 5.3% 96.3%;
+    --muted: 230 9.7% 12.2%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 230 9.7% 12.2%;
+    --accent-foreground: 240 5.3% 96.3%;
 
     --destructive: 351 77% 72.7%; /* #EF8494: 7.53:1 on the page, carrying dark text */
-    --destructive-foreground: 225 21.1% 7.5%;
+    --destructive-foreground: 240 9.1% 4.3%;
 
-    --border: 220 15.5% 19%; /* #292E38 */
-    --input: 218.4 10.8% 45.3%; /* #677080: 3.48:1 on a card, 3.78:1 on the page */
-    --ring: 210.5 32.5% 66.9%; /* 7.85:1 */
+    --border: 231.4 7.7% 17.8%; /* #2A2B31 */
+    --input: 240 3.7% 31%;
+    --ring: 240 5.3% 96.3%;
 
     /* A lighter, softer slate blue with DARK text on it: 7.85:1 as text, 6.35:1 on its soft,
        7.85:1 as a button (9.78:1 hovered). */
-    --brand: 210.5 32.5% 66.9%; /* #8FAAC6 */
-    --brand-foreground: 225 21.1% 7.5%;
-    --brand-soft: 213.9 29.1% 15.5%; /* #1C2633 */
-    --brand-hover: 211.3 35.4% 74.5%;
+    --brand: 240 5.3% 96.3%; /* #F5F5F6 */
+    --brand-foreground: 240 9.1% 4.3%;
+    --brand-soft: 230 9.7% 12.2%; /* #1C1D22 */
+    --brand-hover: 220 9.1% 93.5%; /* #EDEEF0 */
     /* The dark brand 50 points darker, toward the dark surface: a quiet slate-blue card. */
-    --study-card-background: 210.5 32.5% 16.9%;
+    --study-card-background: 230 9.7% 12.2%;
 
-    --surface: 220 19.1% 9.2%;
-    --surface-2: 221.5 17.8% 14.3%; /* #1E222B */
-    --text-secondary: 220 15.4% 69.4%; /* #A5ADBD: 8.37:1 page, 7.72:1 card, 7.06:1 surface-2 */
+    --surface: 225 10% 7.8%; /* #121316: sidebar and recessed surfaces */
+    --surface-2: 230 9.7% 12.2%; /* #1C1D22 */
+    --text-secondary: 240 5% 64.9%; /* #A1A1AA */
 
     --sage: 130 7.3% 67.8%; /* #A7B3A9 */
     --sage-soft: 140 10.3% 11.4%;
@@ -266,7 +266,7 @@
     --chart-5: 338.2 61.1% 57.6%; /* #D55181 */
     --chart-6: 120 100% 25.7%; /* #008300 */
 
-    --overlay: 216 33.3% 2.9%;
+    --overlay: 240 9.1% 4.3%;
   }
 }
 
@@ -275,10 +275,23 @@
     @apply border-border;
   }
   body {
-    /* Body text: Noto Sans 16px / 400 / 1.65, -0.005em (tailwind.config.ts, `text-base`). */
+    /* Inter-like system UI typography, using the installed platform stack with no external request. */
     @apply bg-background text-base font-normal text-foreground;
+    background-image: radial-gradient(
+      70rem 40rem at 58% -12%,
+      hsl(var(--foreground) / 0.035),
+      transparent 62%
+    );
+    background-attachment: fixed;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+  html.dark body {
+    background-image: radial-gradient(
+      64rem 38rem at 58% -10%,
+      hsl(var(--foreground) / 0.065),
+      transparent 64%
+    );
   }
   /* Selected text in the brand's tint, not the browser's saturated default blue. */
   ::selection {
@@ -309,30 +322,34 @@
    *   3  dialogs
    */
   .elev-1 {
-    box-shadow: 0 1px 2px 0 hsl(213 15% 15% / 0.05);
+    box-shadow:
+      0 1px 2px hsl(220 20% 10% / 0.05),
+      0 8px 24px -20px hsl(220 20% 10% / 0.18);
   }
   .elev-2 {
     box-shadow:
-      0 4px 12px -2px hsl(213 15% 15% / 0.08),
-      0 2px 4px -2px hsl(213 15% 15% / 0.05);
+      0 12px 30px -18px hsl(220 20% 10% / 0.22),
+      0 2px 8px -4px hsl(220 20% 10% / 0.09);
   }
   .elev-3 {
     box-shadow:
-      0 20px 32px -8px hsl(213 15% 15% / 0.14),
-      0 8px 12px -6px hsl(213 15% 15% / 0.06);
+      0 24px 48px -20px hsl(220 20% 10% / 0.28),
+      0 8px 18px -10px hsl(220 20% 10% / 0.12);
   }
   .dark .elev-1 {
-    box-shadow: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
+    box-shadow:
+      0 1px 0 hsl(0 0% 100% / 0.025) inset,
+      0 12px 30px -22px hsl(0 0% 0% / 0.9);
   }
   .dark .elev-2 {
     box-shadow:
-      0 4px 6px -1px hsl(0 0% 0% / 0.45),
-      0 2px 4px -2px hsl(0 0% 0% / 0.35);
+      0 1px 0 hsl(0 0% 100% / 0.035) inset,
+      0 18px 44px -22px hsl(0 0% 0% / 0.95);
   }
   .dark .elev-3 {
     box-shadow:
-      0 20px 25px -5px hsl(0 0% 0% / 0.55),
-      0 8px 10px -6px hsl(0 0% 0% / 0.45);
+      0 1px 0 hsl(0 0% 100% / 0.04) inset,
+      0 28px 60px -24px hsl(0 0% 0% / 0.98);
   }
 
   /**
@@ -402,6 +419,12 @@
   /* Inside an overflow-hidden parent, where an offset ring is clipped away. */
   .focus-ring-inset {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:ring-offset-0;
+  }
+  .composer-focus:focus-within {
+    border-color: hsl(var(--foreground) / 0.2);
+    box-shadow:
+      0 0 0 3px hsl(var(--foreground) / 0.045),
+      0 20px 45px -28px hsl(var(--overlay) / 0.85);
   }
 
   /* Windows otherwise renders a 17px grey slab beside the transcript. */
@@ -499,13 +522,13 @@
      not drawn at all on short screens. */
   .empty-atmosphere {
     background-image:
-      radial-gradient(28rem 18rem at 0% 0%, hsl(var(--brand) / 0.07), transparent 70%),
-      radial-gradient(30rem 20rem at 100% 100%, hsl(var(--streak) / 0.06), transparent 70%);
+      radial-gradient(34rem 20rem at 50% 0%, hsl(var(--foreground) / 0.035), transparent 72%),
+      radial-gradient(30rem 20rem at 100% 100%, hsl(var(--brand) / 0.025), transparent 72%);
   }
   .dark .empty-atmosphere {
     background-image:
-      radial-gradient(28rem 18rem at 0% 0%, hsl(var(--brand) / 0.05), transparent 70%),
-      radial-gradient(30rem 20rem at 100% 100%, hsl(var(--streak) / 0.035), transparent 70%);
+      radial-gradient(34rem 20rem at 50% 0%, hsl(var(--foreground) / 0.06), transparent 72%),
+      radial-gradient(28rem 18rem at 100% 100%, hsl(var(--foreground) / 0.025), transparent 74%);
   }
 
   /* A sidebar chat title too long for its row (components/marquee-title.tsx). At rest it is

@@ -290,11 +290,11 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     }
   });
 
-  await check("header theme menu: Light / Dark / System with one check (nothing changed)", async () => {
+  await check("header theme menu: Metallic Black / Normal White with one check (nothing changed)", async () => {
     await page.goto("/");
     await hydrated(page);
     await banner(page).getByRole("button", { name: "Colour theme" }).click();
-    await expect(page.getByRole("menuitemradio")).toHaveText(["Light", "Dark", "System"]);
+    await expect(page.getByRole("menuitemradio")).toHaveText(["Metallic Black", "Normal White"]);
     expect(await page.locator('[role="menuitemradio"][aria-checked="true"]').count()).toBe(1);
     await page.keyboard.press("Escape");
     await expect(page.getByRole("menu")).toHaveCount(0);

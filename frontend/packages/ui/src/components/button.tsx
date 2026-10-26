@@ -14,7 +14,7 @@ const buttonVariants = cva(
       variant: {
         // The primary action is the product's slate blue on a hairline shadow (never a
         // coloured glow). Not `bg-primary`: in this codebase that is the near-black TEXT colour.
-        default: "bg-brand text-brand-foreground elev-1 hover:bg-brand-hover",
+        default: "bg-foreground text-background elev-1 hover:opacity-90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         // Secondary: a white surface and a hairline, no shadow.

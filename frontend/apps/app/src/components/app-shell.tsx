@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   useFocusOnArrival(() => heading.current);
 
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-background">
+    <div className="flex h-dvh w-full overflow-hidden bg-background bg-[radial-gradient(ellipse_at_58%_0%,hsl(var(--foreground)/0.035),transparent_48%)] dark:bg-[radial-gradient(ellipse_at_58%_0%,hsl(var(--foreground)/0.06),transparent_50%)]">
       {/* Desktop rail. Not rendered below md (the drawer below is the only copy there). */}
       <aside className="hidden h-full shrink-0 md:block">
         <SidebarContent collapsed={collapsed} />
@@ -114,7 +114,7 @@ function Header({
   const { title, subtitle } = useHeading(pathname);
 
   return (
-    <header className="z-10 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card/90 px-2 backdrop-blur-md sm:gap-3 sm:px-5">
+    <header className="z-10 flex h-16 shrink-0 items-center gap-2 border-b border-border/70 bg-background/80 px-2 backdrop-blur-xl sm:gap-3 sm:px-5">
       <SheetTrigger asChild>
         <button type="button" aria-label="Open menu" className={`${iconButton} md:hidden`}>
           <Menu aria-hidden className="h-5 w-5" />

@@ -31,12 +31,14 @@ const config = {
         // Noto Sans everywhere, Latin then its Devanagari companion (apps/app/src/lib/fonts.ts);
         // code stays monospace.
         sans: [
+          "Inter",
           "var(--font-noto-sans)",
           "var(--font-noto-sans-devanagari)",
           ...defaultTheme.fontFamily.sans,
         ],
         mono: ["var(--font-mono)", ...defaultTheme.fontFamily.mono],
         display: [
+          "Inter",
           "var(--font-noto-sans)",
           "var(--font-noto-sans-devanagari)",
           ...defaultTheme.fontFamily.sans,

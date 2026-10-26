@@ -1,20 +1,18 @@
 "use client";
 
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { JSX } from "react";
 
 import { useAppearance } from "@/components/appearance-provider";
-import type { FontSize, Theme } from "@/lib/api/types";
+import { THEME_LABELS, type UserTheme, userTheme } from "@/components/theme-switcher";
+import type { FontSize } from "@/lib/api/types";
 import { ChoiceGroup, SectionHeading, SettingsCard, ToggleRow } from "./primitives";
 
-// Typed by the contract's enums: a new value from the API is a compile error here until named.
-const THEME_LABELS: Record<Theme, string> = { system: "System", light: "Light", dark: "Dark" };
-const THEME_ICONS: Record<Theme, JSX.Element> = {
-  system: <Monitor aria-hidden className="h-4 w-4" />,
-  light: <Sun aria-hidden className="h-4 w-4" />,
+const THEME_ICONS: Record<UserTheme, JSX.Element> = {
   dark: <Moon aria-hidden className="h-4 w-4" />,
+  light: <Sun aria-hidden className="h-4 w-4" />,
 };
 const SIZE_LABELS: Record<FontSize, string> = {
   small: "Small",
@@ -46,11 +44,11 @@ export function AppearanceSection() {
       ) : (
         <div className="flex flex-col gap-4">
           <SettingsCard title="Display">
-            <ChoiceGroup<Theme>
+            <ChoiceGroup<UserTheme>
               legend="Theme"
-              description="System follows your device's light or dark setting."
-              value={appearance.theme}
-              options={(Object.keys(THEME_LABELS) as Theme[]).map((value) => ({
+              description="Choose the metallic dark canvas or the clean white canvas."
+              value={userTheme(appearance.theme)}
+              options={(Object.keys(THEME_LABELS) as UserTheme[]).map((value) => ({
                 value,
                 label: THEME_LABELS[value],
                 icon: THEME_ICONS[value],

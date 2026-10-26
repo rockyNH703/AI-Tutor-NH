@@ -8,14 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
 
-import { THEME_CHOICES, ThemeIcon, useThemeChoice } from "./theme-switcher";
-
-const LABELS: Record<(typeof THEME_CHOICES)[number], string> = { light: "Light", dark: "Dark", system: "System" };
+import { THEME_CHOICES, THEME_LABELS, ThemeIcon, useThemeChoice } from "./theme-switcher";
 
 /**
- * The app header's theme control: the current choice's icon, opening Light / Dark / System with a
- * check on the one in use. The same choice and icons as ThemeSwitcher (theme-switcher.tsx), in a
- * compact popover. Not modal, like the bell: the page stays in the accessibility tree.
+ * The app header's compact theme control, opening Metallic Black / Normal White with a check on
+ * the active choice. The page stays in the accessibility tree while the menu is open.
  */
 export function ThemeMenu() {
   const { shown, choose } = useThemeChoice();
@@ -37,7 +34,7 @@ export function ThemeMenu() {
           {THEME_CHOICES.map((theme) => (
             <DropdownMenuRadioItem key={theme} value={theme} className="gap-2.5 font-medium">
               <ThemeIcon theme={theme} className="h-4 w-4 text-text-secondary" />
-              {LABELS[theme]}
+              {THEME_LABELS[theme]}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>

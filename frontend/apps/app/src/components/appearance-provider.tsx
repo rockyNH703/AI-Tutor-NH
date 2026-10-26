@@ -3,6 +3,7 @@
 import { useTheme } from "next-themes";
 import { type ReactNode, createContext, useContext, useEffect } from "react";
 
+import { userTheme } from "@/components/theme-switcher";
 import { useAutoSaver } from "@/features/settings/use-auto-saver";
 import { getAppearance, updateAppearance } from "@/lib/api/preferences";
 import type { Appearance, AppearanceValues } from "@/lib/api/types";
@@ -38,7 +39,9 @@ export function AppearanceProvider({ initial, children }: { initial: Appearance 
   }, [value]);
 
   useEffect(() => {
-    if (value && theme !== value.theme) setTheme(value.theme);
+    if (!value) return;
+    const savedTheme = userTheme(value.theme);
+    if (theme !== savedTheme) setTheme(savedTheme);
   }, [value?.theme, theme, setTheme, value]);
 
   return <AppearanceContext.Provider value={{ appearance: value, change }}>{children}</AppearanceContext.Provider>;

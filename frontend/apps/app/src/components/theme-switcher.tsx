@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@v1/ui/select";
 import { cn } from "@v1/ui/utils";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -27,37 +27,48 @@ import { useAppearance } from "./appearance-provider";
  * compact menu (theme-menu.tsx) shares the same choice and icons below.
  */
 
-export const THEME_CHOICES = ["light", "dark", "system"] as const;
+export const THEME_CHOICES = ["dark", "light"] as const;
+export type UserTheme = (typeof THEME_CHOICES)[number];
+
+export const THEME_LABELS: Record<UserTheme, string> = {
+  dark: "Metallic Black",
+  light: "Normal White",
+};
+
+/** Legacy accounts may still store `system`; the redesigned UI resolves those to Metallic Black. */
+export function userTheme(theme: string | undefined): UserTheme {
+  return theme === "light" ? "light" : "dark";
+}
 
 /**
  * The one theme choice both controls use: next-themes' value (only once mounted, since the theme
  * is unknown on the server), and a change that also saves it to the account when signed in.
  */
 export function useThemeChoice() {
-  const { theme: currentTheme, setTheme, themes } = useTheme();
+  const { theme: currentTheme, setTheme } = useTheme();
   // Signed in, the choice is saved to the account (every device); elsewhere only this browser.
   const appearance = useAppearance();
   // Avoid hydration mismatch: the theme is unknown on the server, so only show
   // the theme-dependent icon/label after the component has mounted on the client.
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const shown = mounted ? currentTheme : undefined;
+  const shown = mounted ? userTheme(currentTheme) : undefined;
   const choose = (theme: string) => {
-    setTheme(theme);
-    appearance?.change({ theme: theme as Theme });
+    const next = userTheme(theme);
+    setTheme(next);
+    appearance?.change({ theme: next as Theme });
   };
-  return { shown, themes, choose };
+  return { shown, choose };
 }
 
-/** The icon of a theme choice (System, or not known yet: the monitor). */
+/** The icon of one of the two user-facing themes. */
 export function ThemeIcon({ theme, className }: { theme: string | undefined; className?: string }) {
   if (theme === "light") return <Sun aria-hidden className={className} />;
-  if (theme === "dark") return <Moon aria-hidden className={className} />;
-  return <Monitor aria-hidden className={className} />;
+  return <Moon aria-hidden className={className} />;
 }
 
 export function ThemeSwitcher({ triggerClass, showLabel = true }: { triggerClass?: string; showLabel?: boolean }) {
-  const { shown, themes, choose } = useThemeChoice();
+  const { shown, choose } = useThemeChoice();
 
   return (
     <Select
@@ -88,17 +99,13 @@ export function ThemeSwitcher({ triggerClass, showLabel = true }: { triggerClass
       >
         <span className="!flex items-center gap-2 whitespace-nowrap">
           <ThemeIcon theme={shown} className="h-[14px] w-[14px]" />
-          {shown && showLabel && (
-            <span className="text-xs font-medium">
-              {shown.charAt(0).toUpperCase() + shown.slice(1)}
-            </span>
-          )}
+          {shown && showLabel && <span className="text-xs font-medium">{THEME_LABELS[shown]}</span>}
         </span>
       </SelectTrigger>
       <SelectContent>
-        {themes.map((theme) => (
+        {THEME_CHOICES.map((theme) => (
           <SelectItem key={theme} value={theme} className="text-sm font-medium">
-            {theme.charAt(0).toUpperCase() + theme.slice(1)}
+            {THEME_LABELS[theme]}
           </SelectItem>
         ))}
       </SelectContent>

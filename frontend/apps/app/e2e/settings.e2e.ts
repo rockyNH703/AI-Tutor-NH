@@ -197,7 +197,7 @@ test("appearance: applies at once, persists, and follows the account to another 
 }) => {
   const html = page.locator("html");
   await page.goto("/settings/appearance");
-  await page.getByRole("radio", { name: "Dark" }).check();
+  await page.getByRole("radio", { name: "Metallic Black" }).check();
   await page.getByRole("radio", { name: "Large", exact: true }).check();
   await page.getByRole("switch", { name: "High contrast" }).click();
   await page.getByRole("switch", { name: "Comfortable reading" }).click();
