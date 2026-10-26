@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+# Any virtualenv, including local backups such as .venv-old/
+.venv*/
+venv/
+env/
+
+# App settings & secrets (never commit real keys). Every local env file and its
+# backups are ignored; only the template is tracked.
+.env
+.env.*
+!.env.example
+
+# Local data left behind by the retired stack (never tracked)
+data/
+logs/

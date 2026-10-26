@@ -1,0 +1,23 @@
+{
+  "name": "ai-tutor",
+  "private": true,
+  "description": "AI Tutor, released as one application: FastAPI backend (backend/) + Next.js frontend (frontend/). One commit, one release, one deploy, one rollback.",
+  "scripts": {
+    "setup": "bun scripts/run.mjs setup",
+    "dev": "bun scripts/run.mjs dev",
+    "dev:backend": "bun scripts/run.mjs dev:backend",
+    "dev:frontend": "bun scripts/run.mjs dev:frontend",
+    "test": "bun scripts/run.mjs test",
+    "test:e2e": "bun scripts/run.mjs test:e2e",
+    "lint": "bun scripts/run.mjs lint",
+    "build": "bun scripts/run.mjs build",
+    "contract": "bun scripts/run.mjs contract",
+    "lock:backend": "bun scripts/run.mjs lock:backend",
+    "smoke": "bun scripts/run.mjs smoke",
+    "verify": "bun deploy/verify.mjs",
+    "deploy": "bash deploy/deploy.sh",
+    "rollback": "bash deploy/rollback.sh",
+    "status": "bash deploy/status.sh",
+    "rehearse": "bash deploy/rehearsal/run.sh"
+  }
+}

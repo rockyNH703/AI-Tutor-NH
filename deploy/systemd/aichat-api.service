@@ -1,0 +1,28 @@
+[Unit]
+# FastAPI chat API, from the production checkout /opt/aichat/app (bun run deploy).
+# Loopback only: the web app's server-side proxy is its only client.
+# Migrations are NOT run here: deploy/server/update.sh runs them (after a backup) before it
+# restarts this unit, and only when the commit brings new ones.
+Description=aichat chat API (FastAPI)
+Requires=aichat-postgres.service
+After=aichat-postgres.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/aichat/app/backend
+EnvironmentFile=/etc/aichat/api.env
+ExecStart=/opt/aichat/app/backend/.venv/bin/python -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port 4100 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=always
+RestartSec=5
+# In-flight replies are persisted as 'cancelled' on shutdown; give them a moment.
+KillSignal=SIGINT
+# uvicorn alone gets SIGINT; a file extractor's runner is not interrupted mid-answer (app/files).
+KillMode=mixed
+TimeoutStopSec=20
+MemoryMax=900M
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

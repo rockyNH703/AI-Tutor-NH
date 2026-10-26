@@ -1,1 +1,39 @@
-git.txt
+# ===== AI-Tutor-NH =====
+
+# All txt files (local notes, credentials, tokens - never commit)
+*.txt
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv*/
+
+# Local env files and their backups (only *.env.example templates are tracked)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Local leftovers of the retired stack
+node_modules/
+.turbo/
+logs/
+/apps/
+
+# OS / editors
+.DS_Store
+*.pem
+
+# Per-user Claude Code permissions (local only)
+.claude/settings.local.json
+
+# Written into the production checkout by deploy/server/update.sh; never committed
+/RELEASE
+
+# Graphify knowledge-graph output (local, regenerated; any folder it is run on)
+graphify-out/
+
+# Local verification evidence and logs (bun run verify); they travel with a release, not in git
+.deploy/

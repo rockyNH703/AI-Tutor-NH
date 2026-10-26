@@ -1,0 +1,753 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Design tokens: PadhAI.
+ *
+ * THE DIRECTION
+ *
+ * A calm place to study for hours. A warm-neutral page, white surfaces and borders that almost
+ * disappear, and ONE acting colour, a quiet slate blue, used for the primary action, selection
+ * and focus and nothing else. A muted sage is the only accent (the greeting's gradient drifts
+ * into it); it never means anything, so status colours stay clearly apart from it. Roughly 90%
+ * neutral, 8% blue, 2% everything else. Noto Sans throughout; soft corners (8-20px); shadows
+ * barely there, borders do the separating.
+ *
+ * WHAT DID NOT CHANGE
+ *
+ * The NAMES. Every token and utility below existed before this palette and is
+ * referenced across the app; only the values moved, so no call site had to.
+ * `--primary` is still the main TEXT colour (near-black in light, near-white in
+ * dark) and NOT the brand. Turning it into the accent would turn every
+ * paragraph blue.
+ *
+ * CONTRAST
+ *
+ * Every foreground/background pair below was measured, not estimated, in both themes (the
+ * ratio sits beside each colour that carries text): text clears 4.5:1, focus rings and control
+ * edges 3:1 (WCAG 1.4.11). One blue cannot carry white text AND read as text on the dark page,
+ * so dark mode's brand is a lighter blue carrying DARK text. Status colours were also checked
+ * for separation from each other and from sage (OKLab, incl. colour-blind simulation); each
+ * status also always carries an icon and words, never colour alone.
+ */
+@layer base {
+  :root {
+    /* Warm-neutral page, white surfaces on it. */
+    --background: 220 23.1% 97.5%; /* #F7F8FA */
+    --foreground: 212.7 14.7% 14.7%; /* #20252B: 14.52:1 on background, 15.43:1 on card */
+
+    --card: 0 0% 100%;
+    --card-foreground: 212.7 14.7% 14.7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 212.7 14.7% 14.7%;
+
+    /* TEXT, not brand. See the note above. */
+    --primary: 213.3 16.4% 10.8%; /* #171B20 */
+    --primary-foreground: 220 23.1% 97.5%;
+
+    --secondary: 216 21.7% 95.5%; /* #F1F3F6 */
+    --secondary-foreground: 213.3 13.4% 26.3%; /* 9.15:1 */
+    --muted: 216 21.7% 95.5%;
+    --muted-foreground: 213 9.5% 41.2%; /* = text-secondary */
+    --accent: 216 21.7% 95.5%;
+    --accent-foreground: 213.3 16.4% 10.8%;
+
+    /* A muted crimson: 5.84:1 on a card and carrying white, 5.50:1 on the page. */
+    --destructive: 353 50.8% 46.3%; /* #B23A48 */
+    --destructive-foreground: 0 0% 100%;
+
+    /* Hairlines that separate surfaces without drawing lines. A field's edge is not decoration:
+       it tells you where to type, so `--input` is darker, 3.31:1 on a card and 3.12:1 on the page
+       (WCAG 1.4.11). */
+    --border: 214.3 14.9% 90.8%; /* #E4E7EB */
+    --input: 212 6.7% 55.9%; /* #878E96 */
+    --ring: 210 28.8% 43.5%; /* the brand: 4.94:1 on the page, 5.25:1 on a card */
+
+    /* Slate blue: the colour this product ACTS with. 4.94:1 as text on the page, 4.60:1 on
+       its soft tint, 5.25:1 carrying white (6.77:1 hovered). */
+    --brand: 210 28.8% 43.5%; /* #4F6F8F */
+    --brand-foreground: 0 0% 100%;
+    --brand-soft: 205 40% 94.1%; /* #EAF1F6: the selected row, the brand's quiet tint */
+    --brand-hover: 209 31.2% 36.5%; /* #405E7A */
+    /* The tutor's study cards (notes, definitions, steps, answers, quizzes, flashcards…): the New
+       Chat button's --brand, 50 points lighter, same hue and saturation. #E9EEF3, measured: foreground
+       13.35:1, text-secondary 4.86:1, brand 4.52:1, warning 5.39:1, destructive 5.02:1; success is
+       4.36:1, so on a card it colours icons only (their 3:1), never text. */
+    --study-card-background: 210 28.8% 93.5%;
+
+    --radius: 0.5rem;
+
+    /* ---- motion ----
+       One small system for every normal movement (Tailwind: duration-fast|base|slow,
+       ease-standard|enter|exit; the bare `transition` classes use fast + standard, and
+       tailwindcss-animate's enter/exit read the same scale).
+         fast  hover, press, focus, colour, menus, tooltips, and every exit
+         base  dialogs, arrivals, badges, toggles
+         slow  the phone drawer and the sidebar collapse: large surfaces
+       Enter decelerates (arrives fast, lands softly); exit accelerates away; standard is a
+       state changing in place. Only transform and opacity move, except the sidebar's width.
+       Deliberate exceptions: the transcript follows a streaming reply instantly; the composer
+       grows instantly; Settings panes swap instantly; the skeleton, the streaming caret and
+       the typing dots breathe (opacity, gone with their element); toasts (sonner) and the
+       calendar library animate themselves. Reduced motion (below) removes all of it. */
+    --motion-fast: 150ms;
+    --motion-base: 220ms;
+    --motion-slow: 320ms;
+    --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+    /* ---- semantic layer ----
+       `surface` is a well inside a card (list rows, code); `surface-2` is one step deeper, for
+       hover, the student's bubble and skeletons. `text-secondary` names what would otherwise be
+       spelt as an opacity on `--primary`. */
+    --surface: 220 23.1% 97.5%;
+    --surface-2: 210 21.4% 94.5%; /* #EEF1F4 */
+    --text-secondary: 213 9.5% 41.2%; /* #5F6873: 5.32:1 page, 5.65:1 card, 4.99:1 surface-2, 4.96:1 brand-soft */
+
+    /* The one accent: a muted grey sage. Decoration only (the greeting's gradient, the empty
+       state), never a status. 4.90:1 on the page. */
+    --sage: 137.1 6.7% 41.2%; /* #627066 */
+    --sage-soft: 140 11.1% 94.7%;
+    /* Warm ivory, for the empty state's faint warmth. Never behind text. */
+    --ivory: 39.1 56.1% 92%;
+
+    /* The greeting's gradient: deep navy into the brand into sage (every stop and every point
+       between them clears 4.5:1 on the page: e2e/chat-polish.e2e.ts measures the rendered one). */
+    --greeting-from: 211.5 32.3% 24.3%; /* #2A3D52: 10.47:1 */
+    --greeting-via: 210 28.8% 43.5%; /* 4.94:1 */
+    --greeting-to: 137.1 6.7% 41.2%; /* 4.90:1 */
+
+    /* Warm amber. Marks rather than acts: streaks and highlights, never a button. */
+    --accent-warm: 28.6 70% 35.3%; /* #99571B: 5.62:1 on a card, 4.99:1 on its soft */
+    --accent-warm-soft: 31.6 61.3% 93.9%;
+
+    /* Status, kept apart from the brand and from sage on purpose: "this worked" and "this is
+       our colour" are different statements. */
+    --success: 138.6 64.9% 30.2%; /* #1B7F3A: 5.07:1 on a card, 4.6:1 on its soft */
+    --success-soft: 133.3 33.3% 94.7%;
+    --warning: 45.2 100% 23.9%; /* #7A5C00: 6.25:1 on a card */
+    --warning-soft: 43.6 61.1% 92.9%;
+    --info: 210.7 39.8% 40.4%; /* #3E6690: 5.25:1 on its soft */
+    --info-soft: 207.7 44.8% 94.3%;
+
+    /* The learning tools' own colours (preview only), one per tool: muted, never loud. */
+    --accent-purple: 267.3 19.6% 43.9%; /* 5.32:1 on its soft */
+    --accent-purple-foreground: 0 0% 100%;
+    --accent-purple-soft: 265.7 28% 95.1%;
+    --accent-pink: 336.6 36.3% 44.3%; /* 5.27:1 on its soft */
+    --accent-pink-soft: 333.3 36% 95.1%;
+
+    /* The brand's washes (sign-in, error pages) and the preview banners' deep fill. White on
+       the deep fill clears 4.5:1 at both stops. */
+    --hero-from: 210 28.8% 43.5%;
+    --hero-to: 131.5 13.1% 38.8%;
+    --hero-deep-from: 210.7 32.8% 25.7%;
+    --hero-deep-to: 167.1 23% 23.9%;
+    --hero-foreground: 0 0% 100%;
+    --hero-muted: 208.4 37.3% 90%;
+
+    /* Amber fill behind the streak's flame. Decorative only, never text. */
+    --streak: 36.9 69.6% 51%;
+
+    /* The streak celebrations' flame (features/streak/celebrations), as the owner's animations
+       draw it. Decorative only, never text. The flame keeps its colours in dark mode; the soft
+       accent (the check's circle) and the muted, resting flame get darker twins there. */
+    --flame: 24.6 86.9% 61%; /* #F28C45 */
+    --flame-tip: 23 100% 73.9%; /* #FFAD7A */
+    --flame-gold: 36.1 100% 71%; /* #FFC46B */
+    --flame-gold-tip: 36.3 100% 85.1%; /* #FFE1B3 */
+    --accent-soft: 207.3 45.8% 90.6%; /* #DCE8F2 */
+    --flame-muted: 209.3 42.3% 81%; /* #BACFE3 */
+
+    /* Chart series, in this order (never cycled): a categorical palette checked for colour-blind
+       and normal-vision separation of neighbours (the dataviz reference order, slots 1-6). Some
+       sit under 3:1 on a card, so every chart also has a legend, tooltips and a data table. */
+    --chart-1: 212.8 67.7% 50.2%; /* blue #2A78D6 */
+    --chart-2: 17 82.1% 56.3%; /* orange #EB6834 */
+    --chart-3: 158.5 73.3% 39.6%; /* aqua #1BAF7A */
+    --chart-4: 40.8 100% 46.5%; /* yellow #EDA100 */
+    --chart-5: 337.4 70.3% 69.6%; /* magenta #E87BA4 */
+    --chart-6: 120 100% 25.7%; /* green #008300 */
+
+    /* The scrim behind a modal. Not `bg-foreground/x`, which inverts, so dark
+       mode would get a WHITE veil. */
+    --overlay: 215 21.4% 11%;
+  }
+
+  .dark {
+    /* Near-black with a blue cast, not pure black: black crushes every edge, so surfaces could
+       no longer be told apart. */
+    --background: 225 21.1% 7.5%; /* #0F1117 */
+    --foreground: 216 33.3% 97.1%; /* #F5F7FA: 17.58:1 */
+
+    --card: 222 17.9% 11%; /* #171A21 */
+    --card-foreground: 216 33.3% 97.1%; /* 16.22:1 */
+    --popover: 222 17.9% 11%;
+    --popover-foreground: 216 33.3% 97.1%;
+
+    --primary: 216 33.3% 97.1%;
+    --primary-foreground: 225 21.1% 7.5%;
+
+    --secondary: 221.5 17.8% 14.3%;
+    --secondary-foreground: 216.9 23.6% 89.2%; /* 12.24:1 */
+    --muted: 221.5 17.8% 14.3%;
+    --muted-foreground: 220 15.4% 69.4%;
+    --accent: 221.5 17.8% 14.3%;
+    --accent-foreground: 216 33.3% 97.1%;
+
+    --destructive: 351 77% 72.7%; /* #EF8494: 7.53:1 on the page, carrying dark text */
+    --destructive-foreground: 225 21.1% 7.5%;
+
+    --border: 220 15.5% 19%; /* #292E38 */
+    --input: 218.4 10.8% 45.3%; /* #677080: 3.48:1 on a card, 3.78:1 on the page */
+    --ring: 210.5 32.5% 66.9%; /* 7.85:1 */
+
+    /* A lighter, softer slate blue with DARK text on it: 7.85:1 as text, 6.35:1 on its soft,
+       7.85:1 as a button (9.78:1 hovered). */
+    --brand: 210.5 32.5% 66.9%; /* #8FAAC6 */
+    --brand-foreground: 225 21.1% 7.5%;
+    --brand-soft: 213.9 29.1% 15.5%; /* #1C2633 */
+    --brand-hover: 211.3 35.4% 74.5%;
+    /* The dark brand 50 points darker, toward the dark surface: a quiet slate-blue card. */
+    --study-card-background: 210.5 32.5% 16.9%;
+
+    --surface: 220 19.1% 9.2%;
+    --surface-2: 221.5 17.8% 14.3%; /* #1E222B */
+    --text-secondary: 220 15.4% 69.4%; /* #A5ADBD: 8.37:1 page, 7.72:1 card, 7.06:1 surface-2 */
+
+    --sage: 130 7.3% 67.8%; /* #A7B3A9 */
+    --sage-soft: 140 10.3% 11.4%;
+    --ivory: 38.8 25.4% 13.1%;
+
+    --greeting-from: 212.3 31.7% 92%;
+    --greeting-via: 210.6 37.6% 75.5%;
+    --greeting-to: 132 11.1% 73.5%;
+
+    --accent-warm: 29.1 71.9% 65.1%; /* 8.18:1 */
+    --accent-warm-soft: 27 35.7% 11%;
+
+    /* Soft variants are dim tints, not pale washes, and foregrounds lighten:
+       a naive inversion vibrates against the surface. */
+    --success: 113 55.7% 63.7%; /* #7BD66F */
+    --success-soft: 128 27.3% 10.8%;
+    --warning: 41.8 72.5% 64.3%; /* #E6BE62 */
+    --warning-soft: 43.6 40.7% 10.6%;
+    --info: 210.9 44.6% 71%;
+    --info-soft: 213.6 35.2% 13.9%;
+
+    --accent-purple: 267 28.2% 72.2%;
+    --accent-purple-foreground: 225 21.1% 7.5%;
+    --accent-purple-soft: 263.1 20% 12.7%;
+    --accent-pink: 335.6 46.4% 72.9%;
+    --accent-pink-soft: 332 24.6% 12%;
+
+    --hero-from: 209 31.2% 36.5%;
+    --hero-to: 137.4 19.7% 30.8%;
+    --hero-deep-from: 212.6 32.7% 21%;
+    --hero-deep-to: 162.5 26.1% 18%;
+    --hero-foreground: 0 0% 100%;
+    --hero-muted: 208.4 37.3% 90%;
+
+    --streak: 36.9 69.6% 51%;
+
+    --flame: 24.6 86.9% 61%; /* #F28C45 */
+    --flame-tip: 23 100% 73.9%; /* #FFAD7A */
+    --flame-gold: 36.1 100% 71%; /* #FFC46B */
+    --flame-gold-tip: 36.3 100% 85.1%; /* #FFE1B3 */
+    --accent-soft: 213.3 32.1% 22%; /* #26364A */
+    --flame-muted: 212.3 24.2% 31.6%; /* #3D4F64 */
+
+    --chart-1: 212.8 76.8% 56.1%; /* #3987E5 */
+    --chart-2: 17.1 70.2% 50%; /* #D95926 */
+    --chart-3: 159.2 72.7% 35.9%; /* #199E70 */
+    --chart-4: 39.7 100% 39.4%; /* #C98500 */
+    --chart-5: 338.2 61.1% 57.6%; /* #D55181 */
+    --chart-6: 120 100% 25.7%; /* #008300 */
+
+    --overlay: 216 33.3% 2.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    /* Body text: Noto Sans 16px / 400 / 1.65, -0.005em (tailwind.config.ts, `text-base`). */
+    @apply bg-background text-base font-normal text-foreground;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Selected text in the brand's tint, not the browser's saturated default blue. */
+  ::selection {
+    background-color: hsl(var(--brand) / 0.25);
+  }
+  /* Tabular contexts read counts down a column. */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Touch: the press states are the feedback, not the browser's grey tap flash, and a tap
+     is never held back waiting to see if it becomes a double-tap zoom. */
+  a,
+  button,
+  [role="button"],
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+@layer utilities {
+  /**
+   * Elevation, barely there: borders do the separating, a shadow only says "this sits above".
+   * Tinted with the navy of the text, so a raised surface reads as lifted, not smudged.
+   *   1  cards, the composer, the primary sidebar action
+   *   2  menus and popovers
+   *   3  dialogs
+   */
+  .elev-1 {
+    box-shadow: 0 1px 2px 0 hsl(213 15% 15% / 0.05);
+  }
+  .elev-2 {
+    box-shadow:
+      0 4px 12px -2px hsl(213 15% 15% / 0.08),
+      0 2px 4px -2px hsl(213 15% 15% / 0.05);
+  }
+  .elev-3 {
+    box-shadow:
+      0 20px 32px -8px hsl(213 15% 15% / 0.14),
+      0 8px 12px -6px hsl(213 15% 15% / 0.06);
+  }
+  .dark .elev-1 {
+    box-shadow: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
+  }
+  .dark .elev-2 {
+    box-shadow:
+      0 4px 6px -1px hsl(0 0% 0% / 0.45),
+      0 2px 4px -2px hsl(0 0% 0% / 0.35);
+  }
+  .dark .elev-3 {
+    box-shadow:
+      0 20px 25px -5px hsl(0 0% 0% / 0.55),
+      0 8px 10px -6px hsl(0 0% 0% / 0.45);
+  }
+
+  /**
+   * The page ground behind sign-in and the error screens: two faint pools of
+   * the brand's own colours, slate blue from the top left and sage from the top
+   * right. No image, nothing to download.
+   *
+   * Fixed and pointer-events-none at the call site, so it never participates
+   * in layout or interaction.
+   */
+  .backdrop-wash {
+    background-image:
+      radial-gradient(
+        60rem 40rem at 12% -10%,
+        hsl(var(--hero-from) / 0.1),
+        transparent 60%
+      ),
+      radial-gradient(
+        50rem 34rem at 92% -6%,
+        hsl(var(--hero-to) / 0.08),
+        transparent 60%
+      );
+  }
+  .dark .backdrop-wash {
+    background-image:
+      radial-gradient(
+        60rem 40rem at 12% -10%,
+        hsl(var(--hero-from) / 0.16),
+        transparent 60%
+      ),
+      radial-gradient(
+        50rem 34rem at 92% -6%,
+        hsl(var(--hero-to) / 0.12),
+        transparent 60%
+      );
+  }
+
+  /** The brand gradient as a fill, and its deeper banner version. */
+  .bg-hero {
+    background-image: linear-gradient(
+      to top right,
+      hsl(var(--hero-from)),
+      hsl(var(--hero-to))
+    );
+  }
+  .bg-hero-deep {
+    background-image: linear-gradient(
+      to right,
+      hsl(var(--hero-deep-from)),
+      hsl(var(--hero-deep-to))
+    );
+  }
+
+  /**
+   * FOCUS. One intent, three geometries.
+   *
+   * `--ring` is the acting slate blue, and it clears 3:1 against both the page and
+   * a card — the WCAG 1.4.11 bar for a non-text indicator.
+   */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+  /* In a field. An offset ring in a stacked form draws over the field above. */
+  .focus-field {
+    @apply focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25;
+  }
+  /* Inside an overflow-hidden parent, where an offset ring is clipped away. */
+  .focus-ring-inset {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:ring-offset-0;
+  }
+
+  /* Windows otherwise renders a 17px grey slab beside the transcript. */
+  .scrollbar-subtle {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  .scrollbar-subtle::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-subtle::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-subtle::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  .scrollbar-subtle::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--text-secondary) / 0.45);
+    background-clip: content-box;
+  }
+
+  /* One assistant message settling into place. Short and small on purpose — longer reads as a transition rather than an
+     arrival. */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-rise-in {
+    animation: rise-in var(--motion-base) var(--ease-enter) both;
+  }
+
+  /* Skeletons and the streaming caret. A gentle breath, not a strobe. */
+  @keyframes soft-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+  .animate-soft-pulse {
+    animation: soft-pulse 1.6s ease-in-out infinite;
+  }
+
+  /* A new chat's greeting (features/chat/empty-state.tsx): the words arrive one after another,
+     each painted with its slice of ONE gradient across the line (sized and offset per word by the
+     component), deep navy drifting into the brand and then sage. The rendered text clears 4.5:1
+     on the page at every point, in both themes (measured in e2e/chat-polish.e2e.ts). */
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .greeting-word {
+    display: inline-block;
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--greeting-from)),
+      hsl(var(--greeting-via)) 58%,
+      hsl(var(--greeting-to))
+    );
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: word-in 480ms var(--ease-enter) both;
+    animation-delay: calc(var(--word, 0) * 70ms);
+  }
+  @media (forced-colors: active) {
+    .greeting-word {
+      background-image: none;
+      color: CanvasText;
+    }
+  }
+
+  /* A new chat's faint atmosphere (features/chat/chat-view.tsx): a whisper of the brand's blue
+     in the top-left corner and of warmth in the bottom-right, gone once the chat starts. Static
+     (no filter, no animation), kept to the corners, clear of the greeting and the composer, and
+     not drawn at all on short screens. */
+  .empty-atmosphere {
+    background-image:
+      radial-gradient(28rem 18rem at 0% 0%, hsl(var(--brand) / 0.07), transparent 70%),
+      radial-gradient(30rem 20rem at 100% 100%, hsl(var(--streak) / 0.06), transparent 70%);
+  }
+  .dark .empty-atmosphere {
+    background-image:
+      radial-gradient(28rem 18rem at 0% 0%, hsl(var(--brand) / 0.05), transparent 70%),
+      radial-gradient(30rem 20rem at 100% 100%, hsl(var(--streak) / 0.035), transparent 70%);
+  }
+
+  /* A sidebar chat title too long for its row (components/marquee-title.tsx). At rest it is
+     still: one line ending in an ellipsis, nothing moving, no fade. Only while THAT row is
+     hovered (a pointer that can hover) or holds focus does it slide, slowly, to its end and
+     back, after a short hold so a passing pointer never sets it off; then a fade appears on the
+     RIGHT edge only, never the left, so the start of the title is always sharp. Transform only:
+     the compositor moves it. Reduced motion (the device's or the app's) never moves it. */
+  .marquee {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .marquee-track {
+    white-space: nowrap;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) {
+      html:not([data-motion="reduce"]) li:hover .marquee[data-overflowing] {
+        text-overflow: clip;
+        -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+        mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+      }
+      html:not([data-motion="reduce"]) li:hover .marquee[data-overflowing] .marquee-track {
+        display: inline-block;
+        animation: marquee var(--marquee-cycle, 8s) ease-in-out 350ms infinite;
+      }
+    }
+    html:not([data-motion="reduce"]) li:has(:focus-visible) .marquee[data-overflowing] {
+      text-overflow: clip;
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+    }
+    html:not([data-motion="reduce"]) li:has(:focus-visible) .marquee[data-overflowing] .marquee-track {
+      display: inline-block;
+      animation: marquee var(--marquee-cycle, 8s) ease-in-out 350ms infinite;
+    }
+  }
+  @keyframes marquee {
+    0%,
+    20% {
+      transform: translateX(0);
+    }
+    50%,
+    70% {
+      transform: translateX(var(--marquee-shift, 0));
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  /**
+   * PAGE LOAD, set in sequence.
+   *
+   * One orchestrated arrival beats a dozen scattered micro-interactions: the
+   * eye is led down the page in reading order instead of being pulled six ways
+   * at once. Put `.stagger` on a container and its first eight children arrive
+   * 60ms apart.
+   *
+   * `both` fill mode is required — without it each child is briefly painted at
+   * full opacity before its delay starts, which flashes.
+   */
+  @keyframes settle-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .stagger > * {
+    animation: settle-in 420ms var(--ease-enter) both;
+  }
+  .stagger > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .stagger > *:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .stagger > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .stagger > *:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .stagger > *:nth-child(5) {
+    animation-delay: 240ms;
+  }
+  .stagger > *:nth-child(6) {
+    animation-delay: 300ms;
+  }
+  .stagger > *:nth-child(7) {
+    animation-delay: 360ms;
+  }
+  .stagger > *:nth-child(8) {
+    animation-delay: 420ms;
+  }
+
+  /* REDUCED MOTION, APPLIED TO EVERYTHING — not just our own classes.
+   *
+   * Someone who sets this preference frequently does so because motion makes
+   * them ill. Honouring it for a few hand-written classes
+   * and ignoring it for the rest of the interface is not a partial win. This
+   * is why the new staggered page-load above is opt-out by default rather than
+   * something that has to be remembered per screen.
+   *
+   * `!important` because the utilities this overrides are single declarations
+   * of equal specificity. `0.01ms` rather than `none` so animations still FIRE
+   * and their `animationend` handlers still run — several Radix components
+   * unmount on that event, and killing the animation outright can leave a
+   * dialog on screen forever.
+   *
+   * `animation-delay: 0ms` is new and load-bearing for `.stagger`: clamping
+   * only the DURATION would leave an element invisible for its full delay,
+   * which turns a considered sequence into a blank screen.
+   *
+   * `scroll-behavior: auto` matters too — smooth scrolling on the chat
+   * transcript is motion the reader did not ask for. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    /* Transforms are the part that actually causes discomfort, so the lifts,
+       press-scales and staggered arrivals are removed outright rather than
+       sped up. */
+    .animate-rise-in,
+    .animate-soft-pulse,
+    .stagger > *,
+    .greeting-word,
+    .marquee-track {
+      animation: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/**
+ * Appearance settings (Settings > Appearance & Accessibility), set as attributes on <html>
+ * by apps/app/src/lib/appearance.ts: before the first paint from the last visit, then from the
+ * account (the same on every device).
+ */
+@layer base {
+  /* Text size: every size in the app is in rem, so this scales all of it together. */
+  html[data-font-size="small"] {
+    font-size: 87.5%;
+  }
+  html[data-font-size="large"] {
+    font-size: 112.5%;
+  }
+  html[data-font-size="x_large"] {
+    font-size: 125%;
+  }
+
+  /* A text field under 16px makes iOS zoom the page in when it takes focus, and the page stays
+     zoomed after the keyboard closes ("small" text size makes 1rem 14px). On touch screens every
+     text field is at least 16px, whatever the text size or the field's own class (the :not() lifts
+     these above a utility class). Pinch-zoom is untouched. */
+  @media (pointer: coarse) {
+    input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="button"], [type="submit"], [type="reset"], [type="image"], [type="hidden"]),
+    textarea:not([hidden]),
+    select:not([hidden]) {
+      font-size: max(16px, 1rem);
+    }
+  }
+
+  /* High contrast: secondary text moves most of the way to the main text colour, and every
+     edge (borders, field outlines) becomes clearly visible. Measured: light, text #3B434D
+     9.43:1 on the page and 10.02:1 on a card, edges #66707D 5.02:1 on a card; dark, text
+     #D0D6DF 12.91:1 on the page and 11.91:1 on a card, edges #9AA3B2 6.83:1 on a card. The
+     dark rule is more specific, so it wins over the light one there. */
+  html[data-contrast="high"] {
+    --text-secondary: 213.3 13.2% 26.7%;
+    --muted-foreground: 213.3 13.2% 26.7%;
+    --border: 213.9 10.1% 44.5%;
+    --input: 213.9 10.1% 44.5%;
+  }
+  html.dark[data-contrast="high"] {
+    --text-secondary: 216 19% 84.5%;
+    --muted-foreground: 216 19% 84.5%;
+    --border: 217.5 13.5% 65.1%;
+    --input: 217.5 13.5% 65.1%;
+  }
+
+  /* Reduce motion, chosen in the app: the same as the prefers-reduced-motion rules above,
+     for a device that does not ask for it. */
+  html[data-motion="reduce"] *,
+  html[data-motion="reduce"] *::before,
+  html[data-motion="reduce"] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html[data-motion="reduce"] .animate-rise-in,
+  html[data-motion="reduce"] .animate-soft-pulse,
+  html[data-motion="reduce"] .stagger > *,
+  html[data-motion="reduce"] .greeting-word,
+  html[data-motion="reduce"] .marquee-track {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Reading comfort: more space between lines, letters and words in the tutor's answers. */
+  html[data-reading="comfort"] .message-content {
+    line-height: 1.85;
+    letter-spacing: 0.012em;
+    word-spacing: 0.06em;
+  }
+}
+
+/* Toasts (sonner) in the design system's colours, following the app's own theme: sonner's
+   built-in palettes (and its default light theme in a dark app) match neither. Unlayered and
+   more specific than sonner's `[data-sonner-toaster][data-sonner-theme=…]`, which sonner injects
+   at runtime, so these always win. Every text/background pair is a measured token pair. */
+:root [data-sonner-toaster][data-sonner-theme] {
+  --normal-bg: hsl(var(--popover));
+  --normal-border: hsl(var(--border));
+  --normal-text: hsl(var(--popover-foreground));
+  --success-bg: hsl(var(--success-soft));
+  --success-border: hsl(var(--success) / 0.25);
+  --success-text: hsl(var(--success));
+  --info-bg: hsl(var(--info-soft));
+  --info-border: hsl(var(--info) / 0.25);
+  --info-text: hsl(var(--info));
+  --warning-bg: hsl(var(--warning-soft));
+  --warning-border: hsl(var(--warning) / 0.25);
+  --warning-text: hsl(var(--warning));
+  --error-bg: color-mix(in srgb, hsl(var(--destructive)) 8%, hsl(var(--card)));
+  --error-border: hsl(var(--destructive) / 0.3);
+  --error-text: hsl(var(--destructive));
+}
