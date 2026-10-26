@@ -45,6 +45,7 @@ from app.intents.taxonomy import BANK_INTENTS, INTENTS
 from app.learning.context import StudentContext, read_student_context
 from app.llm.base import ChatMessage, GenerationOptions, LLMError
 from app.logging import get_logger, request_id_var
+from app.memory.recall import MemoryRecall
 from app.progress.activity import record_question
 from app.progress.learning import is_meaningful, now, record_learning, tutor_progress
 from app.qbank import chat_tests
@@ -163,6 +164,7 @@ class ChatService:
         rag_graph,
         generations: ActiveGenerations,
         intents: IntentClassifier | None = None,
+        memory: MemoryRecall | None = None,
         voice: VoiceProvider | None = None,
         voice_budget: SpeechBudget | None = None,
     ) -> None:
@@ -171,6 +173,7 @@ class ChatService:
         self.rag_graph = rag_graph  # compiled LangGraph graph (app.rag.graph.build_rag_graph)
         self.generations = generations
         self.intents = intents  # None: no classifier (INTENT_ROUTER off, or no key)
+        self.memory = memory
         self.voice = voice  # voice mode's speech (app/voice): the first words of a voice reply (_speak_first)
         self.voice_budget = voice_budget
 
@@ -234,6 +237,17 @@ class ChatService:
             session, user.id, user.timezone, self.settings.default_timezone, now(), asked_at
         )
         return await read_student_context(session, user.id, progress)
+
+    async def _memories(self, user_id: uuid.UUID, query: str):
+        return () if self.memory is None else await self.memory.recall(user_id, query)
+
+    @staticmethod
+    def _memory_context(memories) -> str:
+        lines = []
+        for item in memories:
+            content = " ".join(item.content.replace('"', "'").split())
+            lines.append(f'- [{item.kind}] "{content}"')
+        return "\n".join(lines)
 
     def _config(
         self,
@@ -707,9 +721,13 @@ class ChatService:
             else self.settings.llm_temperature,
             max_output_tokens=self.settings.llm_max_output_tokens,
         )
+        query = turn.user_message.content if turn.user_message is not None else ""
         try:
             async with self.db.sessionmaker() as session:
                 conversation = await self._conversation(session, turn.conversation.id)
+            if not query:
+                query = next((message.content for message in reversed(conversation) if message.role == "user"), "")
+            memories = await self._memories(turn.user.id, query)
             # Voice turns (VOICE_PARALLEL_ROUTING): the router's reading and the knowledge search start now, beside the
             # study scope, not after it: the same requests on the same words, so the same decisions (OllaLink answers
             # them one after another anyway). A redirect cancels both; an intent that turns the search off drops it.
@@ -721,6 +739,7 @@ class ChatService:
                         {
                             "user_id": turn.user.id,
                             "conversation": conversation,
+                            "memory_context": self._memory_context(memories),
                             "retrieval": prepared,
                             "files": turn.files,
                         }
@@ -758,6 +777,7 @@ class ChatService:
                             {
                                 "user_id": turn.user.id,
                                 "conversation": conversation,
+                                "memory_context": self._memory_context(memories),
                                 "retrieval": prepared,
                                 "files": turn.files,
                             }
@@ -769,6 +789,7 @@ class ChatService:
                     "user_id": turn.user.id,
                     "conversation": conversation,
                     "system_prompt": config.system_prompt,
+                    "memory_context": self._memory_context(memories),
                     "retrieval": config.retrieval,
                     "generation": options,
                     "files": turn.files,

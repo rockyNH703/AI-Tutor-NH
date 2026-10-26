@@ -1,10 +1,12 @@
 """Alembic environment (async, asyncpg).
 
-The URL is taken, in order, from `alembic -x url=...`, then the application
-settings (DATABASE_URL / .env). Nothing is hard-coded.
+The URL is taken, in order, from `alembic -x url=...`, `MIGRATION_DATABASE_URL`, then the
+application settings (`DATABASE_URL` / `.env`). Production uses the dedicated migration owner;
+development and tests remain compatible with `DATABASE_URL` alone.
 """
 
 import asyncio
+import os
 
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -18,7 +20,11 @@ target_metadata = Base.metadata
 
 
 def _url() -> str:
-    return context.get_x_argument(as_dictionary=True).get("url") or get_settings().database_url
+    return (
+        context.get_x_argument(as_dictionary=True).get("url")
+        or os.environ.get("MIGRATION_DATABASE_URL")
+        or get_settings().database_url
+    )
 
 
 def run_migrations_offline() -> None:

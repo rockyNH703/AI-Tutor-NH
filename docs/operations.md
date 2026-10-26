@@ -24,7 +24,7 @@ One Ubuntu host, supervised by systemd, serving one checkout of `main` (`/opt/ai
 flowchart LR
   U[Students] --> CF[Cloudflare Tunnel<br/>web hostname only] --> WEB[aichat-web :3000<br/>Next.js on pinned Node]
   WEB -->|loopback| API[aichat-api :4100<br/>uvicorn, one process]
-  API --> PG[(aichat-postgres :5432<br/>PostgreSQL 16 + pgvector, Docker)]
+  API --> PG[(padhai-postgres :55432<br/>isolated PostgreSQL 16 + pgvector, Docker)]
   WEB --> PG
   API -.->|per file| EX[aichat-extract-*<br/>sandboxed transient units]
   T1[aichat-pg-backup.timer<br/>nightly] --> PG

@@ -232,13 +232,13 @@ Read it before changing any of them. A decision marked **owner's rule** changes 
   - a rollback runs older code on the newer schema.
 - **Evidence:** [CLAUDE.md](../CLAUDE.md), "Schema changes"; [deployment.md](deployment.md).
 
-### Backups hold no way into an account, and none of the NCERT data
+### Backups hold no way into an account, and the cluster is PadhAI-only
 
-- **Why:** a copy on disk must never let someone sign in; and the NCERT service owns its own backups.
+- **Why:** a copy on disk must never let someone sign in; unrelated services must not share the
+  PadhAI database or backup lifecycle.
 - **Evidence:**
-  - `deploy/backup.sh`: no rows from `auth_sessions`, `auth_verifications` or `file_chunks`, and no
-    `ncert_knowledge` schema;
-  - `1cdcb67` (2026-10-15; the owner's decision).
+  - `deploy/backup.sh`: no rows from `auth_sessions`, `auth_verifications` or `file_chunks`;
+  - `deploy/compose/docker-compose.yml`: dedicated PadhAI project, network and volume.
 - **Cost:** after a restore, everyone signs in again, and files are read again.
 
 ## Production and operations

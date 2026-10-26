@@ -19,13 +19,14 @@ server/install-units.sh            installs changed units + the shared PostgreSQ
 install.sh                         one-time host preparation (packages incl. git, pinned Bun + Node, dirs, units, database)
 infra-check.sh                     read-only health report: status.sh + ports, database, backups
 backup.sh                          pg_dump + rotation (nightly, and before every migration); restore steps in its header
-compose/docker-compose.yml         PostgreSQL 16 + pgvector; project/volume names pinned
+database-grants.sh                 reapplies restricted API runtime grants after migrations
+compose/docker-compose.yml         isolated PostgreSQL 16 + pgvector; PadhAI project/network/volume names pinned
 systemd/aichat-api.service         the API from /opt/aichat/app/backend, 127.0.0.1:4100
 systemd/aichat-web.service         the web app from /opt/aichat/app/frontend/apps/app on its pinned Node, 127.0.0.1:3000
 systemd/aichat-postgres.service    the database (from /opt/aichat/shared/postgres, never part of a deploy)
 systemd/aichat-pg-backup.{service,timer}   nightly backup at 03:15
 systemd/aichat-jobs.{service,timer}         the jobs worker, once a minute; installed, NOT enabled (docs/deployment.md)
-env/{postgres,api,web}.env.example templates for /etc/aichat/*.env (chmod 600, never in git)
+env/{postgres,migration,api,web}.env.example templates for /etc/aichat/*.env (chmod 600, never in git)
 cloudflared/config.yml.template    ingress: the web app hostname only
 verify.mjs, verify/                optional: `bun run verify` runs CI's three jobs locally in a Linux container
 ci-gate.mjs                        GitHub CI's verdict on a commit, shown by `bun run status` (advisory)
@@ -41,5 +42,5 @@ Host layout:
 /opt/aichat/app-state/           what each part runs (content keys), deployed, previous, HISTORY
 /opt/aichat/runtime/             the pinned Node versions (checksum-verified downloads)
 /opt/aichat/shared/postgres/     database compose file + backup script
-/etc/aichat/{api,web,postgres}.env   secrets and settings, never in git, never touched by a deploy
+/etc/aichat/{api,web,postgres,migration}.env   secrets and settings, never in git, never touched by a deploy
 ```

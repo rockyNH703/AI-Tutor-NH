@@ -68,6 +68,8 @@ def test_production_refuses_unsafe_configuration():
         create_app(make_settings(**{**PRODUCTION_LIKE, "llm_provider": "fake"}))
     with pytest.raises(RuntimeError, match="EMBEDDING_PROVIDER=fake"):
         create_app(make_settings(**{**PRODUCTION_LIKE, "embedding_provider": "fake"}))
+    with pytest.raises(RuntimeError, match="MEMORY_RECALL_ENABLED requires MEMORY_ENABLED"):
+        create_app(make_settings(**{**PRODUCTION_LIKE, "memory_enabled": False, "memory_recall_enabled": True}))
     with pytest.raises(RuntimeError, match="APP_NAME must be PadhAI"):
         create_app(make_settings(**{**PRODUCTION_LIKE, "app_name": "Assistant"}))
     with pytest.raises(RuntimeError, match="PUBLIC_APP_URL must be a bare HTTPS origin"):

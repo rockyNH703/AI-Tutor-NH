@@ -1,26 +1,27 @@
-# Production PostgreSQL 16 + pgvector: the single source of truth for all application data.
+# Production PostgreSQL 16 + pgvector: the isolated PadhAI datastore.
 #
 # Started by aichat-postgres.service:
 #   docker compose --env-file /etc/aichat/postgres.env -f deploy/compose/docker-compose.yml up -d
 #
-# Binds to 127.0.0.1 only. The volume IS the database: never `docker compose down -v`.
-# Backups: aichat-pg-backup.timer runs deploy/backup.sh (pg_dump) nightly.
+# Binds to a configurable loopback-only host port. The volume IS the database: never
+# `docker compose down -v`. Backups: aichat-pg-backup.timer runs deploy/backup.sh nightly.
 #
-# The project and volume names are PINNED to the values production already uses. Compose
-# would otherwise derive them from this folder's name, so moving or renaming the folder
-# would silently start a NEW, EMPTY database. Never change these two names.
-name: compose
+# Project, network and volume names are explicit and PadhAI-specific. Never reuse them for
+# another application or change them on an existing installation: a different volume is empty.
+name: padhai-postgres
 services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?set in /etc/aichat/postgres.env}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in /etc/aichat/postgres.env}
-      POSTGRES_DB: ${POSTGRES_DB:-aichat}
+      POSTGRES_DB: ${POSTGRES_DB:-padhai}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -29,6 +30,10 @@ services:
     restart: unless-stopped
     stop_grace_period: 30s
 
+networks:
+  postgres:
+    name: padhai_postgres_network
+
 volumes:
   pgdata:
-    name: compose_pgdata
+    name: padhai_postgres_data

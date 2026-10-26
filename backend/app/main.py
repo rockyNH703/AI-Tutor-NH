@@ -43,6 +43,8 @@ from app.learning.router import router as learning_router
 from app.llm.base import LLMProvider
 from app.llm.factory import build_llm
 from app.logging import configure_logging, get_logger
+from app.memory.recall import MemoryRecall
+from app.memory.router import router as memory_router
 from app.middleware import ClassifierWarmMiddleware, RequestContextMiddleware
 from app.notifications.router import router as notifications_router
 from app.progress.router import router as progress_router
@@ -168,12 +170,14 @@ def create_app(
             else None
         )
         app.state.classifier = classifier  # nudged by signed-in requests (ClassifierWarmMiddleware)
+        app.state.memory_recall = MemoryRecall(app.state.db, settings, app.state.embeddings)
         app.state.chat = ChatService(
             app.state.db,
             settings,
             app.state.rag_graph,
             app.state.generations,
             classifier,
+            memory=app.state.memory_recall,
             voice=app.state.voice,
             voice_budget=app.state.voice_budget,
         )
@@ -281,6 +285,7 @@ def create_app(
     app.include_router(auth_router)
     app.include_router(internal_auth_router)
     app.include_router(conversations_router)
+    app.include_router(memory_router)
     app.include_router(chat_router)
     app.include_router(learning_router)
     app.include_router(progress_router)

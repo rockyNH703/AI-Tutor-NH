@@ -176,6 +176,78 @@ def test_migration_0010_upgrades_downgrades_and_upgrades_again_without_touching_
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 
 
+MEMORY = "0018_memory_items"
+
+
+def test_migration_0018_adds_and_removes_memory_without_touching_existing_data():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", "0017_learning_engine")
+        run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Existing student')",
+                "memory-existing@example.com",
+            )
+        )
+        before = run(_snapshot(("memory_items",)))
+
+        alembic("upgrade", MEMORY)
+        assert run(_query("SELECT to_regclass('public.memory_items') AS t"))[0]["t"] == "memory_items"
+        vector_type = run(
+            _query(
+                "SELECT format_type(atttypid, atttypmod) AS t FROM pg_attribute "
+                "WHERE attrelid = 'memory_items'::regclass AND attname = 'embedding'"
+            )
+        )[0]["t"]
+        assert vector_type == "vector(1536)"
+        constraints = {
+            row["conname"]: row["contype"]
+            for row in run(
+                _query(
+                    "SELECT conname, contype::text AS contype FROM pg_constraint "
+                    "WHERE conrelid = 'memory_items'::regclass"
+                )
+            )
+        }
+        assert constraints == {
+            "pk_memory_items": "p",
+            "fk_memory_items_user_id_users": "f",
+            "fk_memory_items_supersedes_id_memory_items": "f",
+            "fk_memory_items_source_message_id_messages": "f",
+            "ck_memory_items_kind": "c",
+            "ck_memory_items_status": "c",
+            "ck_memory_items_content_length": "c",
+            "ck_memory_items_version": "c",
+            "ck_memory_items_expires_after_create": "c",
+            "uq_memory_items_supersedes_id": "u",
+        }
+        indexes = {
+            row["indexname"] for row in run(_query("SELECT indexname FROM pg_indexes WHERE tablename = 'memory_items'"))
+        }
+        assert {
+            "uq_memory_items_active_content",
+            "ix_memory_items_user_status_updated",
+            "ix_memory_items_user_kind_status",
+        } <= indexes
+        after = run(_snapshot(("memory_items",)))
+        assert {t: v for t, v in after.items() if t != "alembic_version"} == {
+            t: v for t, v in before.items() if t != "alembic_version"
+        }
+
+        alembic("downgrade", "0017_learning_engine")
+        assert run(_query("SELECT to_regclass('public.memory_items') AS t"))[0]["t"] is None
+        down = run(_snapshot(("memory_items",)))
+        assert {t: v for t, v in down.items() if t != "alembic_version"} == {
+            t: v for t, v in before.items() if t != "alembic_version"
+        }
+
+        alembic("upgrade", "head")
+        assert run(_query("SELECT count(*) AS n FROM memory_items"))[0]["n"] == 0
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
 AUTH_BEFORE = "0011_notification_cleared_at"
 AUTH_AFTER = "0012_better_auth"
 

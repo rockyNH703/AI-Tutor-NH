@@ -59,6 +59,12 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
     # Something in every place a user can own data today.
     _, events = await stream_chat(client, headers, "Something to remember")  # conversation, messages, usage
     message_id = events[-1][1]["message"]["id"]
+    memory = await client.post(
+        "/v1/memories",
+        json={"kind": "learning_context", "content": "Use train examples for probability."},
+        headers=headers,
+    )
+    assert memory.status_code == 201, memory.text
     feedback = await client.put(f"/v1/messages/{message_id}/feedback", json={"rating": "up"}, headers=headers)
     assert feedback.status_code == 200
     assert (await client.patch("/v1/me/settings", json={"preferences": {"k": "v"}}, headers=headers)).status_code == 200

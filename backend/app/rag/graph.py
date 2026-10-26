@@ -57,6 +57,9 @@ class TurnState(TypedDict, total=False):
     user_id: uuid.UUID | None
     conversation: list[ChatMessage]  # oldest first; the last item is the new user message
     system_prompt: str
+    # Optional, already bounded personal-memory background. It is rendered as a separate
+    # untrusted system data block by app.rag.context, never as application policy.
+    memory_context: str
     retrieval: RetrievalOptions | None
     generation: GenerationOptions
     # files attached to this conversation that the turn may read (app/files): dicts with
@@ -214,6 +217,7 @@ def build_rag_graph(deps: RagDependencies):
             state.get("documents") or [],
             max_input_chars=settings.llm_max_input_chars,
             max_context_chars=settings.rag_max_context_chars,
+            memory_context=state.get("memory_context") or "",
             attached_files=state.get("files") or [],
             file_documents=state.get("file_documents") or [],
             max_file_chars=FILES_MAX_CONTEXT_CHARS,
@@ -223,6 +227,7 @@ def build_rag_graph(deps: RagDependencies):
             "sources": prompt.sources,
             "fileSources": prompt.file_sources,
             "contextChars": prompt.context_chars,
+            "memoryChars": prompt.memory_chars,
             "fileChars": prompt.file_chars,
             "promptChars": prompt.prompt_chars,
             "historyKept": prompt.history_kept,
@@ -235,6 +240,7 @@ def build_rag_graph(deps: RagDependencies):
                 "retrieval_status": summary["status"],
                 "context_sources": len(prompt.sources),
                 "context_chars": prompt.context_chars,
+                "memory_chars": prompt.memory_chars,
                 "prompt_chars": prompt.prompt_chars,
                 "history_kept": prompt.history_kept,
                 "history_dropped": prompt.history_dropped,

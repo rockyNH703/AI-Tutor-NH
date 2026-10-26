@@ -14,6 +14,8 @@ from urllib.parse import urlsplit
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.db.models import MEMORY_MAX_CONTENT_CHARS
+
 # Placeholder for development only; validate_for_env() refuses it in production.
 DEV_SECRET_KEY = "dev-only-secret-change-me"  # noqa: S105
 
@@ -225,6 +227,20 @@ class Settings(BaseSettings):
     embedding_batch_size: int = 64
     embedding_timeout_s: float = 20.0
 
+    # ---- explicit personal memory (app/memory) ----
+    # User-controlled CRUD is independent from chat recall, which remains off until evaluated.
+    memory_enabled: bool = True
+    memory_recall_enabled: bool = False
+    memory_max_item_chars: int = Field(default=MEMORY_MAX_CONTENT_CHARS, ge=100, le=MEMORY_MAX_CONTENT_CHARS)
+    memory_recall_limit: int = Field(default=4, ge=1, le=10)
+    memory_recall_candidates: int = Field(default=12, ge=1, le=50)
+    memory_recall_per_kind: int = Field(default=2, ge=1, le=10)
+    memory_max_context_chars: int = Field(default=1_200, ge=100, le=8_000)
+    # Disabled-by-default recall has a smaller deadline than knowledge retrieval; it is optional
+    # personalization and must not add a provider-scale delay to every chat turn.
+    memory_recall_timeout_s: float = Field(default=2.0, gt=0, le=10)
+    memory_min_score: float = Field(default=0.45, ge=0, le=1)
+
     # ---- user files: File Library and chat attachments (app/files) ----
     # Off = no uploads and no processing; READY attachments keep answering. Text chat never
     # depends on files, and no files setting can stop the API from starting.
@@ -373,6 +389,10 @@ class Settings(BaseSettings):
             problems.append("PUBLIC_APP_URL must be a bare HTTPS origin")
         if self.rag_enabled and self.embedding_provider == "fake":
             problems.append("EMBEDDING_PROVIDER=fake is not allowed in production while RAG is enabled")
+        if self.memory_recall_enabled and not self.memory_enabled:
+            problems.append("MEMORY_RECALL_ENABLED requires MEMORY_ENABLED")
+        if self.memory_recall_enabled and self.embedding_provider == "fake":
+            problems.append("EMBEDDING_PROVIDER=fake is not allowed in production while memory recall is enabled")
         if self.ncert_kb_base_url and not self.ncert_kb_base_url.startswith(
             ("https://", "http://127.0.0.1:", "http://localhost:")
         ):

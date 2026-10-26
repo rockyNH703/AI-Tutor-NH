@@ -37,7 +37,7 @@ Browser ──► Web app (Next.js, frontend/; 127.0.0.1:3000)
                ├─ rag             LangGraph turn graph + LangChain retriever over pgvector (docs/rag.md)
                └─ llm             LLMProvider protocol → OpenAI-compatible providers
                ▼
-            PostgreSQL 16 + pgvector (127.0.0.1:5432) — the single source of truth
+            PostgreSQL 16 + pgvector (loopback, default 127.0.0.1:55432) — isolated PadhAI data
             SMTP or Ollastack mail (codes)           LLM APIs: Ollima (primary), OpenRouter (fallback)
                                                      Embeddings API: OpenAI-compatible (text-embedding-3-small)
 ```

@@ -11,16 +11,16 @@
 
 | Unit | Listens | What |
 |---|---|---|
-| `aichat-postgres.service` | 127.0.0.1:5432 | PostgreSQL 16 + pgvector (Docker, `/opt/aichat/shared/postgres/docker-compose.yml`; volume `compose_pgdata`); the only datastore; not part of releases |
+| `aichat-postgres.service` | 127.0.0.1:`POSTGRES_HOST_PORT` (default 55432) | Isolated PostgreSQL 16 + pgvector (Docker, `/opt/aichat/shared/postgres/docker-compose.yml`; project `padhai-postgres`, network `padhai_postgres_network`, volume `padhai_postgres_data`); PadhAI only; not part of releases |
 | `aichat-api.service` | 127.0.0.1:4100 | FastAPI API from `/opt/aichat/app/backend`; `MemoryMax=900M`; never migrates on start; `GET /health` reports the commit it started from |
 | `aichat-web.service` | 127.0.0.1:3000 | Next.js web app from `/opt/aichat/app/frontend/apps/app` (the `.next` build), on the pinned Node (`.node-version`); reaches the API through `API_BASE_URL`; `GET /api/health` reports its commit (loopback only) |
-| `aichat-pg-backup.timer` | – | nightly `pg_dump` at 03:15 to `/var/backups/aichat` (without the rows of `file_chunks`, which are rebuilt, or of `auth_sessions` and `auth_verifications`, which hold live tokens and codes; without the NCERT service's schema), `KEEP_DAYS` retention (7); refuses to dump with less than twice the database's size free; the same service runs before every migration |
+| `aichat-pg-backup.timer` | – | nightly `pg_dump` at 03:15 to `/var/backups/padhai` (without the rows of `file_chunks`, which are rebuilt, or of `auth_sessions` and `auth_verifications`, which hold live tokens and codes), `KEEP_DAYS` retention (7); refuses to dump with less than twice the database's size free; the same service runs before every migration |
 | `aichat-deploy-*` | – | transient units: one deploy or rollback, detached from SSH, one at a time |
 | `aichat-extract-*` | – | transient units started by the API: one student file read in a sandbox (no network, no secrets, 512 MB, 300 s); needs Tesseract (`eng`, `hin`) on the host |
 | `cloudflared` | outbound | publishes **only the web app hostname** (`deploy/cloudflared/config.yml.template`) |
 
 ```
-user ──► Cloudflare ──► cloudflared ──► web :3000 ──(loopback)──► API :4100 ──► PostgreSQL :5432
+user ──► Cloudflare ──► cloudflared ──► web :3000 ──(loopback)──► API :4100 ──► PostgreSQL :55432
                                             └──── both from the checkout /opt/aichat/app
 ```
 
@@ -30,7 +30,7 @@ user ──► Cloudflare ──► cloudflared ──► web :3000 ──(loopb
 /opt/aichat/app-state/HISTORY         every deploy and rollback: who, which commit, what ran, how long
 /opt/aichat/runtime/                  pinned Node runtimes
 /opt/aichat/shared/postgres/          database compose file + backup script
-/etc/aichat/{api,web,postgres}.env    settings and secrets (mode 600), never in git; templates in deploy/env/
+/etc/aichat/{api,web,postgres,migration}.env    settings and secrets (mode 600), never in git; templates in deploy/env/
 ```
 
 Nothing but the web app is reachable from outside the host.

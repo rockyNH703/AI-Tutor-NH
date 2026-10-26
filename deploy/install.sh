@@ -10,15 +10,40 @@
 # and starts PostgreSQL and the backup timer. It never builds or starts the app (the first
 # `bun run deploy` does), never writes secrets and never imports data.
 #
-# Safe on a host that runs other services: an existing Docker installation is used as is
-# (never replaced, upgraded or restarted), and it stops if :5432 is held by anything other
-# than our own database unit.
+# Safe on a host that runs other services: collision checks run before package installation or
+# any host mutation. Existing Docker is used as is (never replaced, upgraded or restarted).
 set -euo pipefail
 SRC=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 . "$SRC/deploy/server/lib.sh"
 BUN_VERSION=$(tr -d '[:space:]' < "$SRC/.bun-version")   # one pinned version everywhere (CI reads the same file)
 
 [ "$(id -u)" -eq 0 ] || die "run as root"
+
+# Read and validate only the non-secret isolation settings before the first apt/filesystem change.
+POSTGRES_HOST_PORT=$(env_value POSTGRES_HOST_PORT postgres.env)
+POSTGRES_HOST_PORT=${POSTGRES_HOST_PORT:-55432}
+[ -s "$SECRETS/postgres.env" ] || die "missing $SECRETS/postgres.env (template: deploy/env/postgres.env.example)"
+[[ "$POSTGRES_HOST_PORT" =~ ^[0-9]+$ ]] && [ "$POSTGRES_HOST_PORT" -ge 1024 ] && [ "$POSTGRES_HOST_PORT" -le 65535 ] \
+  || die "POSTGRES_HOST_PORT in $SECRETS/postgres.env must be an unprivileged TCP port"
+for reserved in "$API_PORT" "$WEB_PORT"; do
+  [ "$POSTGRES_HOST_PORT" != "$reserved" ] || die "POSTGRES_HOST_PORT=$POSTGRES_HOST_PORT collides with a PadhAI application port"
+done
+if ! systemctl is-active --quiet aichat-postgres.service 2>/dev/null \
+  && ss -ltnH "( sport = :$POSTGRES_HOST_PORT )" | grep . >/dev/null; then
+  ss -ltnpH "( sport = :$POSTGRES_HOST_PORT )" >&2
+  die "port $POSTGRES_HOST_PORT is already in use; choose an unused loopback port in $SECRETS/postgres.env"
+fi
+if command -v docker >/dev/null 2>&1; then
+  for resource in \
+    "container padhai-postgres-postgres-1" \
+    "network padhai_postgres_network" \
+    "volume padhai_postgres_data"; do
+    set -- $resource
+    if docker "$1" inspect "$2" >/dev/null 2>&1 && ! systemctl is-active --quiet aichat-postgres.service 2>/dev/null; then
+      die "Docker $1 $2 already exists while aichat-postgres is inactive; inventory ownership before installing"
+    fi
+  done
+fi
 
 log "1/5 packages"
 export DEBIAN_FRONTEND=noninteractive
@@ -49,17 +74,13 @@ note "Node $(tr -d '[:space:]' < "$SRC/.node-version") ready in $RUNTIMES"
 log "4/5 secrets"
 install -d -m 700 "$SECRETS"
 missing=0
-for f in postgres.env api.env web.env; do
+for f in postgres.env migration.env api.env web.env; do
   if [ ! -s "$SECRETS/$f" ]; then note "missing $SECRETS/$f (template: deploy/env/$f.example)"; missing=1; fi
 done
 [ "$missing" -eq 0 ] || die "fill the files above (docs/deployment.md), then re-run"
 chmod 600 "$SECRETS"/*.env
 
 log "5/5 units and database"
-if ! systemctl is-active --quiet aichat-postgres.service && ss -ltnH "( sport = :5432 )" | grep . >/dev/null; then
-  ss -ltnpH "( sport = :5432 )" >&2
-  die "port 5432 is in use by another process (above); aichat-postgres needs it"
-fi
 bash "$SRC/deploy/server/install-units.sh" "$SRC"
 systemctl enable --now aichat-postgres.service aichat-pg-backup.timer
 note "PostgreSQL and the nightly backup are running."

@@ -82,11 +82,14 @@ characters, plus `AUTH_DATABASE_URL`.
 | `AUTH_RATE_LIMIT` | server-only | on | `off` disables Better Auth's own rate limiter (for tests) |
 | `SKIP_ENV_VALIDATION`, `CI` | build | unset | Skip `env.mjs` validation at build |
 
-## PostgreSQL and backups (production only: `/etc/aichat/postgres.env`)
+## PostgreSQL and backups (production only: `/etc/aichat/postgres.env` and `migration.env`)
 
 | Variable | What it does |
 |---|---|
-| `POSTGRES_USER`, `POSTGRES_DB` | The database's owner role and name (`aichat`) |
+| `MIGRATION_DATABASE_URL` | **Secret.** Dedicated migration-owner connection, loaded only for deploy migration/status commands |
+| `POSTGRES_USER`, `POSTGRES_DB` | The dedicated migration owner and PadhAI database (`padhai_migrator`, `padhai`) |
+| `POSTGRES_HOST_PORT` | Loopback host port for the isolated cluster (approved default `55432`) |
+| `POSTGRES_RUNTIME_USER`, `POSTGRES_AUTH_USER` | Restricted API and identity role names (`padhai_runtime`, `aichat_auth`) |
 | `POSTGRES_PASSWORD` | **Secret.** The owner role's password |
 | `BACKUP_DIR` | Where `deploy/backup.sh` writes dumps (`/var/backups/aichat`) |
 | `KEEP_DAYS` | Days of dumps kept (7) |
@@ -308,6 +311,23 @@ and does nothing today.
 | `EMBEDDING_DIMENSIONS` | integer | `1536` | Must equal the pgvector column dimension (app/db/models.py EMBEDDING_DIMENSIONS). |
 | `EMBEDDING_BATCH_SIZE` | integer | `64` | Texts per embeddings request. |
 | `EMBEDDING_TIMEOUT_S` | number | `20.0` | Seconds per embeddings request. |
+
+### Explicit personal memory
+
+| Variable | Type | Default | Purpose |
+|---|---:|---:|---|
+| `MEMORY_ENABLED` | true/false | `true` | Expose authenticated explicit-memory create/list/correct/delete/export APIs. |
+| `MEMORY_RECALL_ENABLED` | true/false | `false` | Recall relevant active memories into chat. Roll out separately; failures always degrade to ordinary chat. |
+| `MEMORY_MAX_ITEM_CHARS` | integer | `2000` | Maximum normalized characters in one memory. |
+| `MEMORY_RECALL_LIMIT` | integer | `4` | Maximum recalled items per turn. |
+| `MEMORY_RECALL_CANDIDATES` | integer | `12` | Maximum user-filtered vector candidates considered before policy limits. |
+| `MEMORY_RECALL_PER_KIND` | integer | `2` | Maximum recalled items of one memory kind. |
+| `MEMORY_MAX_CONTEXT_CHARS` | integer | `1200` | Maximum memory content characters considered for one turn. |
+| `MEMORY_MIN_SCORE` | number | `0.45` | Cosine-similarity floor; tune only with the deterministic evaluation set. |
+| `MEMORY_RECALL_TIMEOUT_S` | number | `2.0` | Whole optional recall deadline. A timeout does not fail chat. |
+
+Memory uses the configured embedding model and dimension. A model change leaves old memories stored but excludes their vectors from recall until they are explicitly recreated or re-embedded.
+
 
 ### File Library
 

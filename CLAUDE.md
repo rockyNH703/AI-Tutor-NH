@@ -272,13 +272,14 @@ file is current. A new endpoint for the browser must also be added to `routes.ts
   status says MISMATCH until main is deployed again. Details in `docs/deployment.md` and `docs/rollback.md`.
 - **Host:** Ubuntu 24.04 VM `10.1.50.94` (`ssh root@10.1.50.94`). The public site `ayur.namahos.com`
   goes through a Cloudflare Tunnel to web `127.0.0.1:3000`. The API is on `127.0.0.1:4100` (4000 is
-  dev), and PostgreSQL is Docker on `127.0.0.1:5432`.
-- **Secrets:** only in `/etc/aichat/{api,web,postgres}.env` (mode 600), never touched by a deploy.
+  dev), and isolated production PostgreSQL uses configurable loopback `POSTGRES_HOST_PORT` (default 55432).
+- **Secrets:** only in `/etc/aichat/{api,web,postgres,migration}.env` (mode 600), never touched by a deploy.
   Load them for one-off commands with `systemd-run --pipe --wait --collect -p EnvironmentFile=/etc/aichat/api.env ...`;
   don't `source` them.
-- **The database is outside the checkout:** `/opt/aichat/shared/postgres`. Its Compose project and
-  volume names are pinned (`compose` / `compose_pgdata`); moving or renaming them would start an
-  empty database. Migrations must be backward compatible (a rollback runs older code on the newer schema).
+- **The database is outside the checkout:** `/opt/aichat/shared/postgres`. Its PadhAI-specific
+  Compose project, network and volume names are pinned (`padhai-postgres`,
+  `padhai_postgres_network`, `padhai_postgres_data`); changing the volume starts an empty database.
+  Migrations use a dedicated owner; the API uses a restricted runtime role.
 - **Status:** production runs only the checkout model (`/opt/aichat/app`). The owner removed
   every leftover on 2026-09-29 (11:46-12:05 UTC, by hand): the legacy Ayurveda services and Convex
   (units, containers, the `compose_data` volume, images), `/opt/ayurveda`, `/etc/ayurveda`,
@@ -287,7 +288,7 @@ file is current. A new endpoint for the browser must also be added to `routes.ts
   archive (32 Convex exports, `/etc/ayurveda` with its secrets, the vector-store backups, the unit
   files) is kept OFF the host, on the owner's PC: `Desktop\ayurveda-archive-2026-09-29.tgz`; the
   Ayurveda code is the `ayurveda` remote and the tag `ayurveda-baseline`. Docker now runs only
-  `compose-postgres-1` (volume `compose_pgdata`). Production changes need the owner's explicit approval.
+  `padhai-postgres-postgres-1` (volume `padhai_postgres_data`). Production changes need the owner's explicit approval.
 - **Never, by hand:** edit files in `/opt/aichat/app`, run migrations outside a deploy, `git clean`
   there, `docker compose down -v`, or change `API_BASE_URL` in `web.env` (production's API is
   `:4100`; the frontend's built-in default `:4000` is the development port).

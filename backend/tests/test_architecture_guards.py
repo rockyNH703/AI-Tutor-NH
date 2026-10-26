@@ -78,8 +78,9 @@ def test_dependency_direction():
     for router in app_dir.rglob("router.py"):  # HTTP layer never reaches retrieval or vectors
         bad = {m for m in _imports(router) if m.startswith(("app.rag", "pgvector"))}
         assert not bad, (router.name, bad)
-    for module in app_dir.joinpath("chat").glob("*.py"):  # chat talks to the graph only
+    for module in app_dir.joinpath("chat").glob("*.py"):  # chat talks to the graph and memory's public recall only
         bad = {m for m in _imports(module) if m.startswith("app.rag") and m != "app.rag.graph"}
+        bad |= {m for m in _imports(module) if m.startswith("app.memory") and m != "app.memory.recall"}
         bad |= {m for m in _imports(module) if m.startswith(("pgvector", "langchain", "langgraph"))}
         assert not bad, (module.name, bad)
     graph_imports = _imports(app_dir / "rag" / "graph.py")  # graph depends on abstractions only

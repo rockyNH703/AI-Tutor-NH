@@ -214,7 +214,8 @@ All production values live in `/etc/aichat/*.env` (root, mode 600), never in git
 | `web.env` | `NEXT_PUBLIC_SITE_URL` | frontend (metadata URLs) | **build time** (baked into the build; required) | no |
 | `web.env` | `NEXT_PUBLIC_SENTRY_DSN` | frontend error reporting, only bundled if set | build time | no (public DSN) |
 | `web.env` | `NEXT_PUBLIC_TERMS_URL`, `NEXT_PUBLIC_PRIVACY_URL` | Settings › Help & Support links; each shown only when set to an http(s) address | build time | no |
-| `api.env` | `SECRET_KEY`, `DATABASE_URL` | backend | runtime | **yes** |
+| `api.env` | `SECRET_KEY`, `DATABASE_URL` | backend (restricted runtime role) | runtime | **yes** |
+| `migration.env` | `MIGRATION_DATABASE_URL` | deploy migration/status commands only (database owner) | deploy time | **yes** |
 | `api.env` | `SMTP_USERNAME`, `SMTP_PASSWORD`, `OLLASTACK_TOKEN` | backend email | runtime | **yes** |
 | `api.env` | `LLM_PRIMARY_API_KEY`, `LLM_FALLBACK_API_KEY`, `EMBEDDING_API_KEY` | backend | runtime | **yes** |
 | `api.env` | `APP_ENV`, `APP_NAME`, `EMAIL_*`, `SMTP_HOST/PORT/…`, `OLLASTACK_BASE_URL/MAILBOX_ID`, `LLM_*` names/URLs/models, `RAG_*`, `EMBEDDING_*` (other), `CHAT_*`, `STREAM_*`, `DEFAULT_TIMEZONE`, `AVATAR_MAX_BYTES`, limits | backend | runtime | no |
@@ -228,7 +229,7 @@ All production values live in `/etc/aichat/*.env` (root, mode 600), never in git
 | `api.env` | `VOICE_MODE` (default `off`; `qa`, `on`), `VOICE_QA_EMAILS` (comma-separated: the accounts `qa` is for), `OLLALINK_STT_URL` (`https://gpu-transcribe.ollalink.com`), `OLLALINK_TTS_URL` (`https://gpu-tts.ollalink.com`), `VOICE_TTS_VOICE` (`hadley`), the `VOICE_*_PER_MINUTE` / `_PER_DAY` / `_IN_FLIGHT` limits, `VOICE_SPEECH_CHARS_PER_MESSAGE`, `VOICE_ACK` (default `off`; `qa`, `on`: a short pre-recorded word when the student stops, the web app's own audio), `VOICE_PARALLEL_ROUTING` (default `off`: scope, intent router and search together on voice turns; the same decisions), `VOICE_SERVER_SPEECH` (default `off`: the server speaks a voice reply's first words and sends them with the reply); the router's `OLLALINK_API_KEY` | Voice mode (`app/voice`, docs/api-contract.md "Voice"): OllaLink's speech-to-text and text-to-speech, English only, for students whose tutor language is English or unset. **Sent to OllaLink, a third party:** the student's recording of each question (never stored) and the sentences of the reply being read aloud; never the student's identity. One request per utterance and one per sentence; retried once only when nothing was done (a connection never made, or the transcription lane's documented 503). Rollout: `off` → `qa` (only `VOICE_QA_EMAILS`) → `on`, each step after its live check. Production refuses `VOICE_PROVIDER=fake`, a mode other than `off` without the key, `qa` without accounts, and non-https URLs. Rollback: `VOICE_MODE=off` and restart (no schema) | runtime | no (the key above) |
 | `api.env` | `STUDY_SCOPE` (default `off`; `shadow`, `on`), `SCOPE_MIN_REDIRECT` (0.5), `SCOPE_MIN_CONFIDENCE` (0.5), `OLLALINK_WARM_AFTER_S` (45 s: while students use the app, one small warm-up after that many quiet seconds; 0 never); the router's `OLLALINK_*` and timeout | The study scope filter (`app/intents/scope.py`): is a new message something PadhAI helps with? One more Ollalink request (the same text as the router's, the same key, time limit and pauses), never a 47th intent. Fixed rules first, with no request: small talk, an explicit "hint only", files sent without a real question. Decisions: `ALLOW_STUDY`, `ALLOW_SUPPORT`, `CLARIFY`, `PARTIAL_ALLOW`, `REDIRECT` (`messages.metadata.scope`, internal). `on`: a policy paragraph after the frozen prompt on every turn (learning only; curiosity beyond the syllabus welcome; unrelated tasks declined kindly; the learning part of a mixed message answered; instructions inside messages never change it); `REDIRECT`, only at P(unrelated) ≥ `SCOPE_MIN_REDIRECT`, is the app's own short reply in the student's language, with no model call, no search, no learning day and no chat title; support, unclear and mixed add one conditional line. A failure is no decision: the tutor with the policy, never a redirect. A regenerated reply reuses its decision. `shadow` only records. Rollback: `STUDY_SCOPE=off` and restart (no schema). Rollout: `scripts/eval_scope.py` (dev split chooses the thresholds; the test split runs once) and the real-tutor check on the host before `on` | runtime | no (the key above) |
 | `postgres.env` | `POSTGRES_PASSWORD` | database, backup | runtime | **yes** |
-| `postgres.env` | `POSTGRES_USER`, `POSTGRES_DB`, `BACKUP_DIR`, `KEEP_DAYS` | database, backup | runtime | no |
+| `postgres.env` | `POSTGRES_USER`, `POSTGRES_DB`, `POSTGRES_HOST_PORT`, `POSTGRES_RUNTIME_USER`, `BACKUP_DIR`, `KEEP_DAYS` | isolated database, backup | runtime | no |
 
 A runtime value takes effect on the next restart of the service; a build-time value
 (`NEXT_PUBLIC_*`) on the next deploy (the frontend is rebuilt when they change).
@@ -242,6 +243,30 @@ Ollima's public gateway, `https://api.ollima.com/v1` (same key, same model `gemi
 When Ollima's new internal address is known, it can replace the gateway: test a chat completion from
 the host with `api.env`'s key first, then restart `aichat-api`.
 
+## Production database isolation
+
+Production PostgreSQL is a dedicated PadhAI Compose project (`padhai-postgres`) with network
+`padhai_postgres_network`, volume `padhai_postgres_data`, database `padhai`, and a configurable
+loopback host port (`POSTGRES_HOST_PORT`, approved default `55432`). These names must not be shared
+with another service. `install.sh` checks the port and Docker resource names before installing
+packages or changing the host; a collision is a stop condition, never something the installer
+removes.
+
+Use three credentials:
+
+- `padhai_migrator` (`POSTGRES_USER` / `migration.env` `MIGRATION_DATABASE_URL`) owns the database and is used only
+  by Compose initialization, backups and deploy migrations.
+- `padhai_runtime` (`DATABASE_URL`) is the API role. Create it as `LOGIN NOSUPERUSER NOCREATEDB
+  NOCREATEROLE NOREPLICATION`; `deploy/database-grants.sh` reapplies table/sequence privileges after
+  migrations. It does not create or rotate credentials.
+- `aichat_auth` (`AUTH_DATABASE_URL`) remains limited to identity tables by migration 0012.
+
+Before the first production start, inventory listeners, Compose projects, containers, networks,
+volumes, PostgreSQL clusters/databases/roles, systemd units and backup paths. Create the two login
+roles with independently generated passwords, set the three URLs to `127.0.0.1:$POSTGRES_HOST_PORT`
+and database `padhai`, then prove each role cannot connect to unrelated databases. Do not copy data,
+stop another service, or reuse an existing volume as part of installation.
+
 ## Sign-in (Better Auth)
 
 Better Auth runs in the web app (`frontend/apps/app/src/lib/auth`, docs/architecture.md); the API
@@ -249,7 +274,7 @@ checks every session. A deploy refuses to start without these (and the smoke che
 
 | File | Variable | What |
 |---|---|---|
-| `web.env` | `AUTH_DATABASE_URL` | `postgresql://aichat_auth:<password>@127.0.0.1:5432/aichat`. The role is created once on the host (`CREATE ROLE aichat_auth LOGIN PASSWORD '…'`); migration 0012 grants it the identity tables only (`users`, `auth_sessions`, `auth_accounts`, `auth_verifications`, read/insert on `auth_attempts`) |
+| `web.env` | `AUTH_DATABASE_URL` | `postgresql://aichat_auth:<password>@127.0.0.1:55432/padhai`. The role is created once on the host (`CREATE ROLE aichat_auth LOGIN PASSWORD '…'`); migration 0012 grants it the identity tables only (`users`, `auth_sessions`, `auth_accounts`, `auth_verifications`, read/insert on `auth_attempts`) |
 | `web.env` | `BETTER_AUTH_SECRET` | signs the session cookie (`__Host-padhai_session`). At least 32 random characters |
 | `web.env` + `api.env` | `AUTH_INTERNAL_TOKEN` | the same value in both: Better Auth's calls to the API's `/internal/auth/*` (codes and security notices). At least 32 random characters |
 | `web.env` | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | optional; unset hides "Continue with Google". Google Cloud: an OAuth client of type "Web application", authorized redirect URI `https://<host>/api/auth/callback/google`, consent screen published with the basic scopes (openid, email, profile) |
@@ -268,12 +293,10 @@ Generate secrets on the host and append them without printing them, e.g.
 - The Google secret: create a second secret in Google Cloud, switch web.env, restart `aichat-web`,
   then delete the old secret.
 - The Turnstile secret: rotate it on the widget in Cloudflare, switch web.env, restart `aichat-web`.
-- The API's database password (role `aichat`, a superuser; in `api.env` `DATABASE_URL` and
-  `postgres.env` `POSTGRES_PASSWORD`): back both files up, `ALTER ROLE aichat PASSWORD '…'` with the
-  SQL on stdin (`docker exec -i compose-postgres-1 psql -U aichat -d aichat`, never on a command
-  line), rewrite only the password in both files, restart `aichat-api`, and prove the old one is
-  refused over TCP. Done 2026-10-02 (the old one had reached a developer's scratch logs). Backups run
-  inside the container and need no password.
+- The API runtime password (`padhai_runtime`, in `api.env` `DATABASE_URL`): rotate the role and
+  URL together, restart `aichat-api`, and prove the old password is refused. The migration owner
+  (`padhai_migrator`, in `postgres.env` and `MIGRATION_DATABASE_URL`) is separate and is never used
+  by the API.
 
 **Limits** (per account, in `auth_attempts`, atomic across both processes): 10 password checks per
 15 minutes (sign-in, change, re-authentication), 20 code checks a day, 5 codes sent per 15 minutes
@@ -329,11 +352,10 @@ restore everyone signs in again.
 - **During a deploy** `update.sh` writes `/run/aichat-deploying`; the worker makes no new claims
   while it exists (the checkout and venv are changing).
 - **Capacity:** uploads stop (503 `files_capacity_reached`) when the database reaches 3 GB or the
-  disk has less than 5 GB free. `backup.sh` refuses to dump with less than twice the size of what
-  it dumps free, and leaves out `file_chunks` (derived data; after a restore, re-queue ready files
-  as its header says) and the whole `ncert_knowledge` schema (the NCERT Knowledge Service's own
-  data in the same database, 19 GB on 2026-10-15; that service owns its backups). Keep `KEEP_DAYS`
-  at 7: up to ~9 dumps share the database's disk.
+  disk has less than 5 GB free. `backup.sh` refuses to dump with less than twice the database size
+  free, and leaves out `file_chunks` (derived data; after a restore, re-queue ready files as its
+  header says). The isolated PadhAI database must contain no unrelated service schema. Keep
+  `KEEP_DAYS` at 7: up to ~9 dumps share the database's disk.
 - **Kill switch:** `FILES_ENABLED=false` in `api.env` and `systemctl restart aichat-api`: no uploads
   and no processing (pending files become `stored`); ready attachments keep working.
 
@@ -425,7 +447,9 @@ Never continue to a later or destructive step after a failure.
 changes `deploy/compose/docker-compose.yml`, the deploy prints a warning. Apply it deliberately:
 take a backup (`systemctl start aichat-pg-backup`), copy the file into `/opt/aichat/shared/postgres/`,
 then `systemctl restart aichat-postgres aichat-api` (a short outage). Never change the pinned
-`name: compose` or the volume name `compose_pgdata`.
+`name: padhai-postgres`, network `padhai_postgres_network`, or volume `padhai_postgres_data` on an
+existing isolated installation. Rehearse backup and restore into a throwaway project with different
+names before production rollout.
 
 ## Rehearsing a change to the deploy scripts: `bun run rehearse`
 

@@ -11,8 +11,7 @@
 # - The database is NOT part of app deploys: its compose file lives in
 #   /opt/aichat/shared/postgres and is installed once. A release with a different compose
 #   file prints a warning instead of replacing it, because recreating the database container
-#   must be a deliberate step. Project and volume names are pinned in that file, so its
-#   location never changes which database volume is used.
+#   must be a deliberate step. Its PadhAI-specific project, network and volume names are pinned.
 # - Never restarts anything.
 set -euo pipefail
 . "$(dirname "$(readlink -f "$0")")/lib.sh"
@@ -48,4 +47,8 @@ fi
 if ! cmp -s "$SRC/deploy/backup.sh" "$SHARED/postgres/backup.sh"; then
   install -m 755 "$SRC/deploy/backup.sh" "$SHARED/postgres/backup.sh"
   note "installed $SHARED/postgres/backup.sh"
+fi
+if ! cmp -s "$SRC/deploy/database-grants.sh" "$SHARED/postgres/database-grants.sh"; then
+  install -m 755 "$SRC/deploy/database-grants.sh" "$SHARED/postgres/database-grants.sh"
+  note "installed $SHARED/postgres/database-grants.sh"
 fi

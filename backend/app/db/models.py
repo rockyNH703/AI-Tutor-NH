@@ -65,6 +65,9 @@ NOW = text("clock_timestamp()")
 
 MESSAGE_ROLES = ("user", "assistant", "system")
 MESSAGE_STATUSES = ("complete", "streaming", "cancelled", "error", "superseded")
+MEMORY_KINDS = ("learning_context", "study_context")
+MEMORY_STATUSES = ("active", "superseded")
+MEMORY_MAX_CONTENT_CHARS = 2000
 CODE_PURPOSES = ("verify_email", "reset_password", "change_email")
 
 # What a student can tell the tutor (app/learning). Every preference has a neutral "auto"
@@ -617,6 +620,51 @@ class Message(Base):
         "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
     created_at: Mapped[datetime] = _created()
+
+
+class MemoryItem(Base):
+    """A user-controlled personal learning-context fact with a correction chain."""
+
+    __tablename__ = "memory_items"
+    __table_args__ = (
+        CheckConstraint(f"kind in {MEMORY_KINDS}", name="kind"),
+        CheckConstraint(f"status in {MEMORY_STATUSES}", name="status"),
+        CheckConstraint(f"char_length(content) BETWEEN 1 AND {MEMORY_MAX_CONTENT_CHARS}", name="content_length"),
+        CheckConstraint("version >= 1", name="version"),
+        CheckConstraint("expires_at IS NULL OR expires_at > created_at", name="expires_after_create"),
+        UniqueConstraint("supersedes_id"),
+        Index(
+            "uq_memory_items_active_content",
+            "user_id",
+            "kind",
+            "content_hash",
+            unique=True,
+            postgresql_where=text("status = 'active'"),
+        ),
+        Index("ix_memory_items_user_status_updated", "user_id", "status", text("updated_at DESC"), "id"),
+        Index("ix_memory_items_user_kind_status", "user_id", "kind", "status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, server_default=text("'active'"))
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("1"))
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("memory_items.id", ondelete="SET NULL")
+    )
+    source_message_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("messages.id", ondelete="SET NULL")
+    )
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
 
 
 class MessageFeedback(Base):

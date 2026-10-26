@@ -103,7 +103,7 @@ plan=()
 [ "$DO_WEB" = 1 ] && plan+=("web-restart")
 note "to do: ${plan[*]:-nothing (no app code changed)}"
 
-for f in api.env web.env postgres.env; do [ -s "$SECRETS/$f" ] || die "missing $SECRETS/$f"; done
+for f in api.env web.env postgres.env migration.env; do [ -s "$SECRETS/$f" ] || die "missing $SECRETS/$f"; done
 # Without it the frontend falls back to its development default (:4000), which on this host is
 # not this API.
 grep -qE '^API_BASE_URL=http://127\.0\.0\.1:4100/?$' "$SECRETS/web.env" || die "$SECRETS/web.env must set API_BASE_URL=http://127.0.0.1:4100"
@@ -181,7 +181,8 @@ fi
 if [ "$DO_MIG" = 1 ]; then
   step "database migrations"
   status=$(systemd-run --pipe --wait --collect --quiet -p EnvironmentFile="$SECRETS/api.env" \
-    -p WorkingDirectory="$APP/backend" "$VENV/bin/python" scripts/migration_status.py) || die "could not read the migration status"
+    -p EnvironmentFile="$SECRETS/migration.env" -p WorkingDirectory="$APP/backend" \
+    "$VENV/bin/python" scripts/migration_status.py) || die "could not read the migration status"
   database=$(json_field database <<<"$status") head=$(json_field head <<<"$status")
   pending=$(json_field pending <<<"$status") known=$(json_field database_known <<<"$status")
   note "database: $database | this code: $head"
@@ -190,16 +191,19 @@ if [ "$DO_MIG" = 1 ]; then
     note "         migrations must be backward compatible (docs/deployment.md)."
   elif [ "$pending" != "[]" ]; then
     systemctl start aichat-pg-backup.service || die "the backup before migrating failed; nothing was migrated"
-    backup=$(ls -1t /var/backups/aichat/aichat-*.dump 2>/dev/null | sed -n 1p)
+    backup=$(ls -1t /var/backups/padhai/padhai-*.dump 2>/dev/null | sed -n 1p)
     note "backup before migrating: $backup"
     systemd-run --pipe --wait --collect --quiet -p EnvironmentFile="$SECRETS/api.env" \
-      -p WorkingDirectory="$APP/backend" "$VENV/bin/python" -m alembic upgrade head \
+      -p EnvironmentFile="$SECRETS/migration.env" -p WorkingDirectory="$APP/backend" \
+      "$VENV/bin/python" -m alembic upgrade head \
       || die "the migration failed (backup: $backup); the API was not restarted"
     note "migrated: $pending"
     DONE+=("migrated")
   else
     note "none pending"
   fi
+  "$SHARED/postgres/database-grants.sh" \
+    || die "could not apply the API runtime database grants; the API was not restarted"
   mark migrations "$K_MIG"
 fi
 

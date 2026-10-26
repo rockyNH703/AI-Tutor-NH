@@ -11,13 +11,14 @@ this code against it is only safe if that newer migration was backward compatibl
 
 deploy/server/update.sh uses it, when a deploy brings new migration files, to decide whether
 migrations must run and whether a rollback puts old code on a newer schema.
-Reads DATABASE_URL from the environment, like the app. Never writes anything.
+Reads MIGRATION_DATABASE_URL when set, otherwise DATABASE_URL. Never writes anything.
 """
 
 from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -53,7 +54,7 @@ def main() -> int:
         print(json.dumps({"error": f"expected one migration head, found {len(heads)}"}))
         return 2
     head = heads[0]
-    database = asyncio.run(database_revision(Settings().database_url))
+    database = asyncio.run(database_revision(os.environ.get("MIGRATION_DATABASE_URL") or Settings().database_url))
 
     pending: list[str] = []
     known = database is None

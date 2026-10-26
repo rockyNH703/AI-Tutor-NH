@@ -251,7 +251,9 @@ The "Adds" column summarises each migration from its name and the tables it crea
 ## Database roles and backups
 
 - **Roles:**
-  - `aichat` owns the schema, and the API connects as it.
+  - `padhai_migrator` owns the PadhAI database and is used for migrations and backups only.
+  - `padhai_runtime` is the API runtime role; it has application table/sequence DML but no role,
+    database, or schema creation privileges.
   - `aichat_auth` is Better Auth's role, created by migration 0012 and limited to the identity tables.
 - **Backups:**
   - `aichat-pg-backup.timer` dumps nightly, and the deploy dumps before any migration.
@@ -259,8 +261,8 @@ The "Adds" column summarises each migration from its name and the tables it crea
     - the rows of `file_chunks`, which are rebuilt from the stored files;
     - the rows of `auth_sessions` and `auth_verifications`, because Better Auth keeps live session tokens and
       sign-in codes there, and a copy on disk must never be a way into an account. After a restore, everyone signs
-      in again;
-    - the separate NCERT service's schema, which is that service's own data.
+      in again.
+  - The PadhAI cluster and database contain no unrelated service schemas.
   - Restore steps: [rollback.md, "The database"](rollback.md#the-database).
 
 ## Development data
