@@ -383,8 +383,8 @@ class Settings(BaseSettings):
             self.ollastack_token.get_secret_value() and self.ollastack_mailbox_id
         ):
             problems.append("EMAIL_BACKEND=ollastack needs OLLASTACK_TOKEN and OLLASTACK_MAILBOX_ID")
-        if self.app_name != "PadhAI":
-            problems.append("APP_NAME must be PadhAI in production")
+        if self.app_name != "NetSec AI":
+            problems.append("APP_NAME must be NetSec AI in production")
         if self.public_app_url and self.public_app_origin is None:
             problems.append("PUBLIC_APP_URL must be a bare HTTPS origin")
         if self.rag_enabled and self.embedding_provider == "fake":
