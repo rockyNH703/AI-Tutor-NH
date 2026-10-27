@@ -114,7 +114,7 @@ describe("NetSec deployment namespace", () => {
 
   test("chain smoke uses the application's actual local session cookie", () => {
     const lib = read("deploy-netsec/server/lib.sh");
-    expect(lib).toContain("Cookie: padhai_session=deploy-chain-check; padhai_session=$signed");
+    expect(lib).toContain("Cookie: padhai_session=$signed");
     expect(lib).not.toContain("netsecai_session=");
   });
 

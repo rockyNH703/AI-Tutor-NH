@@ -224,7 +224,7 @@ check_chain() {
   headers=$(mktemp) body=$(mktemp)
   signed=$(signed_session_cookie "deploychaincheck$(date +%s)") || signed=""
   status=$(curl -s -o "$body" -D "$headers" -w '%{http_code}' --max-time 20 \
-    -H "Cookie: padhai_session=deploy-chain-check; padhai_session=$signed" "http://127.0.0.1:$port/api/v1/conversations" || true)
+    -H "Cookie: padhai_session=$signed" "http://127.0.0.1:$port/api/v1/conversations" || true)
   rid=$(grep -i '^x-request-id:' "$headers" | tr -d '\r' | awk '{print $2}')
   if [ "$status" != 401 ] || ! grep -q '"unauthorized"' "$body" || [ -z "$rid" ]; then
     rm -f "$headers" "$body"
