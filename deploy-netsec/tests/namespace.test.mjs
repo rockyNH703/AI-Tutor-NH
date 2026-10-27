@@ -112,6 +112,12 @@ describe("NetSec deployment namespace", () => {
     expect(update).toContain('"$SHARED/postgres/database-grants.sh"');
   });
 
+  test("chain smoke uses the application's actual local session cookie", () => {
+    const lib = read("deploy-netsec/server/lib.sh");
+    expect(lib).toContain("Cookie: padhai_session=deploy-chain-check; padhai_session=$signed");
+    expect(lib).not.toContain("netsecai_session=");
+  });
+
   test("server scripts source sibling safety helper", () => {
     for (const file of ["deploy-netsec/server/install-units.sh", "deploy-netsec/server/update.sh"]) {
       const source = read(file);
