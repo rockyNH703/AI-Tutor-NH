@@ -8,7 +8,7 @@ Requires=netsecai-web.service
 Type=simple
 # Manager-approved Cloudflare default hostname. Cloudflare prints the generated
 # https://*.trycloudflare.com URL to this unit's journal at every start.
-ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:4300
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --config /dev/null --url http://127.0.0.1:4300
 Restart=on-failure
 RestartSec=5s
 

@@ -47,7 +47,7 @@ describe("NetSec deployment namespace", () => {
     expect(tunnel).toContain("/etc/netsecai/cloudflared");
     expect(statSync(join(ROOT, "deploy-netsec/systemd/netsecai-cloudflared.service")).isFile()).toBe(true);
     const unit = read("deploy-netsec/systemd/netsecai-cloudflared.service");
-    expect(unit).toContain("cloudflared tunnel --no-autoupdate --url http://127.0.0.1:4300");
+    expect(unit).toContain("cloudflared tunnel --no-autoupdate --config /dev/null --url http://127.0.0.1:4300");
     expect(unit).not.toContain("/etc/cloudflared");
   });
 
