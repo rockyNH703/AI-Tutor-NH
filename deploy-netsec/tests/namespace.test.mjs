@@ -126,6 +126,13 @@ describe("NetSec deployment namespace", () => {
     }
   });
 
+  test("workstation status composes a runnable host script", () => {
+    const status = read("deploy-netsec/status.sh");
+    expect(status).toContain("sed '1{");
+    expect(status).toContain("ssh \"$HOST\" 'bash -s' < \"$STATUS_SCRIPT\"");
+    expect(status).not.toContain("cat deploy-netsec/server/lib.sh deploy-netsec/server/status.sh | ssh");
+  });
+
   test("script hygiene defects stay fixed", () => {
     expect(read("deploy-netsec/server/safety.sh").startsWith("#!/usr/bin/env bash\n")).toBe(true);
     expect(read("deploy-netsec/status.sh")).toContain("STOP: set NETSEC_DEPLOY_HOST");
