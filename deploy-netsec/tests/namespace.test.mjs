@@ -128,8 +128,7 @@ describe("NetSec deployment namespace", () => {
 
   test("workstation status composes a runnable host script", () => {
     const status = read("deploy-netsec/status.sh");
-    expect(status).toContain("sed '1{");
-    expect(status).toContain("ssh \"$HOST\" 'bash -s' < \"$STATUS_SCRIPT\"");
+    expect(status).toContain("ssh \"$HOST\" 'bash /opt/netsecai/app/deploy-netsec/server/status.sh'");
     expect(status).not.toContain("cat deploy-netsec/server/lib.sh deploy-netsec/server/status.sh | ssh");
   });
 

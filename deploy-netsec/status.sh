@@ -17,16 +17,7 @@ cd "$(git rev-parse --show-toplevel)" || exit 1
 SOURCE=https://github.com/rockyNH703/AI-Tutor-NH.git
 [ "${DEPLOY_REHEARSAL:-0}" = 1 ] && SOURCE=${DEPLOY_REHEARSAL_SOURCE:?}
 
-STATUS_SCRIPT=$(mktemp)
-trap 'rm -f "$STATUS_SCRIPT"' EXIT
-{
-  cat deploy-netsec/server/lib.sh
-  printf '\n'
-  # The host-side status script's shebang and shell options are valid only at file start; lib.sh
-  # is already loaded in the same shell, so omit those header lines when composing stdin.
-  sed '1{/^#!\/usr\/bin\/env bash$/d;}; /^set -uo pipefail$/d' deploy-netsec/server/status.sh
-} > "$STATUS_SCRIPT"
-OUT=$(ssh "$HOST" 'bash -s' < "$STATUS_SCRIPT")
+OUT=$(ssh "$HOST" 'bash /opt/netsecai/app/deploy-netsec/server/status.sh')
 RC=$?
 printf '%s\n' "$OUT" | grep -v '^@@'
 MAIN=""
