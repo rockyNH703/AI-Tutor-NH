@@ -187,7 +187,7 @@ test("no study greeting live this week: the fallback, and the chat works as ever
   }
 });
 
-test("the theme menu: Metallic Black and Normal White with a check; saved to the account; keyboard and outside click", async ({
+test("the theme menu: Dark, White, System with a check; saved to the account; keyboard and outside click", async ({
   page,
   account,
 }) => {
@@ -200,9 +200,9 @@ test("the theme menu: Metallic Black and Normal White with a check; saved to the
 
   await trigger.click();
   const items = page.getByRole("menuitemradio");
-  await expect(items).toHaveText(["Metallic Black", "Normal White"]);
-  await expect(page.getByRole("menuitemradio", { name: "Metallic Black" })).toHaveAttribute("aria-checked", "true");
-  await page.getByRole("menuitemradio", { name: "Metallic Black" }).click();
+  await expect(items).toHaveText(["Dark", "White", "System"]);
+  await expect(page.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("menuitemradio", { name: "Dark" }).click();
   await expect(page.getByRole("menu")).toHaveCount(0);
   await expect(html).toHaveClass(/\bdark\b/);
   await expect.poll(async () => (await (await page.request.get("/api/v1/me/appearance")).json()).theme).toBe("dark");
@@ -212,7 +212,7 @@ test("the theme menu: Metallic Black and Normal White with a check; saved to the
   await expect(html).toHaveClass(/\bdark\b/);
   await expect(trigger.locator("svg")).toHaveClass(/lucide-moon/);
   await trigger.click();
-  await expect(page.getByRole("menuitemradio", { name: "Metallic Black" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("menu")).toHaveCount(0);
   await expect(trigger).toBeFocused();

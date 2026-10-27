@@ -23,7 +23,7 @@ export function StudyTrackingSection() {
     <>
       <SectionHeading
         title="Study Tracking"
-        description="How PadhAI estimates your study time in the study sessions you start. You'll find the numbers in Study Activity."
+        description="How NetSec AI estimates your study time in the study sessions you start. You'll find the numbers in Study Activity."
       />
       <div className="flex flex-col gap-4">
         <Notice>
@@ -36,22 +36,22 @@ export function StudyTrackingSection() {
             <li>You're on the tutor or your File Library, and that page is on screen.</li>
             <li>You're active: typing, clicking, scrolling or touching, or the tutor is writing you an answer.</li>
             <li>
-              Several tabs or devices at once count once. Time offline, or when PadhAI didn't hear from your device, isn't
+              Several tabs or devices at once count once. Time offline, or when NetSec AI didn't hear from your device, isn't
               counted and is never added later.
             </li>
           </ul>
         </SettingsCard>
         <SettingsCard title="Idle">
           <p className="text-sm leading-relaxed text-text-secondary">
-            While reading or revising, you become idle after {reading} without any input; shortly before, PadhAI asks whether
+            While reading or revising, you become idle after {reading} without any input; shortly before, NetSec AI asks whether
             you're still studying. While practising or taking a test, after {solving}. Idle time is shown, but isn't study time.
             These limits are the same for every student and can't be changed.
           </p>
         </SettingsCard>
         <SettingsCard title="Hidden tabs and other pages">
           <p className="text-sm leading-relaxed text-text-secondary">
-            When PadhAI is in a hidden tab or a minimised window, or you're in Settings, Help or Study Activity, the session keeps
-            running but the time isn't counted. Time in PadhAI (any time the app is open, studying or not) is shown separately.
+            When NetSec AI is in a hidden tab or a minimised window, or you're in Settings, Help or Study Activity, the session keeps
+            running but the time isn't counted. Time in NetSec AI (any time the app is open, studying or not) is shown separately.
           </p>
         </SettingsCard>
         <SettingsCard title="Pause, resume and end">

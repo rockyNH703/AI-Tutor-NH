@@ -94,7 +94,7 @@ export function oauthErrorMessage(code: string | null | undefined): string | nul
   const key = code.toLowerCase().replace(/[\s-]+/g, "_");
   if (key === "access_denied") return "Google sign-in was cancelled.";
   if (key === "account_not_linked") {
-    return "This email already has a PadhAI account. Sign in with your password or an email code, then connect Google in Settings › Privacy.";
+    return "This email already has a NetSec AI account. Sign in with your password or an email code, then connect Google in Settings › Privacy.";
   }
   if (key.includes("email_not_verified")) {
     return "Google hasn't confirmed this email address. Sign in with an email code instead.";
@@ -437,7 +437,7 @@ export function AuthForm({
       )}
     </Field>
   ) : (
-    <Field label="Authenticator code" hint="The 6-digit code your authenticator app shows for PadhAI.">
+    <Field label="Authenticator code" hint="The 6-digit code your authenticator app shows for NetSec AI.">
       {(id, hintId) => (
         <input
           id={id}

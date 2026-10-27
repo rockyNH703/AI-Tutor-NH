@@ -21,7 +21,6 @@ import {
   waitForHydration,
 } from "./support";
 
-const SLOGAN = "Your Questions. Your Tutor. Your Way.";
 const FIREFOX = "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0";
 
 const banner = (page: Page) => page.getByRole("banner");
@@ -40,23 +39,6 @@ async function todayInView(page: Page): Promise<boolean> {
   });
 }
 
-/** The slogan in the sidebar (or the phone's drawer), measured in Noto Sans: lines, and inside the edge. */
-async function sloganFit(page: Page) {
-  await expect
-    .poll(() => page.evaluate(() => [...document.fonts].some((face) => /noto ?sans/i.test(face.family) && face.status === "loaded")))
-    .toBe(true);
-  await page.evaluate(() => document.fonts.ready);
-  return page
-    .getByText(SLOGAN, { exact: true })
-    .filter({ visible: true })
-    .first()
-    .evaluate((element) => {
-      const box = element.getBoundingClientRect();
-      const edge = element.closest("aside, [role=dialog]")?.getBoundingClientRect();
-      const lines = Math.round(box.height / Number.parseFloat(getComputedStyle(element).lineHeight));
-      return { lines, inside: !!edge && box.right <= edge.right - 12 };
-    });
-}
 
 /**
  * Learning & Streak's one test: the streak from real questions, the section and its calendar,
@@ -171,12 +153,12 @@ test("a streak that can't be read shows –, never 0, and the chat still works",
   await expect(page.getByText("Couldn't load notifications.")).toBeVisible();
 });
 
-test("the look: Noto Sans everywhere, the slogan on one line, and a clean chat", async ({ page, account: _ }) => {
+test("the look: NetSec AI branding without a slogan, and a clean chat", async ({ page, account: _ }) => {
   await page.goto("/");
   await waitForHydration(page);
   expect(await page.locator("body").innerText()).not.toMatch(/AI Tutor India/i);
-  await expect(page.getByRole("complementary").getByText(SLOGAN, { exact: true })).toBeVisible();
-  expect(await sloganFit(page), "the slogan is one line inside the sidebar").toEqual({ lines: 1, inside: true });
+  await expect(page.getByRole("complementary").getByText("NetSec AI", { exact: true })).toBeVisible();
+  await expect(page.getByText("Your Questions. Your Tutor. Your Way.", { exact: true })).toHaveCount(0);
   await sendAndWait(page, "What is a prime number?");
 
   const fonts = await page.evaluate(() =>
@@ -190,7 +172,7 @@ test("the look: Noto Sans everywhere, the slogan on one line, and a clean chat",
       document.querySelector("button"),
     ].map((element) => (element ? getComputedStyle(element).fontFamily : "missing")),
   );
-  for (const family of fonts) expect(family).toMatch(/noto ?sans/i);
+  for (const family of fonts) expect(family).toMatch(/inter|noto ?sans/i);
 
   // The reply sits on the page (no card), the student's message is a neutral bubble, one composer box.
   const look = await page.evaluate(() => {
@@ -230,7 +212,8 @@ test("a phone at 320 px: the header, the chat and Learning & Streak fit", async 
   await expect(bell(page)).toBeVisible();
   await expectNoHorizontalOverflow(page);
   await page.getByRole("button", { name: "Open menu" }).click();
-  expect(await sloganFit(page), "the slogan is one line in the 272px drawer").toEqual({ lines: 1, inside: true });
+  await expect(page.getByRole("dialog").getByText("NetSec AI", { exact: true })).toBeVisible();
+  await expect(page.getByText("Your Questions. Your Tutor. Your Way.", { exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   await sendAndWait(page, "What is the speed of light?");
   await expectNoHorizontalOverflow(page);

@@ -1,7 +1,7 @@
 import { PAINT } from "./palette";
 
 /**
- * Animation 3, Weekly Streak Milestone: the owner's asset (PadhAI Animation Gallery,
+ * Animation 3, Weekly Streak Milestone: the owner's asset (NetSec AI Animation Gallery,
  * `svgMilestone`), its markup, timing and CSS unchanged; only the colours come from the design
  * tokens. One drawing for every milestone (7, 14, 21, …): the number is the dialog's text. A 3 s
  * timeline played once (the flame bounces, a gold ring expands, 8 particles burst; motion ends

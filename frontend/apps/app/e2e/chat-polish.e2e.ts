@@ -666,7 +666,7 @@ test("keyboard: the controls come in reading order", async ({ page, account: _ }
   }
   const expected = [
     /^Skip to content$/,
-    /PadhAI/,
+    /NetSec AI/,
     /^Ask New Doubt$/,
     /^Osmosis Definition$/,
     /^Rename/,

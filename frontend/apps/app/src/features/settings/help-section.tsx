@@ -166,7 +166,7 @@ export function HelpSection() {
             <li>
               <Link href="/about" className="focus-ring inline-flex items-center gap-2 rounded font-semibold text-brand underline underline-offset-2">
                 <Info aria-hidden className="h-4 w-4" />
-                About PadhAI
+                About NetSec AI
               </Link>
             </li>
             {legal.terms && (

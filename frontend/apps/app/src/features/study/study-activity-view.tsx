@@ -113,7 +113,7 @@ function DailyGoal() {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-text-secondary">
-        Your goal is measured in active time in PadhAI (any use of the app), not study time: today {progress.today.activeMinutes}{" "}
+        Your goal is measured in active time in NetSec AI (any use of the app), not study time: today {progress.today.activeMinutes}{" "}
         min.
       </p>
       <GoalBar done={progress.today.activeMinutes} goal={goal} label="Today's goal" />
@@ -177,8 +177,8 @@ export function StudySummaryContent({
           />
           <Stat
             value={formatStudyTime(shown.totals.appSeconds)}
-            label="time in PadhAI"
-            hint="Any time PadhAI was open, studying or not."
+            label="time in NetSec AI"
+            hint="Any time NetSec AI was open, studying or not."
           />
         </dl>
         <dl className="mt-5 grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-3">

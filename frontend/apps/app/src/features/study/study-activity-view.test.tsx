@@ -62,12 +62,12 @@ describe("Study Activity", () => {
     expect(render({ ...SUMMARY, firstRecordedDate: null, days: [], sessions: [] })).toContain("Nothing recorded yet");
   });
 
-  test("study time and time in PadhAI are separate numbers; active, idle and paused are explained", () => {
+  test("study time and time in NetSec AI are separate numbers; active, idle and paused are explained", () => {
     const html = render(SUMMARY);
     expect(html).toContain("1 h 05 min");
     expect(html).toContain("estimated study time");
     expect(html).toContain("2 h 00 min");
-    expect(html).toContain("time in PadhAI");
+    expect(html).toContain("time in NetSec AI");
     expect(html).toContain("10 min");
     expect(html).toContain("5 min");
     expect(html).toContain("no activity was seen");

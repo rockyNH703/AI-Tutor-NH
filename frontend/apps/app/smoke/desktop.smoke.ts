@@ -2,7 +2,6 @@ import { expect, test } from "@playwright/test";
 
 import {
   GREETING_SHAPE,
-  SLOGAN,
   badge,
   banner,
   bell,
@@ -56,23 +55,10 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     return `${name}; day ends ${streak.dayEnd}`;
   });
 
-  await check("branding: Noto Sans, the slogan on one line in the sidebar, no 'AI Tutor India'", async () => {
-    expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/noto ?sans/i);
-    const loaded = await page.evaluate(async () => {
-      await document.fonts.ready;
-      return [...document.fonts].filter((face) => /noto ?sans/i.test(face.family) && face.status === "loaded").length;
-    });
-    expect(loaded).toBeGreaterThan(0);
-    const fit = await page
-      .getByRole("complementary")
-      .getByText(SLOGAN, { exact: true })
-      .evaluate((element) => {
-        const box = element.getBoundingClientRect();
-        const side = element.closest("aside")?.getBoundingClientRect();
-        const lines = Math.round(box.height / Number.parseFloat(getComputedStyle(element).lineHeight));
-        return { lines, inside: !!side && box.right <= side.right - 12 };
-      });
-    expect(fit).toEqual({ lines: 1, inside: true });
+  await check("branding: Inter-style typography, NetSec AI wordmark, no legacy slogan", async () => {
+    expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/inter|noto ?sans/i);
+    await expect(page.getByRole("complementary").getByText("NetSec AI", { exact: true })).toBeVisible();
+    await expect(page.getByText("Your Questions. Your Tutor. Your Way.", { exact: true })).toHaveCount(0);
     expect(await page.locator("body").innerText()).not.toMatch(/AI Tutor India/i);
   });
 
@@ -290,11 +276,11 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     }
   });
 
-  await check("header theme menu: Metallic Black / Normal White with one check (nothing changed)", async () => {
+  await check("header theme menu: Dark / White / System with one check (nothing changed)", async () => {
     await page.goto("/");
     await hydrated(page);
     await banner(page).getByRole("button", { name: "Colour theme" }).click();
-    await expect(page.getByRole("menuitemradio")).toHaveText(["Metallic Black", "Normal White"]);
+    await expect(page.getByRole("menuitemradio")).toHaveText(["Dark", "White", "System"]);
     expect(await page.locator('[role="menuitemradio"][aria-checked="true"]').count()).toBe(1);
     await page.keyboard.press("Escape");
     await expect(page.getByRole("menu")).toHaveCount(0);

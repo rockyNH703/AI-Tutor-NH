@@ -8,7 +8,7 @@ import { ACTIVITY_EVENT, REPORT_EVERY_MS, shouldReport } from "@/lib/activity";
 const INTERACTIONS = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"] as const;
 
 /**
- * Reports active minutes while the student uses PadhAI (lib/activity.ts has the rule). Mounted
+ * Reports active minutes while the student uses NetSec AI (lib/activity.ts has the rule). Mounted
  * once, in the signed-in app shell. A failed report is simply not counted: nothing retries it.
  */
 export function useActivityHeartbeat(isStreaming: () => boolean): void {

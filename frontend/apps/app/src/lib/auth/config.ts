@@ -1,5 +1,5 @@
 /**
- * Better Auth (1.7.7, pinned) for PadhAI: signing up and in, Google, email codes, password
+ * Better Auth (1.7.7, pinned) for NetSec AI: signing up and in, Google, email codes, password
  * reset and change, two-step sign-in, and the session lifecycle. The API (FastAPI) still checks
  * every request itself, against the same PostgreSQL tables (backend/alembic/versions/0012, 0013):
  * user -> users, session -> auth_sessions, account -> auth_accounts,
@@ -169,7 +169,7 @@ export function createAuth(env: AuthEnv) {
   };
 
   const twoFactorPlugin = twoFactor({
-    issuer: "PadhAI",
+    issuer: "NetSec AI",
     // Turning it on or off needs the account's password (an account without one sets one first).
     allowPasswordless: false,
     // Stricter than the default (10 per 15 minutes): 5 wrong codes in a row lock the second step
@@ -195,7 +195,7 @@ export function createAuth(env: AuthEnv) {
   const secondStep = twoFactorPlugin.hooks.after[0]!.handler;
 
   const auth = betterAuth({
-    appName: "PadhAI",
+    appName: "NetSec AI",
     baseURL: env.siteUrl,
     basePath: "/api/auth",
     secret: env.secret,

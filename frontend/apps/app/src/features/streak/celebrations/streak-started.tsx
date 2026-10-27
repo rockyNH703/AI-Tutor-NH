@@ -1,7 +1,7 @@
 import { PAINT } from "./palette";
 
 /**
- * Animation 1, Streak Started: the owner's asset (PadhAI Animation Gallery, `svgStarted`), its
+ * Animation 1, Streak Started: the owner's asset (NetSec AI Animation Gallery, `svgStarted`), its
  * markup, timing and CSS unchanged; only the colours come from the design tokens. Plays once on
  * mount (1.6 s, sparkles to 2 s). Decorative: the toast's text says what happened. With reduced
  * motion the global rules (globals.css) show its last frame: the still flame.

@@ -79,7 +79,7 @@ export function StudyControl() {
           <DialogHeader>
             <DialogTitle>Study session</DialogTitle>
             <DialogDescription>
-              Estimated study time: counted by PadhAI while you're active on the tutor or your files. An estimate, not a
+              Estimated study time: counted by NetSec AI while you're active on the tutor or your files. An estimate, not a
               measure of attention.
             </DialogDescription>
           </DialogHeader>

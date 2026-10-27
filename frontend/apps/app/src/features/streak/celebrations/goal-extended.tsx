@@ -1,7 +1,7 @@
 import { PAINT } from "./palette";
 
 /**
- * Animation 2, Daily Goal Completed + Streak Extended: the owner's asset (PadhAI Animation
+ * Animation 2, Daily Goal Completed + Streak Extended: the owner's asset (NetSec AI Animation
  * Gallery, `svgGoal`), its markup, timing and CSS unchanged; only the colours come from the design
  * tokens. One combined animation, ~1.5 s: the check's circle pops, the check draws, the flame pops,
  * sparkles burst. The streak's number is the card's text, not part of the drawing. With reduced

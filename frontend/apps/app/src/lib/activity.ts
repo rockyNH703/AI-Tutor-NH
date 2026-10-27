@@ -1,6 +1,6 @@
 /**
  * When the app reports an active minute (POST /v1/progress/activity). The rule, also shown to
- * students under Progress & Goals: PadhAI is open and visible, and they used it (typed,
+ * students under Progress & Goals: NetSec AI is open and visible, and they used it (typed,
  * clicked, scrolled, touched) or a reply was streaming, within the last two minutes.
  */
 

@@ -134,7 +134,7 @@ export function useStudyBeat(isStreaming: () => boolean): void {
     window.addEventListener("offline", onOffline);
     void beat(); // presence, and the session as it is
     const interval = window.setInterval(() => {
-      // A reply being written is being read: the same rule as active time in PadhAI.
+      // A reply being written is being read: the same rule as active time in NetSec AI.
       if (isStreaming() && !idleTimer.current.isIdle()) idleTimer.current.reset();
       void beat();
     }, BEAT_EVERY_MS);

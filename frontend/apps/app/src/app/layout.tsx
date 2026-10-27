@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to content
         </a>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
           <Toaster richColors position="top-center" />
         </ThemeProvider>

@@ -21,7 +21,7 @@ const TIMEOUT_MS = 5000;
 export async function passwordBreached(password: string, fetchImpl: typeof fetch = fetch): Promise<boolean> {
   const sha1 = createHash("sha1").update(password, "utf8").digest("hex").toUpperCase();
   const response = await fetchImpl(`${HIBP_RANGE}${sha1.slice(0, 5)}`, {
-    headers: { "Add-Padding": "true", "User-Agent": "PadhAI-password-check" },
+    headers: { "Add-Padding": "true", "User-Agent": "NetSec AI-password-check" },
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!response.ok) throw new Error(`pwnedpasswords answered ${response.status}`);

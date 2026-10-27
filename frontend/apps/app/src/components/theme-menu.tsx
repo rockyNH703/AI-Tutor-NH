@@ -11,7 +11,7 @@ import {
 import { THEME_CHOICES, THEME_LABELS, ThemeIcon, useThemeChoice } from "./theme-switcher";
 
 /**
- * The app header's compact theme control, opening Metallic Black / Normal White with a check on
+ * The app header's compact theme control, opening Dark / White / System with a check on the
  * the active choice. The page stays in the accessibility tree while the menu is open.
  */
 export function ThemeMenu() {

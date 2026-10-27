@@ -35,7 +35,7 @@ export function NotificationsSection() {
     <>
       <SectionHeading
         title="Notifications"
-        description="What appears in the app's notifications (the bell), and which emails PadhAI sends you."
+        description="What appears in the app's notifications (the bell), and which emails NetSec AI sends you."
       />
       {loadError ? (
         <SettingsCard title="Couldn't load your notification settings">
@@ -67,7 +67,7 @@ export function NotificationsSection() {
           </SettingsCard>
           {value.delivery === "paused" && (
             <Notice>
-              PadhAI isn't sending notification emails yet. Your choices are saved and will apply as soon as it does.
+              NetSec AI isn't sending notification emails yet. Your choices are saved and will apply as soon as it does.
             </Notice>
           )}
           <SettingsCard title="Study reminders" description="Sent to your email address.">
@@ -82,7 +82,7 @@ export function NotificationsSection() {
             )}
             <ToggleRow
               label="Daily reminder"
-              description="At your preferred study time (6 pm until you choose one), only on days you haven't used PadhAI yet."
+              description="At your preferred study time (6 pm until you choose one), only on days you haven't used NetSec AI yet."
               checked={value.dailyReminder}
               onCheckedChange={(dailyReminder) => change({ dailyReminder })}
             />

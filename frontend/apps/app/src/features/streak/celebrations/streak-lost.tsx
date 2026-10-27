@@ -1,7 +1,7 @@
 import { PAINT } from "./palette";
 
 /**
- * Animation 4, Streak Lost: the owner's asset (PadhAI Animation Gallery, `svgLost`), its markup,
+ * Animation 4, Streak Lost: the owner's asset (NetSec AI Animation Gallery, `svgLost`), its markup,
  * timing and CSS unchanged; only the colours come from the design tokens. Gentle, 1.5 s: the warm
  * flame fades into the muted one, which settles a little smaller, while the glow fades. With
  * reduced motion the global rules (globals.css) show its last frame: the muted, resting flame.

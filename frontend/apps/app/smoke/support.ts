@@ -36,7 +36,6 @@ export function recordCreated(id: string) {
 export function createdChats(): string[] {
   return existsSync(CREATED) ? (JSON.parse(readFileSync(CREATED, "utf-8")) as string[]) : [];
 }
-export const SLOGAN = "Your Questions. Your Tutor. Your Way.";
 
 /**
  * Where screenshots go, if SMOKE_SHOTS is set: an absolute folder outside the repository, since

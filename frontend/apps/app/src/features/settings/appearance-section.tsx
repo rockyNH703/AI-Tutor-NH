@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import type { JSX } from "react";
 
@@ -13,6 +13,7 @@ import { ChoiceGroup, SectionHeading, SettingsCard, ToggleRow } from "./primitiv
 const THEME_ICONS: Record<UserTheme, JSX.Element> = {
   dark: <Moon aria-hidden className="h-4 w-4" />,
   light: <Sun aria-hidden className="h-4 w-4" />,
+  system: <Monitor aria-hidden className="h-4 w-4" />,
 };
 const SIZE_LABELS: Record<FontSize, string> = {
   small: "Small",
@@ -34,7 +35,7 @@ export function AppearanceSection() {
     <>
       <SectionHeading
         title="Appearance & Accessibility"
-        description="How PadhAI looks and moves. Saved to your account, so it follows you to every device."
+        description="How NetSec AI looks and moves. Saved to your account, so it follows you to every device."
       />
       {!context || !appearance ? (
         <SkeletonGroup label="Loading appearance" className="space-y-3">
@@ -46,7 +47,7 @@ export function AppearanceSection() {
           <SettingsCard title="Display">
             <ChoiceGroup<UserTheme>
               legend="Theme"
-              description="Choose the metallic dark canvas or the clean white canvas."
+              description="Choose Dark, White, or follow your device setting."
               value={userTheme(appearance.theme)}
               options={(Object.keys(THEME_LABELS) as UserTheme[]).map((value) => ({
                 value,

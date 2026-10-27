@@ -94,7 +94,7 @@ async def send_code(
     ).all()
     await db.commit()
     expected = code_hash(body.otp)
-    if any(hmac.compare_digest(value.rpartition(":")[0], expected) for value in values):
+    if any(hmac.compare_digest(value.rpartition(":")[0].rstrip("="), expected.rstrip("=")) for value in values):
         settings = request.app.state.settings
         message = code_email(settings.app_name, CODE_PURPOSE[body.type], body.otp, CODE_MINUTES, settings=settings)
         background.add_task(_send, request.app.state.email_sender, email, message, CODE_PURPOSE[body.type])

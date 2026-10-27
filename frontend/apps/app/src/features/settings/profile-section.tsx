@@ -483,7 +483,7 @@ function EmailCard() {
 export function ProfileSection() {
   return (
     <>
-      <SectionHeading title="Profile" description="How you appear in PadhAI, and the email you sign in with." />
+      <SectionHeading title="Profile" description="How you appear in NetSec AI, and the email you sign in with." />
       <div className="flex flex-col gap-4">
         <PhotoCard />
         <NameAndZoneCard />

@@ -11,10 +11,9 @@
  * it to the same name so the inbox and the app agree.
  */
 export const BRAND = {
-  name: "PadhAI",
-  wordmark: { lead: "Padh", accent: "AI" },
-  tagline: "Your Questions. Your Tutor. Your Way.",
-  description: "PadhAI, your personal AI tutor.",
+  name: "NetSec AI",
+  wordmark: { lead: "NetSec", accent: " AI" },
+  description: "NetSec AI, your intelligent learning assistant.",
   /** Served from `public/`. A square image that carries its own background. */
   markSrc: "/brand/padhai-mark.svg",
 } as const;

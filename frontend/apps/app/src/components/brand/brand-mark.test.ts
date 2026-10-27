@@ -11,7 +11,7 @@ describe("the brand mark", () => {
   test("keeps its geometry, size and name", () => {
     for (const part of [
       'viewBox="0 0 32 32"',
-      'role="img" aria-label="PadhAI"',
+      'role="img" aria-label="NetSec AI"',
       'fill="none" stroke="currentColor" stroke-width="1.6"',
       'd="M16 2.8 29.1 26H2.9L16 2.8Z"',
       'd="m16 2.8-4.35 15.3L2.9 26"',

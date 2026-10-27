@@ -1,4 +1,4 @@
-/** Progress (active time in PadhAI, questions, streaks, practice) and support requests. */
+/** Progress (active time in NetSec AI, questions, streaks, practice) and support requests. */
 
 import { callRoute } from "./http";
 import type {

@@ -197,7 +197,7 @@ test("appearance: applies at once, persists, and follows the account to another 
 }) => {
   const html = page.locator("html");
   await page.goto("/settings/appearance");
-  await page.getByRole("radio", { name: "Metallic Black" }).check();
+  await page.getByRole("radio", { name: "Dark" }).check();
   await page.getByRole("radio", { name: "Large", exact: true }).check();
   await page.getByRole("switch", { name: "High contrast" }).click();
   await page.getByRole("switch", { name: "Comfortable reading" }).click();
@@ -229,7 +229,7 @@ test("notifications: honest about delivery, saved here and on another device, an
 }) => {
   const saved = async (target: Page) => (await target.request.get(`${APP_URL}/api/v1/notifications/preferences`)).json();
   await page.goto("/settings/notifications");
-  await expect(page.getByText("PadhAI isn't sending notification emails yet.", { exact: false })).toBeVisible();
+  await expect(page.getByText("NetSec AI isn't sending notification emails yet.", { exact: false })).toBeVisible();
   await expect(page.getByRole("link", { name: "Set your time zone" })).toBeVisible();
   const weekly = page.getByRole("switch", { name: "Weekly summary" });
   await expect(weekly).toHaveAttribute("aria-checked", "false");
@@ -476,7 +476,7 @@ test("progress: a question and an active minute count today, and the tutor is to
   expect(await tutorKnows(page)).toMatch(/Learning so far: a 1-day learning streak; today \d+ min active and 1 question/);
 });
 
-test("the heartbeat reports a minute while PadhAI is used, and stops when it isn't", async ({ page, account: _ }) => {
+test("the heartbeat reports a minute while NetSec AI is used, and stops when it isn't", async ({ page, account: _ }) => {
   const reports: string[] = [];
   page.on("request", (request) => {
     if (request.method() === "POST" && new URL(request.url()).pathname === "/api/v1/progress/activity") reports.push(request.url());
@@ -504,7 +504,7 @@ test("the heartbeat reports a minute while PadhAI is used, and stops when it isn
 test("help: a support request is sent once, even when the answer is lost, with a reference", async ({ page, account: _ }) => {
   await page.goto("/settings/help");
   await expect(page.getByRole("link", { name: "Help & FAQ" })).toHaveAttribute("href", "/help");
-  await expect(page.getByRole("link", { name: "About PadhAI" })).toHaveAttribute("href", "/about");
+  await expect(page.getByRole("link", { name: "About NetSec AI" })).toHaveAttribute("href", "/about");
   await expect(page.getByRole("link", { name: /Terms of Service|Privacy Policy/ })).toHaveCount(0); // not published yet
 
   await page.getByRole("radio", { name: "Something isn't working" }).check();
@@ -546,7 +546,7 @@ test("help: a support request is sent once, even when the answer is lost, with a
 
 for (const { path, h1, h2 } of [
   { path: "/help", h1: "Help", h2: "Help & FAQ" },
-  { path: "/about", h1: "About", h2: "About PadhAI" },
+  { path: "/about", h1: "About", h2: "About NetSec AI" },
 ]) {
   test(`${h2}: readable, accessible, fits a phone`, async ({ page, account: _ }) => {
     await page.goto(path);
@@ -554,7 +554,7 @@ for (const { path, h1, h2 } of [
     await expect(page.getByRole("heading", { level: 2, name: h2 })).toBeVisible();
     if (path === "/help") {
       await page.getByText("How is active time measured?").click();
-      await expect(page.getByText(/A minute counts when PadhAI is open and on screen/)).toBeVisible();
+      await expect(page.getByText(/A minute counts when NetSec AI is open and on screen/)).toBeVisible();
     }
     await expectAccessible(page);
     await page.setViewportSize({ width: 320, height: 700 });
@@ -596,7 +596,7 @@ test("unsubscribe: works signed out, asks first, refuses a link we didn't sign",
   await page.goto(`/unsubscribe?token=${fakeToken("weekly_summary")}`);
   await page.getByRole("button", { name: "Unsubscribe" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "You're unsubscribed" })).toBeFocused();
-  await expect(page.getByText("You won't get weekly summaries from PadhAI any more.", { exact: false })).toBeVisible();
+  await expect(page.getByText("You won't get weekly summaries from NetSec AI any more.", { exact: false })).toBeVisible();
   await expectAccessible(page);
 
   await page.goto("/unsubscribe");

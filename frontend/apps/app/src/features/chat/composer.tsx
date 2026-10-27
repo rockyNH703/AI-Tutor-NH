@@ -329,7 +329,7 @@ export function Composer({
         </form>
 
         <div id={`composer-hint-${chatKey}`} className="flex justify-between px-3 text-2xs text-text-secondary">
-          <span className="mt-1.5 hidden sm:inline">PadhAI can make mistakes. Check important information.</span>
+          <span className="mt-1.5 hidden sm:inline">NetSec AI can make mistakes. Check important information.</span>
           <span className="sr-only">
             Enter to send, Shift + Enter for a new line.
             {chips.some((chip) => chip.state !== "ready") ? " Send waits until every attached file is ready." : ""}

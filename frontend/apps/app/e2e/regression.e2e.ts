@@ -88,7 +88,7 @@ test("the colour theme can be switched, and the choice is remembered", async ({ 
   await page.goto("/settings/appearance");
   const html = page.locator("html");
 
-  await page.getByRole("main").getByRole("radio", { name: "Metallic Black" }).check();
+  await page.getByRole("main").getByRole("radio", { name: "Dark" }).check();
   await expect(html).toHaveClass(/\bdark\b/);
   await expect.poll(async () => (await (await page.request.get("/api/v1/me/appearance")).json()).theme).toBe("dark");
   await page.reload();
@@ -96,12 +96,12 @@ test("the colour theme can be switched, and the choice is remembered", async ({ 
 
   // The quick switch in the Settings top bar (the app header's theme menu shares it) saves to the account too.
   await page.getByRole("banner").getByRole("combobox", { name: "Colour theme" }).click();
-  await page.getByRole("option", { name: "Normal White" }).click();
+  await page.getByRole("option", { name: "White" }).click();
   await expect(html).not.toHaveClass(/\bdark\b/);
   await expect.poll(async () => (await (await page.request.get("/api/v1/me/appearance")).json()).theme).toBe("light");
   await page.reload();
   await expect(html).not.toHaveClass(/\bdark\b/);
-  await expect(page.getByRole("main").getByRole("radio", { name: "Normal White" })).toBeChecked();
+  await expect(page.getByRole("main").getByRole("radio", { name: "White" })).toBeChecked();
 });
 
 test("changing the password: a wrong current one is refused, the new one signs in", async ({ page }) => {

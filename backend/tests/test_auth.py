@@ -179,6 +179,25 @@ async def test_a_code_is_emailed_only_when_better_auth_just_stored_it(client, ap
     assert len(outbox) == 1 and outbox[0]["to"] == email and "424242" in outbox[0]["body"]
 
 
+async def test_a_better_auth_padded_hash_is_accepted(client, app):
+    email = "padded@example.com"
+    padded = base64.urlsafe_b64encode(hashlib.sha256(b"737373").digest()).decode()
+    async with app.state.db.sessionmaker() as s:
+        s.add(
+            AuthVerification(
+                identifier=f"sign-in-otp-{email}",
+                value=f"{padded}:0",
+                expires_at=datetime.now(UTC) + timedelta(minutes=15),
+            )
+        )
+        await s.commit()
+    sent = await client.post(
+        "/internal/auth/code", json={"email": email, "type": "sign-in", "otp": "737373"}, headers=INTERNAL
+    )
+    assert sent.status_code == 202
+    assert app.state.email_sender.outbox[-1]["to"] == email
+
+
 async def test_sign_in_alert_only_for_a_new_device_and_only_for_real_sessions(client, app):
     phone = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Version/17.0 Mobile Safari/604.1"
     laptop = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0 Safari/537.36"

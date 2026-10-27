@@ -78,7 +78,7 @@ export function ProgressSection() {
     <>
       <SectionHeading
         title="Progress & Goals"
-        description="Your active time in PadhAI and the questions you've asked, measured from how you use the app."
+        description="Your active time in NetSec AI and the questions you've asked, measured from how you use the app."
       />
       {error ? (
         <SettingsCard title="Couldn't load your progress">
@@ -158,7 +158,7 @@ export function ProgressSection() {
           </SettingsCard>
           <SettingsCard title="How active time is measured">
             <p className="text-sm leading-relaxed text-text-secondary">
-              A minute counts when PadhAI is open and on screen, and you used it (typed, clicked, scrolled) or a reply
+              A minute counts when NetSec AI is open and on screen, and you used it (typed, clicked, scrolled) or a reply
               was being written, within the last two minutes. At most one minute is counted per minute, however many
               tabs or devices you use. It's how much you used the app, not all of your studying, and it's never
               compared with anyone else's.

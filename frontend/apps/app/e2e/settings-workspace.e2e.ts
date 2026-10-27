@@ -130,7 +130,7 @@ test("every section has its own address and title; with nowhere to return to, Cl
   for (const [slug, name] of SECTIONS) {
     await page.goto(`/settings/${slug}`);
     await expect(heading(page, name)).toBeVisible();
-    await expect(page).toHaveTitle(`${name} · Settings · PadhAI`);
+    await expect(page).toHaveTitle(`${name} · Settings · NetSec AI`);
     await expect(section(page, name)).toHaveAttribute("aria-current", "page");
   }
   await expect(heading(page, "Help & Support")).not.toBeFocused(); // a fresh load never moves focus
@@ -148,7 +148,7 @@ test("/settings opens the first section on a wide screen, without a Back loop", 
   await page.goto("/help");
   await page.goto("/settings");
   await expect(page).toHaveURL("/settings/profile");
-  await expect(page).toHaveTitle("Profile · Settings · PadhAI");
+  await expect(page).toHaveTitle("Profile · Settings · NetSec AI");
   await page.goBack();
   await expect(page).toHaveURL("/help");
 });

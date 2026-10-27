@@ -44,7 +44,7 @@ function questions(count: number): string {
 }
 
 /**
- * Minutes per day, as columns (active time in PadhAI, or estimated study time). One series, so no
+ * Minutes per day, as columns (active time in NetSec AI, or estimated study time). One series, so no
  * legend: the title names it.
  * - Marks: at most 24px wide, 4px rounded at the top and square on the baseline, 2px apart.
  * - Hover or focus a day for its tooltip; the chart is one tab stop and the arrow keys move

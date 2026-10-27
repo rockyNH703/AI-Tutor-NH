@@ -1,13 +1,13 @@
 import { expect, test as setup } from "@playwright/test";
 
-import { SESSION, SLOGAN, credentials, hydrated } from "./support";
+import { SESSION, credentials, hydrated } from "./support";
 
 setup("the site answers, and the owner signs in through the form", async ({ page }) => {
   const { email, password } = credentials();
   expect((await page.request.get("/login")).status()).toBe(200);
   await page.goto("/login");
   await hydrated(page);
-  await expect(page.getByText(SLOGAN, { exact: true })).toBeVisible();
+  await expect(page.getByText("NetSec AI", { exact: true })).toBeVisible();
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   try {

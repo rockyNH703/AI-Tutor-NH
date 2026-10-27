@@ -260,7 +260,7 @@ export function GoalsSection() {
 
           <SettingsCard
             title="Study time"
-            description="Goals are measured in active time in PadhAI: minutes you're actually using the app, not all your studying."
+            description="Goals are measured in active time in NetSec AI: minutes you're actually using the app, not all your studying."
             footer={<SaveFooter dirty={form.dirty} pending={form.pending} onCancel={form.reset} />}
           >
             <Field label="Daily goal (minutes)" error={check("dailyActiveMinutesGoal")}>

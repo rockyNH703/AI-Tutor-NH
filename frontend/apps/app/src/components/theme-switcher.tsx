@@ -2,7 +2,7 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@v1/ui/select";
 import { cn } from "@v1/ui/utils";
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -27,17 +27,17 @@ import { useAppearance } from "./appearance-provider";
  * compact menu (theme-menu.tsx) shares the same choice and icons below.
  */
 
-export const THEME_CHOICES = ["dark", "light"] as const;
+export const THEME_CHOICES = ["dark", "light", "system"] as const;
 export type UserTheme = (typeof THEME_CHOICES)[number];
 
 export const THEME_LABELS: Record<UserTheme, string> = {
-  dark: "Metallic Black",
-  light: "Normal White",
+  dark: "Dark",
+  light: "White",
+  system: "System",
 };
 
-/** Legacy accounts may still store `system`; the redesigned UI resolves those to Metallic Black. */
 export function userTheme(theme: string | undefined): UserTheme {
-  return theme === "light" ? "light" : "dark";
+  return theme === "light" || theme === "system" ? theme : "dark";
 }
 
 /**
@@ -61,9 +61,10 @@ export function useThemeChoice() {
   return { shown, choose };
 }
 
-/** The icon of one of the two user-facing themes. */
+/** The icon of the selected theme preference. */
 export function ThemeIcon({ theme, className }: { theme: string | undefined; className?: string }) {
   if (theme === "light") return <Sun aria-hidden className={className} />;
+  if (theme === "system") return <Monitor aria-hidden className={className} />;
   return <Moon aria-hidden className={className} />;
 }
 
