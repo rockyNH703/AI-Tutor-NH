@@ -1,0 +1,21 @@
+[Unit]
+# Next.js web app, from the production checkout /opt/netsecai/app (bun run deploy): it serves
+# frontend/apps/app/.next, which deploy-netsec/server/update.sh builds beside the served build and
+# swaps in. It reaches the API through API_BASE_URL in /etc/netsecai/web.env (:4400), and runs on
+# the checkout's pinned Node (.node-version, installed into /opt/netsecai/runtime), never on
+# whatever Node the system has.
+Description=netsecai web app (Next.js)
+After=netsecai-api.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/netsecai/app/frontend/apps/app
+EnvironmentFile=/etc/netsecai/web.env
+ExecStart=/bin/sh -c 'NODE_BIN="/opt/netsecai/runtime/node-v$$(cat /opt/netsecai/app/.node-version)-linux-x64/bin"; exec "$$NODE_BIN/node" /opt/netsecai/app/frontend/node_modules/next/dist/bin/next start -p 4300 -H 127.0.0.1'
+Restart=always
+RestartSec=5
+MemoryMax=900M
+
+[Install]
+WantedBy=multi-user.target

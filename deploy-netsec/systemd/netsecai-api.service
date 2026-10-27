@@ -1,0 +1,28 @@
+[Unit]
+# FastAPI chat API, from the production checkout /opt/netsecai/app (bun run deploy).
+# Loopback only: the web app's server-side proxy is its only client.
+# Migrations are NOT run here: deploy-netsec/server/update.sh runs them (after a backup) before it
+# restarts this unit, and only when the commit brings new ones.
+Description=netsecai chat API (FastAPI)
+Requires=netsecai-postgres.service
+After=netsecai-postgres.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/netsecai/app/backend
+EnvironmentFile=/etc/netsecai/api.env
+ExecStart=/opt/netsecai/app/backend/.venv/bin/python -m uvicorn app.main:create_app --factory --host 127.0.0.1 --port 4400 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=always
+RestartSec=5
+# In-flight replies are persisted as 'cancelled' on shutdown; give them a moment.
+KillSignal=SIGINT
+# uvicorn alone gets SIGINT; a file extractor's runner is not interrupted mid-answer (app/files).
+KillMode=mixed
+TimeoutStopSec=20
+MemoryMax=900M
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

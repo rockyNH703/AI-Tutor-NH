@@ -1,0 +1,13 @@
+# Dedicated NetSec AI tunnel. Do not reuse the existing cloudflared service, config, tunnel, or credentials.
+# Render to /etc/netsecai/cloudflared/config.yml only after the tunnel and DNS stage is approved.
+tunnel: NETSECAI_TUNNEL_ID
+credentials-file: /etc/netsecai/cloudflared/NETSECAI_TUNNEL_ID.json
+
+originRequest:
+  connectTimeout: 30s
+  noTLSVerify: false
+
+ingress:
+  - hostname: chat.netsecai.com
+    service: http://127.0.0.1:4300
+  - service: http_status:404

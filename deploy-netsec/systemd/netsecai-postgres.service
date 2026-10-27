@@ -1,0 +1,19 @@
+[Unit]
+# PostgreSQL 16 + pgvector. NOT part of app releases: its compose file is installed once in
+# /opt/netsecai/shared/postgres (deploy-netsec/server/install-units.sh). The NetSec AI-specific Compose
+# project/network/volume names are pinned there; the configured host port is loopback-only.
+Description=netsecai PostgreSQL 16 + pgvector (docker compose)
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/netsecai/shared/postgres
+ExecStart=/usr/bin/docker compose --env-file /etc/netsecai/postgres.env -f docker-compose.yml up -d --wait
+ExecStop=/usr/bin/docker compose --env-file /etc/netsecai/postgres.env -f docker-compose.yml stop
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

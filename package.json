@@ -18,6 +18,10 @@
     "deploy": "bash deploy/deploy.sh",
     "rollback": "bash deploy/rollback.sh",
     "status": "bash deploy/status.sh",
-    "rehearse": "bash deploy/rehearsal/run.sh"
+    "rehearse": "bash deploy/rehearsal/run.sh",
+    "deploy:netsec": "bash deploy-netsec/deploy.sh",
+    "status:netsec": "bash deploy-netsec/status.sh",
+    "rollback:netsec": "bash deploy-netsec/rollback.sh",
+    "smoke:netsec": "bash deploy-netsec/smoke.sh"
   }
 }

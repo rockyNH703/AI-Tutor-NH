@@ -467,3 +467,15 @@ database rows and secrets survive. It prints how long each deploy took. Use it w
 - `docker compose down -v`, or anything that recreates the database volume.
 - Change `API_BASE_URL` in `web.env` (the frontend's default `:4000` is the old API on that host).
 - Put secrets in Git.
+
+
+## NetSec AI staged deployment (new isolated namespace)
+
+NetSec AI is implemented in `deploy-netsec/` and does not share the existing `deploy/` production resources. It uses `/opt/netsecai`, `/etc/netsecai`, `/var/backups/netsecai`, `netsecai-*` units, 4300/4400/55432, and dedicated Compose resources. The scripts fail closed on protected paths, units, ports, Docker names, and the existing hostname.
+
+Approvals are staged:
+1. Approve host inventory and installation.
+2. Approve the first app deployment and loopback smoke. The root commands are `deploy:netsec`, `status:netsec`, `rollback:netsec`, and `smoke:netsec`.
+3. Create a new Cloudflare Tunnel and credential for `chat.netsecai.com`. Render `deploy-netsec/cloudflared/config.yml.template` to `/etc/netsecai/cloudflared/config.yml`, then enable only `netsecai-cloudflared.service`. Never reuse or modify the existing cloudflared service, config, tunnel, or credential.
+
+Do not combine these approvals and do not run any stage against a host until its previous stage has been reviewed.

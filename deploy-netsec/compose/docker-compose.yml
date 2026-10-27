@@ -1,0 +1,39 @@
+# Production PostgreSQL 16 + pgvector: the isolated NetSec AI datastore.
+#
+# Started by netsecai-postgres.service:
+#   docker compose --env-file /etc/netsecai/postgres.env -f deploy-netsec/compose/docker-compose.yml up -d
+#
+# Binds to a configurable loopback-only host port. The volume IS the database: never
+# `docker compose down -v`. Backups: netsecai-pg-backup.timer runs deploy-netsec/backup.sh nightly.
+#
+# Project, network and volume names are explicit and NetSec AI-specific. Never reuse them for
+# another application or change them on an existing installation: a different volume is empty.
+name: netsecai-postgres
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set in /etc/netsecai/postgres.env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in /etc/netsecai/postgres.env}
+      POSTGRES_DB: ${POSTGRES_DB:-netsecai}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+networks:
+  postgres:
+    name: netsecai_postgres_network
+
+volumes:
+  pgdata:
+    name: netsecai_postgres_data

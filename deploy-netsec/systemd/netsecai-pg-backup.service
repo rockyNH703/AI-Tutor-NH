@@ -1,0 +1,9 @@
+[Unit]
+Description=NetSec AI nightly PostgreSQL backup (pg_dump)
+Requires=netsecai-postgres.service
+After=netsecai-postgres.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/netsecai/postgres.env
+ExecStart=/opt/netsecai/shared/postgres/backup.sh
