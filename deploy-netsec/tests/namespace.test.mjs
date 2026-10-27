@@ -112,6 +112,14 @@ describe("NetSec deployment namespace", () => {
     expect(update).toContain('"$SHARED/postgres/database-grants.sh"');
   });
 
+  test("server scripts source sibling safety helper", () => {
+    for (const file of ["deploy-netsec/server/install-units.sh", "deploy-netsec/server/update.sh"]) {
+      const source = read(file);
+      expect(source, file).toContain('pwd)/safety.sh');
+      expect(source, file).not.toContain('pwd)/server/safety.sh');
+    }
+  });
+
   test("script hygiene defects stay fixed", () => {
     expect(read("deploy-netsec/server/safety.sh").startsWith("#!/usr/bin/env bash\n")).toBe(true);
     expect(read("deploy-netsec/status.sh")).toContain("STOP: set NETSEC_DEPLOY_HOST");

@@ -22,7 +22,7 @@
 # code, so the next deploy redoes whatever failed. The first run on a host still on the old
 # release layout (/opt/netsecai/current) is the cutover: if it fails, the old units come back.
 set -euo pipefail
-SAFETY_LIB=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/server/safety.sh
+SAFETY_LIB=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/safety.sh
 . "$SAFETY_LIB"
 safety_preflight
 SHA=${1:?usage: update.sh <commit>}

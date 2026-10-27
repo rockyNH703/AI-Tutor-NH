@@ -14,7 +14,7 @@
 #   must be a deliberate step. Its NetSec AI-specific project, network and volume names are pinned.
 # - Never restarts anything.
 set -euo pipefail
-SAFETY_LIB=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/server/safety.sh
+SAFETY_LIB=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/safety.sh
 . "$SAFETY_LIB"
 safety_preflight
 . "$(dirname "$(readlink -f "$0")")/lib.sh"
