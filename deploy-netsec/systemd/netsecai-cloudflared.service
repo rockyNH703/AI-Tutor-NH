@@ -1,8 +1,7 @@
 [Unit]
 Description=NetSec AI Cloudflare Quick Tunnel
 After=network-online.target netsecai-web.service
-Wants=network-online.target
-Requires=netsecai-web.service
+Wants=network-online.target netsecai-web.service
 
 [Service]
 Type=simple
