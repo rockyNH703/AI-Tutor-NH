@@ -57,7 +57,7 @@ const label = "text-sm font-medium uppercase tracking-widest text-slate-500 dark
 // The hairline under the field is its edge (WCAG 1.4.11: at least 3:1 against the ground, about
 // 3.4:1 on white and 3.7:1 on the dark ground), and turns blue while it has focus.
 const bigInput =
-  "w-full border-b border-black/45 bg-transparent pb-2 text-center text-4xl font-semibold tracking-tight text-slate-900 caret-blue-500 outline-none transition-colors placeholder:text-slate-300 focus:border-blue-500 disabled:opacity-50 sm:text-5xl md:text-6xl dark:border-white/40 dark:text-white dark:placeholder:text-white/20 dark:focus:border-blue-400";
+  "w-full border-b border-black/45 bg-transparent pb-2 text-center text-xl font-semibold tracking-tight text-slate-900 caret-blue-500 outline-none transition-colors placeholder:text-slate-300 focus:border-blue-500 disabled:opacity-50 sm:text-2xl dark:border-white/40 dark:text-white dark:placeholder:text-white/20 dark:focus:border-blue-400";
 const primaryPill = cn(
   "auth-glow group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-80 disabled:hover:scale-100",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -499,7 +499,7 @@ export function AuthForm({
           aria-pressed={showPassword}
           className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-2 text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 sm:right-6 dark:text-white/20 dark:hover:text-white/60"
         >
-          {showPassword ? <EyeOff aria-hidden className="h-6 w-6" /> : <Eye aria-hidden className="h-6 w-6" />}
+          {showPassword ? <EyeOff aria-hidden className="h-5 w-5" /> : <Eye aria-hidden className="h-5 w-5" />}
         </button>
       )}
     </div>
@@ -827,19 +827,19 @@ export function AuthForm({
             )}
           >
             <BrandMark size={24} className="text-current" />
-            <span className="hidden text-lg font-semibold tracking-wide min-[480px]:block">NetSec AI</span>
+            <span className="hidden text-base font-semibold tracking-wide min-[480px]:block">NetSec AI</span>
           </div>
         </div>
         <ThemeMenu className="border-transparent bg-transparent text-slate-500 hover:bg-slate-900/5 hover:text-slate-900 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white" />
       </header>
 
-      <main id="main" tabIndex={-1} className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-6 pb-24 outline-none">
+      <main id="main" tabIndex={-1} className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-6 pb-28 pt-14 outline-none sm:pb-20">
         {/* Always in the page, so each new step's name is announced when it arrives. */}
         <p className="sr-only" aria-live="polite">
           {available && !leaving ? title : ""}
         </p>
         {/* The address the later steps are for: tap it to change it. */}
-        <div className="pointer-events-none absolute inset-x-0 top-6 flex justify-center sm:top-16">
+        <div className="pointer-events-none absolute inset-x-0 top-2 flex justify-center">
           <button
             type="button"
             onClick={() => go("email", { back: true })}
@@ -858,15 +858,15 @@ export function AuthForm({
           </button>
         </div>
 
-        {/* From sm up the step hangs from the middle of the screen, as in the design; on a phone it
-            is simply centred (the keyboard takes the lower half). */}
-        <div className="relative mt-12 flex w-full max-w-4xl justify-center sm:h-0">
+        {/* The step is centred in the page's flow, so at any size or zoom it is pushed down (the
+            page scrolls) rather than drawn over the header, the badge or the hint. */}
+        <div className="relative flex w-full max-w-4xl justify-center">
           {available ? (
             <div
               key={step}
               inert={leaving || undefined}
               className={cn(
-                "flex w-full justify-center transition-[opacity,transform] duration-500 sm:absolute sm:inset-x-0 sm:top-0",
+                "flex w-full justify-center transition-[opacity,transform] duration-500",
                 EASE,
                 leaving
                   ? cn("scale-95 opacity-0", back ? "translate-y-12" : "-translate-y-12")
@@ -878,7 +878,7 @@ export function AuthForm({
           ) : (
             <div role="alert" className="flex max-w-md flex-col items-center gap-3 text-center">
               <h1 className={label}>Sign-in unavailable here</h1>
-              <p className="text-base text-slate-600 dark:text-white/60">
+              <p className="text-sm text-slate-600 dark:text-white/60">
                 This address isn&apos;t the one NetSec AI signs in at right now. Please use the link you were given, or
                 try again in a little while.
               </p>
@@ -887,15 +887,12 @@ export function AuthForm({
         </div>
       </main>
 
-      {/* A hint, not content: only where the step can never reach it (a tall enough window, and
-          no message under the field). */}
-      {!error && !info && (
-        <footer className="pointer-events-none absolute bottom-0 left-0 z-20 hidden w-full items-center justify-center p-8 min-[480px]:[@media(min-height:780px)]:flex">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-white/20">
-            Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans dark:bg-white/10">Enter</kbd> to continue
-          </p>
-        </footer>
-      )}
+      {/* A hint, not content: in the flow under the step, and only where there is room for it. */}
+      <footer className="pointer-events-none hidden w-full items-center justify-center p-6 min-[480px]:[@media(min-height:700px)]:flex">
+        <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-white/20">
+          Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans dark:bg-white/10">Enter</kbd> to continue
+        </p>
+      </footer>
     </div>
   );
 }
