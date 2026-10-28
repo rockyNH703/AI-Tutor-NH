@@ -9,6 +9,7 @@ setup("the site answers, and the owner signs in through the form", async ({ page
   await hydrated(page);
   await expect(page.getByText("NetSec AI", { exact: true })).toBeVisible();
   await page.getByLabel("Email").fill(email);
+  await page.getByRole("button", { name: "Continue with Email" }).click();
   await page.getByLabel("Password", { exact: true }).fill(password);
   try {
     await page.getByRole("button", { name: "Sign in" }).click();

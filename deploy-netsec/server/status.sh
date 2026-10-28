@@ -52,6 +52,20 @@ grep -qE '^GOOGLE_CLIENT_ID=.+' "$SECRETS/web.env" 2> /dev/null && info "Google 
 grep -qE '^TURNSTILE_SECRET_KEY=.+' "$SECRETS/web.env" 2> /dev/null && info "CAPTCHA (Turnstile): configured" || info "CAPTCHA (Turnstile): not configured (adaptive CAPTCHA off)"
 public=$(sed -n 's/^NEXT_PUBLIC_SITE_URL=//p' "$SECRETS/web.env" 2> /dev/null)
 if [ -n "$public" ]; then info "public $public/login -> $(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$public/login" || true) (information: Cloudflare/DNS)"; fi
+# The Quick Tunnel's address is Cloudflare's and changes whenever cloudflared restarts. Sign-in
+# trusts only NEXT_PUBLIC_SITE_URL (Better Auth's origin check) and Google's redirect URI is
+# registered for it, so a new address breaks every sign-in until web.env (and Google) follow.
+# The address of the running tunnel is the last one its current run printed.
+run=$(systemctl show -p InvocationID --value netsecai-cloudflared 2> /dev/null)
+tunnel=""
+[ -n "$run" ] && tunnel=$(journalctl -o cat --no-pager "_SYSTEMD_INVOCATION_ID=$run" 2> /dev/null | grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' | tail -1)
+if [ -z "$tunnel" ]; then
+  info "tunnel address unknown (no Quick Tunnel URL in this run of netsecai-cloudflared)"
+elif [ "$tunnel" = "${public%/}" ]; then
+  ok "tunnel $tunnel is NEXT_PUBLIC_SITE_URL"
+else
+  bad "tunnel is $tunnel but NEXT_PUBLIC_SITE_URL is ${public:-unset}: sign-in fails there (docs/deployment.md, \"Quick Tunnel address changed\")"
+fi
 jobs_timer=$(systemctl is-enabled netsecai-jobs.timer 2> /dev/null); info "jobs worker: netsecai-jobs.timer ${jobs_timer:-not installed}"
 files=$(curl -fsS --max-time 5 "http://127.0.0.1:$API_PORT/health" 2> /dev/null | grep -o '"files":"[a-z]*"' | cut -d'"' -f4)
 info "files (File Library): ${files:-unknown}; extractor units running: $(systemctl list-units --no-legend 'netsecai-extract-*' 2> /dev/null | wc -l)"

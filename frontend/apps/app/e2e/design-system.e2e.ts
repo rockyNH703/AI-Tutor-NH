@@ -166,10 +166,10 @@ test("titles in any script, and very long ones, stay inside the sidebar and the 
 test("every text field's edge clears 3:1 against what is behind it, light and dark", async ({ page, browser, account: _ }) => {
   const edges = (target: Page) =>
     target.evaluate(() => {
-      const luminance = (value: string) =>
-        (value.match(/[\d.]+/g) ?? [])
+      const channels = (value: string) => (value.match(/[\d.]+/g) ?? []).map(Number);
+      const luminance = (rgb: number[]) =>
+        rgb
           .slice(0, 3)
-          .map(Number)
           .map((v) => v / 255)
           .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
           .reduce((sum, c, index) => sum + c * ([0.2126, 0.7152, 0.0722][index] ?? 0), 0);
@@ -180,11 +180,22 @@ test("every text field's edge clears 3:1 against what is behind it, light and da
         }
         return getComputedStyle(document.body).backgroundColor;
       };
+      // A field's edge is its border, or an underlined field's bottom line (the sign-in screens').
+      const edgeOf = (field: HTMLElement) => {
+        const style = getComputedStyle(field);
+        if (style.borderTopWidth !== "0px") return style.borderTopColor;
+        if (style.borderBottomWidth !== "0px") return style.borderBottomColor;
+        return null;
+      };
       return [...document.querySelectorAll<HTMLElement>("input:not([type=checkbox]):not([type=radio]):not([type=hidden]), select, textarea")]
-        .filter((field) => field.getBoundingClientRect().width > 0 && getComputedStyle(field).borderTopWidth !== "0px")
+        .filter((field) => field.getBoundingClientRect().width > 0 && edgeOf(field) !== null)
         .map((field) => {
-          const [a, b] = [luminance(getComputedStyle(field).borderTopColor), luminance(behind(field))];
-          return { name: field.getAttribute("aria-label") ?? field.id ?? field.tagName, ratio: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };
+          const ground = channels(behind(field));
+          const [r = 0, g = 0, b = 0, alpha = 1] = channels(edgeOf(field)!);
+          // A translucent edge is seen over what is behind it.
+          const edge = [r, g, b].map((c, index) => alpha * c + (1 - alpha) * (ground[index] ?? 0));
+          const [a, z] = [luminance(edge), luminance(ground)];
+          return { name: field.getAttribute("aria-label") ?? field.id ?? field.tagName, ratio: (Math.max(a, z) + 0.05) / (Math.min(a, z) + 0.05) };
         });
     });
   const signedOut = await browser.newPage();

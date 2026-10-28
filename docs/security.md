@@ -82,6 +82,30 @@ The API is **never published**: it listens on `127.0.0.1`, and the tunnel publis
 **Adaptive CAPTCHA:** Cloudflare Turnstile appears only when an address or account is being hammered, and only
 when both Turnstile keys are configured.
 
+**Google** (`lib/auth/config.ts`):
+- The ID token from the code exchange is verified against Google's keys, issuer, audience and expiry
+  (`googleUser`); Better Auth alone would only decode it.
+- Google signs in by its redirect only. A bare ID token at `/sign-in/social` is refused
+  (`disableIdTokenSignIn` plus a before-hook): Better Auth would otherwise set a session there, past every
+  second-step hook.
+- No account is ever created with an unverified address (the user create hook). Before this, an unverified Google
+  address left a user and a Google link behind; a later reset by code would have verified that address with the
+  stranger's Google still attached.
+- The OAuth state is server-side, bound to the browser by a signed cookie, single-use and short-lived, with PKCE
+  (S256).
+
+**Request size:** `/api/auth/*` and `/api/account/password` read at most 16 KB (`AUTH_BODY_BYTES`) and answer 413
+before anything parses the body.
+
+**Failed sign-ins are logged** (web log): `[auth] failed <route> <code> account=<16 hex of the address's SHA-256>
+ip=<CF-Connecting-IP>`, and `[auth] limited <scope> account=…` when a per-account limit refuses. Never a password,
+a code, a token or an address.
+
+**If an account may be taken over:** revoke its sessions (`DELETE FROM auth_sessions WHERE user_id = …`, or the
+student's own "Sign out other devices"); have the student reset by code (every session is revoked). If the web
+app's secret may have leaked, rotate `BETTER_AUTH_SECRET` in `web.env` and restart the web app: every cookie stops
+working. A leaked Google client secret is rotated in Google Cloud and `web.env`.
+
 **Sessions:**
 - Better Auth sets the cookie: `__Host-padhai_session` over HTTPS, httpOnly, never readable by page code.
 - Every JSON answer from `/api/auth/*` has its `token` removed (`withoutTokens`).

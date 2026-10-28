@@ -1,11 +1,17 @@
+import { headers } from "next/headers";
+
 import { AuthForm } from "@/components/auth-form";
-import { googleEnabled, turnstileSiteKey } from "@/lib/auth/options";
+import { googleEnabled, signInServedAt, turnstileSiteKey, warnSignInElsewhere } from "@/lib/auth/options";
 import { safeRedirect } from "@/lib/safe-redirect";
+import { publicOrigin } from "@/lib/server/public-origin";
 
 export const metadata = { title: "Create account" };
 
 export default async function SignupPage(props: { searchParams: Promise<{ redirect?: string; error?: string }> }) {
   const searchParams = await props.searchParams;
+  const origin = publicOrigin(await headers(), "http://localhost/");
+  const available = signInServedAt(origin);
+  if (!available) warnSignInElsewhere(origin);
   return (
     <AuthForm
       initialMode="signUp"
@@ -13,6 +19,7 @@ export default async function SignupPage(props: { searchParams: Promise<{ redire
       googleEnabled={googleEnabled()}
       turnstileSiteKey={turnstileSiteKey()}
       oauthError={searchParams.error ?? null}
+      available={available}
     />
   );
 }

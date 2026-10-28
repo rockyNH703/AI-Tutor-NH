@@ -15,6 +15,14 @@
 
 export const AUTH_BASE = "/api/auth";
 
+/**
+ * The largest body /api/auth (and /api/account/password) reads. Every request this app sends is
+ * a few hundred bytes (an address, a password of at most 128 characters, a code, a path); a
+ * larger one is refused (413) before JSON or Better Auth's schema check reads any of it, so it
+ * cannot take the one web process's memory.
+ */
+export const AUTH_BODY_BYTES = 16 * 1024;
+
 export const AUTH_ROUTES: ReadonlySet<string> = new Set([
   "GET /get-session",
   "GET /callback/google",

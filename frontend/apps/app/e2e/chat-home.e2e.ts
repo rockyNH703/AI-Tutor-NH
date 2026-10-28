@@ -224,6 +224,7 @@ test("the theme menu: Dark, White, System with a check; saved to the account; ke
   await logOutFromSidebar(page);
   await expect(page).toHaveURL("/login");
   await page.getByLabel("Email").fill(account.email);
+  await page.getByRole("button", { name: "Continue with Email" }).click();
   await page.getByLabel("Password", { exact: true }).fill(account.password ?? PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("/");

@@ -479,3 +479,30 @@ Approvals are staged:
 3. Create a new Cloudflare Tunnel and credential for `chat.netsecai.com`. Render `deploy-netsec/cloudflared/config.yml.template` to `/etc/netsecai/cloudflared/config.yml`, then enable only `netsecai-cloudflared.service`. Never reuse or modify the existing cloudflared service, config, tunnel, or credential.
 
 Do not combine these approvals and do not run any stage against a host until its previous stage has been reviewed.
+
+### Quick Tunnel address changed
+
+The public address is a Cloudflare Quick Tunnel (`netsecai-cloudflared.service`): Cloudflare picks a new
+`*.trycloudflare.com` host whenever cloudflared restarts. Sign-in trusts only `NEXT_PUBLIC_SITE_URL` (Better
+Auth's origin check), and Google's redirect URI is registered for it, so a new host breaks every sign-in.
+`bun run status:netsec` fails with `tunnel is … but NEXT_PUBLIC_SITE_URL is …`, and the sign-in page at the new
+host says "Sign-in unavailable here" instead of failing each attempt. To recover:
+
+1. Set `NEXT_PUBLIC_SITE_URL=https://<new host>` in `/etc/netsecai/web.env`, then `systemctl restart
+   netsecai-web` (it is read at runtime; no rebuild).
+2. If Google is configured, update the client's JavaScript origin and redirect URI (step 2 below).
+3. `bun run status:netsec` must show `tunnel https://<new host> is NEXT_PUBLIC_SITE_URL`.
+
+A named tunnel with a fixed hostname removes this failure mode.
+
+### Google sign-in for NetSec
+
+1. Google Cloud Console: the OAuth consent screen (External, "NetSec AI", scopes `openid email profile`).
+2. Credentials, OAuth client "Web application": JavaScript origin `https://<host>`; redirect URI exactly
+   `https://<host>/api/auth/callback/google`.
+3. On the host, in `/etc/netsecai/web.env` (mode 600): `GOOGLE_CLIENT_ID=` and `GOOGLE_CLIENT_SECRET=`, then
+   `systemctl restart netsecai-web`. Check without printing values: `grep -c '^GOOGLE_CLIENT_ID=.' /etc/netsecai/web.env`
+   prints `1`, and `status:netsec` says "Google sign-in: configured".
+4. Try: a first sign-in, a return, a cancel, an address that already has an account (it must say "connect
+   Google in Settings"), linking from Settings › Privacy, and an account with two-step sign-in (it must ask for
+   the code).

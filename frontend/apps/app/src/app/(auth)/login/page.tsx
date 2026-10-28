@@ -1,6 +1,9 @@
+import { headers } from "next/headers";
+
 import { AuthForm } from "@/components/auth-form";
-import { googleEnabled, turnstileSiteKey } from "@/lib/auth/options";
+import { googleEnabled, signInServedAt, turnstileSiteKey, warnSignInElsewhere } from "@/lib/auth/options";
 import { safeRedirect } from "@/lib/safe-redirect";
+import { publicOrigin } from "@/lib/server/public-origin";
 
 export const metadata = { title: "Sign in" };
 
@@ -14,6 +17,9 @@ type Search = { redirect?: string; reason?: string; error?: string; step?: strin
 
 export default async function LoginPage(props: { searchParams: Promise<Search> }) {
   const searchParams = await props.searchParams;
+  const origin = publicOrigin(await headers(), "http://localhost/");
+  const available = signInServedAt(origin);
+  if (!available) warnSignInElsewhere(origin);
   return (
     <AuthForm
       // Google comes back here for the second step when the account has two-step sign-in.
@@ -23,6 +29,7 @@ export default async function LoginPage(props: { searchParams: Promise<Search> }
       googleEnabled={googleEnabled()}
       turnstileSiteKey={turnstileSiteKey()}
       oauthError={searchParams.error ?? null}
+      available={available}
     />
   );
 }

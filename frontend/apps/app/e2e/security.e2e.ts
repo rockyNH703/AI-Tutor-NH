@@ -31,6 +31,7 @@ test("signing in never redirects to another site", async ({ page }) => {
     await page.request.post("/api/v1/auth/logout", { headers: SAME_ORIGIN });
     await page.goto(`/login?redirect=${encodeURIComponent(target)}`);
     await page.getByLabel("Email").fill(email);
+    await page.getByRole("button", { name: "Continue with Email" }).click();
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page, `redirect=${target}`).toHaveURL(`${APP_URL}/`);

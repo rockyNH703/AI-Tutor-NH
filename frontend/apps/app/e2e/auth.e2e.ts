@@ -146,16 +146,17 @@ test("two-step sign-in: turned on in Settings, then asked for by password, by em
   const form = await other.newPage();
   await form.goto("/login");
   await form.getByLabel("Email").fill(email);
+  await form.getByRole("button", { name: "Continue with Email" }).click();
   await form.getByLabel("Password", { exact: true }).fill(password);
   await form.getByRole("button", { name: "Sign in" }).click();
-  await expect(form.getByRole("heading", { name: "Two-step sign-in" })).toBeVisible();
+  await expect(form.getByRole("heading", { name: "Two-factor authentication" })).toBeVisible();
   expect((await form.request.get("/api/v1/me")).status()).toBe(401);
   // The code used to turn it on is spent; the app's next code works.
   await form.getByLabel("Authenticator code").fill(totp(setupKey));
-  await form.getByRole("button", { name: "Continue" }).click();
+  await form.getByRole("button", { name: "Authenticate" }).click();
   await expect(form.getByRole("alert").filter({ hasText: "That code was just used" })).toBeVisible();
   await form.getByLabel("Authenticator code").fill(totp(setupKey, Date.now() + 30_000));
-  await form.getByRole("button", { name: "Continue" }).click();
+  await form.getByRole("button", { name: "Authenticate" }).click();
   await expect(form).toHaveURL(`${APP_URL}/`);
   expect((await form.request.get("/api/v1/me")).status()).toBe(200);
   await other.close();
@@ -187,7 +188,7 @@ test("two-step sign-in: turned on in Settings, then asked for by password, by em
 test("Google: offered only when configured, and a cancelled sign-in says so", async ({ page }) => {
   await page.goto("/login?error=access_denied");
   await expect(page.getByRole("alert").filter({ hasText: "Google sign-in was cancelled." })).toBeVisible();
-  const button = page.getByRole("button", { name: "Continue with Google" });
+  const button = page.getByRole("button", { name: "Sign in with Google" });
   if (!process.env.E2E_GOOGLE) {
     await expect(button).toHaveCount(0);
     return;

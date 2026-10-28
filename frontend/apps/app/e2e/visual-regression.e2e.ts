@@ -173,7 +173,7 @@ for (const width of [1440, 390]) {
       const signedOut = await browser.newPage({ viewport: { width, height: HEIGHT } });
       await signedOut.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
       await signedOut.goto("/login");
-      await expect(signedOut.getByRole("button", { name: "Sign in" })).toBeVisible();
+      await expect(signedOut.getByRole("tab", { name: "Sign In" })).toBeVisible();
       await snap(signedOut, `sign-in-${width}-${theme}`);
       await signedOut.close();
     });

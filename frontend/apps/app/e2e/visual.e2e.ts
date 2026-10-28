@@ -85,21 +85,23 @@ async function failStream(route: Route): Promise<void> {
   await route.fulfill({ response, body: `${[...frames.slice(0, upTo + 2), `event: error\ndata: ${JSON.stringify(failure)}`].join("\n\n")}\n\n` });
 }
 
-test("signed out: sign-in, sign-up, verify and reset", async ({ page }) => {
+test("signed out: sign-in and sign-up, step by step", async ({ page }) => {
   test.setTimeout(180_000);
   await matrix(async (_width, _theme, shot) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
     await shot("auth-sign-in");
-    await page.getByRole("button", { name: "Forgot password?" }).click();
-    await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
-    await shot("auth-forgot");
+    await page.getByLabel("Email").fill("visual@example.test");
+    await page.getByRole("button", { name: "Continue with Email" }).click();
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    await shot("auth-password");
     await page.goto("/signup");
     await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
     await shot("auth-sign-up");
-    await page.getByRole("button", { name: "I have a code" }).click();
-    await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
-    await shot("auth-verify");
+    await page.getByLabel("Email").fill("visual@example.test");
+    await page.getByRole("button", { name: "Continue with Email" }).click();
+    await expect(page.getByRole("heading", { name: "New account" })).toBeVisible();
+    await shot("auth-name");
   }, page)();
 });
 

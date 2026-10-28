@@ -22,20 +22,25 @@
  *   Changing how the account signs in needs a sign-in in the last 15 minutes on such an account.
  * - The session cookie is `__Host-` (Secure, host-only, path /): this zone is shared with other
  *   sites, so no sibling subdomain can plant or overwrite it.
- * - Google's tokens are never stored (only the identity is used); a Google address Google itself
- *   has not verified gets no session; and Google never attaches itself to an existing account by
- *   matching its address: that is done from Settings, signed in.
+ * - Google's tokens are never stored (only the identity is used), and its ID token is checked
+ *   against Google's keys before that identity is believed. A Google address Google itself has
+ *   not verified gets no account at all (not merely no session), and Google never attaches
+ *   itself to an existing account by matching its address: that is done from Settings, signed
+ *   in. Google signs in by its redirect only, never by a bare ID token.
+ * - A failed or refused sign-in is logged with its route, its code, the network and a short hash
+ *   of the address: never the password, a code, a token or the address itself.
  */
 
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { twoFactor } from "better-auth/plugins/two-factor";
+import { type GoogleProfile, verifyGoogleIdToken } from "better-auth/social-providers";
 import { Pool } from "pg";
 
 import { PLAIN_COOKIE, SECURE_COOKIE } from "@/lib/server/cookies";
 import { type InternalApi, postInternal } from "./events";
-import { CODE_CHECKS, CODE_SENDS, type Limit, SIGNIN, WATCH, recent, record, reserve } from "./guard";
+import { CODE_CHECKS, CODE_SENDS, type Limit, SIGNIN, WATCH, keyHash, recent, record, reserve } from "./guard";
 import { hashPassword, verifyPassword } from "./password";
 import { passwordBreached, turnstileOk } from "./protection";
 import { DISABLED_PATHS } from "./routes";
@@ -68,6 +73,15 @@ const usedCode = (userId: string, code: string) => `totp-used-${userId}-${code}`
 /** Where a session is a sign-in (anything else is Better Auth renewing one for someone signed in). */
 const FIRST_STEP = new Set(["/sign-in/email", "/sign-in/email-otp", "/callback/:id"]);
 const SECOND_STEP = new Set(["/two-factor/verify-totp", "/two-factor/verify-backup-code"]);
+/** Where a wrong password or code is logged (a Google failure is a redirect to /login?error=). */
+const FAILURE_LOGGED = new Set([
+  "/sign-in/email",
+  "/sign-in/email-otp",
+  "/email-otp/reset-password",
+  "/change-password",
+  "/two-factor/verify-totp",
+  "/two-factor/verify-backup-code",
+]);
 /** Changing how the account signs in: on a two-step account, only within FRESH_MINUTES of signing in. */
 const RECENT_SIGN_IN = new Set([
   "/change-password",
@@ -111,6 +125,27 @@ function bodyField(body: unknown, field: string): unknown {
   return (body as Record<string, unknown> | undefined)?.[field];
 }
 
+/**
+ * Google's answer as a user, believed only once its ID token checks out against Google's own keys,
+ * issuer, audience and expiry: Better Auth would only decode the token from the code exchange.
+ * The name is trimmed like any other; Google's picture is never copied (avatars are the API's).
+ */
+export async function googleUser(idToken: string | undefined, clientId: string) {
+  if (!idToken) return null;
+  const claims = await verifyGoogleIdToken({ token: idToken, audience: clientId });
+  if (!claims || typeof claims.sub !== "string" || typeof claims.email !== "string") return null;
+  return {
+    user: {
+      name: (typeof claims.name === "string" ? claims.name : "").trim().slice(0, NAME_MAX),
+      email: claims.email,
+      emailVerified: claims.email_verified === true,
+      image: undefined,
+    },
+    // Google's own verified claims; Better Auth keys the account by their `sub`.
+    data: claims as unknown as GoogleProfile,
+  };
+}
+
 /** When the CAPTCHA is asked for: a counter already at `atLeast` in the last `minutes`. */
 type Watch = { scope: string; key: string | null; atLeast: number; minutes: number };
 
@@ -126,7 +161,10 @@ export function createAuth(env: AuthEnv) {
   const tooMany = () => new APIError("TOO_MANY_REQUESTS", { message: "Too many attempts. Try again later." });
 
   const limitOrThrow = async (limit: Limit, key: string | null): Promise<void> => {
-    if (key && !(await reserve(pool, limit, key))) throw tooMany();
+    if (key && !(await reserve(pool, limit, key))) {
+      console.warn(`[auth] limited ${limit.scope} account=${keyHash(key).slice(0, 16)}`);
+      throw tooMany();
+    }
   };
 
   /** Ask for a CAPTCHA when any watched counter is high; verify the one sent with Cloudflare. */
@@ -193,6 +231,7 @@ export function createAuth(env: AuthEnv) {
   });
   // The plugin's "ask for the second step" after-hook, which it runs for the password only.
   const secondStep = twoFactorPlugin.hooks.after[0]!.handler;
+  const google = env.google;
 
   const auth = betterAuth({
     appName: "NetSec AI",
@@ -307,14 +346,17 @@ export function createAuth(env: AuthEnv) {
       },
     },
     emailVerification: { sendOnSignUp: false, sendOnSignIn: false },
-    socialProviders: env.google
+    socialProviders: google
       ? {
           google: {
-            clientId: env.google.clientId,
-            clientSecret: env.google.clientSecret,
+            clientId: google.clientId,
+            clientSecret: google.clientSecret,
             prompt: "select_account",
             requireEmailVerification: true,
-            mapProfileToUser: (profile) => ({ name: (profile.name ?? "").trim().slice(0, NAME_MAX), image: undefined }),
+            // Google's redirect is the only way in with Google. Better Auth would also take a bare
+            // ID token at /sign-in/social and set a session there, past every second-step hook.
+            disableIdTokenSignIn: true,
+            getUserInfo: (tokens) => googleUser(tokens.idToken, google.clientId),
           },
         }
       : {},
@@ -364,6 +406,21 @@ export function createAuth(env: AuthEnv) {
                 }
               }),
             },
+            // A wrong password or code, for incident response (the header of this file says what
+            // is logged and what never is).
+            {
+              matcher: (context) => FAILURE_LOGGED.has(context.path ?? ""),
+              handler: createAuthMiddleware(async (ctx) => {
+                const returned = ctx.context.returned;
+                if (!(returned instanceof APIError) || returned.statusCode < 400) return;
+                const code = (returned.body as { code?: unknown } | undefined)?.code;
+                const email = bodyEmail(ctx.body);
+                const ip = ctx.headers?.get("cf-connecting-ip")?.trim() || "-";
+                console.warn(
+                  `[auth] failed ${ctx.path} ${typeof code === "string" ? code : returned.statusCode} account=${email ? keyHash(email).slice(0, 16) : "-"} ip=${ip}`,
+                );
+              }),
+            },
             // Security notices for two-step sign-in turned on or off (the API checks the facts).
             {
               matcher: (context) => context.path === "/two-factor/verify-totp" || context.path === "/two-factor/disable",
@@ -407,6 +464,12 @@ export function createAuth(env: AuthEnv) {
         }
 
         switch (ctx.path) {
+          case "/sign-in/social":
+            // Only Google's redirect starts here; a bare ID token never signs in (socialProviders).
+            if (bodyField(ctx.body, "idToken") !== undefined) {
+              throw new APIError("BAD_REQUEST", { code: "ID_TOKEN_SIGN_IN_DISABLED", message: "Unsupported sign-in." });
+            }
+            return;
           case "/sign-in/email":
             await captcha(ctx.headers, ip, [
               { scope: SIGNIN.scope, key: email, atLeast: 3, minutes: SIGNIN.minutes },
@@ -473,9 +536,17 @@ export function createAuth(env: AuthEnv) {
     databaseHooks: {
       user: {
         create: {
-          before: async (user) => ({
-            data: { ...user, name: (user.name ?? "").trim().slice(0, NAME_MAX), image: null },
-          }),
+          // Only a proven address becomes an account: an email code proves it, and Google must
+          // say it verified the address. Otherwise Better Auth would keep the user (and its Google
+          // link) of an unverified Google address, refusing only the session, and a later reset
+          // by code would mark that address verified with the stranger's Google still attached.
+          // Before the insert, so nothing is left behind; the callback shows EMAIL_NOT_VERIFIED.
+          before: async (user) => {
+            if (user.emailVerified !== true) {
+              throw new APIError("FORBIDDEN", { code: "EMAIL_NOT_VERIFIED", message: "Confirm this email address first." });
+            }
+            return { data: { ...user, name: (user.name ?? "").trim().slice(0, NAME_MAX), image: null } };
+          },
         },
       },
       session: {

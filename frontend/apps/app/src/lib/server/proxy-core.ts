@@ -121,8 +121,11 @@ export function isSameOrigin(request: Request): boolean {
   return request.headers.get("sec-fetch-site") === "same-origin";
 }
 
-/** Read a body, refusing more than `limit` bytes without buffering the excess. */
-async function readBody(request: Request, limit: number): Promise<Uint8Array | "too_large"> {
+/**
+ * Read a body, refusing more than `limit` bytes without buffering the excess. Also the size cap of
+ * /api/auth and /api/account/password (lib/auth/routes.ts AUTH_BODY_BYTES).
+ */
+export async function readBody(request: Request, limit: number): Promise<Uint8Array | "too_large"> {
   const declared = Number(request.headers.get("content-length") ?? "");
   if (Number.isFinite(declared) && declared > limit) return "too_large";
   if (!request.body) return new Uint8Array(0);

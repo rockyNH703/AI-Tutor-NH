@@ -124,6 +124,7 @@ test("changing the password: a wrong current one is refused, the new one signs i
     await page.getByRole("button", { name: "Log out" }).click();
     await expect(page).toHaveURL("/login");
     await page.getByLabel("Email").fill(email);
+    await page.getByRole("button", { name: "Continue with Email" }).click();
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
     // The old password no longer works. (Scoped to the form: Next's route announcer is a role="alert" too.)

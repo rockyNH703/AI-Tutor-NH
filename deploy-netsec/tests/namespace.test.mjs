@@ -137,6 +137,14 @@ describe("NetSec deployment namespace", () => {
     expect(status).not.toContain("cat deploy-netsec/server/lib.sh deploy-netsec/server/status.sh | ssh");
   });
 
+  test("status fails when the Quick Tunnel's address is not NEXT_PUBLIC_SITE_URL", () => {
+    const status = read("deploy-netsec/server/status.sh");
+    expect(status).toContain("systemctl show -p InvocationID --value netsecai-cloudflared");
+    expect(status).toContain('"_SYSTEMD_INVOCATION_ID=$run"');
+    expect(status).toContain("trycloudflare");
+    expect(status).toMatch(/bad "tunnel is \$tunnel but NEXT_PUBLIC_SITE_URL is/);
+  });
+
   test("script hygiene defects stay fixed", () => {
     expect(read("deploy-netsec/server/safety.sh").startsWith("#!/usr/bin/env bash\n")).toBe(true);
     expect(read("deploy-netsec/status.sh")).toContain("STOP: set NETSEC_DEPLOY_HOST");

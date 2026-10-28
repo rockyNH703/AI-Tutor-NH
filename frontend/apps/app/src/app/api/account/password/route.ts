@@ -13,9 +13,10 @@ import { APIError } from "better-auth/api";
 
 import { postInternal } from "@/lib/auth/events";
 import { passwordBreached } from "@/lib/auth/protection";
+import { AUTH_BODY_BYTES } from "@/lib/auth/routes";
 import { getAuth } from "@/lib/auth/server";
 import { apiBaseUrl } from "@/lib/server/config";
-import { isSameOrigin } from "@/lib/server/proxy-core";
+import { isSameOrigin, readBody } from "@/lib/server/proxy-core";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,11 +30,19 @@ function fail(status: number, code: string): Response {
 
 export async function POST(request: Request): Promise<Response> {
   if (!isSameOrigin(request)) return fail(403, "forbidden");
+  // Read within the same cap as /api/auth, before anything parses it.
+  const raw = await readBody(request, AUTH_BODY_BYTES);
+  if (raw === "too_large") return fail(413, "payload_too_large");
   const { auth } = getAuth();
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return fail(401, "unauthorized");
   if (Date.now() - new Date(session.session.createdAt).getTime() > FRESH_MS) return fail(409, "reauth_required");
-  const body = (await request.json().catch(() => null)) as { newPassword?: unknown } | null;
+  let body: { newPassword?: unknown } | null;
+  try {
+    body = JSON.parse(new TextDecoder().decode(raw)) as { newPassword?: unknown } | null;
+  } catch {
+    body = null;
+  }
   const newPassword = body?.newPassword;
   if (typeof newPassword !== "string" || newPassword.length < 8 || newPassword.length > 128) {
     return fail(422, "validation_error");

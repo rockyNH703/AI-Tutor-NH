@@ -49,15 +49,16 @@ test("a user's whole journey", async ({ page, context }) => {
 
   await test.step("sign up: email, the emailed code, then a password", async () => {
     await page.goto("/signup");
-    await page.getByLabel("Name (optional)").fill("E2E Journey");
     await page.getByLabel("Email").fill(email);
-    await page.getByRole("button", { name: "Send code" }).click();
+    await page.getByRole("button", { name: "Continue with Email" }).click();
+    await page.getByLabel("Full name").fill("E2E Journey");
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await expect(page.getByRole("status")).toContainText("a 6-digit code is on its way");
     await page.getByLabel("Code").fill(await mailCode(email, "signin"));
-    await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page.getByRole("heading", { name: "Choose a password" })).toBeVisible();
-    await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
-    await page.getByRole("button", { name: "Save password" }).click();
+    await page.getByRole("button", { name: "Verify Code" }).click();
+    await expect(page.getByRole("heading", { name: "Email verified" })).toBeVisible();
+    await page.getByLabel("New password").fill(PASSWORD);
+    await page.getByRole("button", { name: "Complete Sign Up" }).click();
     await expect(page).toHaveURL("/");
     await expectStudyGreeting(page);
   });
@@ -229,6 +230,7 @@ test("a user's whole journey", async ({ page, context }) => {
     await page.goto(`/c/${first}`);
     await expect(page).toHaveURL(`/login?redirect=${encodeURIComponent(`/c/${first}`)}`);
     await page.getByLabel("Email").fill(email);
+    await page.getByRole("button", { name: "Continue with Email" }).click();
     await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(`/c/${first}`);
@@ -238,13 +240,14 @@ test("a user's whole journey", async ({ page, context }) => {
   await test.step("forgotten password: reset it with an emailed code", async () => {
     await logOutFromSidebar(page);
     await expect(page).toHaveURL("/login");
-    await page.getByRole("button", { name: "Forgot password?" }).click();
     await page.getByLabel("Email").fill(email);
-    await page.getByRole("button", { name: "Send reset code" }).click();
+    await page.getByRole("button", { name: "Continue with Email" }).click();
+    await page.getByRole("button", { name: "Forgot password?" }).click();
     await expect(page.getByRole("status")).toContainText("a reset code is on its way");
     await page.getByLabel("Code").fill(await mailCode(email, "reset"));
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
     await page.getByLabel("New password").fill(newPassword);
-    await page.getByRole("button", { name: "Set new password" }).click();
+    await page.getByRole("button", { name: "Save & Sign In" }).click();
     await expect(page).toHaveURL("/");
     await expect(page.locator(`nav a[href="/c/${first}"]`)).toBeVisible();
   });
