@@ -7,12 +7,12 @@ Every email is plain text first; this module builds its second part from the sam
   what it is given. Only `SafeHtml`, which only the blocks here make, passes through as markup.
 - A link is only ever PUBLIC_APP_URL plus a fixed page (`app_link`), or the signed unsubscribe
   link on that same address (`checked_url`). If PUBLIC_APP_URL is not a plain https origin, the
-  email has no links; the instructions are in the text either way.
+  email has no links and no logo; the instructions are in the text either way.
 - A failure here never stops an email: `render_html` logs it and the email goes out as text.
 
 Email-client rules: tables and inline styles, a solid colour behind every gradient, no web
-fonts, and no images: the logo is drawn (a tile and a glyph) and the wordmark is text, so both
-show with images blocked and never depend on the site's address (a Quick Tunnel's changes).
+fonts, and nothing that needs images (the wordmark is text; the logo, on PUBLIC_APP_URL, is
+decoration: `status:netsec` fails when that address is not the live site's).
 """
 
 from __future__ import annotations
@@ -74,6 +74,7 @@ PAGES = {
     "notifications": "/settings/notifications",
     "progress": "/settings/progress",
 }
+LOGO = "/brand/netsec-logo.svg"  # frontend/apps/app/public: the app's mark (brand-mark.tsx), shown at 36x36
 _BIDI_CONTROLS = {chr(code) for code in (*range(0x202A, 0x202F), *range(0x2066, 0x206A))}
 
 
@@ -334,16 +335,16 @@ def document(
     wordmark = f'<span style="color:{TEXT};">{NAME}</span>'
     if home:
         wordmark = f'<a href="{_esc(home)}" target="_blank" style="color:{TEXT};text-decoration:none;">{NAME}</a>'
-    # The app's triangle mark on its dark tile (components/brand/brand-mark.tsx), as a glyph that
-    # every client's fonts have (U+25B2).
+    # The app's own mark (components/brand/brand-mark.tsx); Gmail shows an SVG as a PNG it makes.
     mark = (
-        f'<td aria-hidden="true" width="36" height="36" align="center" valign="middle" bgcolor="{BRAND}" '
-        f'style="width:36px;height:36px;border-radius:8px;background-color:{BRAND};color:#FFFFFF;'
-        'font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:36px;text-align:center;">&#9650;</td>'
+        f'<td width="36" valign="middle" style="padding-right:12px;"><img src="{_esc(base + LOGO)}" width="36" '
+        'height="36" alt="" style="display:block;width:36px;height:36px;border:0;"></td>'
+        if base
+        else ""
     )
     header = (
         f'<tr><td><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>{mark}'
-        f'<td valign="middle" style="padding-left:12px;font-family:{FONT};font-size:24px;line-height:28px;'
+        f'<td valign="middle" style="font-family:{FONT};font-size:24px;line-height:28px;'
         f'font-weight:900;letter-spacing:-0.5px;">{wordmark}</td></tr></table></td></tr>'
     )
     links = [
