@@ -2,6 +2,10 @@
 
 # All txt files (local notes, credentials, tokens - never commit)
 *.txt
+# ...except these, which the backend's tests and CI read (no secrets in them)
+!/backend/requirements.txt
+!/backend/requirements-dev.txt
+!/backend/tests/fixtures/*.txt
 
 # Python
 __pycache__/
