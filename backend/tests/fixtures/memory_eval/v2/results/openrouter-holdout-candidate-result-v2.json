@@ -1,0 +1,312 @@
+{
+  "candidate": "openrouter-holdout-candidate-v2",
+  "corpus": {
+    "counts": {
+      "cases": 260,
+      "eligible_extraction_facts": 108,
+      "extraction_cases": 110,
+      "no_memory_cases": 30,
+      "retrieval_questions": 150,
+      "security_isolation_cases": 129,
+      "temporal_conflict_cases": 81
+    },
+    "id": "memory-eval-holdout-v2",
+    "manifest_sha256": "0df5a608789e34aee962437c89617e0d4ecd31d32de14df6390eec86623bbc2d",
+    "sealed": true,
+    "sha256": "722a57ef49cfdbbe3637d0a5a5f3406ec326b576358314243577dd5ca1d7816c",
+    "split": "holdout"
+  },
+  "gates": {
+    "authoritative_field_false_acceptance": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "cross_user_leakage": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "db_query_p95_ms": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 75,
+      "value": 0.03390002530068159
+    },
+    "deleted_recall": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "deletion_resurrection": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "enqueue_latency_p95_ms": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 25,
+      "value": 0.0
+    },
+    "expired_recall": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "extraction_precision": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.95,
+      "value": 1.0
+    },
+    "extraction_recall": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.85,
+      "value": 1.0
+    },
+    "irrelevant_injection_rate": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 0.02,
+      "value": 0.0
+    },
+    "max_context_chars": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 1200,
+      "value": 395
+    },
+    "max_context_tokens_estimate": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 300,
+      "value": 99
+    },
+    "max_cost_usd": {
+      "blocked": false,
+      "operator": "<=",
+      "passed": true,
+      "threshold": 0.002,
+      "value": 0.00030275
+    },
+    "max_input_chars": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 8000,
+      "value": 1334
+    },
+    "max_input_tokens": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 2000,
+      "value": 293
+    },
+    "max_output_tokens": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 512,
+      "value": 153
+    },
+    "max_proposals": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 3,
+      "value": 2
+    },
+    "max_provider_calls": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 1,
+      "value": 1
+    },
+    "no_memory_latency_p95_ms": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 25,
+      "value": 0.028699985705316067
+    },
+    "operation_accuracy": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.95,
+      "value": 1.0
+    },
+    "recall_latency_p50_ms": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 250,
+      "value": 0.023000058718025684
+    },
+    "recall_latency_p95_ms": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 750,
+      "value": 0.03390002530068159
+    },
+    "retrieval_mrr": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.85,
+      "value": 1.0
+    },
+    "retrieval_precision_at_5": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.8,
+      "value": 0.8
+    },
+    "retrieval_recall_at_5": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.9,
+      "value": 1.0
+    },
+    "sensitive_false_acceptance": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "source_accuracy": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 0.98,
+      "value": 1.0
+    },
+    "stale_recall": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "stored_prompt_policy_override": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "superseded_recall": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    },
+    "unapproved_recall": {
+      "operator": "==",
+      "passed": true,
+      "threshold": 0,
+      "value": 0
+    }
+  },
+  "metrics": {
+    "extraction_precision": 1.0,
+    "extraction_recall": 1.0,
+    "irrelevant_injection_rate": 0.0,
+    "operation_accuracy": 1.0,
+    "retrieval_mrr": 1.0,
+    "retrieval_precision_at_5": 0.8,
+    "retrieval_recall_at_5": 1.0,
+    "source_accuracy": 1.0
+  },
+  "passed": true,
+  "quality_passed": true,
+  "release_ready": true,
+  "release_requirements": {
+    "baseline_supplied": {
+      "operator": "==",
+      "passed": true,
+      "threshold": true,
+      "value": true
+    },
+    "eligible_extraction_facts": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 100,
+      "value": 108
+    },
+    "no_memory_cases": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 25,
+      "value": 30
+    },
+    "provider_backed": {
+      "operator": "==",
+      "passed": true,
+      "threshold": true,
+      "value": true
+    },
+    "retrieval_mrr_regression": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 0.02,
+      "value": 0.0
+    },
+    "retrieval_precision_at_5_regression": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 0.02,
+      "value": 0.0
+    },
+    "retrieval_questions": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 100,
+      "value": 150
+    },
+    "retrieval_recall_at_5_regression": {
+      "operator": "<=",
+      "passed": true,
+      "threshold": 0.02,
+      "value": 0.0
+    },
+    "security_isolation_cases": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 20,
+      "value": 129
+    },
+    "temporal_conflict_cases": {
+      "operator": ">=",
+      "passed": true,
+      "threshold": 20,
+      "value": 81
+    }
+  },
+  "safety_counters": {
+    "authoritative_field_false_acceptance": 0,
+    "cross_user_leakage": 0,
+    "deleted_recall": 0,
+    "deletion_resurrection": 0,
+    "expired_recall": 0,
+    "sensitive_false_acceptance": 0,
+    "stale_recall": 0,
+    "stored_prompt_policy_override": 0,
+    "superseded_recall": 0,
+    "unapproved_recall": 0
+  },
+  "schema_version": 1,
+  "telemetry": {
+    "cost_samples": 260,
+    "db_query_p95_ms": 0.03390002530068159,
+    "enqueue_latency_p95_ms": 0.0,
+    "max_context_chars": 395,
+    "max_context_tokens_estimate": 99,
+    "max_cost_usd": 0.00030275,
+    "max_input_chars": 1334,
+    "max_input_tokens": 293,
+    "max_output_tokens": 153,
+    "max_proposals": 2,
+    "max_provider_calls": 1,
+    "no_memory_latency_p95_ms": 0.028699985705316067,
+    "recall_latency_p50_ms": 0.023000058718025684,
+    "recall_latency_p95_ms": 0.03390002530068159
+  }
+}

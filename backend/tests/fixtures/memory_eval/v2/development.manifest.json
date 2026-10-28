@@ -1,0 +1,25 @@
+{
+    "schema_version":  2,
+    "corpus_id":  "memory-eval-development-v2",
+    "split":  "development",
+    "sealed":  false,
+    "provider_backed":  true,
+    "corpus_file":  "development.json",
+    "sha256":  "a42851bf3786045613cd5c8d8594efa09ef26bdcc25ae10b41d624e4aa2ca639",
+    "counts":  {
+                   "cases":  260,
+                   "extraction_cases":  110,
+                   "eligible_extraction_facts":  108,
+                   "retrieval_questions":  150,
+                   "no_memory_cases":  30,
+                   "temporal_conflict_cases":  81,
+                   "security_isolation_cases":  129
+               },
+    "coverage":  {
+                     "synthetic":  true,
+                     "privacy_safe":  true,
+                     "distinct_split_templates":  true,
+                     "source_ownership_lifecycle_prompt_injection":  true
+                 },
+    "release_note":  "Synthetic release-sized v2 corpus executed by the bounded provider-backed harness; manifest identity and corpus hash are versioned."
+}

@@ -1,0 +1,5830 @@
+{
+  "candidate_id": "openrouter-holdout-candidate-v2",
+  "corpus_id": "memory-eval-holdout-v2",
+  "predictions": {
+    "hold2-ext-001": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-001",
+          "operation": "correct",
+          "source_id": "hold2-source-001"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1271.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 3988.426600000821,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-002": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-002",
+          "operation": "delete",
+          "source_id": "hold2-source-002"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0001785,
+        "input_chars": 1251.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 75.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1148.802399984561,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-003": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-003",
+          "operation": "create",
+          "source_id": "hold2-source-003"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1257.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1237.787599908188,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-004": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-004-a",
+          "operation": "create",
+          "source_id": "hold2-source-004"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-004-b",
+          "operation": "create",
+          "source_id": "hold2-source-004"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002945,
+        "input_chars": 1314.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 148.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1219.0320000518113,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-005": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-005",
+          "operation": "create",
+          "source_id": "hold2-source-005"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015375,
+        "input_chars": 1264.0,
+        "input_tokens": 267.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 58.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1142.2291999915615,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-006": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-006",
+          "operation": "correct",
+          "source_id": "hold2-source-006"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1270.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1065.0953999720514,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-007": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-007",
+          "operation": "delete",
+          "source_id": "hold2-source-007"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1248.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1179.8028000630438,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-008": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-008",
+          "operation": "create",
+          "source_id": "hold2-source-008"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1254.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1189.3197000026703,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-009": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-009-a",
+          "operation": "create",
+          "source_id": "hold2-source-009"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-009-b",
+          "operation": "create",
+          "source_id": "hold2-source-009"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002965,
+        "input_chars": 1331.0,
+        "input_tokens": 292.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 149.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1219.382300041616,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-010": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-010",
+          "operation": "create",
+          "source_id": "hold2-source-010"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015,
+        "input_chars": 1257.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 56.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1045.5221999436617,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-011": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-011",
+          "operation": "correct",
+          "source_id": "hold2-source-011"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019,
+        "input_chars": 1275.0,
+        "input_tokens": 268.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 82.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 991.6324000805616,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-012": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-012",
+          "operation": "delete",
+          "source_id": "hold2-source-012"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1249.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 961.6098999977112,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-013": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-013",
+          "operation": "create",
+          "source_id": "hold2-source-013"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1258.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1267.143200035207,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-014": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-014-a",
+          "operation": "create",
+          "source_id": "hold2-source-014"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-014-b",
+          "operation": "create",
+          "source_id": "hold2-source-014"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002945,
+        "input_chars": 1308.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 148.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1377.2782000014558,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-015": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-015",
+          "operation": "create",
+          "source_id": "hold2-source-015"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000185,
+        "input_chars": 1266.0,
+        "input_tokens": 266.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 79.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1104.8480999888852,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-016": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-016",
+          "operation": "correct",
+          "source_id": "hold2-source-016"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1277.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1074.455099995248,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-017": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-017",
+          "operation": "delete",
+          "source_id": "hold2-source-017"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1252.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1131.6899000667036,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-018": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-018",
+          "operation": "create",
+          "source_id": "hold2-source-018"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1253.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 963.9298000838608,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-019": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-019-a",
+          "operation": "create",
+          "source_id": "hold2-source-019"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-019-b",
+          "operation": "create",
+          "source_id": "hold2-source-019"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00030275,
+        "input_chars": 1332.0,
+        "input_tokens": 293.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 153.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1375.4773999098688,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-020": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-020",
+          "operation": "create",
+          "source_id": "hold2-source-020"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000183,
+        "input_chars": 1258.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 78.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1153.9023999357596,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-021": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-021",
+          "operation": "correct",
+          "source_id": "hold2-source-021"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019,
+        "input_chars": 1276.0,
+        "input_tokens": 268.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 82.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1116.119600017555,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-022": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-022",
+          "operation": "delete",
+          "source_id": "hold2-source-022"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00014375,
+        "input_chars": 1253.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 52.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 965.6380999367684,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-023": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-023",
+          "operation": "create",
+          "source_id": "hold2-source-023"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1255.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1110.742500051856,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-024": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-024-a",
+          "operation": "create",
+          "source_id": "hold2-source-024"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-024-b",
+          "operation": "create",
+          "source_id": "hold2-source-024"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000293,
+        "input_chars": 1309.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 147.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1227.5050999596715,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-025": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-025",
+          "operation": "create",
+          "source_id": "hold2-source-025"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000152,
+        "input_chars": 1266.0,
+        "input_tokens": 266.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 57.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1074.3581000715494,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-026": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-026",
+          "operation": "correct",
+          "source_id": "hold2-source-026"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1275.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 996.518800035119,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-027": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-027",
+          "operation": "delete",
+          "source_id": "hold2-source-027"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1249.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1096.8071999959648,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-028": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-028",
+          "operation": "create",
+          "source_id": "hold2-source-028"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1260.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1045.0606000376865,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-029": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-029-a",
+          "operation": "create",
+          "source_id": "hold2-source-029"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-029-b",
+          "operation": "create",
+          "source_id": "hold2-source-029"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000295,
+        "input_chars": 1334.0,
+        "input_tokens": 292.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 148.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1045.0714000035077,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-030": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-030",
+          "operation": "create",
+          "source_id": "hold2-source-030"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0001815,
+        "input_chars": 1255.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 77.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1009.5699999947101,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-031": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-031",
+          "operation": "correct",
+          "source_id": "hold2-source-031"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1271.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1073.0032999999821,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-032": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-032",
+          "operation": "delete",
+          "source_id": "hold2-source-032"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0001785,
+        "input_chars": 1251.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 75.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1072.7666999446228,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-033": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-033",
+          "operation": "create",
+          "source_id": "hold2-source-033"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1257.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 904.8391999676824,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-034": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-034-a",
+          "operation": "create",
+          "source_id": "hold2-source-034"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-034-b",
+          "operation": "create",
+          "source_id": "hold2-source-034"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002915,
+        "input_chars": 1314.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 146.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1208.5359999909997,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-035": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-035",
+          "operation": "create",
+          "source_id": "hold2-source-035"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015375,
+        "input_chars": 1264.0,
+        "input_tokens": 267.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 58.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 883.4592000348493,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-036": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-036",
+          "operation": "correct",
+          "source_id": "hold2-source-036"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1270.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1147.4139000056311,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-037": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-037",
+          "operation": "delete",
+          "source_id": "hold2-source-037"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1248.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1138.1615999853238,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-038": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-038",
+          "operation": "create",
+          "source_id": "hold2-source-038"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1254.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1268.3164000045508,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-039": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-039-a",
+          "operation": "create",
+          "source_id": "hold2-source-039"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-039-b",
+          "operation": "create",
+          "source_id": "hold2-source-039"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002965,
+        "input_chars": 1331.0,
+        "input_tokens": 292.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 149.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1212.6161000924185,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-040": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-040",
+          "operation": "create",
+          "source_id": "hold2-source-040"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0001815,
+        "input_chars": 1257.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 77.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 938.6144999880344,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-041": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-041",
+          "operation": "correct",
+          "source_id": "hold2-source-041"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019,
+        "input_chars": 1275.0,
+        "input_tokens": 268.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 82.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1022.289999993518,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-042": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-042",
+          "operation": "delete",
+          "source_id": "hold2-source-042"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00014375,
+        "input_chars": 1249.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 52.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1238.6868000030518,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-043": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-043",
+          "operation": "create",
+          "source_id": "hold2-source-043"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1258.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1675.685599911958,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-044": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-044-a",
+          "operation": "create",
+          "source_id": "hold2-source-044"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-044-b",
+          "operation": "create",
+          "source_id": "hold2-source-044"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002945,
+        "input_chars": 1308.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 148.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1040.116299991496,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-045": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-045",
+          "operation": "create",
+          "source_id": "hold2-source-045"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000152,
+        "input_chars": 1266.0,
+        "input_tokens": 266.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 57.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 934.7038000123575,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-046": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-046",
+          "operation": "correct",
+          "source_id": "hold2-source-046"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015875,
+        "input_chars": 1277.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 61.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1202.8271000599489,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-047": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-047",
+          "operation": "delete",
+          "source_id": "hold2-source-047"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1252.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1052.559900097549,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-048": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-048",
+          "operation": "create",
+          "source_id": "hold2-source-048"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1253.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 999.7842999873683,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-049": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-049-a",
+          "operation": "create",
+          "source_id": "hold2-source-049"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-049-b",
+          "operation": "create",
+          "source_id": "hold2-source-049"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00030275,
+        "input_chars": 1332.0,
+        "input_tokens": 293.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 153.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1326.3891000533476,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-050": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-050",
+          "operation": "create",
+          "source_id": "hold2-source-050"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015,
+        "input_chars": 1258.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 56.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 975.0314000993967,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-051": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-051",
+          "operation": "correct",
+          "source_id": "hold2-source-051"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000157,
+        "input_chars": 1276.0,
+        "input_tokens": 268.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 60.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1113.6646999511868,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-052": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-052",
+          "operation": "delete",
+          "source_id": "hold2-source-052"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00014375,
+        "input_chars": 1253.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 52.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1140.0748000014573,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-053": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-053",
+          "operation": "create",
+          "source_id": "hold2-source-053"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1255.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1256.1514000408351,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-054": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-054-a",
+          "operation": "create",
+          "source_id": "hold2-source-054"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-054-b",
+          "operation": "create",
+          "source_id": "hold2-source-054"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000293,
+        "input_chars": 1309.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 147.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1119.2620999645442,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-055": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-055",
+          "operation": "create",
+          "source_id": "hold2-source-055"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000152,
+        "input_chars": 1266.0,
+        "input_tokens": 266.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 57.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 907.8319000545889,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-056": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-056",
+          "operation": "correct",
+          "source_id": "hold2-source-056"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1275.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 934.8206999711692,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-057": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-057",
+          "operation": "delete",
+          "source_id": "hold2-source-057"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00014375,
+        "input_chars": 1249.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 52.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 978.9071000413969,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-058": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-058",
+          "operation": "create",
+          "source_id": "hold2-source-058"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1260.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 869.1740999929607,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-059": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-059-a",
+          "operation": "create",
+          "source_id": "hold2-source-059"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-059-b",
+          "operation": "create",
+          "source_id": "hold2-source-059"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002965,
+        "input_chars": 1334.0,
+        "input_tokens": 292.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 149.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1243.6780000571162,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-060": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-060",
+          "operation": "create",
+          "source_id": "hold2-source-060"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015,
+        "input_chars": 1255.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 56.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 960.6643000151962,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-061": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-061",
+          "operation": "correct",
+          "source_id": "hold2-source-061"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1271.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 982.717499951832,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-062": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-062",
+          "operation": "delete",
+          "source_id": "hold2-source-062"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0001785,
+        "input_chars": 1251.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 75.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1004.2380000231788,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-063": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-063",
+          "operation": "create",
+          "source_id": "hold2-source-063"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1257.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 996.6123000485823,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-064": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-064-a",
+          "operation": "create",
+          "source_id": "hold2-source-064"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-064-b",
+          "operation": "create",
+          "source_id": "hold2-source-064"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002975,
+        "input_chars": 1314.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 150.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1117.8080999525264,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-065": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-065",
+          "operation": "create",
+          "source_id": "hold2-source-065"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015375,
+        "input_chars": 1264.0,
+        "input_tokens": 267.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 58.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1027.8688999824226,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-066": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-066",
+          "operation": "correct",
+          "source_id": "hold2-source-066"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1270.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1124.5239999843761,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-067": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-067",
+          "operation": "delete",
+          "source_id": "hold2-source-067"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00014375,
+        "input_chars": 1248.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 52.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 996.7658999375999,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-068": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-068",
+          "operation": "create",
+          "source_id": "hold2-source-068"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1254.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 970.706699998118,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-069": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-069-a",
+          "operation": "create",
+          "source_id": "hold2-source-069"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-069-b",
+          "operation": "create",
+          "source_id": "hold2-source-069"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002965,
+        "input_chars": 1331.0,
+        "input_tokens": 292.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 149.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1233.7734000757337,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-070": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-070",
+          "operation": "create",
+          "source_id": "hold2-source-070"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015,
+        "input_chars": 1257.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 56.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 983.5066000232473,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-071": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-071",
+          "operation": "correct",
+          "source_id": "hold2-source-071"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019,
+        "input_chars": 1275.0,
+        "input_tokens": 268.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 82.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1894.6856000693515,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-072": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-072",
+          "operation": "delete",
+          "source_id": "hold2-source-072"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1249.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 938.7667999835685,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-073": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-073",
+          "operation": "create",
+          "source_id": "hold2-source-073"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1258.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1980.2023000083864,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-074": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-074-a",
+          "operation": "create",
+          "source_id": "hold2-source-074"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-074-b",
+          "operation": "create",
+          "source_id": "hold2-source-074"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.0002945,
+        "input_chars": 1308.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 148.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1208.984600030817,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-075": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-075",
+          "operation": "create",
+          "source_id": "hold2-source-075"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000185,
+        "input_chars": 1266.0,
+        "input_tokens": 266.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 79.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 859.5353999407962,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-076": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-076",
+          "operation": "correct",
+          "source_id": "hold2-source-076"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1277.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1027.8249999973923,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-077": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-077",
+          "operation": "delete",
+          "source_id": "hold2-source-077"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1252.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1032.4577999999747,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-078": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-078",
+          "operation": "create",
+          "source_id": "hold2-source-078"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020225,
+        "input_chars": 1253.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 89.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1192.405299982056,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-079": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-079-a",
+          "operation": "create",
+          "source_id": "hold2-source-079"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-079-b",
+          "operation": "create",
+          "source_id": "hold2-source-079"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00029975,
+        "input_chars": 1332.0,
+        "input_tokens": 293.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 151.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1283.8428999530151,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-080": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-080",
+          "operation": "create",
+          "source_id": "hold2-source-080"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000183,
+        "input_chars": 1258.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 78.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1099.3376999394968,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-081": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-081",
+          "operation": "correct",
+          "source_id": "hold2-source-081"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000157,
+        "input_chars": 1276.0,
+        "input_tokens": 268.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 60.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1025.0466999132186,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-082": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-082",
+          "operation": "delete",
+          "source_id": "hold2-source-082"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00014375,
+        "input_chars": 1253.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 52.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1342.906399979256,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-083": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-083",
+          "operation": "create",
+          "source_id": "hold2-source-083"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00020075,
+        "input_chars": 1255.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 88.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 965.0428999448195,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-084": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-084-a",
+          "operation": "create",
+          "source_id": "hold2-source-084"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-084-b",
+          "operation": "create",
+          "source_id": "hold2-source-084"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000293,
+        "input_chars": 1309.0,
+        "input_tokens": 290.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 147.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1131.4459999557585,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-085": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-085",
+          "operation": "create",
+          "source_id": "hold2-source-085"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000185,
+        "input_chars": 1266.0,
+        "input_tokens": 266.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 79.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 920.8541000261903,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-086": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-correct-086",
+          "operation": "correct",
+          "source_id": "hold2-source-086"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00019175,
+        "input_chars": 1275.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 83.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1031.5882000140846,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-087": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-delete-087",
+          "operation": "delete",
+          "source_id": "hold2-source-087"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00017675,
+        "input_chars": 1249.0,
+        "input_tokens": 263.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 74.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1039.9203000124544,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-088": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-temporal-088",
+          "operation": "create",
+          "source_id": "hold2-source-088"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00016775,
+        "input_chars": 1260.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 66.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 883.4975999779999,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-089": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-method-089-a",
+          "operation": "create",
+          "source_id": "hold2-source-089"
+        },
+        {
+          "fact_id": "hold2-fact-cadence-089-b",
+          "operation": "create",
+          "source_id": "hold2-source-089"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.000295,
+        "input_chars": 1334.0,
+        "input_tokens": 292.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 148.0,
+        "proposal_count": 2.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1207.6168999774382,
+        "repeats": 1
+      }
+    },
+    "hold2-ext-090": {
+      "proposals": [
+        {
+          "fact_id": "hold2-fact-style-090",
+          "operation": "create",
+          "source_id": "hold2-source-090"
+        }
+      ],
+      "telemetry": {
+        "cost_usd": 0.00015,
+        "input_chars": 1255.0,
+        "input_tokens": 264.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 56.0,
+        "proposal_count": 1.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1128.728299983777,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-001": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1283.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 938.0672000115737,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-002": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1306.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 478.19569997955114,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-003": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1302.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 853.4370999550447,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-004": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1295.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 721.8437999254093,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-005": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.625e-05,
+        "input_chars": 1255.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 969.1027000080794,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-006": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.775e-05,
+        "input_chars": 1278.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1042.3846000339836,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-007": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1311.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 962.3324999120086,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-008": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1301.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1225.4669999238104,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-009": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1297.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 987.7166000660509,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-010": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.65e-05,
+        "input_chars": 1253.0,
+        "input_tokens": 270.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 821.2653999216855,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-011": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1283.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1457.1792000206187,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-012": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1306.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 890.009899972938,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-013": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1302.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1394.8991000652313,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-014": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1295.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 851.5146999852732,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-015": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.625e-05,
+        "input_chars": 1255.0,
+        "input_tokens": 269.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 860.5010999599472,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-016": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.775e-05,
+        "input_chars": 1278.0,
+        "input_tokens": 275.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 2008.1462000962347,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-017": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1311.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1562.0209999615327,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-018": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1301.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 967.8041000152007,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-019": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.75e-05,
+        "input_chars": 1297.0,
+        "input_tokens": 274.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 851.9143000012264,
+        "repeats": 1
+      }
+    },
+    "hold2-reject-020": {
+      "proposals": [],
+      "telemetry": {
+        "cost_usd": 7.65e-05,
+        "input_chars": 1253.0,
+        "input_tokens": 270.0,
+        "latency_ms": 0.0,
+        "model": "google/gemini-3.1-flash-lite",
+        "output_tokens": 6.0,
+        "proposal_count": 0.0,
+        "provider": "openrouter",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 834.9500999320298,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-001": {
+      "retrieved_ids": [
+        "hold2-memory-001-3",
+        "hold2-memory-001-2",
+        "hold2-memory-001-1",
+        "hold2-memory-001-4",
+        "hold2-memory-001-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.06059999577701092,
+        "input_chars": 435.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.06059999577701092,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1260.518499999307,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-002": {
+      "retrieved_ids": [
+        "hold2-memory-002-2",
+        "hold2-memory-002-5",
+        "hold2-memory-002-3",
+        "hold2-memory-002-4",
+        "hold2-memory-002-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.033100019209086895,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.033100019209086895,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1372.1063999691978,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-003": {
+      "retrieved_ids": [
+        "hold2-memory-003-2",
+        "hold2-memory-003-3",
+        "hold2-memory-003-1",
+        "hold2-memory-003-4",
+        "hold2-memory-003-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.24e-06,
+        "db_query_ms": 0.023099943064153194,
+        "input_chars": 446.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023099943064153194,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1345.3190000727773,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-004": {
+      "retrieved_ids": [
+        "hold2-memory-004-2",
+        "hold2-memory-004-3",
+        "hold2-memory-004-1",
+        "hold2-memory-004-5",
+        "hold2-memory-004-4"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2200000000000003e-06,
+        "db_query_ms": 0.0241999514400959,
+        "input_chars": 441.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.0241999514400959,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1404.1469999356195,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-005": {
+      "retrieved_ids": [
+        "hold2-memory-005-2",
+        "hold2-memory-005-3",
+        "hold2-memory-005-4",
+        "hold2-memory-005-5",
+        "hold2-memory-005-1"
+      ],
+      "telemetry": {
+        "context_chars": 340.0,
+        "cost_usd": 1.98e-06,
+        "db_query_ms": 0.025999965146183968,
+        "input_chars": 394.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.025999965146183968,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1344.3934000097215,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-006": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.022700056433677673,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022700056433677673,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018399907276034355,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-007": {
+      "retrieved_ids": [
+        "hold2-memory-007-1",
+        "hold2-memory-007-3",
+        "hold2-memory-007-2",
+        "hold2-memory-007-5",
+        "hold2-memory-007-4"
+      ],
+      "telemetry": {
+        "context_chars": 390.0,
+        "cost_usd": 2.28e-06,
+        "db_query_ms": 0.021399930119514465,
+        "input_chars": 456.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021399930119514465,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1351.5298999845982,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-008": {
+      "retrieved_ids": [
+        "hold2-memory-008-3",
+        "hold2-memory-008-2",
+        "hold2-memory-008-4",
+        "hold2-memory-008-5",
+        "hold2-memory-008-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.045900000259280205,
+        "input_chars": 432.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.045900000259280205,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 3602.785600000061,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-009": {
+      "retrieved_ids": [
+        "hold2-memory-009-1",
+        "hold2-memory-009-3",
+        "hold2-memory-009-2",
+        "hold2-memory-009-5",
+        "hold2-memory-009-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.34e-06,
+        "db_query_ms": 0.022500054910779,
+        "input_chars": 467.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022500054910779,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1409.4998999498785,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-010": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.023999949917197227,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023999949917197227,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.022799940779805183,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-011": {
+      "retrieved_ids": [
+        "hold2-memory-011-1",
+        "hold2-memory-011-3",
+        "hold2-memory-011-2",
+        "hold2-memory-011-5",
+        "hold2-memory-011-4"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.02480007242411375,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02480007242411375,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 900.9127999888733,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-012": {
+      "retrieved_ids": [
+        "hold2-memory-012-2",
+        "hold2-memory-012-3",
+        "hold2-memory-012-4",
+        "hold2-memory-012-5",
+        "hold2-memory-012-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.02789997961372137,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02789997961372137,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1316.9687000336125,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-013": {
+      "retrieved_ids": [
+        "hold2-memory-013-3",
+        "hold2-memory-013-5",
+        "hold2-memory-013-2",
+        "hold2-memory-013-4",
+        "hold2-memory-013-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.022999942302703857,
+        "input_chars": 434.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022999942302703857,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1164.8733000038192,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-014": {
+      "retrieved_ids": [
+        "hold2-memory-014-2",
+        "hold2-memory-014-3",
+        "hold2-memory-014-4",
+        "hold2-memory-014-1",
+        "hold2-memory-014-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.02129992935806513,
+        "input_chars": 423.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02129992935806513,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1142.688300111331,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-015": {
+      "retrieved_ids": [
+        "hold2-memory-015-2",
+        "hold2-memory-015-3",
+        "hold2-memory-015-5",
+        "hold2-memory-015-4",
+        "hold2-memory-015-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.02159993164241314,
+        "input_chars": 436.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02159993164241314,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1347.771200002171,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-016": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.02219993621110916,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02219993621110916,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018700025975704193,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-017": {
+      "retrieved_ids": [
+        "hold2-memory-017-2",
+        "hold2-memory-017-3",
+        "hold2-memory-017-4",
+        "hold2-memory-017-5",
+        "hold2-memory-017-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.021300045773386955,
+        "input_chars": 438.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021300045773386955,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1352.2359000053257,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-018": {
+      "retrieved_ids": [
+        "hold2-memory-018-2",
+        "hold2-memory-018-3",
+        "hold2-memory-018-1",
+        "hold2-memory-018-4",
+        "hold2-memory-018-5"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.1400000000000003e-06,
+        "db_query_ms": 0.02429995220154524,
+        "input_chars": 426.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02429995220154524,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1403.0118000227958,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-019": {
+      "retrieved_ids": [
+        "hold2-memory-019-1",
+        "hold2-memory-019-3",
+        "hold2-memory-019-5",
+        "hold2-memory-019-4",
+        "hold2-memory-019-2"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.025499961338937283,
+        "input_chars": 431.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.025499961338937283,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1472.0567000331357,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-020": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.019200029782950878,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.019200029782950878,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.016600009985268116,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-021": {
+      "retrieved_ids": [
+        "hold2-memory-021-2",
+        "hold2-memory-021-3",
+        "hold2-memory-021-5",
+        "hold2-memory-021-1",
+        "hold2-memory-021-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.36e-06,
+        "db_query_ms": 0.019600032828748226,
+        "input_chars": 471.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.019600032828748226,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1435.9258000040427,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-022": {
+      "retrieved_ids": [
+        "hold2-memory-022-3",
+        "hold2-memory-022-2",
+        "hold2-memory-022-4",
+        "hold2-memory-022-5",
+        "hold2-memory-022-1"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.02280005719512701,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02280005719512701,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1342.9060999769717,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-023": {
+      "retrieved_ids": [
+        "hold2-memory-023-3",
+        "hold2-memory-023-5",
+        "hold2-memory-023-2",
+        "hold2-memory-023-4",
+        "hold2-memory-023-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.024099950678646564,
+        "input_chars": 422.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024099950678646564,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1527.3528000107035,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-024": {
+      "retrieved_ids": [
+        "hold2-memory-024-2",
+        "hold2-memory-024-3",
+        "hold2-memory-024-1",
+        "hold2-memory-024-5",
+        "hold2-memory-024-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.02559996210038662,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02559996210038662,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1443.582299980335,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-025": {
+      "retrieved_ids": [
+        "hold2-memory-025-2",
+        "hold2-memory-025-1",
+        "hold2-memory-025-3",
+        "hold2-memory-025-4",
+        "hold2-memory-025-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.0415000831708312,
+        "input_chars": 424.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.0415000831708312,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1349.2660999763757,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-026": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.019000028260052204,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.019000028260052204,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.01610000617802143,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-027": {
+      "retrieved_ids": [
+        "hold2-memory-027-3",
+        "hold2-memory-027-2",
+        "hold2-memory-027-1",
+        "hold2-memory-027-4",
+        "hold2-memory-027-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.018400023691356182,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.018400023691356182,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1327.0876000169665,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-028": {
+      "retrieved_ids": [
+        "hold2-memory-028-3",
+        "hold2-memory-028-2",
+        "hold2-memory-028-5",
+        "hold2-memory-028-4",
+        "hold2-memory-028-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.02480007242411375,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02480007242411375,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1411.9439999340102,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-029": {
+      "retrieved_ids": [
+        "hold2-memory-029-3",
+        "hold2-memory-029-1",
+        "hold2-memory-029-5",
+        "hold2-memory-029-2",
+        "hold2-memory-029-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.024099950678646564,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024099950678646564,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1415.8552000299096,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-030": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.022500054910779,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022500054910779,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018999911844730377,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-031": {
+      "retrieved_ids": [
+        "hold2-memory-031-3",
+        "hold2-memory-031-2",
+        "hold2-memory-031-1",
+        "hold2-memory-031-4",
+        "hold2-memory-031-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.02310005947947502,
+        "input_chars": 435.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02310005947947502,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1442.138500045985,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-032": {
+      "retrieved_ids": [
+        "hold2-memory-032-2",
+        "hold2-memory-032-5",
+        "hold2-memory-032-3",
+        "hold2-memory-032-4",
+        "hold2-memory-032-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.023400061763823032,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023400061763823032,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1414.2293999902904,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-033": {
+      "retrieved_ids": [
+        "hold2-memory-033-2",
+        "hold2-memory-033-3",
+        "hold2-memory-033-1",
+        "hold2-memory-033-4",
+        "hold2-memory-033-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.24e-06,
+        "db_query_ms": 0.02459995448589325,
+        "input_chars": 446.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02459995448589325,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 2306.6123999888077,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-034": {
+      "retrieved_ids": [
+        "hold2-memory-034-2",
+        "hold2-memory-034-3",
+        "hold2-memory-034-1",
+        "hold2-memory-034-5",
+        "hold2-memory-034-4"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2200000000000003e-06,
+        "db_query_ms": 0.021200045011937618,
+        "input_chars": 441.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021200045011937618,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1172.2849999787286,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-035": {
+      "retrieved_ids": [
+        "hold2-memory-035-2",
+        "hold2-memory-035-3",
+        "hold2-memory-035-4",
+        "hold2-memory-035-5",
+        "hold2-memory-035-1"
+      ],
+      "telemetry": {
+        "context_chars": 340.0,
+        "cost_usd": 1.98e-06,
+        "db_query_ms": 0.02829998265951872,
+        "input_chars": 394.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02829998265951872,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1389.9793999735266,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-036": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.024600070901215076,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024600070901215076,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.023300061002373695,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-037": {
+      "retrieved_ids": [
+        "hold2-memory-037-1",
+        "hold2-memory-037-3",
+        "hold2-memory-037-2",
+        "hold2-memory-037-5",
+        "hold2-memory-037-4"
+      ],
+      "telemetry": {
+        "context_chars": 390.0,
+        "cost_usd": 2.28e-06,
+        "db_query_ms": 0.022700056433677673,
+        "input_chars": 456.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022700056433677673,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1301.242999965325,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-038": {
+      "retrieved_ids": [
+        "hold2-memory-038-3",
+        "hold2-memory-038-2",
+        "hold2-memory-038-4",
+        "hold2-memory-038-5",
+        "hold2-memory-038-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.025000073947012424,
+        "input_chars": 432.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.025000073947012424,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1422.55319992546,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-039": {
+      "retrieved_ids": [
+        "hold2-memory-039-1",
+        "hold2-memory-039-3",
+        "hold2-memory-039-2",
+        "hold2-memory-039-5",
+        "hold2-memory-039-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.34e-06,
+        "db_query_ms": 0.02589996438473463,
+        "input_chars": 467.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02589996438473463,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1354.886700049974,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-040": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.021400046534836292,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021400046534836292,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018399907276034355,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-041": {
+      "retrieved_ids": [
+        "hold2-memory-041-1",
+        "hold2-memory-041-3",
+        "hold2-memory-041-2",
+        "hold2-memory-041-5",
+        "hold2-memory-041-4"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.024099950678646564,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024099950678646564,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1328.893500030972,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-042": {
+      "retrieved_ids": [
+        "hold2-memory-042-2",
+        "hold2-memory-042-3",
+        "hold2-memory-042-4",
+        "hold2-memory-042-5",
+        "hold2-memory-042-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.029099988751113415,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.029099988751113415,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1364.667100016959,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-043": {
+      "retrieved_ids": [
+        "hold2-memory-043-3",
+        "hold2-memory-043-5",
+        "hold2-memory-043-2",
+        "hold2-memory-043-4",
+        "hold2-memory-043-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.02529995981603861,
+        "input_chars": 434.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02529995981603861,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1325.977799948305,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-044": {
+      "retrieved_ids": [
+        "hold2-memory-044-2",
+        "hold2-memory-044-3",
+        "hold2-memory-044-4",
+        "hold2-memory-044-1",
+        "hold2-memory-044-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.02319994382560253,
+        "input_chars": 423.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02319994382560253,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1559.6631000516936,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-045": {
+      "retrieved_ids": [
+        "hold2-memory-045-2",
+        "hold2-memory-045-3",
+        "hold2-memory-045-5",
+        "hold2-memory-045-4",
+        "hold2-memory-045-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.03029999788850546,
+        "input_chars": 436.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.03029999788850546,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1370.0175000121817,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-046": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.02219993621110916,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02219993621110916,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.01880002673715353,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-047": {
+      "retrieved_ids": [
+        "hold2-memory-047-2",
+        "hold2-memory-047-3",
+        "hold2-memory-047-4",
+        "hold2-memory-047-5",
+        "hold2-memory-047-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.021400046534836292,
+        "input_chars": 438.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021400046534836292,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1314.1448999522254,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-048": {
+      "retrieved_ids": [
+        "hold2-memory-048-2",
+        "hold2-memory-048-3",
+        "hold2-memory-048-1",
+        "hold2-memory-048-4",
+        "hold2-memory-048-5"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.1400000000000003e-06,
+        "db_query_ms": 0.024600070901215076,
+        "input_chars": 426.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024600070901215076,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1228.2880999846384,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-049": {
+      "retrieved_ids": [
+        "hold2-memory-049-1",
+        "hold2-memory-049-3",
+        "hold2-memory-049-5",
+        "hold2-memory-049-4",
+        "hold2-memory-049-2"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.022600055672228336,
+        "input_chars": 431.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022600055672228336,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1405.296399956569,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-050": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.020699924789369106,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020699924789369106,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.017600017599761486,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-051": {
+      "retrieved_ids": [
+        "hold2-memory-051-2",
+        "hold2-memory-051-3",
+        "hold2-memory-051-5",
+        "hold2-memory-051-1",
+        "hold2-memory-051-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.36e-06,
+        "db_query_ms": 0.02059992402791977,
+        "input_chars": 471.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02059992402791977,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1162.3408000450581,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-052": {
+      "retrieved_ids": [
+        "hold2-memory-052-3",
+        "hold2-memory-052-2",
+        "hold2-memory-052-4",
+        "hold2-memory-052-5",
+        "hold2-memory-052-1"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.025000073947012424,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.025000073947012424,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1411.7076999973506,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-053": {
+      "retrieved_ids": [
+        "hold2-memory-053-3",
+        "hold2-memory-053-5",
+        "hold2-memory-053-2",
+        "hold2-memory-053-4",
+        "hold2-memory-053-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.022099935449659824,
+        "input_chars": 422.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022099935449659824,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1426.9164999714121,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-054": {
+      "retrieved_ids": [
+        "hold2-memory-054-2",
+        "hold2-memory-054-3",
+        "hold2-memory-054-1",
+        "hold2-memory-054-5",
+        "hold2-memory-054-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.028499984182417393,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.028499984182417393,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1723.9641000051051,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-055": {
+      "retrieved_ids": [
+        "hold2-memory-055-2",
+        "hold2-memory-055-1",
+        "hold2-memory-055-3",
+        "hold2-memory-055-4",
+        "hold2-memory-055-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.03320001997053623,
+        "input_chars": 424.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.03320001997053623,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1386.6502000018954,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-056": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.019799917936325073,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.019799917936325073,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.015900004655122757,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-057": {
+      "retrieved_ids": [
+        "hold2-memory-057-3",
+        "hold2-memory-057-2",
+        "hold2-memory-057-1",
+        "hold2-memory-057-4",
+        "hold2-memory-057-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.018000020645558834,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.018000020645558834,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1136.2051999894902,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-058": {
+      "retrieved_ids": [
+        "hold2-memory-058-3",
+        "hold2-memory-058-2",
+        "hold2-memory-058-5",
+        "hold2-memory-058-4",
+        "hold2-memory-058-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.02680008765310049,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02680008765310049,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1450.836000032723,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-059": {
+      "retrieved_ids": [
+        "hold2-memory-059-3",
+        "hold2-memory-059-1",
+        "hold2-memory-059-5",
+        "hold2-memory-059-2",
+        "hold2-memory-059-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.02450007013976574,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02450007013976574,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1192.940799985081,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-060": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.0222999369725585,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.0222999369725585,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018400023691356182,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-061": {
+      "retrieved_ids": [
+        "hold2-memory-061-3",
+        "hold2-memory-061-2",
+        "hold2-memory-061-1",
+        "hold2-memory-061-4",
+        "hold2-memory-061-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.021900050342082977,
+        "input_chars": 435.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021900050342082977,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1429.0425999788567,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-062": {
+      "retrieved_ids": [
+        "hold2-memory-062-2",
+        "hold2-memory-062-5",
+        "hold2-memory-062-3",
+        "hold2-memory-062-4",
+        "hold2-memory-062-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.022300053387880325,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022300053387880325,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1153.4580000443384,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-063": {
+      "retrieved_ids": [
+        "hold2-memory-063-2",
+        "hold2-memory-063-3",
+        "hold2-memory-063-1",
+        "hold2-memory-063-4",
+        "hold2-memory-063-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.24e-06,
+        "db_query_ms": 0.025399960577487946,
+        "input_chars": 446.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.025399960577487946,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1396.3500000536442,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-064": {
+      "retrieved_ids": [
+        "hold2-memory-064-2",
+        "hold2-memory-064-3",
+        "hold2-memory-064-1",
+        "hold2-memory-064-5",
+        "hold2-memory-064-4"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2200000000000003e-06,
+        "db_query_ms": 0.022799940779805183,
+        "input_chars": 441.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022799940779805183,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1370.854200096801,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-065": {
+      "retrieved_ids": [
+        "hold2-memory-065-2",
+        "hold2-memory-065-3",
+        "hold2-memory-065-4",
+        "hold2-memory-065-5",
+        "hold2-memory-065-1"
+      ],
+      "telemetry": {
+        "context_chars": 340.0,
+        "cost_usd": 1.98e-06,
+        "db_query_ms": 0.012999982573091984,
+        "input_chars": 394.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.012999982573091984,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1368.0153000168502,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-066": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.022799940779805183,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022799940779805183,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018600025214254856,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-067": {
+      "retrieved_ids": [
+        "hold2-memory-067-1",
+        "hold2-memory-067-3",
+        "hold2-memory-067-2",
+        "hold2-memory-067-5",
+        "hold2-memory-067-4"
+      ],
+      "telemetry": {
+        "context_chars": 390.0,
+        "cost_usd": 2.28e-06,
+        "db_query_ms": 0.026899971999228,
+        "input_chars": 456.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.026899971999228,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1472.4789999891073,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-068": {
+      "retrieved_ids": [
+        "hold2-memory-068-3",
+        "hold2-memory-068-2",
+        "hold2-memory-068-4",
+        "hold2-memory-068-5",
+        "hold2-memory-068-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.024399952962994576,
+        "input_chars": 432.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024399952962994576,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1394.976600073278,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-069": {
+      "retrieved_ids": [
+        "hold2-memory-069-1",
+        "hold2-memory-069-3",
+        "hold2-memory-069-2",
+        "hold2-memory-069-5",
+        "hold2-memory-069-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.34e-06,
+        "db_query_ms": 0.02480007242411375,
+        "input_chars": 467.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02480007242411375,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1343.0715999566019,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-070": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.021900050342082977,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021900050342082977,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.018699909560382366,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-071": {
+      "retrieved_ids": [
+        "hold2-memory-071-1",
+        "hold2-memory-071-3",
+        "hold2-memory-071-2",
+        "hold2-memory-071-5",
+        "hold2-memory-071-4"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.021700048819184303,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021700048819184303,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1229.937000083737,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-072": {
+      "retrieved_ids": [
+        "hold2-memory-072-2",
+        "hold2-memory-072-3",
+        "hold2-memory-072-4",
+        "hold2-memory-072-5",
+        "hold2-memory-072-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.022300053387880325,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022300053387880325,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1463.8877999968827,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-073": {
+      "retrieved_ids": [
+        "hold2-memory-073-3",
+        "hold2-memory-073-5",
+        "hold2-memory-073-2",
+        "hold2-memory-073-4",
+        "hold2-memory-073-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.022500054910779,
+        "input_chars": 434.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022500054910779,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1074.156199931167,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-074": {
+      "retrieved_ids": [
+        "hold2-memory-074-2",
+        "hold2-memory-074-3",
+        "hold2-memory-074-4",
+        "hold2-memory-074-1",
+        "hold2-memory-074-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.001700012944638729,
+        "input_chars": 423.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.001700012944638729,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1462.9069999791682,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-075": {
+      "retrieved_ids": [
+        "hold2-memory-075-2",
+        "hold2-memory-075-3",
+        "hold2-memory-075-5",
+        "hold2-memory-075-4",
+        "hold2-memory-075-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.020099920220673084,
+        "input_chars": 436.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020099920220673084,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1379.573000012897,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-076": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.024399952962994576,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024399952962994576,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.020300038158893585,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-077": {
+      "retrieved_ids": [
+        "hold2-memory-077-2",
+        "hold2-memory-077-3",
+        "hold2-memory-077-4",
+        "hold2-memory-077-5",
+        "hold2-memory-077-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.02310005947947502,
+        "input_chars": 438.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02310005947947502,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1351.1028001084924,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-078": {
+      "retrieved_ids": [
+        "hold2-memory-078-2",
+        "hold2-memory-078-3",
+        "hold2-memory-078-1",
+        "hold2-memory-078-4",
+        "hold2-memory-078-5"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.1400000000000003e-06,
+        "db_query_ms": 0.02550007775425911,
+        "input_chars": 426.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02550007775425911,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1706.6698999842629,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-079": {
+      "retrieved_ids": [
+        "hold2-memory-079-1",
+        "hold2-memory-079-3",
+        "hold2-memory-079-5",
+        "hold2-memory-079-4",
+        "hold2-memory-079-2"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.02119992859661579,
+        "input_chars": 431.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02119992859661579,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 858.2478000316769,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-080": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.021300045773386955,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021300045773386955,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.01819990575313568,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-081": {
+      "retrieved_ids": [
+        "hold2-memory-081-2",
+        "hold2-memory-081-3",
+        "hold2-memory-081-5",
+        "hold2-memory-081-1",
+        "hold2-memory-081-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.36e-06,
+        "db_query_ms": 0.022099935449659824,
+        "input_chars": 471.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022099935449659824,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1393.2373999850824,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-082": {
+      "retrieved_ids": [
+        "hold2-memory-082-3",
+        "hold2-memory-082-2",
+        "hold2-memory-082-4",
+        "hold2-memory-082-5",
+        "hold2-memory-082-1"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.024399952962994576,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024399952962994576,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1305.5804000468925,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-083": {
+      "retrieved_ids": [
+        "hold2-memory-083-3",
+        "hold2-memory-083-5",
+        "hold2-memory-083-2",
+        "hold2-memory-083-4",
+        "hold2-memory-083-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.02380006480962038,
+        "input_chars": 422.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02380006480962038,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1417.0673999469727,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-084": {
+      "retrieved_ids": [
+        "hold2-memory-084-2",
+        "hold2-memory-084-3",
+        "hold2-memory-084-1",
+        "hold2-memory-084-5",
+        "hold2-memory-084-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.021600048057734966,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021600048057734966,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1214.5283999852836,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-085": {
+      "retrieved_ids": [
+        "hold2-memory-085-2",
+        "hold2-memory-085-1",
+        "hold2-memory-085-3",
+        "hold2-memory-085-4",
+        "hold2-memory-085-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.023400061763823032,
+        "input_chars": 424.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023400061763823032,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1496.1977999191731,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-086": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.010599964298307896,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.010599964298307896,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.015900004655122757,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-087": {
+      "retrieved_ids": [
+        "hold2-memory-087-3",
+        "hold2-memory-087-2",
+        "hold2-memory-087-1",
+        "hold2-memory-087-4",
+        "hold2-memory-087-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.01850002445280552,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.01850002445280552,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1388.6044999817386,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-088": {
+      "retrieved_ids": [
+        "hold2-memory-088-3",
+        "hold2-memory-088-2",
+        "hold2-memory-088-5",
+        "hold2-memory-088-4",
+        "hold2-memory-088-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.023300061002373695,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023300061002373695,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1340.74289991986,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-089": {
+      "retrieved_ids": [
+        "hold2-memory-089-3",
+        "hold2-memory-089-1",
+        "hold2-memory-089-5",
+        "hold2-memory-089-2",
+        "hold2-memory-089-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.024699955247342587,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024699955247342587,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1379.8039000248536,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-090": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.034800032153725624,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.034800032153725624,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.03760005347430706,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-091": {
+      "retrieved_ids": [
+        "hold2-memory-091-3",
+        "hold2-memory-091-2",
+        "hold2-memory-091-1",
+        "hold2-memory-091-4",
+        "hold2-memory-091-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.04780001472681761,
+        "input_chars": 435.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.04780001472681761,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1417.2014000359923,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-092": {
+      "retrieved_ids": [
+        "hold2-memory-092-2",
+        "hold2-memory-092-5",
+        "hold2-memory-092-3",
+        "hold2-memory-092-4",
+        "hold2-memory-092-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.02450007013976574,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02450007013976574,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1426.9132999470457,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-093": {
+      "retrieved_ids": [
+        "hold2-memory-093-2",
+        "hold2-memory-093-3",
+        "hold2-memory-093-1",
+        "hold2-memory-093-4",
+        "hold2-memory-093-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.24e-06,
+        "db_query_ms": 0.021700048819184303,
+        "input_chars": 446.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021700048819184303,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1345.7274999236688,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-094": {
+      "retrieved_ids": [
+        "hold2-memory-094-2",
+        "hold2-memory-094-3",
+        "hold2-memory-094-1",
+        "hold2-memory-094-5",
+        "hold2-memory-094-4"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2200000000000003e-06,
+        "db_query_ms": 0.02019992098212242,
+        "input_chars": 441.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02019992098212242,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1440.6270000617951,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-095": {
+      "retrieved_ids": [
+        "hold2-memory-095-2",
+        "hold2-memory-095-3",
+        "hold2-memory-095-4",
+        "hold2-memory-095-5",
+        "hold2-memory-095-1"
+      ],
+      "telemetry": {
+        "context_chars": 340.0,
+        "cost_usd": 1.98e-06,
+        "db_query_ms": 0.02389994915574789,
+        "input_chars": 394.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02389994915574789,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1374.6345000108704,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-096": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.02059992402791977,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02059992402791977,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.016200006939470768,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-097": {
+      "retrieved_ids": [
+        "hold2-memory-097-1",
+        "hold2-memory-097-3",
+        "hold2-memory-097-2",
+        "hold2-memory-097-5",
+        "hold2-memory-097-4"
+      ],
+      "telemetry": {
+        "context_chars": 390.0,
+        "cost_usd": 2.28e-06,
+        "db_query_ms": 0.018299906514585018,
+        "input_chars": 456.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.018299906514585018,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1454.6491999644786,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-098": {
+      "retrieved_ids": [
+        "hold2-memory-098-3",
+        "hold2-memory-098-2",
+        "hold2-memory-098-4",
+        "hold2-memory-098-5",
+        "hold2-memory-098-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.028799986466765404,
+        "input_chars": 432.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.028799986466765404,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1311.747100087814,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-099": {
+      "retrieved_ids": [
+        "hold2-memory-099-1",
+        "hold2-memory-099-3",
+        "hold2-memory-099-2",
+        "hold2-memory-099-5",
+        "hold2-memory-099-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.34e-06,
+        "db_query_ms": 0.024799956008791924,
+        "input_chars": 467.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024799956008791924,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1424.3785999715328,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-100": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.02559996210038662,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02559996210038662,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.022300053387880325,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-101": {
+      "retrieved_ids": [
+        "hold2-memory-101-1",
+        "hold2-memory-101-3",
+        "hold2-memory-101-2",
+        "hold2-memory-101-5",
+        "hold2-memory-101-4"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.02629996743053198,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02629996743053198,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 2876.897000009194,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-102": {
+      "retrieved_ids": [
+        "hold2-memory-102-2",
+        "hold2-memory-102-3",
+        "hold2-memory-102-4",
+        "hold2-memory-102-5",
+        "hold2-memory-102-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.03220001235604286,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.03220001235604286,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1407.3912999592721,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-103": {
+      "retrieved_ids": [
+        "hold2-memory-103-3",
+        "hold2-memory-103-5",
+        "hold2-memory-103-2",
+        "hold2-memory-103-4",
+        "hold2-memory-103-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.020499923266470432,
+        "input_chars": 434.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020499923266470432,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1308.504999964498,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-104": {
+      "retrieved_ids": [
+        "hold2-memory-104-2",
+        "hold2-memory-104-3",
+        "hold2-memory-104-4",
+        "hold2-memory-104-1",
+        "hold2-memory-104-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.024900073185563087,
+        "input_chars": 423.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024900073185563087,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1348.9190000109375,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-105": {
+      "retrieved_ids": [
+        "hold2-memory-105-2",
+        "hold2-memory-105-3",
+        "hold2-memory-105-5",
+        "hold2-memory-105-4",
+        "hold2-memory-105-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.02080004196614027,
+        "input_chars": 436.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02080004196614027,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1385.4193000588566,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-106": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.02580008003860712,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02580008003860712,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.029600108973681927,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-107": {
+      "retrieved_ids": [
+        "hold2-memory-107-2",
+        "hold2-memory-107-3",
+        "hold2-memory-107-4",
+        "hold2-memory-107-5",
+        "hold2-memory-107-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.01989991869777441,
+        "input_chars": 438.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.01989991869777441,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1332.3532999493182,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-108": {
+      "retrieved_ids": [
+        "hold2-memory-108-2",
+        "hold2-memory-108-3",
+        "hold2-memory-108-1",
+        "hold2-memory-108-4",
+        "hold2-memory-108-5"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.1400000000000003e-06,
+        "db_query_ms": 0.026999972760677338,
+        "input_chars": 426.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.026999972760677338,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1992.1170000452548,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-109": {
+      "retrieved_ids": [
+        "hold2-memory-109-1",
+        "hold2-memory-109-3",
+        "hold2-memory-109-5",
+        "hold2-memory-109-4",
+        "hold2-memory-109-2"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.029999995604157448,
+        "input_chars": 431.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.029999995604157448,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1356.5463999984786,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-110": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.022900057956576347,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022900057956576347,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.01919991336762905,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-111": {
+      "retrieved_ids": [
+        "hold2-memory-111-2",
+        "hold2-memory-111-3",
+        "hold2-memory-111-5",
+        "hold2-memory-111-1",
+        "hold2-memory-111-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.36e-06,
+        "db_query_ms": 0.022900057956576347,
+        "input_chars": 471.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022900057956576347,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1479.4465999584645,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-112": {
+      "retrieved_ids": [
+        "hold2-memory-112-3",
+        "hold2-memory-112-2",
+        "hold2-memory-112-4",
+        "hold2-memory-112-5",
+        "hold2-memory-112-1"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.02619996666908264,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02619996666908264,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1317.6996000111103,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-113": {
+      "retrieved_ids": [
+        "hold2-memory-113-3",
+        "hold2-memory-113-5",
+        "hold2-memory-113-2",
+        "hold2-memory-113-4",
+        "hold2-memory-113-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.02429995220154524,
+        "input_chars": 422.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02429995220154524,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1098.9550000522286,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-114": {
+      "retrieved_ids": [
+        "hold2-memory-114-2",
+        "hold2-memory-114-3",
+        "hold2-memory-114-1",
+        "hold2-memory-114-5",
+        "hold2-memory-114-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.020400038920342922,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020400038920342922,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 983.3626000909135,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-115": {
+      "retrieved_ids": [
+        "hold2-memory-115-2",
+        "hold2-memory-115-1",
+        "hold2-memory-115-3",
+        "hold2-memory-115-4",
+        "hold2-memory-115-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.02719997428357601,
+        "input_chars": 424.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02719997428357601,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1369.578699930571,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-116": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.021300045773386955,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021300045773386955,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.02719997428357601,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-117": {
+      "retrieved_ids": [
+        "hold2-memory-117-3",
+        "hold2-memory-117-2",
+        "hold2-memory-117-1",
+        "hold2-memory-117-4",
+        "hold2-memory-117-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.000600004568696022,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.000600004568696022,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1426.5035999706015,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-118": {
+      "retrieved_ids": [
+        "hold2-memory-118-3",
+        "hold2-memory-118-2",
+        "hold2-memory-118-5",
+        "hold2-memory-118-4",
+        "hold2-memory-118-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.022099935449659824,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022099935449659824,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1453.4831000491977,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-119": {
+      "retrieved_ids": [
+        "hold2-memory-119-3",
+        "hold2-memory-119-1",
+        "hold2-memory-119-5",
+        "hold2-memory-119-2",
+        "hold2-memory-119-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.02429995220154524,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02429995220154524,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1445.4085000324994,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-120": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.017900019884109497,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.017900019884109497,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.021999934688210487,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-121": {
+      "retrieved_ids": [
+        "hold2-memory-121-3",
+        "hold2-memory-121-2",
+        "hold2-memory-121-1",
+        "hold2-memory-121-4",
+        "hold2-memory-121-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.017999904230237007,
+        "input_chars": 435.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.017999904230237007,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1309.8138999193907,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-122": {
+      "retrieved_ids": [
+        "hold2-memory-122-2",
+        "hold2-memory-122-5",
+        "hold2-memory-122-3",
+        "hold2-memory-122-4",
+        "hold2-memory-122-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.022999942302703857,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022999942302703857,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1320.9713000105694,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-123": {
+      "retrieved_ids": [
+        "hold2-memory-123-2",
+        "hold2-memory-123-3",
+        "hold2-memory-123-1",
+        "hold2-memory-123-4",
+        "hold2-memory-123-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.24e-06,
+        "db_query_ms": 0.024699955247342587,
+        "input_chars": 446.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024699955247342587,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1390.3798999963328,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-124": {
+      "retrieved_ids": [
+        "hold2-memory-124-2",
+        "hold2-memory-124-3",
+        "hold2-memory-124-1",
+        "hold2-memory-124-5",
+        "hold2-memory-124-4"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2200000000000003e-06,
+        "db_query_ms": 0.022400054149329662,
+        "input_chars": 441.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022400054149329662,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1333.2174000097439,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-125": {
+      "retrieved_ids": [
+        "hold2-memory-125-2",
+        "hold2-memory-125-3",
+        "hold2-memory-125-4",
+        "hold2-memory-125-5",
+        "hold2-memory-125-1"
+      ],
+      "telemetry": {
+        "context_chars": 340.0,
+        "cost_usd": 1.98e-06,
+        "db_query_ms": 0.021699932403862476,
+        "input_chars": 394.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021699932403862476,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1310.622499906458,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-126": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.019000028260052204,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.019000028260052204,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.01650000922381878,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-127": {
+      "retrieved_ids": [
+        "hold2-memory-127-1",
+        "hold2-memory-127-3",
+        "hold2-memory-127-2",
+        "hold2-memory-127-5",
+        "hold2-memory-127-4"
+      ],
+      "telemetry": {
+        "context_chars": 390.0,
+        "cost_usd": 2.28e-06,
+        "db_query_ms": 0.01880002673715353,
+        "input_chars": 456.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.01880002673715353,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1369.393099914305,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-128": {
+      "retrieved_ids": [
+        "hold2-memory-128-3",
+        "hold2-memory-128-2",
+        "hold2-memory-128-4",
+        "hold2-memory-128-5",
+        "hold2-memory-128-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.04600000102072954,
+        "input_chars": 432.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.04600000102072954,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1367.5959000829607,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-129": {
+      "retrieved_ids": [
+        "hold2-memory-129-1",
+        "hold2-memory-129-3",
+        "hold2-memory-129-2",
+        "hold2-memory-129-5",
+        "hold2-memory-129-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.34e-06,
+        "db_query_ms": 0.021399930119514465,
+        "input_chars": 467.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.021399930119514465,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1497.2923999885097,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-130": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.027400092221796513,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.027400092221796513,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.017700018361210823,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-131": {
+      "retrieved_ids": [
+        "hold2-memory-131-1",
+        "hold2-memory-131-3",
+        "hold2-memory-131-2",
+        "hold2-memory-131-5",
+        "hold2-memory-131-4"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.020300038158893585,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020300038158893585,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1312.3063000384718,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-132": {
+      "retrieved_ids": [
+        "hold2-memory-132-2",
+        "hold2-memory-132-3",
+        "hold2-memory-132-4",
+        "hold2-memory-132-5",
+        "hold2-memory-132-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.022700056433677673,
+        "input_chars": 449.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022700056433677673,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1413.3176000323147,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-133": {
+      "retrieved_ids": [
+        "hold2-memory-133-3",
+        "hold2-memory-133-5",
+        "hold2-memory-133-2",
+        "hold2-memory-133-4",
+        "hold2-memory-133-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.022700056433677673,
+        "input_chars": 434.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022700056433677673,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1493.9757999964058,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-134": {
+      "retrieved_ids": [
+        "hold2-memory-134-2",
+        "hold2-memory-134-3",
+        "hold2-memory-134-4",
+        "hold2-memory-134-1",
+        "hold2-memory-134-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.03390002530068159,
+        "input_chars": 423.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.03390002530068159,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1335.6107000727206,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-135": {
+      "retrieved_ids": [
+        "hold2-memory-135-2",
+        "hold2-memory-135-3",
+        "hold2-memory-135-5",
+        "hold2-memory-135-4",
+        "hold2-memory-135-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.1800000000000003e-06,
+        "db_query_ms": 0.0252000754699111,
+        "input_chars": 436.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.0252000754699111,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 963.2075999397784,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-136": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.028699985705316067,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.028699985705316067,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.017900019884109497,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-137": {
+      "retrieved_ids": [
+        "hold2-memory-137-2",
+        "hold2-memory-137-3",
+        "hold2-memory-137-4",
+        "hold2-memory-137-5",
+        "hold2-memory-137-1"
+      ],
+      "telemetry": {
+        "context_chars": 375.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.020600040443241596,
+        "input_chars": 438.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020600040443241596,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1459.9903000053018,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-138": {
+      "retrieved_ids": [
+        "hold2-memory-138-2",
+        "hold2-memory-138-3",
+        "hold2-memory-138-1",
+        "hold2-memory-138-4",
+        "hold2-memory-138-5"
+      ],
+      "telemetry": {
+        "context_chars": 360.0,
+        "cost_usd": 2.1400000000000003e-06,
+        "db_query_ms": 0.022099935449659824,
+        "input_chars": 426.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.022099935449659824,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1079.4337999541312,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-139": {
+      "retrieved_ids": [
+        "hold2-memory-139-1",
+        "hold2-memory-139-3",
+        "hold2-memory-139-5",
+        "hold2-memory-139-4",
+        "hold2-memory-139-2"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.020600040443241596,
+        "input_chars": 431.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020600040443241596,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1418.351599946618,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-140": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.026699970476329327,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.026699970476329327,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.017200014553964138,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-141": {
+      "retrieved_ids": [
+        "hold2-memory-141-2",
+        "hold2-memory-141-3",
+        "hold2-memory-141-5",
+        "hold2-memory-141-1",
+        "hold2-memory-141-4"
+      ],
+      "telemetry": {
+        "context_chars": 395.0,
+        "cost_usd": 2.36e-06,
+        "db_query_ms": 0.020300038158893585,
+        "input_chars": 471.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.020300038158893585,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1146.469800034538,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-142": {
+      "retrieved_ids": [
+        "hold2-memory-142-3",
+        "hold2-memory-142-2",
+        "hold2-memory-142-4",
+        "hold2-memory-142-5",
+        "hold2-memory-142-1"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.02150004729628563,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.02150004729628563,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1653.5159000195563,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-143": {
+      "retrieved_ids": [
+        "hold2-memory-143-3",
+        "hold2-memory-143-5",
+        "hold2-memory-143-2",
+        "hold2-memory-143-4",
+        "hold2-memory-143-1"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.025499961338937283,
+        "input_chars": 422.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.025499961338937283,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1130.3863000357524,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-144": {
+      "retrieved_ids": [
+        "hold2-memory-144-2",
+        "hold2-memory-144-3",
+        "hold2-memory-144-1",
+        "hold2-memory-144-5",
+        "hold2-memory-144-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.16e-06,
+        "db_query_ms": 0.024099950678646564,
+        "input_chars": 429.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.024099950678646564,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1312.8993000136688,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-145": {
+      "retrieved_ids": [
+        "hold2-memory-145-2",
+        "hold2-memory-145-1",
+        "hold2-memory-145-3",
+        "hold2-memory-145-4",
+        "hold2-memory-145-5"
+      ],
+      "telemetry": {
+        "context_chars": 365.0,
+        "cost_usd": 2.12e-06,
+        "db_query_ms": 0.026099965907633305,
+        "input_chars": 424.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.026099965907633305,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1064.767500036396,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-146": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.023000058718025684,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023000058718025684,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.016700010746717453,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-147": {
+      "retrieved_ids": [
+        "hold2-memory-147-3",
+        "hold2-memory-147-2",
+        "hold2-memory-147-1",
+        "hold2-memory-147-4",
+        "hold2-memory-147-5"
+      ],
+      "telemetry": {
+        "context_chars": 385.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.0078000593930482864,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.0078000593930482864,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1355.0419999519363,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-148": {
+      "retrieved_ids": [
+        "hold2-memory-148-3",
+        "hold2-memory-148-2",
+        "hold2-memory-148-5",
+        "hold2-memory-148-4",
+        "hold2-memory-148-1"
+      ],
+      "telemetry": {
+        "context_chars": 380.0,
+        "cost_usd": 2.2600000000000004e-06,
+        "db_query_ms": 0.023999949917197227,
+        "input_chars": 450.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.023999949917197227,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1491.9395000906661,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-149": {
+      "retrieved_ids": [
+        "hold2-memory-149-3",
+        "hold2-memory-149-1",
+        "hold2-memory-149-5",
+        "hold2-memory-149-2",
+        "hold2-memory-149-4"
+      ],
+      "telemetry": {
+        "context_chars": 370.0,
+        "cost_usd": 2.2e-06,
+        "db_query_ms": 0.03930006641894579,
+        "input_chars": 437.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.03930006641894579,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 1.0,
+        "provider_latency_ms": 1385.5626999866217,
+        "repeats": 1
+      }
+    },
+    "hold2-ret-150": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "context_chars": 0.0,
+        "cost_usd": 0.0,
+        "db_query_ms": 0.019700033590197563,
+        "input_chars": 0.0,
+        "input_tokens": 0.0,
+        "latency_ms": 0.019700033590197563,
+        "model": "openai/text-embedding-3-small",
+        "output_tokens": 0.0,
+        "proposal_count": 0.0,
+        "provider": "OpenAICompatibleEmbeddings",
+        "provider_calls": 0.0,
+        "provider_latency_ms": 0.017300015315413475,
+        "repeats": 1
+      }
+    }
+  },
+  "protocol": {
+    "concurrency": 1,
+    "corpus_sha256": "722a57ef49cfdbbe3637d0a5a5f3406ec326b576358314243577dd5ca1d7816c",
+    "embedding_model": "openai/text-embedding-3-small",
+    "embedding_provider": "OpenAICompatibleEmbeddings",
+    "llm_provider": "openrouter",
+    "manifest_sha256": "0df5a608789e34aee962437c89617e0d4ecd31d32de14df6390eec86623bbc2d",
+    "repeats": 1,
+    "run_role": "candidate",
+    "synthetic_inputs_only": true,
+    "temperature": 0.0,
+    "timeout_s": 60.0
+  },
+  "schema_version": 1
+}
