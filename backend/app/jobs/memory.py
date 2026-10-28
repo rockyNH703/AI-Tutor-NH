@@ -5,7 +5,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import case, func, select, update
+from sqlalchemy import case, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from app.db.models import MemoryExtractionJob, MemoryProposal, Message, UserSettings
@@ -150,7 +150,10 @@ async def _claim_fair(db: Database, settings: Settings, owner: str, now: datetim
             )
             .where(
                 MemoryExtractionJob.status.in_(("queued", "retryable")),
-                MemoryExtractionJob.next_attempt_at <= now,
+                or_(
+                    MemoryExtractionJob.status == "queued",
+                    MemoryExtractionJob.next_attempt_at <= now,
+                ),
             )
             .subquery()
         )

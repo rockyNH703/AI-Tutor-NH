@@ -26,7 +26,7 @@ import socket
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, or_, select, update
 
 from app.auth.emails import EmailDeliveryError, EmailSender
 from app.db.models import EmailOutbox
@@ -112,7 +112,7 @@ async def send_due(
             select(EmailOutbox)
             .where(
                 EmailOutbox.status == "pending",
-                EmailOutbox.next_attempt_at <= now,
+                or_(EmailOutbox.attempts == 0, EmailOutbox.next_attempt_at <= now),
                 EmailOutbox.send_before >= now,
             )
             .order_by(EmailOutbox.created_at)

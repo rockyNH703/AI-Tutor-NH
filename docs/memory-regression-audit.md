@@ -17,12 +17,12 @@ All destructive tests used isolated PostgreSQL databases whose names end in `_te
 | PASS | Temporal validity | Future `valid_from` and elapsed `valid_to` memories are excluded from list, export, exact match, and recall. |
 | PASS | Consent/deletion dispatch boundary | A per-user PostgreSQL advisory transaction lock serializes provider dispatch with consent revocation, clear-all, and account deletion. Provider requests already accepted before revocation cannot be withdrawn. |
 | PASS | Anti-resurrection | Proposal approval rechecks tombstones under the same per-user lock used by deletion. Explicit commands respect deletion markers. |
-| PASS | Worker reliability | Claiming, fairness, bounded input/output, lease recovery, retries, dead-letter state, consent epochs, and proposal idempotency are covered by focused tests. |
+| PASS | Worker reliability | Claiming, fairness, bounded input/output, lease recovery, retries, dead-letter state, consent epochs, proposal idempotency, and first-attempt clock-skew handling are covered by focused tests. |
 | PASS | Migration empty rollback | `0018 -> 0019 -> 0018 -> 0019` completed successfully. |
 | PASS | Migration populated rollback | Downgrade refused before destructive DDL when non-representable `0019` data existed. |
 | PASS | Frontend | 564 tests across 47 files passed; type checking, lint, contract generation (201 checks), and production build passed. One unrelated pre-existing unused Biome suppression warning remains. |
 | PASS | Static validation | Full Ruff check and Ruff formatting check passed; frontend TypeScript typecheck passed. |
-| PARTIAL | Full backend regression | Multiple complete memory-focused/adversarial suites passed. Three whole-suite attempts reached 26-74% with no observed failures but were interrupted to meet the requested completion deadline; no complete whole-suite result is claimed. |
+| PARTIAL | Full backend regression | Multiple complete memory-focused/adversarial suites passed. Three whole-suite attempts reached 26-74% with no observed failures but were interrupted to meet the requested completion deadline; the latest broader gate was blocked by a local PostgreSQL `fsync` I/O error after 63 tests had passed. No complete whole-suite result is claimed. |
 | PASS | Production read-only baseline | Public health returned `{"status":"ok"}` and the login page was reachable. |
 | BLOCKED | Production recall/extraction release | The sealed holdout is only 12 synthetic, non-provider-backed cases. Mandatory 100 extraction facts, 100 retrieval questions, 25 abstention, 20 temporal/conflict, and 20 security/isolation cases are not available. |
 | NOT TESTED | Production memory behavior | Deliberately not enabled or exercised because deployment/migration authorization and the quantitative release gate are absent. |
@@ -40,6 +40,7 @@ All destructive tests used isolated PostgreSQL databases whose names end in `_te
 8. Command cancellation was not rechecked around embedding and commit boundaries.
 9. Add proposals were mislabeled as corrections in the Settings UI.
 10. Test-only file upload checks were blocked by the host's production free-space guard; only `_test` databases bypass that host guard.
+11. Fresh extraction and email outbox rows could be skipped when PostgreSQL's creation timestamp was a few milliseconds ahead of the worker's captured `now`; first-attempt rows are now immediately claimable while retry backoff remains enforced.
 
 ## Commands and results
 
