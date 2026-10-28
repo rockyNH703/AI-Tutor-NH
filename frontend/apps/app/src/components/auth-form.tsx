@@ -887,11 +887,15 @@ export function AuthForm({
         </div>
       </main>
 
-      <footer className="pointer-events-none absolute bottom-0 left-0 z-20 hidden w-full items-center justify-center p-8 min-[480px]:flex">
-        <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-white/20">
-          Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans dark:bg-white/10">Enter</kbd> to continue
-        </p>
-      </footer>
+      {/* A hint, not content: only where the step can never reach it (a tall enough window, and
+          no message under the field). */}
+      {!error && !info && (
+        <footer className="pointer-events-none absolute bottom-0 left-0 z-20 hidden w-full items-center justify-center p-8 min-[480px]:[@media(min-height:780px)]:flex">
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-white/20">
+            Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans dark:bg-white/10">Enter</kbd> to continue
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
