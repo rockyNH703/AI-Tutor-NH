@@ -7,6 +7,7 @@ only their text for now: the outbox stores a subject and a body (app/notificatio
 from __future__ import annotations
 
 from app.email_html import (
+    NAME,
     SUCCESS,
     TEXT,
     WARNING,
@@ -33,7 +34,7 @@ from app.email_html import (
 )
 from app.settings import Settings
 
-REQUIRED = "This is a required security email about your PadhAI account."
+REQUIRED = f"This is a required security email about your {NAME} account."
 
 
 def _footer(label: str, url: str | None, unsubscribe_url: str | None = None) -> str:

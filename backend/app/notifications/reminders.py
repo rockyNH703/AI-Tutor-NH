@@ -170,7 +170,7 @@ async def _plan_for(session: AsyncSession, settings: Settings, row, due: set[str
                     session,
                     row.id,
                     kind="weekly_summary",
-                    title="📊 Your week in PadhAI",
+                    title=f"📊 Your week in {app}",
                     body=f"{state.last_week_questions} questions, {state.last_week_active_days} active days last week.",
                     link="/settings/progress",
                     dedup_key=f"weekly-summary:{year}-W{week:02d}",

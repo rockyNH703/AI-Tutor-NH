@@ -1,4 +1,4 @@
-"""The HTML part of PadhAI's emails: one branded layout and a few blocks, everything escaped.
+"""The HTML part of NetSec AI's emails: one branded layout and a few blocks, everything escaped.
 
 Every email is plain text first; this module builds its second part from the same values
 (app/auth/emails.py, app/notifications/emails.py). What keeps it safe:
@@ -48,22 +48,22 @@ def join(*parts: object) -> SafeHtml:
 
 
 # The brand (frontend/packages/ui/src/globals.css and frontend/apps/app/src/lib/brand.ts).
+NAME = "NetSec AI"
 FONT = "'Noto Sans', 'Segoe UI', Roboto, -apple-system, Arial, sans-serif"
 MONO = "'Courier New', Courier, monospace"
-BRAND = "#4F6F8F"
-BRAND_TINT = "#EAF1F6"
+BRAND = "#111827"
+BRAND_TINT = "#F3F4F6"
 PAGE = "#F7F8FA"
 TEXT = "#20252B"
 MUTED = "#5F6873"
 BORDER = "#E4E7EB"
-DARK = "#171B20"
+DARK = "#111827"
 SUCCESS = "#1B7F3A"
 WARNING = "#7A5C00"
 DANGER = "#B23A48"
-SAGE = "#5A7360"
 FLAME = "#F28C45"
 GOLD = "#FFC46B"
-TAGLINE = "Your Questions. Your Tutor. Your Way."
+TAGLINE = "Your intelligent learning assistant."
 
 # The pages an email may link to; nothing else is ever a link.
 PAGES = {
@@ -73,7 +73,7 @@ PAGES = {
     "notifications": "/settings/notifications",
     "progress": "/settings/progress",
 }
-LOGO = "/brand/padhai-mark-email.png"  # frontend/apps/app/public: 72x72, shown at 36x36
+LOGO = "/brand/netsec-mark-email.png"  # frontend/apps/app/public: 72x72, shown at 36x36
 _BIDI_CONTROLS = {chr(code) for code in (*range(0x202A, 0x202F), *range(0x2066, 0x206A))}
 
 
@@ -248,11 +248,11 @@ def alert(
 
 
 def hero(title: object, text: object) -> SafeHtml:
-    """The calm blue-to-sage block of the learning emails; plain brand blue where gradients don't show."""
+    """The solid dark block of the learning emails, as the app's own (no gradient)."""
     return _row(
         _table(
             f'<tr><td align="center" class="hero-wrap" bgcolor="{BRAND}" style="background-color:{BRAND};'
-            f"background-image:linear-gradient(135deg,{BRAND} 0%,{SAGE} 100%);border-radius:12px;"
+            f"border-radius:12px;"
             f'padding:36px 28px;">{_p(title, size=24, color="#FFFFFF", weight=700, align="center")}'
             f"{_spaced(_p(text, color=BRAND_TINT, align='center'), 12)}</td></tr>"
         ),
@@ -331,7 +331,7 @@ def document(
     `settings_url` and `unsubscribe_url` must come from `app_link` and `checked_url`."""
     base = public_base(settings)
     home = f"{base}/" if base else None
-    wordmark = f'<span style="color:{TEXT};">Padh</span><span style="color:{BRAND};">AI</span>'
+    wordmark = f'<span style="color:{TEXT};">{NAME}</span>'
     if home and base:
         brand = (
             f'<img src="{_esc(base + LOGO)}" width="36" height="36" alt="" '
@@ -339,7 +339,7 @@ def document(
             f'<span style="display:inline-block;vertical-align:middle;padding-left:12px;">{wordmark}</span>'
         )
         wordmark = (
-            f'<a href="{_esc(home)}" target="_blank" aria-label="PadhAI home" style="text-decoration:none;">{brand}</a>'
+            f'<a href="{_esc(home)}" target="_blank" aria-label="{NAME} home" style="text-decoration:none;">{brand}</a>'
         )
     header = (
         '<tr><td><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
@@ -360,7 +360,7 @@ def document(
         'style="width:600px;max-width:600px;"><tr>'
         f'<td align="center" style="padding:24px 20px;font-family:{FONT};font-size:12px;line-height:18px;'
         f'color:{MUTED};">'
-        f'<p style="margin:0;font-weight:700;color:{TEXT};">PadhAI</p>'
+        f'<p style="margin:0;font-weight:700;color:{TEXT};">{NAME}</p>'
         f'<p style="margin:4px 0 0 0;">{_esc(TAGLINE)}</p>'
         f'<p style="margin:12px 0 0 0;">{_esc(note)}</p>{footer_links}</td></tr></table>'
     )

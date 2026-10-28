@@ -136,7 +136,7 @@ async def test_a_sign_in_code_goes_out_through_ollastack(app, client):
     body = json.loads(request.content)
     assert body["to"] == "gil@example.com" and "sign-in code" in body["subject"]
     assert "135790" in body["text"]
-    assert "135790" in body["html"] and "padhai-mark-email.png" not in body["html"]
+    assert "135790" in body["html"] and "netsec-mark-email.png" not in body["html"]
 
 
 async def test_an_email_change_reports_503_when_ollastack_refuses(app, client):

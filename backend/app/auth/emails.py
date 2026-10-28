@@ -15,6 +15,8 @@ from typing import Protocol
 import httpx
 
 from app.email_html import (
+    NAME,
+    TAGLINE,
     Email,
     alert,
     app_link,
@@ -40,7 +42,7 @@ from app.settings import Settings
 
 log = get_logger("app.email")
 
-REQUIRED = "This is a required email about your PadhAI account."
+REQUIRED = f"This is a required email about your {NAME} account."
 
 
 class EmailSender(Protocol):
@@ -272,7 +274,7 @@ def account_deleted_email(app_name: str, *, settings: Settings | None = None) ->
         return document(
             settings,
             title=subject,
-            preview="Your account and its data were deleted from PadhAI.",
+            preview=f"Your account and its data were deleted from {app_name}.",
             blocks=[
                 heading("Your account was deleted"),
                 paragraph(join(deleted, " ", backups, " Every device was signed out.")),
@@ -299,7 +301,7 @@ def welcome_email(app_name: str, display_name: str | None, *, settings: Settings
     manage = app_link(settings, "notifications")
     reason = f"You received this email because you just created a {app_name} account."
     body = (
-        f"{hello}\n\nWelcome to {app_name}. Your Questions. Your Tutor. Your Way.\n\n{glad}\n\n{how}\n\n"
+        f"{hello}\n\nWelcome to {app_name}. {TAGLINE}\n\n{glad}\n\n{how}\n\n"
         + (f"Start learning: {start}" if start else f"Open {app_name} to start learning.")
         + f"\n\n--\n{reason}\nChoose which emails you get: {manage or f'{app_name} Settings'}"
     )
@@ -309,10 +311,10 @@ def welcome_email(app_name: str, display_name: str | None, *, settings: Settings
         return document(
             settings,
             title=subject,
-            preview="Your Questions. Your Tutor. Your Way.",
+            preview=TAGLINE,
             blocks=[
                 heading(greeting),
-                hero(f"Welcome to {app_name}", "Your Questions. Your Tutor. Your Way."),
+                hero(f"Welcome to {app_name}", TAGLINE),
                 paragraph(glad, top=28),
                 paragraph(how),
                 html_button("Start learning", start, top=28, center=True),
