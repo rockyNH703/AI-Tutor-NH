@@ -66,6 +66,15 @@ elif [ "$tunnel" = "${public%/}" ]; then
 else
   bad "tunnel is $tunnel but NEXT_PUBLIC_SITE_URL is ${public:-unset}: sign-in fails there (docs/deployment.md, \"Quick Tunnel address changed\")"
 fi
+# Every email's logo and links (Start learning, Settings, unsubscribe) are on PUBLIC_APP_URL.
+links=$(sed -n 's/^PUBLIC_APP_URL=//p' "$SECRETS/api.env" 2> /dev/null | tail -1)
+if [ -z "$links" ]; then
+  info "api.env PUBLIC_APP_URL not set (emails have no links or logo)"
+elif [ "${links%/}" = "${public%/}" ]; then
+  ok "api.env PUBLIC_APP_URL is NEXT_PUBLIC_SITE_URL (email links and logo)"
+else
+  bad "api.env PUBLIC_APP_URL is $links but NEXT_PUBLIC_SITE_URL is ${public:-unset}: email links and logo go there (docs/deployment.md, \"Quick Tunnel address changed\")"
+fi
 jobs_timer=$(systemctl is-enabled netsecai-jobs.timer 2> /dev/null); info "jobs worker: netsecai-jobs.timer ${jobs_timer:-not installed}"
 files=$(curl -fsS --max-time 5 "http://127.0.0.1:$API_PORT/health" 2> /dev/null | grep -o '"files":"[a-z]*"' | cut -d'"' -f4)
 info "files (File Library): ${files:-unknown}; extractor units running: $(systemctl list-units --no-legend 'netsecai-extract-*' 2> /dev/null | wc -l)"

@@ -490,8 +490,11 @@ host says "Sign-in unavailable here" instead of failing each attempt. To recover
 
 1. Set `NEXT_PUBLIC_SITE_URL=https://<new host>` in `/etc/netsecai/web.env`, then `systemctl restart
    netsecai-web` (it is read at runtime; no rebuild).
-2. If Google is configured, update the client's JavaScript origin and redirect URI (step 2 below).
-3. `bun run status:netsec` must show `tunnel https://<new host> is NEXT_PUBLIC_SITE_URL`.
+2. Set `PUBLIC_APP_URL=https://<new host>` in `/etc/netsecai/api.env`, then `systemctl restart netsecai-api`:
+   every email's logo and links are on it.
+3. If Google is configured, update the client's JavaScript origin and redirect URI (step 2 below).
+4. `bun run status:netsec` must show `tunnel https://<new host> is NEXT_PUBLIC_SITE_URL` and
+   `api.env PUBLIC_APP_URL is NEXT_PUBLIC_SITE_URL`.
 
 A named tunnel with a fixed hostname removes this failure mode.
 

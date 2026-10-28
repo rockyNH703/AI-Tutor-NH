@@ -143,6 +143,7 @@ describe("NetSec deployment namespace", () => {
     expect(status).toContain('"_SYSTEMD_INVOCATION_ID=$run"');
     expect(status).toContain("trycloudflare");
     expect(status).toMatch(/bad "tunnel is \$tunnel but NEXT_PUBLIC_SITE_URL is/);
+    expect(status).toMatch(/bad "api\.env PUBLIC_APP_URL is \$links but NEXT_PUBLIC_SITE_URL is/);
   });
 
   test("script hygiene defects stay fixed", () => {
