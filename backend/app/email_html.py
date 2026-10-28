@@ -7,11 +7,12 @@ Every email is plain text first; this module builds its second part from the sam
   what it is given. Only `SafeHtml`, which only the blocks here make, passes through as markup.
 - A link is only ever PUBLIC_APP_URL plus a fixed page (`app_link`), or the signed unsubscribe
   link on that same address (`checked_url`). If PUBLIC_APP_URL is not a plain https origin, the
-  email has no links and no logo; the instructions are in the text either way.
+  email has no links; the instructions are in the text either way.
 - A failure here never stops an email: `render_html` logs it and the email goes out as text.
 
 Email-client rules: tables and inline styles, a solid colour behind every gradient, no web
-fonts, and nothing that needs images (the wordmark is text; the logo is decoration).
+fonts, and no images: the logo is drawn (a tile and a glyph) and the wordmark is text, so both
+show with images blocked and never depend on the site's address (a Quick Tunnel's changes).
 """
 
 from __future__ import annotations
@@ -73,7 +74,6 @@ PAGES = {
     "notifications": "/settings/notifications",
     "progress": "/settings/progress",
 }
-LOGO = "/brand/netsec-mark-email.png"  # frontend/apps/app/public: 72x72, shown at 36x36
 _BIDI_CONTROLS = {chr(code) for code in (*range(0x202A, 0x202F), *range(0x2066, 0x206A))}
 
 
@@ -332,19 +332,19 @@ def document(
     base = public_base(settings)
     home = f"{base}/" if base else None
     wordmark = f'<span style="color:{TEXT};">{NAME}</span>'
-    if home and base:
-        brand = (
-            f'<img src="{_esc(base + LOGO)}" width="36" height="36" alt="" '
-            'style="display:inline-block;vertical-align:middle;width:36px;height:36px;border:0;border-radius:8px;">'
-            f'<span style="display:inline-block;vertical-align:middle;padding-left:12px;">{wordmark}</span>'
-        )
-        wordmark = (
-            f'<a href="{_esc(home)}" target="_blank" aria-label="{NAME} home" style="text-decoration:none;">{brand}</a>'
-        )
+    if home:
+        wordmark = f'<a href="{_esc(home)}" target="_blank" style="color:{TEXT};text-decoration:none;">{NAME}</a>'
+    # The app's triangle mark on its dark tile (components/brand/brand-mark.tsx), as a glyph that
+    # every client's fonts have (U+25B2).
+    mark = (
+        f'<td aria-hidden="true" width="36" height="36" align="center" valign="middle" bgcolor="{BRAND}" '
+        f'style="width:36px;height:36px;border-radius:8px;background-color:{BRAND};color:#FFFFFF;'
+        'font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:36px;text-align:center;">&#9650;</td>'
+    )
     header = (
-        '<tr><td><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
-        f'<td valign="middle" style="font-family:{FONT};font-size:24px;line-height:28px;font-weight:900;'
-        f'letter-spacing:-0.5px;">{wordmark}</td></tr></table></td></tr>'
+        f'<tr><td><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>{mark}'
+        f'<td valign="middle" style="padding-left:12px;font-family:{FONT};font-size:24px;line-height:28px;'
+        f'font-weight:900;letter-spacing:-0.5px;">{wordmark}</td></tr></table></td></tr>'
     )
     links = [
         part
