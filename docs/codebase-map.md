@@ -340,13 +340,12 @@ Files with a leading description comment; components without one are named by th
 | `features/chat/chat-context.tsx` | Creates the chat and conversation-list stores once per signed-in session and wires them together. Mounted by the app shell, so it survives navigation |
 | `features/chat/chat-store.ts` | Client-side state for every open conversation — and nothing the server owns. The server is the source of truth for conversations and messages. This st |
 | `features/chat/dictation.ts` | Dictation with the browser's own speech recognition (Web Speech API). No audio reaches AI Tutor: the browser's speech service turns speech into text, |
-| `features/chat/empty-state.tsx` | What a new, empty chat shows above the composer: a small, quiet picture (study-illustration.tsx) and a study greeting picked at random from this week' |
+| `features/chat/empty-state.tsx` | What a new, empty chat shows above the composer: a study greeting picked at random from this week's pool, kept for this chat (lib/greeting.ts), and noth |
 | `features/chat/error-message.tsx` | A failure, shown as a failure — not dressed up as something the assistant said. Our own copy per error code, one recovery action, and the request id f |
 | `features/chat/keyboard.ts` | Should this key press send the message? Enter sends; Shift+Enter is a newline. Enter while an input method is composing (Japanese, Chinese, Korean, Hi |
 | `features/chat/plain-text.ts` | Roughly de-Markdown a reply for the screen-reader announcement. Only for `aria-live` text: the reply itself is rendered properly on screen and can be |
 | `features/chat/smooth-text.ts` | A streaming reply shown at an even pace instead of in the bursts the network delivers. No invented delay: the text shown is always text that has arriv |
 | `features/chat/streaming-indicator.tsx` | "The answer is on its way", before the first words arrive: three dots breathing in turn (opacity only, no bounce), and nothing else. Silent to screen |
-| `features/chat/study-illustration.tsx` | The quiet picture above a new chat's greeting: an open book, a sprout of two leaves, three small sparkles. Drawn in the design tokens at low strength |
 | `features/chat/use-dictation.ts` | One utterance per start (continuous off: predictable on phones too). Only the current session's events count, so a result arriving after a stop, a sen |
 | `features/chat/use-stick-to-bottom.ts` | Within this many pixels of the bottom counts as "at the bottom". |
 

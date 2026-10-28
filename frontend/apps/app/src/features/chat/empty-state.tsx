@@ -4,12 +4,10 @@ import { type CSSProperties, Fragment, useLayoutEffect, useRef, useState } from 
 
 import { pickGreeting } from "@/lib/greeting";
 import { useStudyGreetings } from "./chat-context";
-import { StudyIllustration } from "./study-illustration";
 
 /**
- * What a new, empty chat shows above the composer: a small, quiet picture (study-illustration.tsx)
- * and a study greeting picked at random from this week's pool, kept for this chat
- * (lib/greeting.ts), and nothing else. It sits at the bottom of the transcript's space, so it is
+ * What a new, empty chat shows above the composer: a study greeting picked at random from this
+ * week's pool, kept for this chat (lib/greeting.ts), and nothing else. It sits at the bottom of the transcript's space, so it is
  * directly above the composer, which the chat view centres while the chat is empty.
  *
  * The words arrive one after another, each painted with its slice of ONE gradient that runs across
@@ -29,7 +27,6 @@ export function ChatEmptyState({ chatKey }: { chatKey: string }) {
   // only when the web font arrives, and its height change moves the page (a layout shift).
   return (
     <div className="mx-auto flex w-full flex-1 flex-col justify-end px-5 pb-6 pt-10 sm:px-6 lg:w-[min(100%,clamp(42.5rem,75%,72rem))]">
-      <StudyIllustration />
       <h2
         key={greeting ?? ""}
         ref={ref}

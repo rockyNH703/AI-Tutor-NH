@@ -638,9 +638,7 @@ test("short screens: the greeting and the composer stay in view, the picture ste
       const box = await locator.boundingBox();
       expect(box && box.y >= top && box.y + box.height <= height + 0.5, `${name} in view at ${width}×${height}`).toBe(true);
     }
-    const picture = page.locator("[data-study-illustration]");
-    if (height >= 600) await expect(picture).toBeVisible();
-    else await expect(picture).toBeHidden();
+    await expect(page.locator("[data-study-illustration]")).toHaveCount(0);
     expect(await page.evaluate(() => (document.scrollingElement?.scrollHeight ?? 0) - window.innerHeight)).toBeLessThanOrEqual(0);
     await expectNoHorizontalOverflow(page);
   }
