@@ -67,6 +67,11 @@ MESSAGE_ROLES = ("user", "assistant", "system")
 MESSAGE_STATUSES = ("complete", "streaming", "cancelled", "error", "superseded")
 MEMORY_KINDS = ("learning_context", "study_context")
 MEMORY_STATUSES = ("active", "superseded")
+MEMORY_ORIGINS = ("explicit", "explicit_chat", "approved_extraction")
+MEMORY_PROPOSAL_OPERATIONS = ("add", "supersede")
+MEMORY_PROPOSAL_STATUSES = ("pending", "applied", "rejected", "invalidated", "failed")
+MEMORY_EXTRACTION_JOB_STATUSES = ("queued", "running", "retryable", "completed", "dead", "invalidated")
+MEMORY_RECEIPT_STATUSES = ("started", "completed", "failed")
 MEMORY_MAX_CONTENT_CHARS = 2000
 CODE_PURPOSES = ("verify_email", "reset_password", "change_email")
 
@@ -587,7 +592,10 @@ class AuthAttempt(Base):
 
 class Conversation(Base):
     __tablename__ = "conversations"
-    __table_args__ = (Index("ix_conversations_user_updated", "user_id", text("updated_at DESC"), "id"),)
+    __table_args__ = (
+        UniqueConstraint("id", "user_id", name="uq_conversations_id_user"),
+        Index("ix_conversations_user_updated", "user_id", text("updated_at DESC"), "id"),
+    )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     user_id: Mapped[uuid.UUID] = mapped_column(
@@ -606,6 +614,7 @@ class Message(Base):
     __table_args__ = (
         CheckConstraint(f"role in {MESSAGE_ROLES}", name="role"),
         CheckConstraint(f"status in {MESSAGE_STATUSES}", name="status"),
+        UniqueConstraint("id", "conversation_id", name="uq_messages_id_conversation"),
         Index("ix_messages_conversation_created", "conversation_id", "created_at", "id"),
     )
 
@@ -629,9 +638,14 @@ class MemoryItem(Base):
     __table_args__ = (
         CheckConstraint(f"kind in {MEMORY_KINDS}", name="kind"),
         CheckConstraint(f"status in {MEMORY_STATUSES}", name="status"),
+        CheckConstraint(f"origin in {MEMORY_ORIGINS}", name="origin"),
         CheckConstraint(f"char_length(content) BETWEEN 1 AND {MEMORY_MAX_CONTENT_CHARS}", name="content_length"),
         CheckConstraint("version >= 1", name="version"),
+        CheckConstraint("embedding_dimensions > 0", name="embedding_dimensions"),
+        CheckConstraint("char_length(embedding_version) BETWEEN 1 AND 32", name="embedding_version"),
+        CheckConstraint("valid_to IS NULL OR valid_from IS NULL OR valid_to > valid_from", name="valid_range"),
         CheckConstraint("expires_at IS NULL OR expires_at > created_at", name="expires_after_create"),
+        UniqueConstraint("id", "user_id", name="uq_memory_items_id_user"),
         UniqueConstraint("supersedes_id"),
         Index(
             "uq_memory_items_active_content",
@@ -643,6 +657,8 @@ class MemoryItem(Base):
         ),
         Index("ix_memory_items_user_status_updated", "user_id", "status", text("updated_at DESC"), "id"),
         Index("ix_memory_items_user_kind_status", "user_id", "kind", "status"),
+        Index("ix_memory_items_user_embedding_compat", "user_id", "status", "embedding_model", "embedding_version"),
+        Index("ix_memory_items_proposal_id", "proposal_id"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -660,11 +676,209 @@ class MemoryItem(Base):
     source_message_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("messages.id", ondelete="SET NULL")
     )
+    origin: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'explicit'"))
+    proposal_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("memory_proposals.id", ondelete="SET NULL")
+    )
+    last_confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=NOW)
+    valid_from: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    valid_to: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    superseded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    processor_version: Mapped[str | None] = mapped_column(String(64))
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=False)
     embedding_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    embedding_dimensions: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text(str(EMBEDDING_DIMENSIONS))
+    )
+    embedding_version: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'v1'"))
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _created()
+
+
+class MemoryProposal(Base):
+    """An inferred memory candidate that is never recalled before user approval."""
+
+    __tablename__ = "memory_proposals"
+    __table_args__ = (
+        CheckConstraint(f"operation in {MEMORY_PROPOSAL_OPERATIONS}", name="operation"),
+        CheckConstraint(f"status in {MEMORY_PROPOSAL_STATUSES}", name="status"),
+        CheckConstraint(f"kind in {MEMORY_KINDS}", name="kind"),
+        CheckConstraint(f"char_length(content) BETWEEN 1 AND {MEMORY_MAX_CONTENT_CHARS}", name="content_length"),
+        CheckConstraint("version >= 1", name="version"),
+        CheckConstraint("confidence >= 0 AND confidence <= 1", name="confidence"),
+        CheckConstraint("source_start IS NULL OR source_start >= 0", name="source_start"),
+        CheckConstraint("source_end IS NULL OR source_end >= source_start", name="source_end"),
+        CheckConstraint(
+            "(operation = 'add' AND target_memory_id IS NULL AND target_memory_version IS NULL) "
+            "OR (operation = 'supersede' AND target_memory_id IS NOT NULL "
+            "AND target_memory_version IS NOT NULL)",
+            name="operation_target",
+        ),
+        CheckConstraint(
+            "(status = 'applied' AND applied_memory_id IS NOT NULL "
+            "AND reviewed_at IS NOT NULL AND applied_at IS NOT NULL) "
+            "OR (status = 'rejected' AND applied_memory_id IS NULL "
+            "AND reviewed_at IS NOT NULL AND applied_at IS NULL) "
+            "OR (status NOT IN ('applied', 'rejected') AND applied_memory_id IS NULL AND applied_at IS NULL)",
+            name="applied_state",
+        ),
+        CheckConstraint("valid_to IS NULL OR valid_from IS NULL OR valid_to > valid_from", name="valid_range"),
+        ForeignKeyConstraint(
+            ["conversation_id", "user_id"], ["conversations.id", "conversations.user_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["source_message_id", "conversation_id"], ["messages.id", "messages.conversation_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["assistant_message_id", "conversation_id"], ["messages.id", "messages.conversation_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["target_memory_id", "user_id"], ["memory_items.id", "memory_items.user_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["applied_memory_id", "user_id"], ["memory_items.id", "memory_items.user_id"], ondelete="CASCADE"
+        ),
+        UniqueConstraint("user_id", "idempotency_key", name="uq_memory_proposals_user_idempotency"),
+        Index("ix_memory_proposals_user_status_created", "user_id", "status", text("created_at DESC"), "id"),
+        Index("ix_memory_proposals_source", "user_id", "source_message_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    conversation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    source_message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    assistant_message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    operation: Mapped[str] = mapped_column(String(16), nullable=False)
+    target_memory_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    target_memory_version: Mapped[int | None] = mapped_column(Integer)
+    kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, server_default=text("'pending'"))
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("1"))
+    confidence: Mapped[float] = mapped_column(nullable=False)
+    evidence_reason: Mapped[str] = mapped_column(String(500), nullable=False)
+    source_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    source_start: Mapped[int | None] = mapped_column(Integer)
+    source_end: Mapped[int | None] = mapped_column(Integer)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    extractor_provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    extractor_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    schema_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    processor_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    consent_epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    valid_from: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    valid_to: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    applied_memory_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class MemoryExtractionJob(Base):
+    __tablename__ = "memory_extraction_jobs"
+    __table_args__ = (
+        CheckConstraint(f"status in {MEMORY_EXTRACTION_JOB_STATUSES}", name="status"),
+        CheckConstraint("attempt_count >= 0", name="attempt_count"),
+        CheckConstraint("proposal_count >= 0", name="proposal_count"),
+        ForeignKeyConstraint(
+            ["conversation_id", "user_id"], ["conversations.id", "conversations.user_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["source_message_id", "conversation_id"], ["messages.id", "messages.conversation_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["assistant_message_id", "conversation_id"], ["messages.id", "messages.conversation_id"], ondelete="CASCADE"
+        ),
+        UniqueConstraint("user_id", "idempotency_key", name="uq_memory_extraction_jobs_user_idempotency"),
+        Index("ix_memory_extraction_jobs_claim", "status", "next_attempt_at", "created_at"),
+        Index("ix_memory_extraction_jobs_user_created", "user_id", text("created_at DESC")),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    conversation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    source_message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    assistant_message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    source_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    idempotency_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    consent_epoch: Mapped[int] = mapped_column(Integer, nullable=False)
+    source_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, server_default=text("'queued'"))
+    attempt_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    next_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=NOW)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    lease_owner: Mapped[str | None] = mapped_column(String(100))
+    processor_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    extractor_provider: Mapped[str] = mapped_column(String(64), nullable=False)
+    extractor_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    schema_version: Mapped[str] = mapped_column(String(64), nullable=False)
+    proposal_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    error_code: Mapped[str | None] = mapped_column(String(64))
+    error_type: Mapped[str | None] = mapped_column(String(100))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class MemoryCommandReceipt(Base):
+    """Schema placeholder for future exactly-once chat memory commands."""
+
+    __tablename__ = "memory_command_receipts"
+    __table_args__ = (
+        CheckConstraint(f"status in {MEMORY_RECEIPT_STATUSES}", name="status"),
+        ForeignKeyConstraint(
+            ["conversation_id", "user_id"], ["conversations.id", "conversations.user_id"], ondelete="CASCADE"
+        ),
+        ForeignKeyConstraint(
+            ["message_id", "conversation_id"], ["messages.id", "messages.conversation_id"], ondelete="CASCADE"
+        ),
+        UniqueConstraint("user_id", "client_request_id", name="uq_memory_command_receipts_user_request"),
+        Index("ix_memory_command_receipts_user_created", "user_id", text("created_at DESC")),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    conversation_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    client_request_id: Mapped[str] = mapped_column(String(100), nullable=False)
+    command_kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    request_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, server_default=text("'started'"))
+    result_memory_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("memory_items.id", ondelete="SET NULL")
+    )
+    created_at: Mapped[datetime] = _created()
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class MemoryDeletionMarker(Base):
+    __tablename__ = "memory_deletion_markers"
+    __table_args__ = (
+        UniqueConstraint("user_id", "content_hmac", "policy_version", name="uq_memory_deletion_markers_content"),
+        Index("ix_memory_deletion_markers_user_created", "user_id", text("created_at DESC")),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    content_hmac: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    policy_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    reason: Mapped[str] = mapped_column(String(16), nullable=False)
+    created_at: Mapped[datetime] = _created()
 
 
 class MessageFeedback(Base):

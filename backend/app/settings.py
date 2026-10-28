@@ -231,6 +231,10 @@ class Settings(BaseSettings):
     # User-controlled CRUD is independent from chat recall, which remains off until evaluated.
     memory_enabled: bool = True
     memory_recall_enabled: bool = False
+    memory_automatic_proposals: Literal["off", "shadow", "on"] = "off"
+    memory_processor_version: str = Field(default="v1", min_length=1, max_length=64)
+    memory_embedding_version: str = Field(default="v1", min_length=1, max_length=32)
+    memory_deletion_policy_version: str = Field(default="v1", min_length=1, max_length=32)
     memory_max_item_chars: int = Field(default=MEMORY_MAX_CONTENT_CHARS, ge=100, le=MEMORY_MAX_CONTENT_CHARS)
     memory_recall_limit: int = Field(default=4, ge=1, le=10)
     memory_recall_candidates: int = Field(default=12, ge=1, le=50)
@@ -240,6 +244,18 @@ class Settings(BaseSettings):
     # personalization and must not add a provider-scale delay to every chat turn.
     memory_recall_timeout_s: float = Field(default=2.0, gt=0, le=10)
     memory_min_score: float = Field(default=0.45, ge=0, le=1)
+    # Durable automatic-extraction worker bounds. It receives only the completed user message.
+    memory_worker_model: str = ""
+    memory_worker_max_input_chars: int = Field(default=4_000, ge=100, le=16_000)
+    memory_worker_max_output_chars: int = Field(default=8_000, ge=100, le=32_000)
+    memory_worker_max_output_tokens: int = Field(default=1_000, ge=32, le=4_096)
+    memory_worker_timeout_s: float = Field(default=20.0, gt=0, le=120)
+    memory_worker_max_per_run: int = Field(default=20, ge=1, le=500)
+    memory_worker_max_per_user_per_run: int = Field(default=2, ge=1, le=20)
+    memory_worker_lease_s: int = Field(default=120, ge=10, le=3_600)
+    memory_worker_max_attempts: int = Field(default=4, ge=1, le=10)
+    memory_worker_backoff_base_s: int = Field(default=60, ge=1, le=3_600)
+    memory_worker_backoff_max_s: int = Field(default=3_600, ge=1, le=86_400)
 
     # ---- user files: File Library and chat attachments (app/files) ----
     # Off = no uploads and no processing; READY attachments keep answering. Text chat never
@@ -391,6 +407,10 @@ class Settings(BaseSettings):
             problems.append("EMBEDDING_PROVIDER=fake is not allowed in production while RAG is enabled")
         if self.memory_recall_enabled and not self.memory_enabled:
             problems.append("MEMORY_RECALL_ENABLED requires MEMORY_ENABLED")
+        if self.memory_automatic_proposals != "off" and not self.memory_enabled:
+            problems.append("MEMORY_AUTOMATIC_PROPOSALS requires MEMORY_ENABLED")
+        if self.memory_worker_backoff_max_s < self.memory_worker_backoff_base_s:
+            problems.append("MEMORY_WORKER_BACKOFF_MAX_S must be at least MEMORY_WORKER_BACKOFF_BASE_S")
         if self.memory_recall_enabled and self.embedding_provider == "fake":
             problems.append("EMBEDDING_PROVIDER=fake is not allowed in production while memory recall is enabled")
         if self.ncert_kb_base_url and not self.ncert_kb_base_url.startswith(

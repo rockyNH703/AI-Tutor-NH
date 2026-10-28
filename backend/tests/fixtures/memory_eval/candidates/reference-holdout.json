@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "candidate_id": "reference-holdout-v1",
+  "corpus_id": "memory-eval-holdout-v1",
+  "predictions": {
+    "hold-ext-create-language": {
+      "proposals": [
+        {
+          "fact_id": "pref-english-terms",
+          "operation": "create",
+          "source_id": "hold-u1"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "hold-ext-correct-schedule": {
+      "proposals": [
+        {
+          "fact_id": "study-routing-friday",
+          "operation": "correct",
+          "source_id": "hold-u2"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "hold-ext-delete": {
+      "proposals": [
+        {
+          "fact_id": "pref-daily-quizzes",
+          "operation": "delete",
+          "source_id": "hold-u3"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "hold-ext-relative-date": {
+      "proposals": [
+        {
+          "fact_id": "study-firewalls-until-2026-11-10",
+          "operation": "create",
+          "source_id": "hold-u4"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "hold-ext-password-reject": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 0,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "cost_usd": 0.0004
+      }
+    },
+    "hold-ext-profile-reject": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 0,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "cost_usd": 0.0004
+      }
+    },
+    "hold-ret-cross-session": {
+      "retrieved_ids": [
+        "h-english-terms",
+        "h-bilingual",
+        "h-protocol-format",
+        "h-technical-vocabulary",
+        "h-language-style"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "hold-ret-schedule": {
+      "retrieved_ids": [
+        "h-routing-friday",
+        "h-routing-plan",
+        "h-friday-session",
+        "h-network-schedule",
+        "h-current-schedule"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "hold-ret-abstain": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 0,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 0,
+        "cost_usd": 0.0002
+      }
+    },
+    "hold-ret-expiry": {
+      "retrieved_ids": [
+        "h-current-focus",
+        "h-routing-focus",
+        "h-current-course",
+        "h-current-goal",
+        "h-current-plan"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "hold-ret-pending": {
+      "retrieved_ids": [
+        "h-approved-quiz",
+        "h-quiz-time",
+        "h-quiz-topic",
+        "h-quiz-frequency",
+        "h-quiz-format"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "hold-ret-cleared": {
+      "retrieved_ids": [
+        "h-current-pref",
+        "h-current-language",
+        "h-current-day",
+        "h-current-format",
+        "h-current-subject"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    }
+  }
+}

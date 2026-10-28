@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "candidate_id": "reference-development-v1",
+  "corpus_id": "memory-eval-development-v1",
+  "predictions": {
+    "dev-ext-create-preference": {
+      "proposals": [
+        {
+          "fact_id": "pref-diagrams",
+          "operation": "create",
+          "source_id": "dev-u1"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "dev-ext-correct-preference": {
+      "proposals": [
+        {
+          "fact_id": "pref-concise",
+          "operation": "correct",
+          "source_id": "dev-u2"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "dev-ext-forget": {
+      "proposals": [
+        {
+          "fact_id": "pref-weekend-reminders",
+          "operation": "delete",
+          "source_id": "dev-u3"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "dev-ext-temporal": {
+      "proposals": [
+        {
+          "fact_id": "study-subnetting-until-2026-12-01",
+          "operation": "create",
+          "source_id": "dev-u4"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 1,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 40,
+        "proposal_count": 1,
+        "cost_usd": 0.0004
+      }
+    },
+    "dev-ext-sensitive-reject": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 0,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "cost_usd": 0.0004
+      }
+    },
+    "dev-ext-authoritative-reject": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 8,
+        "provider_calls": 0,
+        "input_chars": 200,
+        "input_tokens": 50,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "cost_usd": 0.0004
+      }
+    },
+    "dev-ret-semantic": {
+      "retrieved_ids": [
+        "m-diagram",
+        "m-visual",
+        "m-networking",
+        "m-cidr",
+        "m-stepwise"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "dev-ret-episodic": {
+      "retrieved_ids": [
+        "m-subnetting",
+        "m-exam",
+        "m-revision",
+        "m-network-course",
+        "m-practice-plan"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "dev-ret-abstain": {
+      "retrieved_ids": [],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 0,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 0,
+        "cost_usd": 0.0002
+      }
+    },
+    "dev-ret-lifecycle": {
+      "retrieved_ids": [
+        "m-concise-current",
+        "m-bullets",
+        "m-short",
+        "m-current-style",
+        "m-corrected-style"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "dev-ret-unapproved": {
+      "retrieved_ids": [
+        "m-reminder-active",
+        "m-reminder-time",
+        "m-reminder-channel",
+        "m-reminder-days",
+        "m-reminder-zone"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    },
+    "dev-ret-deleted": {
+      "retrieved_ids": [
+        "m-new-plan",
+        "m-new-topic",
+        "m-new-schedule",
+        "m-new-goal",
+        "m-new-method"
+      ],
+      "telemetry": {
+        "latency_ms": 12,
+        "db_query_ms": 4,
+        "provider_calls": 1,
+        "input_chars": 180,
+        "input_tokens": 45,
+        "output_tokens": 0,
+        "proposal_count": 0,
+        "context_chars": 600,
+        "cost_usd": 0.0002
+      }
+    }
+  }
+}

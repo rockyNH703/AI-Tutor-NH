@@ -78,9 +78,10 @@ def test_dependency_direction():
     for router in app_dir.rglob("router.py"):  # HTTP layer never reaches retrieval or vectors
         bad = {m for m in _imports(router) if m.startswith(("app.rag", "pgvector"))}
         assert not bad, (router.name, bad)
-    for module in app_dir.joinpath("chat").glob("*.py"):  # chat talks to the graph and memory's public recall only
+    for module in app_dir.joinpath("chat").glob("*.py"):  # chat uses graph plus explicit memory orchestration APIs
         bad = {m for m in _imports(module) if m.startswith("app.rag") and m != "app.rag.graph"}
-        bad |= {m for m in _imports(module) if m.startswith("app.memory") and m != "app.memory.recall"}
+        allowed_memory = {"app.memory.recall", "app.memory.commands"}
+        bad |= {m for m in _imports(module) if m.startswith("app.memory") and m not in allowed_memory}
         bad |= {m for m in _imports(module) if m.startswith(("pgvector", "langchain", "langgraph"))}
         assert not bad, (module.name, bad)
     graph_imports = _imports(app_dir / "rag" / "graph.py")  # graph depends on abstractions only
@@ -201,4 +202,6 @@ def test_notifications_and_support_are_reached_only_through_their_public_modules
         if app_dir / "support" not in module.parents:
             assert not {m for m in _imports(module) if m.startswith("app.support")} - allowed, module.name
         if app_dir / "jobs" not in module.parents:
-            assert not {m for m in _imports(module) if m.startswith("app.jobs")}, module.name
+            reached_jobs = {m for m in _imports(module) if m.startswith("app.jobs")}
+            allowed_jobs = {"app.jobs.memory"} if module == app_dir / "chat" / "service.py" else set()
+            assert reached_jobs <= allowed_jobs, module.name

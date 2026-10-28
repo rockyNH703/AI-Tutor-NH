@@ -56,6 +56,12 @@ describe("route table vs backend contract", () => {
  * property must be present.
  */
 const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
+  UpdateMemoryPreferencesRequest: [{ expectedVersion: 0, automaticProposals: true }],
+  ApproveProposalRequest: [{ expectedVersion: 1 }, { expectedVersion: 2, content: "Use concise examples." }],
+  RejectProposalRequest: [{ expectedVersion: 1 }],
+  CreateMemoryRequest: [{ kind: "learning_context", content: "Use train examples." }],
+  CorrectMemoryRequest: [{ expectedVersion: 1, content: "Use bus examples." }],
+  DeleteMemoryRequest: [{ expectedVersion: 1 }],
   UpdateProfileRequest: [
     { version: 0 },
     { version: 1, set: { displayName: "A", timezone: "Asia/Kolkata" } },
@@ -99,6 +105,7 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     { conversationId: ID, message: "hi" },
     { message: "hi", attachmentIds: [ID] },
     { message: "hi", mode: "voice" },
+    { message: "remember that I like examples", clientRequestId: ID },
   ],
   SpeechRequest: [{ messageId: ID, text: "Osmosis is water moving." }],
   FeedbackRequest: [{ rating: "up" }],

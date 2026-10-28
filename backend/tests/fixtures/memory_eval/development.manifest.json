@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "corpus_id": "memory-eval-development-v1",
+  "split": "development",
+  "sealed": false,
+  "provider_backed": false,
+  "corpus_file": "development.json",
+  "sha256": "f5146769a33bb7ce2125cb3aef0190e5e9c710ed040e9f67ff3769c0df8a2ec2",
+  "counts": {
+    "cases": 12,
+    "extraction_cases": 6,
+    "eligible_extraction_facts": 4,
+    "retrieval_questions": 6,
+    "no_memory_cases": 1,
+    "temporal_conflict_cases": 4,
+    "security_isolation_cases": 6
+  },
+  "release_note": "Synthetic initial corpus only; provider-backed 100+100 sealed holdout remains required before enablement."
+}

@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "candidate_id": "deliberately-bad-v1",
+  "corpus_id": "memory-eval-development-v1",
+  "predictions": {
+    "dev-ext-create-preference": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 900,
+        "provider_calls": 3,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ext-correct-preference": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 900,
+        "provider_calls": 3,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ext-forget": {
+      "proposals": [
+        {
+          "fact_id": "pref-weekend-reminders-copy",
+          "operation": "create",
+          "source_id": "wrong-source"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "provider_calls": 3,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ext-temporal": {
+      "proposals": [],
+      "telemetry": {
+        "latency_ms": 900,
+        "provider_calls": 3,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ext-sensitive-reject": {
+      "proposals": [
+        {
+          "fact_id": "secret-api-key",
+          "operation": "create",
+          "source_id": "wrong-source"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "provider_calls": 3,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ext-authoritative-reject": {
+      "proposals": [
+        {
+          "fact_id": "profile-class-board",
+          "operation": "create",
+          "source_id": "wrong-source"
+        }
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "provider_calls": 3,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ret-semantic": {
+      "retrieved_ids": [
+        "other-user-memory",
+        "irrelevant-a",
+        "irrelevant-b",
+        "irrelevant-c",
+        "irrelevant-d"
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "db_query_ms": 150,
+        "provider_calls": 2,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "context_chars": 2000,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ret-episodic": {
+      "retrieved_ids": [
+        "irrelevant-a",
+        "irrelevant-b",
+        "irrelevant-c",
+        "irrelevant-d"
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "db_query_ms": 150,
+        "provider_calls": 2,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "context_chars": 2000,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ret-abstain": {
+      "retrieved_ids": [
+        "m-injection",
+        "irrelevant-a",
+        "irrelevant-b",
+        "irrelevant-c",
+        "irrelevant-d"
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "db_query_ms": 150,
+        "provider_calls": 2,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "context_chars": 2000,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ret-lifecycle": {
+      "retrieved_ids": [
+        "m-old-style",
+        "m-analogy-old",
+        "m-expired-style",
+        "irrelevant-a",
+        "irrelevant-b"
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "db_query_ms": 150,
+        "provider_calls": 2,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "context_chars": 2000,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ret-unapproved": {
+      "retrieved_ids": [
+        "proposal-unapproved",
+        "irrelevant-a",
+        "irrelevant-b",
+        "irrelevant-c",
+        "irrelevant-d"
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "db_query_ms": 150,
+        "provider_calls": 2,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "context_chars": 2000,
+        "cost_usd": 0.01
+      }
+    },
+    "dev-ret-deleted": {
+      "retrieved_ids": [
+        "m-deleted-plan",
+        "m-resurrected-plan",
+        "irrelevant-a",
+        "irrelevant-b",
+        "irrelevant-c"
+      ],
+      "telemetry": {
+        "latency_ms": 900,
+        "db_query_ms": 150,
+        "provider_calls": 2,
+        "input_chars": 9000,
+        "input_tokens": 2500,
+        "output_tokens": 700,
+        "proposal_count": 4,
+        "context_chars": 2000,
+        "cost_usd": 0.01
+      }
+    }
+  }
+}

@@ -97,18 +97,24 @@ describe("streamChat", () => {
     expect(calls[0]?.url).toBe("/api/v1/chat/stream");
   });
 
-  test("a new chat sends only `message` (the API rejects unknown fields)", async () => {
+  test("a new chat sends message and a retry id (the API rejects unknown fields)", async () => {
     const { impl, calls } = fakeFetch([frame("done", DONE)]);
     await streamChat({ message: "Hi", conversationId: null }, {}, { fetchImpl: impl });
-    expect(JSON.parse(String(calls[0]?.init.body))).toEqual({ message: "Hi" });
+    expect(JSON.parse(String(calls[0]?.init.body))).toMatchObject({ message: "Hi" });
+    expect(JSON.parse(String(calls[0]?.init.body)).clientRequestId).toMatch(/^[0-9a-f-]{36}$/);
   });
 
-  test("an existing chat sends conversationId and message only", async () => {
+  test("an existing chat preserves a caller retry id", async () => {
     const { impl, calls } = fakeFetch([frame("done", DONE)]);
-    await streamChat({ message: "Hi", conversationId: CONVERSATION_ID }, {}, { fetchImpl: impl });
+    await streamChat(
+      { message: "Hi", conversationId: CONVERSATION_ID, clientRequestId: ASSISTANT_ID },
+      {},
+      { fetchImpl: impl },
+    );
     expect(JSON.parse(String(calls[0]?.init.body))).toEqual({
       conversationId: CONVERSATION_ID,
       message: "Hi",
+      clientRequestId: ASSISTANT_ID,
     });
   });
 

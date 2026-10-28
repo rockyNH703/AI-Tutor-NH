@@ -64,6 +64,7 @@ async def chat_stream(
         body.conversation_id,
         body.message,
         body.attachment_ids,
+        client_request_id=body.client_request_id,
         voice=body.mode == "voice",
         speech_format=body.speech_format,
     )
@@ -83,6 +84,7 @@ async def chat_complete(
         body.conversation_id,
         body.message,
         body.attachment_ids,
+        client_request_id=body.client_request_id,
         voice=body.mode == "voice",
         speech_format=body.speech_format,
     )

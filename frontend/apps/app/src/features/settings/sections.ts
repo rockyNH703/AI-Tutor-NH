@@ -2,6 +2,7 @@ import {
   Bell,
   BookOpen,
   Bot,
+  Brain,
   Flame,
   GraduationCap,
   LifeBuoy,
@@ -26,7 +27,7 @@ export type SettingsSectionInfo = {
 
 /**
  * The Settings sections, in the product's order: Profile, Academic Profile, Learning Goals,
- * Learning Preferences, AI Tutor, Subjects & Study, Progress & Goals, Study Tracking, Notifications,
+ * Learning Preferences, AI Tutor, Memory, Subjects & Study, Progress & Goals, Study Tracking, Notifications,
  * Appearance & Accessibility, Privacy & Security, Help & Support. Only sections that work
  * end to end are listed; there are no placeholder pages.
  */
@@ -75,6 +76,13 @@ export const SETTINGS_SECTIONS = [
       "key concepts",
       "what your tutor is told",
     ],
+  },
+  {
+    slug: "memory",
+    title: "Memory",
+    description: "Review and manage what your tutor remembers.",
+    icon: Brain,
+    keywords: ["remember", "memories", "proposals", "automatic", "personalization", "export", "forget"],
   },
   {
     slug: "subjects",

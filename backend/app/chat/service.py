@@ -25,6 +25,7 @@ from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from sqlalchemy import case, func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.assessments import state as assessments
@@ -34,7 +35,7 @@ from app.chat.streams import ActiveGenerations, ChatEvent, Generation
 from app.chat.titles import topic_title
 from app.conversations.repository import DEFAULT_TITLE, ConversationRepository
 from app.conversations.router import conversation_out, message_out
-from app.db.models import Conversation, Message, MessageAttachment, UsageEvent, User
+from app.db.models import Conversation, MemoryCommandReceipt, Message, MessageAttachment, UsageEvent, User
 from app.db.session import Database
 from app.errors import Conflict, NotFound, RateLimited, ValidationFailed
 from app.files import service as files
@@ -42,9 +43,11 @@ from app.intents.classifier import HINT_ONLY, IntentClassifier, Routed, explicit
 from app.intents.scope import ALLOW_STUDY, INSTRUCTIONS, NOT_LEARNING, REDIRECT, Scope, redirect_copy, settled
 from app.intents.scope import stored as stored_scope
 from app.intents.taxonomy import BANK_INTENTS, INTENTS
+from app.jobs.memory import enqueue_memory_extraction
 from app.learning.context import StudentContext, read_student_context
 from app.llm.base import ChatMessage, GenerationOptions, LLMError
 from app.logging import get_logger, request_id_var
+from app.memory.commands import apply_memory_command, parse_memory_command, replay_receipt, request_hash
 from app.memory.recall import MemoryRecall
 from app.progress.activity import record_question
 from app.progress.learning import is_meaningful, now, record_learning, tutor_progress
@@ -135,6 +138,10 @@ class PreparedTurn:
     scope: dict | None = None
     # Spoken in voice mode (app/voice) by a student it is for: the tutor is told, and the face's expression is sent.
     voice: bool = False
+    client_request_id: uuid.UUID | None = None
+    command: object | None = None
+    command_replay: Message | None = None
+    command_receipt_id: uuid.UUID | None = None
     # Voice turns: the server speaks the reply's first words itself (VOICE_SERVER_SPEECH), in the browser's format.
     server_speech: bool = False
     speech_format: str = "mp3"
@@ -287,19 +294,43 @@ class ChatService:
         text: str,
         attachment_ids: list[uuid.UUID] | None = None,
         *,
+        client_request_id: uuid.UUID | None = None,
         voice: bool = False,
         speech_format: str | None = None,
     ) -> PreparedTurn:
         if len(text) > self.settings.chat_max_message_chars:
             raise ValidationFailed("The message is too long.")
         repo = ConversationRepository(session)
-        if conversation_id is None:
+        command = parse_memory_command(text) if not attachment_ids and not voice else None
+        request_id = client_request_id or (uuid.uuid4() if command is not None else None)
+        replay = None
+        if command is not None and request_id is not None:
+            found = await replay_receipt(session, user.id, str(request_id), request_hash(command))
+            if found is not None and found[0].status == "started":
+                raise Conflict("That memory command is still being processed.")
+            replay = found[1] if found is not None and found[0].status == "completed" else None
+        if replay is not None:
+            conversation = await repo.get(user.id, replay.conversation_id, lock=True)
+            if conversation is None:
+                raise NotFound("Conversation not found.")
+        elif conversation_id is None:
             # Named after its first answered question when the reply completes (_name_conversation).
             conversation = await repo.create(user.id, DEFAULT_TITLE)
         else:
             conversation = await repo.get(user.id, conversation_id, lock=True)
             if conversation is None:
                 raise NotFound("Conversation not found.")
+        if replay is not None:
+            return PreparedTurn(
+                user,
+                conversation,
+                None,
+                replay.id,
+                AssistantConfig(system_prompt="", retrieval=None),
+                client_request_id=request_id,
+                command=command,
+                command_replay=replay,
+            )
         await self._check_turn_allowed(session, user.id, conversation.id)
         attached = await files.resolve_attachments(session, user.id, list(attachment_ids or []))
 
@@ -326,6 +357,24 @@ class ChatService:
         await files.add_attachments(session, user_message.id, attached)
         await record_question(session, user.id, user.timezone, self.settings.default_timezone)
         assistant = await self._add_placeholder(session, user.id, conversation.id)
+        command_receipt_id = None
+        if command is not None and request_id is not None:
+            receipt = MemoryCommandReceipt(
+                user_id=user.id,
+                conversation_id=conversation.id,
+                message_id=assistant.id,
+                client_request_id=str(request_id),
+                command_kind=command.kind,
+                request_hash=request_hash(command),
+                status="started",
+            )
+            session.add(receipt)
+            try:
+                await session.flush()
+            except IntegrityError as error:
+                await session.rollback()
+                raise Conflict("That memory command is already being processed.") from error
+            command_receipt_id = receipt.id
         await repo.touch(conversation.id)
         await session.commit()
         await session.refresh(conversation)
@@ -344,6 +393,10 @@ class ChatService:
             tests=tests,
             bank=bank,
             attached_kinds=tuple(file.kind for file in attached),
+            client_request_id=request_id,
+            command=command,
+            command_replay=replay,
+            command_receipt_id=command_receipt_id,
             voice=voice,
             server_speech=server_speech,
             speech_format=speech_format or "mp3",
@@ -487,6 +540,9 @@ class ChatService:
         except Exception:  # noqa: BLE001 - a failed poll must not stop a healthy stream
             return False
 
+    async def _command_cancelled(self, generation: Generation) -> bool:
+        return generation.cancel.is_set() or await self._cancel_requested(generation.message_id)
+
     async def _wait(self, awaitable, generation: Generation):
         """Await `awaitable`, but return (False, None) if the generation is cancelled first.
 
@@ -519,7 +575,68 @@ class ChatService:
 
     async def _generate(self, turn: PreparedTurn, generation: Generation) -> None:
         try:
-            await self._run(turn, generation)
+            if turn.command_replay is not None:
+                await generation.queue.put(ChatEvent("token", {"text": turn.command_replay.content}))
+                async with self.db.sessionmaker() as session:
+                    message = await session.get(Message, turn.command_replay.id)
+                    conversation = await session.get(Conversation, turn.conversation.id)
+                await generation.queue.put(
+                    ChatEvent(
+                        "done",
+                        {
+                            "message": message_out(message).model_dump(mode="json", by_alias=True),
+                            "conversation": conversation_out(conversation).model_dump(mode="json", by_alias=True),
+                            "replayed": True,
+                        },
+                    )
+                )
+            elif (
+                turn.command is not None
+                and turn.user_message is not None
+                and turn.client_request_id is not None
+                and turn.command_receipt_id is not None
+            ):
+                if generation.cancel.is_set():
+                    async with self.db.sessionmaker() as session:
+                        assistant = await session.get(Message, turn.assistant_id)
+                        receipt = await session.get(MemoryCommandReceipt, turn.command_receipt_id)
+                        assistant.status = "cancelled"
+                        receipt.status = "failed"
+                        receipt.completed_at = now()
+                        await session.commit()
+                    return
+                async with self.db.sessionmaker() as session:
+                    conversation = await session.get(Conversation, turn.conversation.id)
+                    source = await session.get(Message, turn.user_message.id)
+                    assistant = await session.get(Message, turn.assistant_id)
+                    user = await session.get(User, turn.user.id)
+                    text = await apply_memory_command(
+                        session,
+                        self.settings,
+                        self.memory.embeddings if self.memory is not None else self.rag_graph.embeddings,
+                        user,
+                        source,
+                        assistant,
+                        turn.command,
+                        turn.command_receipt_id,
+                        cancelled=lambda: self._command_cancelled(generation),
+                    )
+                    if not text:
+                        return
+                    message = await session.get(Message, turn.assistant_id)
+                    conversation = await session.get(Conversation, turn.conversation.id)
+                await generation.queue.put(ChatEvent("token", {"text": text}))
+                await generation.queue.put(
+                    ChatEvent(
+                        "done",
+                        {
+                            "message": message_out(message).model_dump(mode="json", by_alias=True),
+                            "conversation": conversation_out(conversation).model_dump(mode="json", by_alias=True),
+                        },
+                    )
+                )
+            else:
+                await self._run(turn, generation)
         finally:
             await generation.queue.put(None)  # end of stream, always
             self.generations.remove(turn.assistant_id)
@@ -1102,6 +1219,15 @@ class ChatService:
                     outcome=status,
                 )
             )
+            if final_status == "complete" and turn.user_message is not None:
+                await enqueue_memory_extraction(
+                    session,
+                    self.settings,
+                    user_id=turn.user.id,
+                    conversation_id=turn.conversation.id,
+                    source_message=turn.user_message,
+                    assistant_message_id=turn.assistant_id,
+                )
             await ConversationRepository(session).touch(turn.conversation.id)
             await session.commit()
             message = await session.get(Message, turn.assistant_id)

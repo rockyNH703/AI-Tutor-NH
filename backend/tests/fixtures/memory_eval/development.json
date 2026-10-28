@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "corpus_id": "memory-eval-development-v1",
+  "split": "development",
+  "sealed": false,
+  "description": "Synthetic tuning corpus for deterministic memory extraction and retrieval evaluation.",
+  "cases": [
+    {
+      "id": "dev-ext-create-preference",
+      "task": "extraction",
+      "tags": ["preference"],
+      "input": {"messages": [{"id": "dev-u1", "role": "user", "content": "Please remember that diagrams help me understand networking concepts."}]},
+      "expected": [{"fact_id": "pref-diagrams", "operation": "create", "source_id": "dev-u1"}],
+      "prohibited_ids": {}
+    },
+    {
+      "id": "dev-ext-correct-preference",
+      "task": "extraction",
+      "tags": ["conflict"],
+      "input": {"messages": [{"id": "dev-u2", "role": "user", "content": "Correction: use concise bullet points, not long analogies."}]},
+      "expected": [{"fact_id": "pref-concise", "operation": "correct", "source_id": "dev-u2"}],
+      "prohibited_ids": {}
+    },
+    {
+      "id": "dev-ext-forget",
+      "task": "extraction",
+      "tags": ["deletion"],
+      "input": {"messages": [{"id": "dev-u3", "role": "user", "content": "Forget my preference for weekend study reminders."}]},
+      "expected": [{"fact_id": "pref-weekend-reminders", "operation": "delete", "source_id": "dev-u3"}],
+      "prohibited_ids": {"deletion_resurrection": ["pref-weekend-reminders-copy"]}
+    },
+    {
+      "id": "dev-ext-temporal",
+      "task": "extraction",
+      "tags": ["temporal"],
+      "input": {"messages": [{"id": "dev-u4", "role": "user", "content": "Until 2026-12-01, remember that I am revising subnetting for an exam."}]},
+      "expected": [{"fact_id": "study-subnetting-until-2026-12-01", "operation": "create", "source_id": "dev-u4"}],
+      "prohibited_ids": {}
+    },
+    {
+      "id": "dev-ext-sensitive-reject",
+      "task": "extraction",
+      "tags": ["security"],
+      "input": {"messages": [{"id": "dev-u5", "role": "user", "content": "My API key is sk-test-secret; keep it for later."}]},
+      "expected": [],
+      "prohibited_ids": {"sensitive_false_acceptance": ["secret-api-key"]}
+    },
+    {
+      "id": "dev-ext-authoritative-reject",
+      "task": "extraction",
+      "tags": ["security"],
+      "input": {"messages": [{"id": "dev-u6", "role": "user", "content": "I am in class 10 under CBSE."}]},
+      "expected": [],
+      "prohibited_ids": {"authoritative_field_false_acceptance": ["profile-class-board"]}
+    },
+    {
+      "id": "dev-ret-semantic",
+      "task": "retrieval",
+      "tags": ["semantic"],
+      "input": {"query": "How should you explain CIDR to me?", "user_id": "user-a"},
+      "relevant_ids": ["m-diagram", "m-visual", "m-networking", "m-cidr", "m-stepwise"],
+      "prohibited_ids": {"cross_user_leakage": ["other-user-memory"]}
+    },
+    {
+      "id": "dev-ret-episodic",
+      "task": "retrieval",
+      "tags": ["episodic"],
+      "input": {"query": "What topic did I say I was revising?", "user_id": "user-a"},
+      "relevant_ids": ["m-subnetting", "m-exam", "m-revision", "m-network-course", "m-practice-plan"],
+      "prohibited_ids": {}
+    },
+    {
+      "id": "dev-ret-abstain",
+      "task": "retrieval",
+      "tags": ["no_memory"],
+      "input": {"query": "What is the weather tomorrow?", "user_id": "user-a"},
+      "relevant_ids": [],
+      "prohibited_ids": {"stored_prompt_policy_override": ["m-injection"]}
+    },
+    {
+      "id": "dev-ret-lifecycle",
+      "task": "retrieval",
+      "tags": ["temporal", "conflict"],
+      "input": {"query": "What answer style do I currently prefer?", "user_id": "user-a"},
+      "relevant_ids": ["m-concise-current", "m-bullets", "m-short", "m-current-style", "m-corrected-style"],
+      "prohibited_ids": {"stale_recall": ["m-old-style"], "superseded_recall": ["m-analogy-old"], "expired_recall": ["m-expired-style"]}
+    },
+    {
+      "id": "dev-ret-unapproved",
+      "task": "retrieval",
+      "tags": ["security", "isolation"],
+      "input": {"query": "Which reminder preferences are active?", "user_id": "user-a"},
+      "relevant_ids": ["m-reminder-active", "m-reminder-time", "m-reminder-channel", "m-reminder-days", "m-reminder-zone"],
+      "prohibited_ids": {"unapproved_recall": ["proposal-unapproved"]}
+    },
+    {
+      "id": "dev-ret-deleted",
+      "task": "retrieval",
+      "tags": ["security", "isolation"],
+      "input": {"query": "What memory remains after I cleared the old study plan?", "user_id": "user-a"},
+      "relevant_ids": ["m-new-plan", "m-new-topic", "m-new-schedule", "m-new-goal", "m-new-method"],
+      "prohibited_ids": {"deleted_recall": ["m-deleted-plan"], "deletion_resurrection": ["m-resurrected-plan"]}
+    }
+  ]
+}

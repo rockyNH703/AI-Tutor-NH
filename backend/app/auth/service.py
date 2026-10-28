@@ -47,6 +47,7 @@ from app.errors import (
     VersionConflict,
 )
 from app.logging import get_logger
+from app.memory.foundation import lock_memory_user
 from app.settings import Settings
 
 log = get_logger("app.auth")
@@ -387,6 +388,7 @@ class AuthService:
 
     async def delete_account(self, user: User, session: AuthSession, password: str | None) -> None:
         await self.reauthenticate(user, session, password)
+        await lock_memory_user(self.db, user.id)
         address = user.email
         await self.db.execute(delete(User).where(User.id == user.id))  # cascades to all user data
         # Codes are keyed by address, not by user, so the cascade misses them. A reset code left

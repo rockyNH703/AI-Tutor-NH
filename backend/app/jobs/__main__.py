@@ -13,6 +13,7 @@ import sys
 from app.auth.emails import build_email_sender
 from app.db.session import Database
 from app.jobs.runner import run_once
+from app.llm.factory import build_llm
 from app.logging import configure_logging, get_logger
 from app.settings import Settings
 
@@ -20,7 +21,7 @@ from app.settings import Settings
 async def _run(settings: Settings) -> dict:
     db = Database(settings)
     try:
-        return await run_once(settings, db, build_email_sender(settings))
+        return await run_once(settings, db, build_email_sender(settings), llm=build_llm(settings))
     finally:
         await db.dispose()
 

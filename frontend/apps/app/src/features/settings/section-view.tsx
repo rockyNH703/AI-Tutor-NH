@@ -8,6 +8,7 @@ import { GoalsSection } from "./goals-section";
 import { HelpSection } from "./help-section";
 import { NotificationsSection } from "./notifications-section";
 import { LearningSection, TutorSection } from "./preferences-sections";
+import { MemorySection } from "./memory-section";
 import { PrivacySection } from "./privacy-section";
 import { ProfileSection } from "./profile-section";
 import { ProgressSection } from "./progress-section";
@@ -25,6 +26,7 @@ const VIEWS: Record<SectionSlug, (props: SectionProps) => JSX.Element> = {
   goals: GoalsSection,
   learning: LearningSection,
   tutor: TutorSection,
+  memory: MemorySection,
   subjects: SubjectsSection,
   progress: ProgressSection,
   "study-tracking": StudyTrackingSection,

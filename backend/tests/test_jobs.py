@@ -87,6 +87,23 @@ async def test_a_second_worker_finds_the_lock_taken(client, app, database):
     assert "send" in await run(app)
 
 
+async def test_runner_executes_memory_as_an_independent_step(app, fake_llm):
+    report = await run_once(
+        worker_settings(memory_automatic_proposals="on"),
+        app.state.db,
+        app.state.email_sender,
+        llm=fake_llm,
+    )
+    assert report["memory"] == {
+        "claimed": 0,
+        "completed": 0,
+        "retryable": 0,
+        "dead": 0,
+        "invalidated": 0,
+        "proposals": 0,
+    }
+
+
 # ----------------------------------------------------------------- rollout modes
 async def test_mode_off_sends_no_student_email(client, app, database):
     account = await register(client, app)

@@ -46,6 +46,17 @@ export const CONTRACT = {
       ]
     }
   },
+  "ApproveProposalRequest": {
+    "expectedVersion": {
+      "minimum": 1
+    },
+    "kind": {
+      "enum": [
+        "learning_context",
+        "study_context"
+      ]
+    }
+  },
   "AssessmentAnswerOut": {
     "status": {
       "enum": [
@@ -136,15 +147,39 @@ export const CONTRACT = {
       ]
     }
   },
+  "CorrectMemoryRequest": {
+    "expectedVersion": {
+      "minimum": 1
+    },
+    "kind": {
+      "enum": [
+        "learning_context",
+        "study_context"
+      ]
+    }
+  },
   "CreateConversationRequest": {
     "title": {
       "maxLength": 120
+    }
+  },
+  "CreateMemoryRequest": {
+    "kind": {
+      "enum": [
+        "learning_context",
+        "study_context"
+      ]
     }
   },
   "DeleteMeRequest": {
     "password": {
       "maxLength": 128,
       "minLength": 1
+    }
+  },
+  "DeleteMemoryRequest": {
+    "expectedVersion": {
+      "minimum": 1
     }
   },
   "EmailChangeRequest": {
@@ -516,6 +551,14 @@ export const CONTRACT = {
       "maxItems": 30
     }
   },
+  "MemoryOut": {
+    "kind": {
+      "enum": [
+        "learning_context",
+        "study_context"
+      ]
+    }
+  },
   "MistakeConceptOut": {
     "state": {
       "enum": [
@@ -617,6 +660,14 @@ export const CONTRACT = {
       "maxLength": 64
     }
   },
+  "ProposalOut": {
+    "kind": {
+      "enum": [
+        "learning_context",
+        "study_context"
+      ]
+    }
+  },
   "RecentSessionOut": {
     "activities": {
       "items": {
@@ -641,6 +692,11 @@ export const CONTRACT = {
         "paused",
         "ended"
       ]
+    }
+  },
+  "RejectProposalRequest": {
+    "expectedVersion": {
+      "minimum": 1
     }
   },
   "RenameConversationRequest": {
@@ -893,6 +949,11 @@ export const CONTRACT = {
   "UpdateMeRequest": {
     "displayName": {
       "maxLength": 80
+    }
+  },
+  "UpdateMemoryPreferencesRequest": {
+    "expectedVersion": {
+      "minimum": 0
     }
   },
   "UpdateNotificationPreferencesRequest": {

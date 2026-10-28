@@ -36,6 +36,7 @@ class MemoryRecall:
                         user_id,
                         embedding,
                         embedding_model_id(self.embeddings),
+                        self.settings.memory_embedding_version,
                         limit=self.settings.memory_recall_candidates,
                     )
             recalled = rank_candidates(candidates, self.settings)

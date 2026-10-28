@@ -24,6 +24,8 @@ from sqlalchemy import text
 from app.auth.emails import EmailSender
 from app.auth.retention import purge_expired
 from app.db.session import Database
+from app.jobs.memory import process_memory_jobs
+from app.llm.base import LLMProvider
 from app.logging import get_logger
 from app.notifications.inbox import purge_read
 from app.notifications.reminders import plan_reminders
@@ -35,7 +37,14 @@ log = get_logger("app.jobs")
 LOCK_KEY = 7_216_094_001  # pg advisory lock id of the jobs worker (any constant unique to this app)
 
 
-async def run_once(settings: Settings, db: Database, email: EmailSender, now: datetime | None = None) -> dict:
+async def run_once(
+    settings: Settings,
+    db: Database,
+    email: EmailSender,
+    now: datetime | None = None,
+    *,
+    llm: LLMProvider | None = None,
+) -> dict:
     if not settings.jobs_enabled:
         return {"skipped": "JOBS_ENABLED is false"}
     now = now or datetime.now(UTC)
@@ -75,6 +84,8 @@ async def run_once(settings: Settings, db: Database, email: EmailSender, now: da
             await step("expired", lambda: expire_stale(db, now))
             await step("reminders", reminders)
             await step("send", lambda: _as_dict(send_due(db, settings, email, now, student_email=student_email)))
+            if llm is not None and settings.memory_automatic_proposals == "on":
+                await step("memory", lambda: process_memory_jobs(db, settings, llm, now))
             await step("retention", retention)
         finally:
             await lock.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": LOCK_KEY})

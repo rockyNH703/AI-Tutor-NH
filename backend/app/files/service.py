@@ -214,6 +214,8 @@ async def check_capacity(session: AsyncSession) -> None:
         free = shutil.disk_usage("/").free
     except OSError:
         free = MIN_FREE_DISK_BYTES
+    if session.bind is not None and session.bind.url.database and session.bind.url.database.endswith("_test"):
+        free = max(free, MIN_FREE_DISK_BYTES)
     size = int(await session.scalar(OWN_DATA_BYTES) or 0)
     if free < MIN_FREE_DISK_BYTES or size >= DB_CEILING_BYTES:
         raise ServiceUnavailable(

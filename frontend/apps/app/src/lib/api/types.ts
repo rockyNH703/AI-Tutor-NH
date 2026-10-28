@@ -14,6 +14,84 @@ export type Uuid = string;
 /** ISO-8601 timestamp, as sent by the API. */
 export type Timestamp = string;
 
+// ---------------------------------------------------------------- memory
+
+/** Handwritten until the generated OpenAPI contract is reconciled. */
+export type MemoryKind = "learning_context" | "study_context";
+export type MemoryOrigin = "explicit" | "explicit_chat" | "approved_extraction";
+
+export type MemoryItem = {
+  id: Uuid;
+  kind: MemoryKind;
+  content: string;
+  status: string;
+  version: number;
+  supersedesId: Uuid | null;
+  sourceMessageId: Uuid | null;
+  origin: MemoryOrigin;
+  proposalId: Uuid | null;
+  lastConfirmedAt: Timestamp;
+  validFrom: Timestamp | null;
+  validTo: Timestamp | null;
+  processorVersion: string | null;
+  expiresAt: Timestamp | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
+
+export type MemoryPage = { items: MemoryItem[]; nextCursor: string | null };
+export type MemoryExport = { exportedAt: Timestamp; items: MemoryItem[] };
+export type MemoryPreferences = {
+  automaticProposals: boolean;
+  consentEpoch: number;
+  clearedBefore: Timestamp | null;
+  version: number;
+  updatedAt: Timestamp | null;
+};
+export type UpdateMemoryPreferencesRequest = { automaticProposals: boolean; expectedVersion: number };
+export type CreateMemoryRequest = {
+  kind: MemoryKind;
+  content: string;
+  sourceMessageId?: Uuid;
+  expiresAt?: Timestamp | null;
+};
+export type CorrectMemoryRequest = {
+  expectedVersion: number;
+  kind?: MemoryKind;
+  content?: string;
+  expiresAt?: Timestamp | null;
+};
+export type MemoryProposal = {
+  id: Uuid;
+  operation: "add" | "supersede";
+  targetMemoryId: Uuid | null;
+  kind: MemoryKind;
+  content: string;
+  status: string;
+  version: number;
+  confidence: number;
+  evidenceReason: string;
+  sourceMessageId: Uuid;
+  assistantMessageId: Uuid;
+  observedAt: Timestamp;
+  expiresAt: Timestamp | null;
+  validFrom: Timestamp | null;
+  validTo: Timestamp | null;
+  appliedMemoryId: Uuid | null;
+  reviewedAt: Timestamp | null;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+};
+export type MemoryProposalPage = { items: MemoryProposal[]; nextCursor: string | null };
+export type ApproveMemoryProposalRequest = {
+  expectedVersion: number;
+  kind?: MemoryKind;
+  content?: string;
+  expiresAt?: Timestamp | null;
+  validFrom?: Timestamp | null;
+  validTo?: Timestamp | null;
+};
+
 // ---------------------------------------------------------------- accounts
 
 export type Avatar = {
@@ -679,6 +757,8 @@ export type ChatRequest = {
   conversationId?: Uuid | null;
   message: string;
   attachmentIds?: Uuid[];
+  /** Stable retry key. Reusing it returns the stored result for explicit memory commands. */
+  clientRequestId?: Uuid;
   /** "voice": spoken in voice mode, the reply will be read aloud (a typed message for anyone it is not for). */
   mode?: "text" | "voice";
   /** Voice turns: the audio this browser decodes, for the first words the server speaks (`serverSpeech`). */

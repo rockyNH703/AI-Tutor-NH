@@ -65,6 +65,79 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
         headers=headers,
     )
     assert memory.status_code == 201, memory.text
+    assert (
+        await client.put(
+            "/v1/memories/preferences",
+            json={"automaticProposals": True, "expectedVersion": 0},
+            headers=headers,
+        )
+    ).status_code == 200
+    async with app.state.db.sessionmaker() as db:
+        await db.execute(
+            text(
+                "INSERT INTO memory_deletion_markers (user_id, content_hmac, policy_version, reason) "
+                "VALUES (:u, :h, 'v1', 'delete')"
+            ),
+            {"u": uuid.UUID(user_id), "h": "e" * 64},
+        )
+        await db.execute(
+            text(
+                """
+                INSERT INTO memory_proposals (
+                    user_id, conversation_id, source_message_id, assistant_message_id, operation, kind,
+                    content, content_hash, confidence, evidence_reason, source_hash, observed_at,
+                    extractor_provider, extractor_model, prompt_version, schema_version, processor_version,
+                    idempotency_key, consent_epoch
+                ) VALUES (
+                    :u, :c, :s, :a, 'add', 'learning_context', 'Account deletion proposal', :h,
+                    0.8, 'test', :h, now(), 'test', 'test', 'v1', 'v1', 'v1', :i, 0
+                ) RETURNING id
+                """
+            ),
+            {
+                "u": uuid.UUID(user_id),
+                "c": uuid.UUID(events[0][1]["conversationId"]),
+                "s": uuid.UUID(events[0][1]["userMessage"]["id"]),
+                "a": uuid.UUID(events[-1][1]["message"]["id"]),
+                "h": "f" * 64,
+                "i": "1" * 64,
+            },
+        )
+        await db.execute(
+            text(
+                """
+                INSERT INTO memory_extraction_jobs (
+                    user_id, conversation_id, source_message_id, assistant_message_id, source_hash,
+                    idempotency_key, consent_epoch, source_created_at, processor_version,
+                    extractor_provider, extractor_model, prompt_version, schema_version
+                ) VALUES (:u, :c, :s, :a, :h, :i, 0, now(), 'v1', 'test', 'test', 'v1', 'v1')
+                """
+            ),
+            {
+                "u": uuid.UUID(user_id),
+                "c": uuid.UUID(events[0][1]["conversationId"]),
+                "s": uuid.UUID(events[0][1]["userMessage"]["id"]),
+                "a": uuid.UUID(events[-1][1]["message"]["id"]),
+                "h": "2" * 64,
+                "i": "3" * 64,
+            },
+        )
+        await db.execute(
+            text(
+                """
+                INSERT INTO memory_command_receipts (
+                    user_id, conversation_id, message_id, client_request_id, command_kind, request_hash
+                ) VALUES (:u, :c, :m, 'account-delete-test', 'remember', :h)
+                """
+            ),
+            {
+                "u": uuid.UUID(user_id),
+                "c": uuid.UUID(events[0][1]["conversationId"]),
+                "m": uuid.UUID(events[0][1]["userMessage"]["id"]),
+                "h": "4" * 64,
+            },
+        )
+        await db.commit()
     feedback = await client.put(f"/v1/messages/{message_id}/feedback", json={"rating": "up"}, headers=headers)
     assert feedback.status_code == 200
     assert (await client.patch("/v1/me/settings", json={"preferences": {"k": "v"}}, headers=headers)).status_code == 200

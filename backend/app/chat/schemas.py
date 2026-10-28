@@ -20,6 +20,7 @@ class ChatRequest(RequestModel):
     # Voice turns: the audio the browser decodes, for the reply's first words when the server speaks them
     # (VOICE_SERVER_SPEECH); ignored otherwise.
     speech_format: Literal["mp3", "opus", "aac"] | None = None
+    client_request_id: uuid.UUID | None = None
 
     @field_validator("message")
     @classmethod

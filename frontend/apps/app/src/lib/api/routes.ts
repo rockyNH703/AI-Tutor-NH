@@ -24,7 +24,7 @@ export type HttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 export type RouteSpec = {
   /** Needs the session cookie. The BFF answers 401 itself when it is missing. */
   auth: boolean;
-  /** Request body schema name in the backend contract, if the route takes one. */
+  /** Request body schema name in the backend contract, if the route takes one. Omit temporarily for handwritten, not-yet-generated routes. */
   body?: string;
   /** Query parameters the BFF may forward. Everything else is dropped. */
   query?: readonly string[];
@@ -121,6 +121,19 @@ export const ROUTES = {
   "PATCH /v1/notifications/preferences": { auth: true, body: "UpdateNotificationPreferencesRequest" },
   "POST /v1/notifications/unsubscribe": { auth: false, body: "UnsubscribeRequest" },
   "POST /v1/support/requests": { auth: true, body: "SupportRequestIn" },
+
+  "GET /v1/memories/preferences": { auth: true },
+  "PUT /v1/memories/preferences": { auth: true, body: "UpdateMemoryPreferencesRequest" },
+  "GET /v1/memories/proposals": { auth: true, query: ["limit", "cursor"] },
+  "POST /v1/memories/proposals/{proposal_id}/approve": { auth: true, body: "ApproveProposalRequest" },
+  "POST /v1/memories/proposals/{proposal_id}/reject": { auth: true, body: "RejectProposalRequest" },
+  "GET /v1/memories": { auth: true, query: ["limit", "cursor", "kind"] },
+  "POST /v1/memories": { auth: true, body: "CreateMemoryRequest" },
+  "DELETE /v1/memories": { auth: true },
+  "GET /v1/memories/export": { auth: true },
+  "GET /v1/memories/{memory_id}": { auth: true },
+  "PUT /v1/memories/{memory_id}": { auth: true, body: "CorrectMemoryRequest" },
+  "DELETE /v1/memories/{memory_id}": { auth: true, body: "DeleteMemoryRequest" },
 
   "GET /v1/conversations": { auth: true, query: ["limit", "cursor"] },
   "GET /v1/conversations/{conversation_id}": { auth: true },

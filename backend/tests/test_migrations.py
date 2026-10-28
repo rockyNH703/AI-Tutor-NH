@@ -248,6 +248,84 @@ def test_migration_0018_adds_and_removes_memory_without_touching_existing_data()
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 
 
+MEMORY_FOUNDATION = "0019_memory_foundation"
+
+
+def test_migration_0019_downgrade_refuses_populated_new_data_before_ddl():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", MEMORY_FOUNDATION)
+        user_id = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Memory owner') RETURNING id",
+                "memory-0019@example.com",
+            )
+        )[0]["id"]
+        run(
+            _query(
+                "INSERT INTO memory_deletion_markers (user_id, content_hmac, policy_version, reason) "
+                "VALUES ($1, $2, 'v1', 'delete')",
+                user_id,
+                "a" * 64,
+            )
+        )
+        process = subprocess.run(
+            [sys.executable, "-m", "alembic", "-x", f"url={URL}", "downgrade", MEMORY],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode != 0
+        assert "downgrade refused" in process.stderr
+        assert run(_query("SELECT to_regclass('public.memory_deletion_markers') AS t"))[0]["t"] == (
+            "memory_deletion_markers"
+        )
+        assert run(_query("SELECT count(*) AS n FROM memory_deletion_markers"))[0]["n"] == 1
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == MEMORY_FOUNDATION
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+def test_migration_0019_empty_downgrade_and_forward_preserve_legacy_memory():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", MEMORY)
+        user_id = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Legacy owner') RETURNING id",
+                "memory-legacy@example.com",
+            )
+        )[0]["id"]
+        run(
+            _query(
+                "INSERT INTO memory_items (user_id, kind, content, content_hash, embedding, embedding_model) "
+                "VALUES ($1, 'learning_context', 'Legacy memory', $2, $3::vector, 'legacy-model')",
+                user_id,
+                "b" * 64,
+                "[" + ",".join(["0"] * 1536) + "]",
+            )
+        )
+        alembic("upgrade", MEMORY_FOUNDATION)
+        row = run(
+            _query(
+                "SELECT content, origin, embedding_dimensions, embedding_version FROM memory_items WHERE user_id = $1",
+                user_id,
+            )
+        )[0]
+        assert tuple(row) == ("Legacy memory", "explicit", 1536, "v1")
+        alembic("downgrade", MEMORY)
+        legacy = run(_query("SELECT content, embedding_model FROM memory_items WHERE user_id = $1", user_id))[0]
+        assert tuple(legacy) == ("Legacy memory", "legacy-model")
+        assert run(_query("SELECT to_regclass('public.memory_proposals') AS t"))[0]["t"] is None
+        alembic("upgrade", MEMORY_FOUNDATION)
+        assert run(_query("SELECT count(*) AS n FROM memory_items WHERE user_id = $1", user_id))[0]["n"] == 1
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
 AUTH_BEFORE = "0011_notification_cleared_at"
 AUTH_AFTER = "0012_better_auth"
 

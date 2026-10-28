@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -11,7 +12,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import MemoryItem
 from app.errors import Conflict, NotFound, ServiceUnavailable, ValidationFailed, VersionConflict
+from app.memory.foundation import lock_memory_user
 from app.memory.policy import normalize_content, validate_memory_policy
+from app.memory.preferences import MemoryPreferencesService
+from app.memory.proposals import ProposalRepository, ensure_pending_version, validate_approval_content
 from app.memory.repository import MemoryRepository
 from app.rag.embeddings import embedding_model_id, is_configured
 from app.settings import Settings
@@ -63,10 +67,31 @@ class MemoryService:
             "version": item.version,
             "supersedesId": str(item.supersedes_id) if item.supersedes_id else None,
             "sourceMessageId": str(item.source_message_id) if item.source_message_id else None,
+            "origin": item.origin,
+            "proposalId": str(item.proposal_id) if item.proposal_id else None,
+            "lastConfirmedAt": item.last_confirmed_at.isoformat(),
+            "validFrom": item.valid_from.isoformat() if item.valid_from else None,
+            "validTo": item.valid_to.isoformat() if item.valid_to else None,
+            "processorVersion": item.processor_version,
+            "embeddingModel": item.embedding_model,
+            "embeddingDimensions": item.embedding_dimensions,
+            "embeddingVersion": item.embedding_version,
             "expiresAt": item.expires_at.isoformat() if item.expires_at else None,
             "createdAt": item.created_at.isoformat(),
             "updatedAt": item.updated_at.isoformat(),
         }
+
+    def _content_hmac(self, user_id: uuid.UUID, content_hash: str) -> str:
+        key = self.settings.secret_key.get_secret_value().encode()
+        payload = f"memory:{user_id}:{self.settings.memory_deletion_policy_version}:{content_hash}".encode()
+        return hmac.new(key, payload, hashlib.sha256).hexdigest()
+
+    async def suppressed(self, user_id: uuid.UUID, content_hash: str) -> bool:
+        return await self.repo.deletion_marker_exists(
+            user_id,
+            self._content_hmac(user_id, content_hash),
+            self.settings.memory_deletion_policy_version,
+        )
 
     def _normalize(self, content: str) -> tuple[str, str]:
         normalized = normalize_content(content, max_chars=self.settings.memory_max_item_chars)
@@ -113,6 +138,8 @@ class MemoryService:
                 expires_at=expires_at,
                 embedding=embedding,
                 embedding_model=self.model,
+                embedding_dimensions=self.settings.embedding_dimensions,
+                embedding_version=self.settings.memory_embedding_version,
             )
             await self.db.commit()
             return item
@@ -122,6 +149,12 @@ class MemoryService:
         except IntegrityError as error:
             await self.db.rollback()
             raise Conflict("That active memory already exists.") from error
+
+    async def find_exact_active(self, user_id: uuid.UUID, content: str) -> list[MemoryItem]:
+        normalized, content_hash = self._normalize(content)
+        return [
+            item for item in await self.repo.get_by_content_hash(user_id, content_hash) if item.content == normalized
+        ]
 
     async def get(self, user_id: uuid.UUID, memory_id: uuid.UUID) -> MemoryItem:
         item = await self.repo.get(user_id, memory_id)
@@ -192,6 +225,8 @@ class MemoryService:
                 expires_at=new_expiry,
                 embedding=embedding,
                 embedding_model=self.model,
+                embedding_dimensions=self.settings.embedding_dimensions,
+                embedding_version=self.settings.memory_embedding_version,
                 version=item.version + 1,
                 supersedes_id=item.id,
             )
@@ -202,19 +237,179 @@ class MemoryService:
             raise Conflict("The correction conflicts with an existing memory.") from error
 
     async def delete(self, user_id: uuid.UUID, memory_id: uuid.UUID, expected_version: int) -> None:
+        await lock_memory_user(self.db, user_id)
         item = await self.repo.get(user_id, memory_id, lock=True)
         if item is None:
             raise NotFound("Memory not found.")
         if item.version != expected_version:
             await self.db.rollback()
             raise VersionConflict(current=self._public_current(item))
-        await self.repo.delete_chain(user_id, memory_id)
+        hashes = await self.repo.chain_content_hashes(user_id, memory_id)
+        await self.repo.add_deletion_markers(
+            user_id,
+            [
+                (self._content_hmac(user_id, content_hash), self.settings.memory_deletion_policy_version, "delete")
+                for content_hash in hashes
+            ],
+        )
+        deleted = await self.repo.delete_chain(user_id, memory_id)
+        if deleted == 0:
+            await self.db.rollback()
+            raise NotFound("Memory not found.")
         await self.db.commit()
 
     async def delete_all(self, user_id: uuid.UUID) -> int:
-        count = await self.repo.delete_all(user_id)
+        preferences = MemoryPreferencesService(self.db)
+        count, hashes = await preferences.clear(user_id, self.repo)
+        await self.repo.add_deletion_markers(
+            user_id,
+            [
+                (self._content_hmac(user_id, content_hash), self.settings.memory_deletion_policy_version, "clear")
+                for content_hash in hashes
+            ],
+        )
         await self.db.commit()
         return count
+
+    async def list_proposals(self, user_id: uuid.UUID, limit: int, cursor: str | None):
+        return await ProposalRepository(self.db).list_pending(user_id, limit, cursor)
+
+    async def approve_proposal(
+        self,
+        user_id: uuid.UUID,
+        proposal_id: uuid.UUID,
+        *,
+        expected_version: int,
+        kind: str | None,
+        content: str | None,
+        expires_at: datetime | None,
+        valid_from: datetime | None,
+        valid_to: datetime | None,
+        fields_set: set[str],
+    ) -> MemoryItem:
+        proposals = ProposalRepository(self.db)
+        proposal = await proposals.get(user_id, proposal_id)
+        if proposal is None:
+            raise NotFound("Memory proposal not found.")
+        if proposal.status == "applied" and proposal.applied_memory_id:
+            applied = await self.repo.get(user_id, proposal.applied_memory_id)
+            if applied is not None:
+                return applied
+            raise Conflict("The applied memory no longer exists.")
+        ensure_pending_version(proposal, expected_version)
+        approved_kind, normalized, approved_expiry, approved_valid_from, approved_valid_to = validate_approval_content(
+            proposal,
+            kind=kind,
+            content=content,
+            expires_at=expires_at,
+            valid_from=valid_from,
+            valid_to=valid_to,
+            fields_set=fields_set,
+            max_chars=self.settings.memory_max_item_chars,
+        )
+        self._validate_expiry(approved_expiry)
+        content_hash = hashlib.sha256(normalized.encode()).hexdigest()
+        if await self.suppressed(user_id, content_hash):
+            raise Conflict("That memory was previously deleted or rejected.")
+        await self.db.rollback()
+        embedding = await self._embed(normalized)
+
+        proposal = await proposals.get(user_id, proposal_id, lock=True)
+        if proposal is None:
+            await self.db.rollback()
+            raise NotFound("Memory proposal not found.")
+        if proposal.status == "applied" and proposal.applied_memory_id:
+            applied = await self.repo.get(user_id, proposal.applied_memory_id)
+            if applied is not None:
+                await self.db.rollback()
+                return applied
+            await self.db.rollback()
+            raise Conflict("The applied memory no longer exists.")
+        ensure_pending_version(proposal, expected_version)
+        await lock_memory_user(self.db, user_id)
+        if await self.suppressed(user_id, content_hash):
+            await self.db.rollback()
+            raise Conflict("That memory was previously deleted or rejected.")
+        if not await proposals.source_is_eligible(proposal) or not await proposals.preferences_allow(proposal):
+            await self.db.rollback()
+            raise Conflict("This proposal is no longer eligible for approval.")
+        try:
+            target = None
+            version = 1
+            supersedes_id = None
+            source_message_id = proposal.source_message_id
+            if proposal.operation == "supersede":
+                target = await self.repo.get(user_id, proposal.target_memory_id, lock=True)
+                if target is None or target.status != "active" or target.version != proposal.target_memory_version:
+                    raise Conflict("The target memory changed before approval.")
+                version = target.version + 1
+                supersedes_id = target.id
+                source_message_id = target.source_message_id or proposal.source_message_id
+                await self.repo.supersede(target)
+                await self.db.flush()
+            item = await self.repo.create(
+                user_id=user_id,
+                kind=approved_kind,
+                content=normalized,
+                content_hash=content_hash,
+                source_message_id=source_message_id,
+                expires_at=approved_expiry,
+                embedding=embedding,
+                embedding_model=self.model,
+                embedding_dimensions=self.settings.embedding_dimensions,
+                embedding_version=self.settings.memory_embedding_version,
+                origin="approved_extraction",
+                proposal_id=proposal.id,
+                processor_version=proposal.processor_version,
+                valid_from=approved_valid_from,
+                valid_to=approved_valid_to,
+                version=version,
+                supersedes_id=supersedes_id,
+            )
+            proposal.status = "applied"
+            proposal.version += 1
+            proposal.applied_memory_id = item.id
+            proposal.reviewed_at = datetime.now(UTC)
+            proposal.applied_at = proposal.reviewed_at
+            proposal.updated_at = proposal.reviewed_at
+            await self.db.commit()
+            return item
+        except IntegrityError as error:
+            await self.db.rollback()
+            raise Conflict("The proposal conflicts with an existing memory.") from error
+
+    async def reject_proposal(self, user_id: uuid.UUID, proposal_id: uuid.UUID, expected_version: int) -> None:
+        proposals = ProposalRepository(self.db)
+        proposal = await proposals.get(user_id, proposal_id, lock=True)
+        if proposal is None:
+            raise NotFound("Memory proposal not found.")
+        if proposal.status == "rejected":
+            await self.db.rollback()
+            return
+        ensure_pending_version(proposal, expected_version)
+        await self.repo.add_deletion_markers(
+            user_id,
+            [
+                (
+                    self._content_hmac(user_id, proposal.content_hash),
+                    self.settings.memory_deletion_policy_version,
+                    "reject",
+                )
+            ],
+        )
+        await proposals.reject(proposal)
+        await self.db.commit()
+
+    async def get_preferences(self, user_id: uuid.UUID):
+        _, preferences = await MemoryPreferencesService(self.db).get(user_id)
+        return preferences
+
+    async def update_preferences(self, user_id: uuid.UUID, *, automatic_proposals: bool, expected_version: int):
+        return await MemoryPreferencesService(self.db).update(
+            user_id,
+            automatic_proposals=automatic_proposals,
+            expected_version=expected_version,
+        )
 
     async def recall_with_embedding(
         self,
@@ -230,6 +425,7 @@ class MemoryService:
             user_id,
             embedding,
             self.model,
+            self.settings.memory_embedding_version,
             limit=self.settings.memory_recall_candidates,
             kinds=kinds,
         )
