@@ -1,6 +1,6 @@
 # Security regression tests
 
-> Written 2026-10-29 against the working tree on top of `e439b96`. Test names were checked to exist. "Failed
+> Written 2026-10-29 against the code on top of `e439b96`, released in `0d868b7` the same day. Test names were checked to exist. "Failed
 > first" means the evidence ledger of the 2026-10-29 work records the test failing on the old code before the fix
 > ([security-audit.md](security-audit.md)). Counts are the ledger's, from that day.
 
@@ -163,6 +163,7 @@ it if its name ended in `_test`.
 | `proxy-core.test.ts` "session and identity", "session cookie handling" | No cookie, a planted plain cookie on HTTPS, or an unsigned token is not a session; a client's `X-Forwarded-For` is never passed on | — |
 | `proxy-core.test.ts` "files", "voice" | Upload type, size and slot limits; private cache headers only; voice has its own bounded class | — |
 | `proxy-core.test.ts` "body deadline" (3 tests) | `readBody` refuses a body that stops arriving at the deadline (`too_slow`, which the proxy answers with 408 `request_timeout`); a complete body within the deadline is returned whole; the size limit still applies first | A-6 follow-up |
+| `proxy-core.test.ts` "a client's own X-Forwarded-Host cannot make another origin look like ours", "behind a local proxy…" | A spoofed `X-Forwarded-Host` cannot pass the CSRF check (the tunnel keeps the public `Host`); a loopback `Host` still takes the forwarded one | F-BFF-1. Failed first (200, not 403) |
 | `src/lib/server/cookies.test.ts` | Only a cookie Better Auth signed gives a token; on HTTPS only the `__Host-` cookie counts | — |
 | `src/lib/server/expired.test.ts` | A hostile link cannot sign a valid session out; an unsafe redirect is dropped | — |
 | `src/lib/safe-redirect.test.ts` | No redirect to another origin, including dot segments (`/.//evil.com`, `/a/..//evil.com`, `/%2E//evil.com`) | A-17. Failed first (`/.//evil.com` became `//evil.com`); 5/5 after |

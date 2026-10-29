@@ -103,6 +103,25 @@ describe("CSRF", () => {
     expect(calls.length).toBe(0);
   });
 
+  test("a client's own X-Forwarded-Host cannot make another origin look like ours", async () => {
+    // The tunnel keeps the public Host and passes this header through from the client (seen live, 2026-10-29).
+    const { calls, fetchImpl } = upstream(() => json(200, {}));
+    const request = browser("PATCH", `/v1/conversations/${CID}`, {
+      body: JSON.stringify({ title: "x" }),
+      headers: { origin: "https://evil.example", "x-forwarded-host": "evil.example" },
+    });
+    expect((await run(request, `/v1/conversations/${CID}`, fetchImpl)).status).toBe(403);
+    expect(calls.length).toBe(0);
+  });
+
+  test("behind a local proxy that rewrites Host to loopback, X-Forwarded-Host names the public host", async () => {
+    const { fetchImpl } = upstream(() => new Response(null, { status: 204 }));
+    const request = browser("POST", "/v1/auth/logout", {
+      headers: { host: "127.0.0.1:4300", "x-forwarded-host": "chat.example.com" },
+    });
+    expect((await run(request, "/v1/auth/logout", fetchImpl)).status).toBe(204);
+  });
+
   test("a mutation with no Origin needs Sec-Fetch-Site: same-origin", async () => {
     const { fetchImpl } = upstream(() => new Response(null, { status: 204 }));
     const headers = new Headers({ host: "chat.example.com", "x-forwarded-proto": "https", cookie: SIGNED });

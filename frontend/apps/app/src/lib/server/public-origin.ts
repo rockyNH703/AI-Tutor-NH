@@ -9,9 +9,12 @@
  *   - the CSRF check (the browser's `Origin` is the public hostname)
  *   - cookies        (Secure + the `__Host-` prefix only when the browser is on HTTPS)
  *
- * The forwarded headers are trustworthy here because the app binds to 127.0.0.1
- * and only the tunnel can reach it. Pure functions over headers, so middleware
- * (edge runtime) and route handlers (node) share them.
+ * The app binds to 127.0.0.1 and only the tunnel can reach it. The tunnel keeps the
+ * public `Host` and sets `X-Forwarded-Proto` itself, but passes a client's own
+ * `X-Forwarded-Host` straight through (seen live, 2026-10-29), so that header is
+ * honoured only when `Host` is loopback, i.e. a local proxy rewrote it. Pure
+ * functions over headers, so middleware (edge runtime) and route handlers (node)
+ * share them.
  */
 
 type HeaderSource = { get(name: string): string | null };
@@ -27,8 +30,15 @@ export function publicProtocol(headers: HeaderSource, requestUrl: string): "http
   return new URL(requestUrl).protocol === "https:" ? "https" : "http";
 }
 
+function isLoopback(host: string): boolean {
+  const name = host.startsWith("[") ? host.slice(0, host.indexOf("]") + 1) : (host.split(":")[0] ?? "");
+  return name === "localhost" || name === "[::1]" || /^127(\.\d{1,3}){3}$/.test(name);
+}
+
 export function publicHost(headers: HeaderSource, requestUrl: string): string {
-  return firstValue(headers.get("x-forwarded-host")) ?? headers.get("host") ?? new URL(requestUrl).host;
+  const host = headers.get("host") ?? new URL(requestUrl).host;
+  const forwarded = firstValue(headers.get("x-forwarded-host"));
+  return forwarded && isLoopback(host) ? forwarded : host;
 }
 
 /** e.g. `https://chat.example.com` */

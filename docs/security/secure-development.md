@@ -135,7 +135,7 @@ which steps need the owner's approval?
 
 | Control | Status |
 |---|---|
-| A PASS receipt from `bun run security` for the commit being deployed | **Mandatory, enforced** by `deploy-netsec/deploy.sh` **(working tree)**. The override `NETSEC_SECURITY_GATE=skip:<reason>` is logged (in the local checkout only) and is for emergencies |
+| A PASS receipt from `bun run security` for the commit being deployed | **Mandatory, enforced** by `deploy-netsec/deploy.sh` **(released 0d868b7)**. The override `NETSEC_SECURITY_GATE=skip:<reason>` is logged (in the local checkout only) and is for emergencies |
 | Focused and relevant tests, static checks, docs updated, evidence recorded | **Mandatory by this workflow** (not enforced by a tool) |
 | An independent diff review for security-sensitive changes | **Mandatory by this workflow** |
 | `Status: MATCH` and a healthy `bun run status:netsec` after a deploy | **Mandatory** ([checklist](production-security-checklist.md#release-acceptance)) |

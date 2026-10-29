@@ -1,9 +1,9 @@
 # Security model
 
 > Moved from `docs/security.md` (written for PadhAI, verified at `0e33ec0`) and updated for NetSec AI on
-> 2026-10-29, against the working tree on top of `e439b96`, and corrected after the final review the same day. A
-> control marked **(working tree)** is fixed, with a regression test unless the text says there is none, but was
-> not committed or released when this was written: production still runs the code without it. This page explains how NetSec AI is protected. It holds no secrets and no credentials. To report a
+> 2026-10-29, against the code on top of `e439b96`, and corrected after the final review the same day. A control
+> marked **(released 0d868b7)** is fixed, with a regression test unless the text says there is none, and was
+> deployed to production on 2026-10-29 (`Status: MATCH`); before that release production ran without it. This page explains how NetSec AI is protected. It holds no secrets and no credentials. To report a
 > problem, see [SECURITY.md](../../SECURITY.md).
 
 | Page | What it holds |
@@ -81,7 +81,7 @@ flowchart LR
 | API → extractor | A user's uploaded bytes | A sandboxed transient systemd unit per file: no network, no secrets, read-only system ([below](#uploads-and-untrusted-files)) |
 | API and jobs → LLM and embeddings | Prompts, file passages, memory text, search queries | HTTPS. Obvious secrets are masked before the LLM or embeddings provider sees the text ([AI-specific risks](#ai-specific-risks)) |
 | API → Ollalink | Message text for the classifiers; audio and text for voice | HTTPS enforced in production ([`settings.py:424-433`](../../backend/app/settings.py)). Not masked. `INTENT_ROUTER`, `STUDY_SCOPE` and `VOICE_MODE` are `off` in [`api.env.example`](../../deploy-netsec/env/api.env.example) |
-| Release workstation → host | The commit and the deploy scripts, run as root over SSH | Deploys only GitHub `main` from a clean tree, with a PASS receipt from `bun run security` **(working tree)**; see [Releases](#releases-and-the-supply-chain) |
+| Release workstation → host | The commit and the deploy scripts, run as root over SSH | Deploys only GitHub `main` from a clean tree, with a PASS receipt from `bun run security` **(released 0d868b7)**; see [Releases](#releases-and-the-supply-chain) |
 | NetSec ↔ PadhAI on one host | Nothing, by design | Separate paths (`/opt/netsecai`, `/etc/netsecai`, `/var/backups/netsecai`), `netsecai-*` units, ports 4300/4400/55432 and a separate database container, all hard-coded as NetSec names in the scripts. [`namespace.test.mjs`](../../deploy-netsec/tests/namespace.test.mjs) fails if a NetSec deploy file names PadhAI's paths, `systemctl start aichat-` or PadhAI's ports (not Docker names or the hostname), and every script that touches the database first proves NetSec's container, volume, network and identity marker (`assert_database_identity`, [`server/lib.sh:141`](../../deploy-netsec/server/lib.sh)). [`safety.sh`](../../deploy-netsec/server/safety.sh)'s `safety_preflight` is only a self-check of NetSec's own constants at the start of the scripts that source it: no real target passes through its denylist, whose Docker prefix `compose` is the removed Ayurveda stack's, not PadhAI's `padhai-postgres*`. Limits: every service runs as root (audit A-21) and `/root/.bun` is shared (A-26) |
 
 The API is **never published**: it listens on `127.0.0.1`, and the tunnel points only at the web app. Interactive
@@ -98,7 +98,7 @@ yet; see [deployment.md, "Quick Tunnel address changed"](../deployment.md#quick-
 - **Two-step sign-in** (an authenticator app, plus recovery codes) is asked for at every way in.
 - **An authenticator code works once.** It is claimed in the database **before** it is checked, under an advisory
   lock, so two parallel uses of one code cannot both pass ([`guard.ts:57-69`](../../frontend/apps/app/src/lib/auth/guard.ts),
-  [`config.ts:504-516`](../../frontend/apps/app/src/lib/auth/config.ts)) **(working tree, F-AUTH-1)**.
+  [`config.ts:504-516`](../../frontend/apps/app/src/lib/auth/config.ts)) **(released 0d868b7, F-AUTH-1)**.
 - **Changing how the account signs in** on a two-step account needs a sign-in within the last 15 minutes.
 - **Password reset** is by emailed code.
 
@@ -135,7 +135,7 @@ a code, a token or an address.
 - The session cookie is `__Host-padhai_session` over HTTPS (the name was kept from PadhAI), httpOnly, never
   readable by page code ([`cookies.ts`](../../frontend/apps/app/src/lib/server/cookies.ts)).
 - Every other Better Auth cookie (the OAuth state, the two-step challenge) is `__Host-netsecai.*` over HTTPS
-  ([`config.ts:313`](../../frontend/apps/app/src/lib/auth/config.ts)) **(working tree, A-0)**. The site lives on
+  ([`config.ts:313`](../../frontend/apps/app/src/lib/auth/config.ts)) **(released 0d868b7, A-0)**. The site lives on
   the shared parent domain `trycloudflare.com`; without the prefix a sibling host could plant a state cookie and
   force a Google login CSRF.
 - Every JSON answer from `/api/auth/*` has its `token` removed (`withoutTokens`).
@@ -201,21 +201,21 @@ and [`middleware.ts`](../../frontend/apps/app/src/middleware.ts):
   - re-wraps error envelopes, and clears the cookie on an upstream 401, except for `invalid_credentials`.
 - **The middleware** handles pages only. API routes are excluded from its matcher, so Next no longer buffers every
   request body first, and uploads above 10 MB are no longer cut short ([`middleware.ts:42-49`](../../frontend/apps/app/src/middleware.ts))
-  **(working tree, A-6)**. Since a slow body now reaches the BFF directly, `readBody` reads every body under a
+  **(released 0d868b7, A-6)**. Since a slow body now reaches the BFF directly, `readBody` reads every body under a
   deadline: 30 s (`BODY_TIMEOUT_MS`), 300 s on upload routes (`UPLOAD_TIMEOUT_MS`), then 408 `request_timeout`
   ([`proxy-core.ts:129-170, 293-304`](../../frontend/apps/app/src/lib/server/proxy-core.ts); the two auth routes
-  too) **(working tree, A-6 follow-up)**; `proxy-core.test.ts` "body deadline". One account can still hold both
+  too) **(released 0d868b7, A-6 follow-up)**; `proxy-core.test.ts` "body deadline". One account can still hold both
   upload slots for up to 300 s each: there is no per-user upload cap in the BFF
   ([known-limitations.md](../known-limitations.md#netsec-ai-2026-10-29)).
 - **Redirects:** `?redirect=` targets pass through `safeRedirect`, which now also re-checks the parsed path, so
   `/.//evil.com` can no longer become `//evil.com` ([`safe-redirect.ts:25-60`](../../frontend/apps/app/src/lib/safe-redirect.ts))
-  **(working tree, A-17)**.
+  **(released 0d868b7, A-17)**.
 - **`/api/session/expired`** only clears the cookie after the API confirms that the session is over, so a link
   from another site can't sign anyone out ([`expired.ts`](../../frontend/apps/app/src/lib/server/expired.ts)).
 - **The public origin** used for the CSRF check, redirects and the cookie's HTTPS decision comes from
-  `X-Forwarded-Proto` and `X-Forwarded-Host` ([`public-origin.ts:24-37`](../../frontend/apps/app/src/lib/server/public-origin.ts)).
-  Whether Cloudflare passes a client's own `X-Forwarded-Host` through is a deployment fact that needs a live
-  check (F-BFF-1, open).
+  `X-Forwarded-Proto` (set by the tunnel) and `Host` ([`public-origin.ts`](../../frontend/apps/app/src/lib/server/public-origin.ts)).
+  The tunnel passes a client's own `X-Forwarded-Host` through (seen live), so it counts only when `Host` is
+  loopback, i.e. a local proxy rewrote it (F-BFF-1, fixed after `0d868b7`; `proxy-core.test.ts`).
 
 ## Secrets
 
@@ -238,7 +238,7 @@ and [`middleware.ts`](../../frontend/apps/app/src/middleware.ts):
 - **Secrets never travel in process arguments**, which any local user can read in `ps` or `/proc/*/cmdline`. The
   deploy's smoke cookie is signed with the secret in Python's environment ([`lib.sh:177-188`](../../deploy-netsec/server/lib.sh),
   F-DEPLOY-1), and the database role passwords reach `psql` through `-e NAME` and `\getenv`
-  ([`database-grants.sh:29-36`](../../deploy-netsec/database-grants.sh), A-22) **(both working tree)**.
+  ([`database-grants.sh:29-36`](../../deploy-netsec/database-grants.sh), A-22) **(both released 0d868b7)**.
 - The example files hold placeholders only.
 - Load secrets for a one-off command the way the service does (`systemd-run --pipe --wait --collect -p
   EnvironmentFile=/etc/netsecai/api.env …`); never `source` them, and never print them.
@@ -259,7 +259,7 @@ and [`middleware.ts`](../../frontend/apps/app/src/middleware.ts):
     read-only;
   - `/opt/netsecai` replaced by an empty read-only directory, and `/etc/netsecai`, PadhAI's `/etc/aichat` and
     `/opt/aichat`, `/etc/cloudflared`, `/var/lib/docker`, `/var/backups` and `/run/dbus` made inaccessible
-    **(working tree, F-FILES-1)**. Before this fix the unit hid PadhAI's paths, not NetSec's;
+    **(released 0d868b7, F-FILES-1)**. Before this fix the unit hid PadhAI's paths, not NetSec's;
   - `MemoryMax=512M` and `RuntimeMaxSec=300`.
 
   Production refuses to parse any other way ([`settings.py:334-341`](../../backend/app/settings.py)): without
@@ -270,7 +270,7 @@ and [`middleware.ts`](../../frontend/apps/app/src/middleware.ts):
   - the bytes must be the declared type;
   - images over 40 megapixels are refused before decoding, and a PNG, a WebP, or a JPEG that `draft()` cannot
     shrink, over 16 megapixels is refused before it is decoded at full size, so two decodes at once fit the API's
-    `MemoryMax=900M` ([`avatar.py:36-40, 85`](../../backend/app/auth/avatar.py)) **(working tree, A-30)**;
+    `MemoryMax=900M` ([`avatar.py:36-40, 85`](../../backend/app/auth/avatar.py)) **(released 0d868b7, A-30)**;
   - the photo is re-encoded as a 256 px WebP, so EXIF and GPS data never survive.
   - Photos are still decoded in the API process (not the sandbox), and `Image.open` lets every Pillow plugin probe
     the bytes (A-32, open).
@@ -284,7 +284,7 @@ renders.
 
 | Risk | Mitigation (where) |
 |---|---|
-| A pasted config or log carries passwords, keys or community strings | Every message is masked before the LLM, its fallback or the embeddings provider sees it: `RedactingProvider` and `RedactingEmbeddings` ([`redact.py:365-460`](../../backend/app/llm/redact.py)) wrap whatever `build_llm` and `build_embeddings` return, so the API, the jobs worker and the scripts all get them ([`factory.py:24-27`](../../backend/app/llm/factory.py), [`embeddings.py:155-159`](../../backend/app/rag/embeddings.py)) **(working tree)**. The system prompt tells the model never to ask for secrets ([`assistant.py:58-60`](../../backend/app/chat/assistant.py)). Limits: patterns catch obvious secrets only; the stored message keeps what the user wrote; Ollalink requests are not masked |
+| A pasted config or log carries passwords, keys or community strings | Every message is masked before the LLM, its fallback or the embeddings provider sees it: `RedactingProvider` and `RedactingEmbeddings` ([`redact.py:365-460`](../../backend/app/llm/redact.py)) wrap whatever `build_llm` and `build_embeddings` return, so the API, the jobs worker and the scripts all get them ([`factory.py:24-27`](../../backend/app/llm/factory.py), [`embeddings.py:155-159`](../../backend/app/rag/embeddings.py)) **(released 0d868b7)**. The system prompt tells the model never to ask for secrets ([`assistant.py:58-60`](../../backend/app/chat/assistant.py)). Limits: patterns catch obvious secrets only; the stored message keeps what the user wrote; Ollalink requests are not masked |
 | A user's file or a knowledge-base passage says "ignore your instructions" | File text goes inside the user's own message, in an `<attached_files>` block marked as reference material, and anything that could close the block is neutralised ([`context.py:61-71, 136-186`](../../backend/app/rag/context.py)). Retrieved passages come with a note that they may be incomplete or unrelated. This lowers the risk; it cannot guarantee the model ignores the text |
 | Memory as an injection channel | Recalled memory goes in its own `<personal_memory>` block, labelled untrusted background data, delimiters neutralised ([`context.py:38-57`](../../backend/app/rag/context.py)). Only explicit or user-approved memories exist; recall is off by default |
 | A user's settings text tries to steer the assistant | Their own text reaches the prompt only in quotes, as information (`app/learning/tutor.py`) |
@@ -304,7 +304,7 @@ renders.
   `PATCH /v1/me/settings` refuses every key starting with `memory` ([`auth/schemas.py:29-41`](../../backend/app/auth/schemas.py)),
   stored values are parsed defensively (only a real `true` is consent, [`preferences.py:23-66`](../../backend/app/memory/preferences.py)),
   and one job's failure never stops other users' jobs ([`jobs/memory.py:111-115`](../../backend/app/jobs/memory.py))
-  **(working tree, F-MEM-1)**.
+  **(released 0d868b7, F-MEM-1)**.
 - **What can never be stored:** secrets and credentials, and configuration excerpts (two or more config
   statements) ([`policy.py:13-79`](../../backend/app/memory/policy.py)).
 - **Proposals** are a separate table. Recall reads only active, currently valid `memory_items` of the same user
@@ -314,11 +314,11 @@ renders.
   approval.
 - **The kill switch covers chat commands:** with `MEMORY_ENABLED` off, "remember …" and "forget …" are ordinary
   messages ([`chat/service.py:304-305`](../../backend/app/chat/service.py), `memory_on`; A-4, A-11, A-15)
-  **(working tree)**; `test_memory_commands.py::test_with_memory_off_a_remember_command_is_an_ordinary_message`
+  **(released 0d868b7)**; `test_memory_commands.py::test_with_memory_off_a_remember_command_is_an_ordinary_message`
   failed before the fix.
 - **Approving a proposal reads consent the way the worker does** (`MemoryPreferences.from_settings`, so a malformed
   stored value is no consent, never an error; [`proposals.py:60-72`](../../backend/app/memory/proposals.py))
-  **(working tree)**; `test_memory_jobs.py::test_malformed_stored_consent_never_breaks_chat_or_other_users_jobs`
+  **(released 0d868b7)**; `test_memory_jobs.py::test_malformed_stored_consent_never_breaks_chat_or_other_users_jobs`
   approves one.
 - **Known gaps (open):** not every memory writer takes the per-user lock (A-14); the worker holds that lock across
   the provider call (A-16).
@@ -339,14 +339,14 @@ requests can overshoot it slightly (A-10, open).
   or codes. Tests check this, and the gate's Semgrep rule `netsec-log-sensitive-value` flags a log call that passes
   such a value. A failed generation is logged with its error code and class only, never the provider's error
   text, which some providers fill with the input ([`chat/service.py:962`](../../backend/app/chat/service.py);
-  A-13) **(working tree)**. No test asserts it yet. Key-like strings in provider errors are also redacted
+  A-13) **(released 0d868b7)**. No test asserts it yet. Key-like strings in provider errors are also redacted
   ([`openai_compatible.py:30-41`](../../backend/app/llm/openai_compatible.py)).
 - **LangSmith tracing must stay off.** It would send prompts and documents outside.
 - **Devices and IP addresses:** the devices list shows a coarse label and a masked network. The raw IP address and
   user agent never leave the server, and emails never contain an IP address.
 - **What reaches the model:** the system prompt, the user's engineering profile and settings (never their name,
   email or photo), retrieved passages, attached file passages, recalled memories (when recall is on), and the chat
-  history within a character budget. All of it with obvious secrets masked **(working tree)**.
+  history within a character budget. All of it with obvious secrets masked **(released 0d868b7)**.
 - **What reaches Ollalink (when switched on):** the message text and the earlier turns needed to read it
   (classifiers); the recorded utterance and the text to speak (voice). Not masked. Voice audio is not stored.
 - **The NCERT Knowledge Service** is PadhAI's and stays dormant in NetSec (`NCERT_KB_BASE_URL` empty).
@@ -370,16 +370,16 @@ requests can overshoot it slightly (A-10, open).
 - **The gate:** `bun run security` (Semgrep, gitleaks, pip-audit, `bun audit`, zizmor; [security-tools.md](security-tools.md)).
   On PASS of a clean tree it writes a receipt bound to the commit, and
   [`deploy-netsec/deploy.sh:45-69`](../../deploy-netsec/deploy.sh) refuses to deploy a commit without one
-  **(working tree)**. An override (`NETSEC_SECURITY_GATE=skip:<reason>`) is logged, in the local checkout's
+  **(released 0d868b7)**. An override (`NETSEC_SECURITY_GATE=skip:<reason>`) is logged, in the local checkout's
   `.git` only; a rollback to any ancestor of `main` skips the gate without a log line. These limits are listed in
   [known-limitations.md](../known-limitations.md#netsec-ai-2026-10-29).
 - **Deploy:** only GitHub `main`, from a clean checkout; a backup before every migration; `rollback:netsec` to an
   earlier commit. PadhAI's `deploy/` refuses to run from this repository ([`deploy/deploy.sh:36-40`](../../deploy/deploy.sh))
-  **(working tree)**.
+  **(released 0d868b7)**.
 - **CI** (`.github/workflows/ci.yml`) pins every action by commit SHA, does not keep the checkout token, and pins
-  the Mailpit and PostgreSQL images by digest **(working tree)**. GitHub Actions do not run for this repository
+  the Mailpit and PostgreSQL images by digest **(released 0d868b7)**. GitHub Actions do not run for this repository
   (out of credit), so CI enforces nothing today.
-- **Dependencies** **(working tree)**:
+- **Dependencies** **(released 0d868b7)**:
   - backend: `backend/requirements.lock` is installed with hashes; pip-audit is clean after certifi, dnspython,
     langgraph-sdk and Pillow 13 were upgraded;
   - frontend: `bun audit` went from 34 high findings to none (zod 3 → 4, `@t3-oss/env-nextjs` 0.13, turbo 2.9.18,
@@ -392,7 +392,7 @@ requests can overshoot it slightly (A-10, open).
     in the reused `node_modules` (`files-sandbox.test.mjs` "frontend dependencies").
 - **PostgreSQL image (A-28):** pinned by digest (`pgvector/pgvector:pg16@sha256:ccc6e83d…`, the digest production
   ran on 2026-10-29) in [`deploy-netsec/compose/docker-compose.yml`](../../deploy-netsec/compose/docker-compose.yml)
-  and CI **(working tree)**. Deploys never touch the host's copy of that file: production uses the pin only after
+  and CI **(released 0d868b7)**. Deploys never touch the host's copy of that file: production uses the pin only after
   the file is copied into `/opt/netsecai/shared/postgres` on purpose
   ([deployment.md](../deployment.md#changing-the-database-container-on-purpose)).
 - **Open:** Bun is installed on the host by `curl | bash` without a checksum (A-24, A-27); the workstation's Python

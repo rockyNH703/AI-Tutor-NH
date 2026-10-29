@@ -28,7 +28,7 @@ For every release, in order. Stop at the first failure: fix it, or `bun run roll
    `.git/netsec-security-gate` with `commit=<sha>` and `result=PASS` ([security-tools.md](security-tools.md)).
    `.git/netsec-security-gate.overrides` has no new line, or the release notes give the reason.
 3. **Deploy** (with the owner's approval): `NETSEC_DEPLOY_HOST=<user@host> bun run deploy:netsec`. It refuses a
-   commit without a PASS receipt **(working tree)**, then must end with `Status: MATCH`.
+   commit without a PASS receipt **(released 0d868b7)**, then must end with `Status: MATCH`.
 4. **Status:** `NETSEC_DEPLOY_HOST=<user@host> bun run status:netsec` exits 0, and shows
    ([`server/status.sh`](../../deploy-netsec/server/status.sh)):
    - `Status: MATCH` and every unit healthy;
@@ -75,7 +75,7 @@ curl -s -o /dev/null -w '%{http_code}\n' "$SITE/api/v1/internal/auth/events"
 # A-17, once released: the redirect target is dropped (Location is $SITE/login?reason=expired, no redirect=)
 curl -s -o /dev/null -w '%{redirect_url}\n' "$SITE/api/session/expired?redirect=/.//example.invalid"
 
-# F-BFF-1: the Location must stay on $SITE. If it names example.invalid, Cloudflare passes the header through
+# F-BFF-1 (fixed): the Location must stay on $SITE. The tunnel passes the header through, so example.invalid here is a regression
 curl -s -o /dev/null -w '%{redirect_url}\n' -H 'X-Forwarded-Host: example.invalid' "$SITE/api/session/expired"
 ```
 
@@ -179,7 +179,7 @@ the repository owner (host, production configuration or account).
 
 | Follow-up | Ref | Owner |
 |---|---|---|
-| Release the working-tree fixes (A-0, A-4/A-11/A-15, A-6 and its body deadline, A-13, A-17, A-22, A-28's pin, A-30, F-MEM-1 and the memory approval parsing, F-FILES-1/2, F-DEPLOY-1, F-AUTH-1, the masking, the dependency upgrades, the gate) through the normal path | — | `code`, then `owner` (deploy) |
+| Done 2026-10-29: the audit's fixes (A-0, A-4/A-11/A-15, A-6 and its body deadline, A-13, A-17, A-22, A-28's pin, A-30, F-MEM-1 and the memory approval parsing, F-FILES-1/2, F-DEPLOY-1, F-AUTH-1, the masking, the dependency upgrades, the gate) released in `0d868b7`, `Status: MATCH` | — | — |
 | Clear the 8 moderate `bun audit` advisories that come through `@sentry/nextjs` 8 (OpenTelemetry instrumentation, `uuid`; `uuid` also through mermaid). The gate lists them without failing | Gate | `code` |
 | Apply A-28's pin on the host: back up, copy `deploy-netsec/compose/docker-compose.yml` into `/opt/netsecai/shared/postgres`, restart ([deployment.md](../deployment.md#changing-the-database-container-on-purpose)). Deploys never do it | A-28 | `owner` |
 | Run units as non-root users, starting with the web app (`User=netsecai-web`, `NoNewPrivileges`, `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`, an empty `CapabilityBoundingSet`); then the API and jobs | A-21 | `code` + `owner` |
@@ -201,7 +201,7 @@ the repository owner (host, production configuration or account).
 | The deploy gate's limits: a rollback to any ancestor of `main` is ungated and unlogged; rollback runs the local `HEAD`'s `deploy-netsec/` tooling; overrides are logged only in the local `.git`; the receipt scans the working tree ([known-limitations.md](../known-limitations.md#netsec-ai-2026-10-29)) | Gate | `code` |
 | Replace CSP `'unsafe-inline'` for scripts with nonces | CSP | `code` |
 | Move the notifications cross-user case into `test_authorization.py` | A-5 | `code` |
-| Validate: Cloudflare and `X-Forwarded-Host` (F-BFF-1), response backpressure (A-7), Docker version (A-23) | F-BFF-1, A-7, A-23 | `owner` |
-| Run `sandbox_probe.py` on the host after the F-FILES-1 release | F-FILES-1 | `owner` |
+| Validate: response backpressure (A-7), Docker version (A-23) | A-7, A-23 | `owner` |
+| Done 2026-10-29: `sandbox_probe.py` on the host after the F-FILES-1 release, 12/12 PASS (blocks the secrets, PadhAI, the tunnel, Docker and the network) | F-FILES-1 | — |
 | A named tunnel on an owned domain instead of the Quick Tunnel (removes the shared parent domain and the address drift) | A-0, B8 | `owner` |
 | Confirm the old GitHub token gitleaks found in local `refs/agents/*` is revoked, then delete those refs (never print them) | Gate | `owner` |
