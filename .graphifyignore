@@ -1,0 +1,29 @@
+# Graphify (docs/graphify.md): paths the code knowledge graph never reads. Graphify already applies
+# .gitignore; the secrets are listed again on purpose, as a second guard if that ever changes.
+dummy_acc.txt
+git.txt
+google_auth.txt
+ollalink.txt
+ollastack.txt
+ollima.txt
+openrouter.txt
+*.txt
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.p12
+
+# Generated, vendored or data: no code relationships worth a node.
+qbank/
+docs/openapi.json
+frontend/apps/app/src/lib/api/contract.gen.ts
+frontend/apps/app/public/
+frontend/apps/app/e2e/*-snapshots/
+docs/screenshots/
+backend/tests/fixtures/
+**/bun.lock
+**/requirements.lock
+graphify-out/

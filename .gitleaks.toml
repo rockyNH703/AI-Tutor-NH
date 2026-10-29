@@ -1,0 +1,25 @@
+# gitleaks configuration for the local security gate (scripts/security.sh): the default rules, plus
+# allowlists for known-fake test values only. Each entry names ONE file, ONE rule and the exact
+# value (condition = "AND": all three must match). Never allowlist a whole path, a directory, a
+# rule, or a real credential: a real one is rotated, not allowlisted. Inline "gitleaks:allow"
+# comments and .gitleaksignore files are ignored by the gate on purpose.
+title = "NetSec AI"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Test settings' secret_key (backend/tests/conftest.py): a fixed fake value for the test app"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^backend/tests/conftest\.py$''']
+regexTarget = "secret"
+regexes = ['''^test\-secret\-key\-that\-is\-long\-enough\-123456$''']
+
+[[allowlists]]
+description = "UnsubscribeRequest sample token in the BFF contract test (frontend/apps/app/src/lib/api/routes.test.ts)"
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^frontend/apps/app/src/lib/api/routes\.test\.ts$''']
+regexTarget = "secret"
+regexes = ['''^abc\.def0123456789$''']

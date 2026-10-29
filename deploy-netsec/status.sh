@@ -2,12 +2,12 @@
 #
 # What production runs, compared with GitHub main. Read-only:
 #
-#   bun run status        (exits 1 unless everything is healthy and "Status: MATCH")
+#   bun run status:netsec        (exits 1 unless everything is healthy and "Status: MATCH")
 #
 # Runs deploy-netsec/server/status.sh on the host over ssh (units, health, what each part runs, the
 # public URL, the last deploys), then prints GitHub main, the production checkout, the commit
 # the backend and the frontend run, and MATCH or MISMATCH. GitHub CI's verdict on the checkout
-# is shown as information only. --host <user@host>, default root@10.1.50.94 (or $DEPLOY_HOST).
+# is shown as information only. --host <user@host>, or $NETSEC_DEPLOY_HOST (one of them is required).
 set -uo pipefail
 HOST=${NETSEC_DEPLOY_HOST:-}
 [ "${1:-}" = --host ] && HOST=${2:?--host needs a value}

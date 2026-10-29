@@ -8,7 +8,7 @@
 # Installs system packages (git included) and Bun, creates /opt/netsecai/{app-state,shared,runtime},
 # checks that the secret files exist, installs the systemd units and the shared PostgreSQL files,
 # and starts PostgreSQL and the backup timer. It never builds or starts the app (the first
-# `bun run deploy` does), never writes secrets and never imports data.
+# `bun run deploy:netsec` does), never writes secrets and never imports data.
 #
 # Safe on a host that runs other services: collision checks run before package installation or
 # any host mutation. Existing Docker is used as is (never replaced, upgraded or restarted).
@@ -110,4 +110,4 @@ else
   assert_database_identity
 fi
 note "PostgreSQL and the nightly backup are running."
-log "host ready. From a workstation: git push origin main && bun run deploy (docs/deployment.md)"
+log "host ready. From a workstation: git push origin main && bun run deploy:netsec (docs/deployment.md)"

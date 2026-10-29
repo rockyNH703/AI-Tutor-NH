@@ -16,12 +16,14 @@
  *   lock:backend   regenerate backend/requirements.lock (hashed, Linux + Python 3.12, in Docker)
  *   smoke          the production smoke after a deploy: the live site as the owner, headed Chrome,
  *                  desktop + emulated iPhone/Android (frontend/apps/app/playwright.smoke.config.ts)
+ *   graph          the code knowledge graph (Graphify, pinned; graphify-out/, local only: docs/graphify.md)
+ *   test:graph     the graph's integration tests on a throwaway fixture (scripts/tests/graph.test.mjs)
  *
  * Production has exactly two commands, both for the whole application: `bun run deploy` and
  * `bun run rollback` (plus the read-only `bun run status`). There is no per-component deploy.
  */
 import { spawn, spawnSync } from "node:child_process";
-import { copyFileSync, existsSync } from "node:fs";
+import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
@@ -30,6 +32,15 @@ const frontend = join(root, "frontend");
 const app = join(frontend, "apps", "app");
 const windows = process.platform === "win32";
 const python = join(backend, ".venv", windows ? "Scripts" : "bin", windows ? "python.exe" : "python");
+// Graphify (docs/graphify.md), pinned after a review of its code: `uv tool run` runs exactly this
+// version in uv's own cache and changes nothing installed. `update` reads code only (AST): no LLM, no
+// network once the package is cached. The review's conditions: no auto-refresh of ~/.claude skill
+// files, no `python -m` re-launch (it would put the working directory first on the import path),
+// an explicit scan root.
+const GRAPHIFY = "graphifyy==0.9.97";
+// Its dependencies resolve no newer than the review (uv --exclude-newer), so the environment stays the reviewed one.
+const GRAPHIFY_REVIEWED = "2026-10-29T00:00:00Z";
+const GRAPHIFY_ENV = { GRAPHIFY_NO_AUTO_REFRESH: "1", PYTHONHASHSEED: "0", PYTHONSAFEPATH: "1" };
 
 function run(label, command, args, cwd, env = {}) {
   console.log(`\n▶ ${label}: ${command} ${args.join(" ")}`);
@@ -123,8 +134,20 @@ const tasks = {
       () => run("backend tests", python, ["-m", "pytest", "-o", "addopts=", "-q", "-ra"], backend),
       () => run("frontend typecheck", "bun", ["run", "typecheck"], frontend),
       () => run("frontend tests", "bun", ["run", "test"], frontend),
-      () => run("deploy gate tests", "bun", ["test", "deploy/tests"], root),
+      () => run("deploy script tests", "bun", ["test", "deploy-netsec/tests"], root),
     ]);
+  },
+  graph() {
+    // `bun run graph -- --rebuild` starts over: graphify refuses to merge into a graph.json it can't
+    // read (it never builds on a broken graph), and a clean rebuild is the recovery. Other extra
+    // arguments go to graphify update (e.g. --force: rebuild even when nothing changed).
+    const extra = process.argv.slice(3);
+    if (extra.includes("--rebuild")) rmSync(join(root, "graphify-out"), { recursive: true, force: true });
+    const args = ["tool", "run", "--exclude-newer", GRAPHIFY_REVIEWED, "--from", GRAPHIFY, "graphify", "update", root, ...extra.filter((a) => a !== "--rebuild")];
+    all([() => run("code graph", "uv", args, root, GRAPHIFY_ENV)]);
+  },
+  "test:graph"() {
+    all([() => run("graph tests", "bun", ["test", "scripts/tests"], root)]);
   },
   smoke() {
     // Extra arguments go to Playwright: bun run smoke -- --project desktop

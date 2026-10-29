@@ -14,6 +14,8 @@
     "contract": "bun scripts/run.mjs contract",
     "lock:backend": "bun scripts/run.mjs lock:backend",
     "smoke": "bun scripts/run.mjs smoke",
+    "graph": "bun scripts/run.mjs graph",
+    "test:graph": "bun scripts/run.mjs test:graph",
     "verify": "bun deploy/verify.mjs",
     "deploy": "bash deploy/deploy.sh",
     "rollback": "bash deploy/rollback.sh",
@@ -22,6 +24,7 @@
     "deploy:netsec": "bash deploy-netsec/deploy.sh",
     "status:netsec": "bash deploy-netsec/status.sh",
     "rollback:netsec": "bash deploy-netsec/rollback.sh",
-    "smoke:netsec": "bash deploy-netsec/smoke.sh"
+    "smoke:netsec": "bash deploy-netsec/smoke.sh",
+    "security": "bash scripts/security.sh"
   }
 }

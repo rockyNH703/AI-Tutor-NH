@@ -23,6 +23,11 @@ while [ $# -gt 0 ]; do
   esac
 done
 cd "$(git rev-parse --show-toplevel)"
+# PadhAI's deploy, kept in the NetSec AI repository as history: never from here (deploy/deploy.sh says why).
+if [ -d deploy-netsec ]; then
+  echo "STOP: this is the NetSec AI repository: deploy/ is PadhAI's and never runs from here. NetSec: bun run rollback:netsec" >&2
+  exit 1
+fi
 if [ -z "$TARGET" ]; then
   TARGET=$(ssh "$HOST" 'cat /opt/aichat/app-state/previous 2>/dev/null' || true)
   [ -n "$TARGET" ] || { echo "STOP: $HOST has no previous deploy recorded; name a commit: bun run rollback -- <commit>" >&2; exit 1; }

@@ -1,0 +1,103 @@
+# NetSec AI's own Semgrep rules, run by the local security gate (scripts/security.sh) next to the
+# registry packs. Keep them few and high-signal; each message says how to fix the finding.
+# Self-test: semgrep --test .semgrep/ (fixtures in .semgrep/tests/, which .semgrepignore skips).
+rules:
+  - id: netsec-sql-text-built-string
+    languages: [python]
+    severity: ERROR
+    message: >-
+      SQL built from a string expression in sqlalchemy text(). Never put values into SQL text:
+      keep the statement a literal and pass values as bind parameters, e.g.
+      text("SELECT ... WHERE id = :id") with {"id": value} (or .bindparams(id=value)). For
+      identifiers use the SQLAlchemy Core API (table(), column(), func.*), not string building.
+    metadata:
+      category: security
+      cwe: "CWE-89: SQL Injection"
+    paths:
+      include:
+        - /backend/app/
+        - /backend/scripts/
+        - /backend/alembic/
+    pattern-either:
+      - pattern: sqlalchemy.text(f"...", ...)
+      - pattern: sqlalchemy.text("..." + $X, ...)
+      - pattern: sqlalchemy.text($X + "...", ...)
+      - pattern: sqlalchemy.text("..." % $X, ...)
+      - pattern: sqlalchemy.text("...".format(...), ...)
+      - pattern: sqlalchemy.sql.text(f"...", ...)
+      - pattern: sqlalchemy.sql.text("..." + $X, ...)
+      - pattern: sqlalchemy.sql.text($X + "...", ...)
+      - pattern: sqlalchemy.sql.text("..." % $X, ...)
+      - pattern: sqlalchemy.sql.text("...".format(...), ...)
+      - pattern: sqlalchemy.sql.expression.text(f"...", ...)
+      - pattern: sqlalchemy.sql.expression.text("..." + $X, ...)
+      - pattern: sqlalchemy.sql.expression.text($X + "...", ...)
+      - pattern: sqlalchemy.sql.expression.text("..." % $X, ...)
+      - pattern: sqlalchemy.sql.expression.text("...".format(...), ...)
+
+  - id: netsec-log-sensitive-value
+    languages: [python]
+    severity: WARNING
+    message: >-
+      A log call passes '$V', which looks like message/document text or a credential. Project
+      rule: logs never contain message or document text, or keys. Log metadata instead (an id,
+      a length, a type, a reason code), e.g. extra={"chars": len(content)}.
+    metadata:
+      category: security
+      cwe: "CWE-532: Insertion of Sensitive Information into Log File"
+    patterns:
+      - pattern-either:
+          - pattern: "$LOG.$METHOD(..., extra={..., $K: $V, ...}, ...)"
+          - pattern: $LOG.$METHOD($MSG, ..., $V, ...)
+          - pattern: $LOG.$METHOD(f"...{$V}...", ...)
+      - metavariable-regex:
+          metavariable: $LOG
+          regex: ^(log|logger|_log|_logger|LOG|LOGGER|logging|root)$
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: ^(debug|info|warning|warn|error|exception|critical|fatal|log)$
+      # The value itself (a name or an attribute), never a function of it: len(content) is fine.
+      - metavariable-regex:
+          metavariable: $V
+          regex: ^([A-Za-z_][A-Za-z0-9_]*\.)*[A-Za-z0-9_]*(content|message_text|body|password|passwd|token|secret|api_key|apikey)$
+
+  - id: netsec-react-dangerously-set-inner-html
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >-
+      dangerouslySetInnerHTML injects raw HTML and bypasses React's escaping (XSS). Render text
+      as children, or render Markdown through the app's sanitizing renderer. The only allowed
+      use is the pre-paint theme script in frontend/apps/app/src/app/layout.tsx (a constant,
+      covered by the CSP); do not add others.
+    metadata:
+      category: security
+      cwe: "CWE-79: Cross-site Scripting"
+    paths:
+      exclude:
+        - /frontend/apps/app/src/app/layout.tsx
+    pattern-either:
+      - pattern: <$EL dangerouslySetInnerHTML={$X} />
+      - pattern: "{..., dangerouslySetInnerHTML: $X, ...}"
+
+  - id: netsec-ts-eval
+    languages: [typescript, javascript]
+    severity: ERROR
+    message: >-
+      Code built from a string at run time (eval / Function). It defeats the CSP (no
+      'unsafe-eval') and turns any string into code. Use real functions, JSON.parse for data,
+      or a lookup table instead.
+    metadata:
+      category: security
+      cwe: "CWE-95: Eval Injection"
+    paths:
+      include:
+        - /frontend/apps/app/src/
+      exclude:
+        - "*.test.ts"
+        - "*.test.tsx"
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: window.eval(...)
+      - pattern: globalThis.eval(...)
+      - pattern: new Function(...)
+      - pattern: Function(...)

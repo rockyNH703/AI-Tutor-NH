@@ -33,6 +33,11 @@ done
 stop() { echo "STOP: $*" >&2; exit 1; }
 
 cd "$(git rev-parse --show-toplevel)"
+# This folder is PadhAI's deploy, kept in the NetSec AI repository as history: it must never ship NetSec
+# code into PadhAI's production (/opt/aichat). NetSec deploys with `bun run deploy:netsec`.
+if [ -d deploy-netsec ] && [ "${DEPLOY_REHEARSAL:-0}" != 1 ]; then
+  stop "this is the NetSec AI repository: deploy/ is PadhAI's production deploy and never runs from here. Deploy NetSec with: bun run deploy:netsec (docs/deployment.md)"
+fi
 . deploy/summary.sh
 if [ "${DEPLOY_REHEARSAL:-0}" = 1 ]; then
   SOURCE=${DEPLOY_REHEARSAL_SOURCE:?DEPLOY_REHEARSAL needs DEPLOY_REHEARSAL_SOURCE (a local repository)}

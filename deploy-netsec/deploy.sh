@@ -3,10 +3,13 @@
 # THE production deploy: GitHub main -> production, doing only what the commit needs.
 #
 #   git push origin main
-#   bun run deploy
+#   bun run deploy:netsec
 #
+# 0. Before any remote action: `bun run security` must have passed this exact commit (its
+#    receipt, .git/netsec-security-gate). GitHub Actions do not run, so this is the enforcement.
+#    NETSEC_SECURITY_GATE=skip:<reason> deploys without it, with a warning in the deploy log.
 # 1. This checkout must be clean and exactly GitHub's main (fetched now): what is deployed is
-#    what is on GitHub. GitHub CI is advisory and never waited for (`bun run status` shows it).
+#    what is on GitHub. GitHub CI is advisory and never waited for (`bun run status:netsec` shows it).
 # 2. The commit is pushed to the production Git repository (/opt/netsecai/app.git on the host).
 # 3. On the host, deploy-netsec/server/update.sh (from this checkout's deploy-netsec/) moves the production
 #    checkout /opt/netsecai/app to the commit, rebuilds and restarts only the parts whose content
@@ -15,8 +18,8 @@
 # 4. It prints GitHub main, the production checkout, what the backend and the frontend run, and
 #    MATCH or MISMATCH.
 #
-#   --host <user@host>   default root@10.1.50.94 (or $DEPLOY_HOST)
-# Roll back: bun run rollback (deploy-netsec/rollback.sh). Docs: docs/deployment.md.
+#   --host <user@host>   default root@10.1.50.94 (or $NETSEC_DEPLOY_HOST, as status, rollback and smoke read it)
+# Roll back: bun run rollback:netsec (deploy-netsec/rollback.sh). Docs: docs/deployment.md.
 set -euo pipefail
 SAFETY_LIB=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/server/safety.sh
 . "$SAFETY_LIB"
@@ -24,7 +27,7 @@ safety_preflight
 
 CANONICAL=https://github.com/rockyNH703/AI-Tutor-NH.git
 PRODUCTION=10.1.50.94
-HOST=${DEPLOY_HOST:-root@$PRODUCTION}
+HOST=${NETSEC_DEPLOY_HOST:-${DEPLOY_HOST:-root@$PRODUCTION}}
 TARGET="" # set by deploy-netsec/rollback.sh: an earlier commit
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -38,6 +41,33 @@ stop() { echo "STOP: $*" >&2; exit 1; }
 
 cd "$(git rev-parse --show-toplevel)"
 . deploy-netsec/summary.sh
+
+# ---------------------------------------------------------------- 0. the security gate
+# scripts/security.sh writes the receipt only for a clean tree whose every step passed. A
+# rollback to an earlier commit of GitHub main is not gated (below): that commit was released
+# before, the receipt covers only the newest scan, and restoring service must not wait on
+# scanners or advisory feeds. A rollback to any other commit is gated like a deploy.
+security_gate() {
+  local sha=$1 receipt reason
+  receipt=$(git rev-parse --git-path netsec-security-gate)
+  case "${NETSEC_SECURITY_GATE:-}" in
+    "") ;;
+    skip:*[![:space:]]*)
+      reason=${NETSEC_SECURITY_GATE#skip:}
+      printf '%s\n' "!!! ====================================================================" \
+        "!!! SECURITY GATE SKIPPED: $sha is released WITHOUT a PASS receipt" \
+        "!!! reason: $reason" "!!! by: $(git config user.name 2> /dev/null || echo unknown)" \
+        "!!! ====================================================================" >&2
+      echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $sha skip:$reason" >> "$(git rev-parse --git-path netsec-security-gate.overrides)"
+      return 0 ;;
+    *) stop "NETSEC_SECURITY_GATE must be skip:<reason> with a non-empty reason" ;;
+  esac
+  grep -qx "commit=$sha" "$receipt" 2> /dev/null && grep -qx "result=PASS" "$receipt" \
+    || stop "no PASS security receipt for $sha ($receipt): run 'bun run security' on this clean commit, then deploy again"
+  echo "==> security gate: PASS receipt for $sha ($(sed -n 's/^time=//p' "$receipt"))"
+}
+[ -n "$TARGET" ] || security_gate "$(git rev-parse HEAD)"
+
 if [ "${DEPLOY_REHEARSAL:-0}" = 1 ]; then
   SOURCE=${DEPLOY_REHEARSAL_SOURCE:?DEPLOY_REHEARSAL needs DEPLOY_REHEARSAL_SOURCE (a local repository)}
   case "$HOST" in *"$PRODUCTION"*) stop "rehearsal mode never deploys to production ($HOST)" ;; esac
@@ -62,6 +92,11 @@ if [ -z "$TARGET" ]; then
 else
   SHA=$(git rev-parse --verify --quiet "$TARGET^{commit}") || stop "$TARGET is not a commit in this repository (git fetch origin)"
   MODE=rollback
+  if [ "$SHA" != "$MAIN" ] && git merge-base --is-ancestor "$SHA" "$MAIN"; then
+    echo "==> security gate: not checked for a rollback to an earlier commit of GitHub main"
+  else
+    security_gate "$SHA"
+  fi
 fi
 echo "==> $MODE $SHA  $(git log -1 --format=%s "$SHA")"
 
@@ -91,5 +126,5 @@ set -e
 echo
 print_summary "$MAIN" "$(grep '^@@STATUS ' "$WORK/out" | tail -1)"
 echo "Time: $(($(date +%s) - START))s"
-[ "$RC" = 0 ] || stop "the $MODE FAILED on $HOST (see above). Whatever was not restarted keeps serving; 'bun run rollback' returns to the previous commit."
+[ "$RC" = 0 ] || stop "the $MODE FAILED on $HOST (see above). Whatever was not restarted keeps serving; 'bun run rollback:netsec' returns to the previous commit."
 [ "$MODE" = rollback ] || [ "$SUMMARY_MATCH" = 1 ] || stop "deployed, but production does not match GitHub main (see above)"

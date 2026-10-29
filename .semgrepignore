@@ -1,0 +1,31 @@
+# Paths Semgrep skips in the security gate (scripts/security.sh). Only generated or vendored
+# files belong here, never first-party source directories (tests are first-party code too).
+# A file here replaces Semgrep's built-in ignore list, so tests/ are scanned.
+
+# Dependencies and build output
+node_modules/
+.venv/
+__pycache__/
+.next/
+.next-*/
+.turbo/
+dist/
+out/
+coverage/
+*.min.js
+
+# Generated
+docs/openapi.json
+frontend/apps/app/src/lib/api/contract.gen.ts
+
+# Content data, not code
+qbank/content/
+
+# Test snapshots (Playwright screenshots, Bun/Jest snapshots) and test run output
+*-snapshots/
+__snapshots__/
+playwright-report/
+test-results/
+
+# This gate's own rule fixtures, which break the rules on purpose (.semgrep/tests/)
+.semgrep/
