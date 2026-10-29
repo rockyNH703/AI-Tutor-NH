@@ -87,7 +87,7 @@ async def stored(app, message_id) -> dict:
 
 
 def test_the_owners_46_intents_in_eight_groups_and_what_is_sent_stays_short():
-    assert TAXONOMY_VERSION == "2026-10-22"
+    assert TAXONOMY_VERSION == "2026-10-29"
     assert list(INTENTS) == IDS and len(IDS) == 46  # the owner's order, which also breaks ties
     assert sorted(name for members in GROUP_MEMBERS.values() for name in members) == sorted(IDS)
     assert list(GROUPS) == [
@@ -353,12 +353,13 @@ async def test_the_chat_applies_an_intent_and_otherwise_stays_the_tutor_as_befor
         _, events = await stream_chat(client, headers, "Check what I remember about light", conversation_id)
         context = (
             "Previous message (context only): What is osmosis?\n"
-            "Tutor's reply, end (context only): You said: What is osmosis?\n"
+            "Assistant's reply, end (context only): You said: What is osmosis?\n"
             "Current message: Check what I remember about light"
         )
         assert texts[-2:] == [context] * 2
         system = fake_llm.calls[-1][0].content
-        assert intent_block("conduct_quiz") in system and "Question bank: it has tests for Classes 6-12" in system
+        menu = "Question bank: its practice tests are stored by level (6-12)"
+        assert intent_block("conduct_quiz") in system and menu in system
         assert (await stored(app, events[-1][1]["message"]["id"]))["intent"]["bankMenu"] == "forced"
 
         # A planning intent is answered from the app's records: no knowledge search.

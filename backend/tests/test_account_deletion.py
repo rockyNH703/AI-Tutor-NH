@@ -185,10 +185,11 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
         headers=headers,
     )
     assert change.status_code == 202, change.text
-    learning = [  # learner profile, subjects, preferences
+    learning = [  # learner profile, subjects, preferences, Engineering Profile
         ("PATCH", "/v1/learning/profile", {"version": 0, "set": {"grade": "class_10", "targetExam": "Boards"}}),
         ("PUT", "/v1/learning/subjects", {"version": 0, "items": [{"code": "mathematics", "isPriority": True}]}),
         ("PATCH", "/v1/learning/preferences", {"version": 0, "set": {"pace": "slow"}}),
+        ("PATCH", "/v1/engineering/profile", {"version": 0, "set": {"role": "soc_analyst", "platforms": ["splunk"]}}),
     ]
     for method, url, body in learning:
         response = await client.request(method, url, json=body, headers=headers)

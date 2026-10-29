@@ -1,4 +1,4 @@
-"""The weekly refresh of the study greetings by the LLM (app-level: one pool for everyone).
+"""The weekly refresh of the greetings above the composer by the LLM (app-level: one pool for everyone).
 
 Lazy, not scheduled: the jobs timer is off in production, so the first GET /v1/greetings of a week
 (Monday, DEFAULT_TIMEZONE) whose pool was written before that Monday starts ONE refresh in the
@@ -41,15 +41,19 @@ TIMEOUT_S = 30.0
 PROMPT = (
     ChatMessage(
         role="system",
-        content="You write the one-line greeting shown above the message box of a study app for school students.",
+        content=(
+            "You write the one-line greeting shown above the message box of NetSec AI, an assistant for "
+            "network, security and infrastructure engineers."
+        ),
     ),
     ChatMessage(
         role="user",
         content=(
-            f"Write {POOL_SIZE} different greetings that invite a student to ask a study question or doubt. "
-            "Each is 4 to 7 words, friendly and encouraging, about studying only, and ends with a full stop, "
-            "question mark or exclamation mark. Plain English, no emoji, no names, no quotes, no numbering. "
-            "One greeting per line and nothing else."
+            f"Write {POOL_SIZE} different greetings that invite an engineer to ask about a network, security or "
+            "infrastructure problem, a lab or certification practice. Each is 4 to 7 words, friendly and "
+            "professional, about engineering work only, and ends with a full stop, question mark or exclamation "
+            "mark. Plain English letters, no emoji, no names, no quotes, no numbering, no slashes or other "
+            "symbols. One greeting per line and nothing else."
         ),
     ),
 )

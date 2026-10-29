@@ -242,7 +242,7 @@ class StudyService:
         """(reason there is no list, the list) for the student's class and this subject."""
         name = subject_name(subject)
         if name is None:
-            raise ValidationFailed("Choose a subject from the list.", code="unknown_subject")
+            raise ValidationFailed("Choose a topic from the list.", code="unknown_subject")
         student = await read_student_context(self.db, user.id)
         grade = re.fullmatch(r"Class (\d{1,2})", student.grade or "")
         if not grade or int(grade.group(1)) not in SERVED_CLASSES:
@@ -255,17 +255,17 @@ class StudyService:
 
     async def _context(self, user: User, subject: str | None, chapter_id: str | None, activity_name: str) -> Context:
         if subject is not None and subject_name(subject) is None:
-            raise ValidationFailed("Choose a subject from the list.", code="unknown_subject")
+            raise ValidationFailed("Choose a topic from the list.", code="unknown_subject")
         if chapter_id is None:
             return Context(subject, None, None, None, activity_name)
         if subject is None:
-            raise ValidationFailed("Choose a subject before a chapter.", code="chapter_needs_subject")
+            raise ValidationFailed("Choose a topic before a domain.", code="chapter_needs_subject")
         reason, chapters = await self.chapter_list(user, subject)
         if reason in ("unavailable", "not_configured"):
-            raise ServiceUnavailable("Chapters are unavailable right now. Continue without a chapter.")
+            raise ServiceUnavailable("Domains are unavailable right now. Continue without a domain.")
         chapter = next((c for c in chapters if c["chapter_id"] == chapter_id), None)
         if chapter is None:
-            raise ValidationFailed("That chapter isn't in this subject for your class.", code="unknown_chapter")
+            raise ValidationFailed("That domain isn't in this topic.", code="unknown_chapter")
         return Context(subject, chapter["chapter_id"], chapter["book_id"], chapter["title"], activity_name)
 
     # ---- reads (never write)
@@ -467,11 +467,11 @@ class StudyService:
     @staticmethod
     def _expect(segment: StudySegment, expected: uuid.UUID) -> None:
         if segment.id != expected:
-            raise Conflict("Your study session changed on another tab or device.", code="study_state_changed")
+            raise Conflict("Your lab session changed on another tab or device.", code="study_state_changed")
 
     @staticmethod
     def _ended() -> Conflict:
-        return Conflict("This study session has already ended.", code="study_session_ended")
+        return Conflict("This lab session has already ended.", code="study_session_ended")
 
     async def change_context(
         self,

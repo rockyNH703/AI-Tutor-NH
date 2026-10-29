@@ -2,11 +2,12 @@
  * Settings, end to end: every section saves to the account, survives a reload and shows up in
  * a second browser (another device), and two tabs never overwrite each other unnoticed.
  *
- * The learning sections have exactly one test each (Academic Profile, Learning Goals, Learning
- * Preferences, AI Tutor, Subjects & Study, Progress & Goals, Notifications; Learning & Streak is
- * in streak.e2e.ts). One test is one section's whole workflow, not one assertion: it keeps every
- * check of the tests it replaced, and ends where the setting takes effect: what the tutor is told
- * (`tutorKnows`), or, for Notifications, that nothing of it reaches the tutor.
+ * The learning sections have exactly one test each (Engineering Profile, Skills & Certification
+ * Goals, Learning Preferences, AI Assistant, Practice & Lab Time, Practice & Goals, Notifications;
+ * Practice Streak is in streak.e2e.ts). One test is one section's whole workflow, not one
+ * assertion: it keeps every check of the tests it replaced, and ends where the setting takes
+ * effect: what the assistant is told (`tutorKnows`), or, for the settings that no longer reach it
+ * (goals, time goals, Notifications), that nothing of them does.
  */
 
 import { type Browser, type Page, expect } from "@playwright/test";
@@ -48,14 +49,15 @@ test("the sections: one address each, one heading each, accessible, no sideways 
   await expect(page).toHaveURL("/settings/profile");
   for (const [slug, heading] of [
     ["profile", "Profile"],
-    ["academic", "Academic Profile"],
-    ["goals", "Learning Goals"],
+    ["engineering", "Engineering Profile"],
+    ["goals", "Skills & Certification Goals"],
     ["learning", "Learning Preferences"],
-    ["tutor", "AI Tutor"],
-    ["subjects", "Subjects & Study"],
-    ["progress", "Progress & Goals"],
-    ["study-tracking", "Study Tracking"],
-    ["streak", "Learning & Streak"],
+    ["tutor", "AI Assistant"],
+    ["memory", "Memory"],
+    ["subjects", "Practice & Lab Time"],
+    ["progress", "Practice & Goals"],
+    ["study-tracking", "Lab Tracking"],
+    ["streak", "Practice Streak"],
     ["notifications", "Notifications"],
     ["appearance", "Appearance & Accessibility"],
     ["privacy", "Privacy & Security"],
@@ -268,89 +270,111 @@ async function apiJson(page: Page, path: string) {
   return (await page.request.get(`${APP_URL}/api${path}`)).json();
 }
 
-test("academic profile: catalog choices, a state only with a state board, saved", async ({ page, account: _ }) => {
+test("engineering profile: catalog choices, chips within their limits, previewed, saved and told", async ({
+  page,
+  account: _,
+}) => {
+  // The old address still works.
   await page.goto("/settings/academic");
-  await page.getByLabel("Class").selectOption({ label: "Class 10" });
-  await expect(page.getByLabel("State", { exact: true })).toHaveCount(0);
-  await page.getByLabel("Board").selectOption({ label: "State board" });
-  await page.getByLabel("State", { exact: true }).selectOption({ label: "Maharashtra" });
-  await page.getByLabel("Medium of instruction").selectOption({ label: "Marathi" });
-  await page.getByLabel("Academic year").selectOption({ label: "2026–27" });
+  await expect(page).toHaveURL("/settings/engineering");
+  await expect(page.getByRole("heading", { level: 2, name: "Engineering Profile" })).toBeVisible();
+
+  await page.getByLabel("Role").selectOption({ label: "Network Engineer" });
+  await page.getByLabel("Experience").selectOption({ label: "Mid-level (3–5 years)" });
+  await page.getByLabel("Certification goal").selectOption({ label: "CCNP Enterprise" });
+
+  const focus = page.getByRole("group", { name: "Focus areas" });
+  const first = "Routing and Switching";
+  const areas = [
+    first,
+    "Wireless LAN",
+    "WAN and SD-WAN",
+    "Firewalls",
+    "VPN (IPsec / SSL)",
+    "Network Security",
+    "Linux",
+    "Network Automation",
+  ];
+  // Checked from the keyboard: Tab reaches a chip, Space checks it.
+  await focus.getByRole("checkbox", { name: first }).focus();
+  await page.keyboard.press("Space");
+  await expect(focus.getByRole("checkbox", { name: first })).toBeChecked();
+  for (const area of areas.slice(1)) await focus.getByRole("checkbox", { name: area }).check();
+  await expect(focus.getByText("8 of 8 chosen, the most you can choose")).toBeVisible();
+  await expect(focus.getByRole("checkbox", { name: "Cloud Infrastructure" })).toBeDisabled();
+  await focus.getByRole("checkbox", { name: "Linux" }).uncheck();
+  await expect(focus.getByRole("checkbox", { name: "Cloud Infrastructure" })).toBeEnabled();
+  await expect(focus.getByText("7 of 8 chosen")).toBeVisible();
+
+  const platforms = page.getByRole("group", { name: "Platforms" });
+  await platforms.getByRole("checkbox", { name: "Cisco IOS / IOS XE" }).check();
+  await platforms.getByRole("checkbox", { name: "Palo Alto Networks PAN-OS" }).check();
+
+  // The preview is what saving would tell the assistant, before saving.
+  await expect(page.getByText("Role: Network Engineer", { exact: false })).toBeVisible();
+  await expectAccessible(page);
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("Academic profile saved.")).toBeVisible();
+  await expect(page.getByText("Engineering Profile saved.")).toBeVisible();
 
   await page.reload();
-  await expect(page.getByLabel("Class")).toHaveValue("class_10");
-  await expect(page.getByLabel("State", { exact: true })).toHaveValue("maharashtra");
+  await expect(page.getByLabel("Role")).toHaveValue("network_engineer");
+  await expect(platforms.getByRole("checkbox", { name: "Palo Alto Networks PAN-OS" })).toBeChecked();
+  const profile = await apiJson(page, "/v1/engineering/profile");
+  expect([profile.role, profile.experienceLevel, profile.certificationGoal, profile.focusAreas.length, profile.platforms]).toEqual([
+    "network_engineer",
+    "mid",
+    "ccnp_enterprise",
+    7,
+    ["cisco_ios", "palo_alto"],
+  ]);
   const told = await tutorKnows(page);
   for (const line of [
-    "Class: Class 10",
-    "Board: State board (Maharashtra)",
-    "Medium of instruction at school: Marathi",
-    "Academic year: 2026–27",
+    "Role: Network Engineer",
+    "Experience: Mid-level (3–5 years)",
+    "Platforms: Cisco IOS / IOS XE; Palo Alto Networks PAN-OS",
+    "Certification goal: CCNP Enterprise",
   ]) {
     expect(told).toContain(line);
   }
 
-  await page.goto("/settings/academic");
-  await page.getByLabel("Board").selectOption({ label: "CBSE" });
-  await expect(page.getByLabel("State", { exact: true })).toHaveCount(0);
+  await page.goto("/settings/engineering");
+  await page.getByLabel("Role").selectOption({ label: "Not set" });
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("Academic profile saved.")).toBeVisible();
-  const profile = await apiJson(page, "/v1/learning/profile");
-  expect([profile.board, profile.boardState, profile.medium]).toEqual(["cbse", null, "marathi"]);
-  const now = await tutorKnows(page);
-  expect(now).toContain("Board: CBSE");
-  expect(now).not.toContain("Maharashtra");
+  await expect(page.getByText("Engineering Profile saved.")).toBeVisible();
+  expect((await apiJson(page, "/v1/engineering/profile")).role).toBeNull();
+  expect(await tutorKnows(page)).not.toContain("Role: Network Engineer");
 });
 
-test("learning goals: topics, study time and goals, saved", async ({ page, account: _ }) => {
+test("skills & certification goals: topics and goals, saved under their old codes", async ({ page, account: _ }) => {
   // Within the API's window for an exam date: from today to two years ahead.
   const exam = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
   await page.goto("/settings/goals");
-  await page.getByLabel("Main goal").selectOption({ label: "Preparing for a competitive exam" });
-  await page.getByLabel("Exam you're preparing for").fill("NEET");
+  await page.getByLabel("Main goal").selectOption({ label: "Prepare for an advanced certification (CCNP, CCIE, OSCP)" });
+  await page.getByLabel("Certification or exam you're preparing for").fill("CCNP ENCOR 350-401");
   await page.getByLabel("Exam date").fill(exam);
   await page.getByLabel("Target score (%)").fill("90");
   const topic = page.getByLabel("Topics you find difficult", { exact: true });
-  await topic.fill("Genetics");
+  await topic.fill("BGP path selection");
   await topic.press("Enter");
-  await topic.fill("genetics");
+  await topic.fill("bgp path selection");
   await topic.press("Enter");
   await expect(page.getByText("That topic is already on the list.")).toBeVisible();
-  await topic.fill("Optics");
+  await topic.fill("OSPF areas");
   await page.getByRole("button", { name: "Add", exact: true }).click();
-  await page.getByRole("button", { name: "Remove Genetics" }).click();
-  await page.getByLabel("Daily goal (minutes)").fill("45");
-  await page.getByLabel("Weekly goal (minutes)").fill("300");
-  await page.getByLabel("Preferred study time").fill("18:30");
-  await page.getByLabel("Short-term goal").fill("Finish biology revision");
+  await page.getByRole("button", { name: "Remove BGP path selection" }).click();
+  await page.getByLabel("Short-term goal").fill("Finish the EIGRP labs");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Goals saved.")).toBeVisible();
 
   await page.reload();
-  await expect(page.getByLabel("Exam you're preparing for")).toHaveValue("NEET");
+  await expect(page.getByLabel("Certification or exam you're preparing for")).toHaveValue("CCNP ENCOR 350-401");
   await expect(page.getByLabel("Exam date")).toHaveValue(exam);
-  await expect(page.getByRole("list", { name: "Your difficult topics" }).getByRole("listitem")).toHaveText(["Optics"]);
+  await expect(page.getByRole("list", { name: "Your difficult topics" }).getByRole("listitem")).toHaveText(["OSPF areas"]);
   const profile = await apiJson(page, "/v1/learning/profile");
-  expect([
-    profile.mainGoal,
-    profile.targetScorePercent,
-    profile.dailyActiveMinutesGoal,
-    profile.preferredStudyTime,
-    profile.examDate,
-  ]).toEqual(["competitive_exam", 90, 45, "18:30", exam]);
+  expect([profile.mainGoal, profile.targetScorePercent, profile.examDate]).toEqual(["competitive_exam", 90, exam]);
+  // Goals are kept for My Learning; the assistant is told the Engineering Profile instead.
   const told = await tutorKnows(page);
-  for (const line of [
-    "Main goal: preparing for a competitive exam",
-    'Preparing for: "NEET"',
-    "Target score: 90%",
-    'Topics they find difficult: "Optics"',
-    'Short-term goal: "Finish biology revision"',
-    "Study time: aims for 45 min a day and 300 min a week; usually studies around 6:30 pm",
-  ]) {
-    expect(told).toContain(line);
-  }
+  for (const text of ["CCNP ENCOR 350-401", "OSPF areas", "Finish the EIGRP labs"]) expect(told).not.toContain(text);
 });
 
 test("learning preferences: saved as they change, in the preview, and told to the tutor", async ({ page, account: _ }) => {
@@ -375,7 +399,7 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
 }) => {
   const answers = page.getByRole("group", { name: "How it answers problems" });
   await page.goto("/settings/tutor");
-  await expect(page.getByRole("heading", { name: "What your tutor is told" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What NetSec AI is told" })).toBeVisible();
   await answers.getByRole("radio", { name: "Hint first" }).check();
   await expect(page.getByText("start with a hint", { exact: false })).toBeVisible();
   await expectAccessible(page);
@@ -387,44 +411,30 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
   await expect(page.getByText("start with a hint", { exact: false })).toHaveCount(0);
 });
 
-test("subjects: added, reordered from the keyboard, flagged and saved", async ({ page, account: _ }) => {
+test("practice & lab time: time goals saved, and the way to the Engineering Profile", async ({ page, account: _ }) => {
   await page.goto("/settings/subjects");
-  for (const subject of ["Mathematics", "Physics", "Chemistry"]) {
-    await page.getByLabel("Add a subject").selectOption({ label: subject });
-    await page.getByRole("button", { name: "Add", exact: true }).click();
-  }
-  const rows = page.getByRole("list", { name: "Your subjects" }).getByRole("listitem");
-  await expect(rows).toHaveCount(3);
-
-  const up = page.getByRole("button", { name: "Move Chemistry up" });
-  await up.focus();
-  await page.keyboard.press("Enter");
-  await expect(up).toBeFocused(); // focus follows the subject it moved
-  await page.keyboard.press("Enter");
-  await expect(rows.first()).toContainText("Chemistry");
-  await expect(page.getByRole("button", { name: "Move Chemistry down" })).toBeFocused(); // at the top: up is disabled
-
-  await page.getByRole("checkbox", { name: "Priority: Physics" }).check();
+  await expect(page.getByRole("heading", { level: 2, name: "Practice & Lab Time" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Your subjects" })).toHaveCount(0); // superseded by focus areas
+  await page.getByLabel("Daily goal (minutes)").fill("45");
+  await page.getByLabel("Weekly goal (minutes)").fill("300");
+  await page.getByLabel("Preferred practice time").fill("18:30");
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("Subjects saved.")).toBeVisible();
+  await expect(page.getByText("Practice goals saved.")).toBeVisible();
 
   await page.reload();
-  await expect(rows).toHaveCount(3);
-  const saved = await apiJson(page, "/v1/learning/subjects");
-  expect(saved.items.map((item: { code: string }) => item.code)).toEqual(["chemistry", "mathematics", "physics"]);
-  expect(saved.items[2].isPriority).toBe(true);
-  expect(await tutorKnows(page)).toContain("Subjects: Chemistry, Mathematics, Physics (a priority)");
+  await expect(page.getByLabel("Daily goal (minutes)")).toHaveValue("45");
+  const profile = await apiJson(page, "/v1/learning/profile");
+  expect([profile.dailyActiveMinutesGoal, profile.weeklyActiveMinutesGoal, profile.preferredStudyTime]).toEqual([45, 300, "18:30"]);
+  await expectAccessible(page);
 
-  await page.goto("/settings/subjects");
-  await page.getByRole("button", { name: "Remove Mathematics" }).click();
-  await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("Subjects saved.")).toBeVisible();
-  expect((await apiJson(page, "/v1/learning/subjects")).items).toHaveLength(2);
+  await page.getByRole("main").getByRole("link", { name: "Engineering Profile" }).click();
+  await expect(page).toHaveURL("/settings/engineering");
+  expect(await tutorKnows(page)).not.toContain("45 min");
 });
 
 // ------------------------------------------------------------------ progress
 
-const headerStreak = (page: Page) => page.getByRole("banner").getByRole("link", { name: /day learning streak/ });
+const headerStreak = (page: Page) => page.getByRole("banner").getByRole("link", { name: /day practice streak/ });
 /** A number on the Progress page, by its label (the first, when Today and This week share one). */
 const stat = (page: Page, label: string) =>
   page.locator("dt", { hasText: new RegExp(`^${label}$`) }).first().locator("xpath=following-sibling::dd");
@@ -439,15 +449,15 @@ test("progress: a question and an active minute count today, and the tutor is to
   expect(report.status()).toBe(200);
   expect((await report.json()).credited).toBe(true);
   await page.reload();
-  await expect(headerStreak(page)).toHaveAccessibleName(/^1 day learning streak$/);
+  await expect(headerStreak(page)).toHaveAccessibleName(/^1 day practice streak$/);
   const chat = new URL(page.url()).pathname;
 
   await openSettingsFromSidebar(page);
-  await page.getByRole("navigation", { name: "Settings sections" }).getByRole("link", { name: "Progress & Goals" }).click();
+  await page.getByRole("navigation", { name: "Settings sections" }).getByRole("link", { name: "Practice & Goals" }).click();
   await expect(page).toHaveURL("/settings/progress");
   await expect(page.getByText("about 1 min").first()).toBeVisible();
   await expect(stat(page, "question")).toHaveText("1");
-  await expect(page.getByRole("link", { name: "Learning & Streak" }).last()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Practice Streak" }).last()).toBeVisible();
 
   // The chart: one tab stop, arrow keys move between days, and every value is in the table too.
   const bars = page.getByRole("group", { name: /Active minutes, last 14 days/ }).getByRole("img");
@@ -471,7 +481,7 @@ test("progress: a question and an active minute count today, and the tutor is to
 
   await page.getByRole("link", { name: "Close settings" }).click();
   await expect(page).toHaveURL(chat);
-  await expect(page.getByRole("navigation", { name: "Recent Doubts" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Chats", exact: true })).toBeVisible();
   // Before this question is counted: the one real question, and the minute (or more) credited.
   expect(await tutorKnows(page)).toMatch(/Learning so far: a 1-day learning streak; today \d+ min active and 1 question/);
 });
@@ -484,7 +494,7 @@ test("the heartbeat reports a minute while NetSec AI is used, and stops when it 
   await page.clock.install();
   await page.goto("/settings/progress");
   await expect(stat(page, "questions?")).toBeVisible();
-  await page.getByRole("heading", { level: 2, name: "Progress & Goals" }).click();
+  await page.getByRole("heading", { level: 2, name: "Practice & Goals" }).click();
 
   await page.clock.runFor(61_000);
   await expect.poll(() => reports.length).toBe(1);
@@ -581,7 +591,7 @@ test("unsubscribe: works signed out, asks first, refuses a link we didn't sign",
 
   await page.goto(`/unsubscribe?token=${fakeToken("daily_reminder")}`);
   await expect(page).toHaveURL(/\/unsubscribe\?token=/); // not sent to sign in
-  await expect(page.getByRole("heading", { level: 1, name: "Stop daily study reminders?" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Stop daily practice reminders?" })).toBeVisible();
   expect(posts).toHaveLength(0); // opening the link changes nothing
   await expectAccessible(page);
   await page.getByRole("button", { name: "Unsubscribe" }).click();

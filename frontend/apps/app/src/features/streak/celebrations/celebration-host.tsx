@@ -166,20 +166,20 @@ export function CelebrationHost() {
 function words(item: Celebration): { title: string; body: string; action: string } {
   switch (item.kind) {
     case "started":
-      return { title: "Your streak has started!", body: "Day 1. Ask a question tomorrow to keep it going.", action: "Continue" };
+      return { title: "Practice streak started", body: "Day 1. Practise again tomorrow to keep it going.", action: "Continue" };
     case "extended":
-      return { title: "Daily goal complete!", body: "Come back tomorrow to keep your flame burning.", action: "Continue" };
+      return { title: "Today's practice is done", body: "Come back tomorrow to keep your practice streak going.", action: "Continue" };
     case "milestone":
       return {
-        title: `${item.streak}-day streak!`,
-        body: `${item.streak === 7 ? "A whole week" : `${item.streak / 7} weeks`} of learning in a row. Keep it going!`,
-        action: "Keep learning",
+        title: `${item.streak}-day practice streak`,
+        body: `${item.streak === 7 ? "A full week" : `${item.streak / 7} weeks`} of practice in a row.`,
+        action: "Continue",
       };
     case "lost":
       return {
         title: "A fresh start",
-        body: `Your ${item.previous}-day streak has reset. Ask a question today to begin a new one.`,
-        action: "Start learning",
+        body: `Your ${item.previous}-day practice streak has reset. Practise today to begin a new one.`,
+        action: "Start practising",
       };
   }
 }
@@ -239,7 +239,7 @@ function StreakCount({ streak }: { streak: number }) {
         {count}
       </span>{" "}
       day streak
-      <span className="sr-only">: your learning streak is now {streak} days</span>
+      <span className="sr-only">: your practice streak is now {streak} days</span>
     </p>
   );
 }

@@ -149,5 +149,5 @@ async def current_greeting(
     chosen = pick([Greeting(*row) for row in rows], week)
     if chosen is None:
         log.warning("no active study greeting", extra={"week_of": week.isoformat()})
-        raise NotFound("No study greeting is live this week.")
+        raise NotFound("No greeting is live this week.")
     return StudyGreetingResponse(text=chosen.text, week_of=week)

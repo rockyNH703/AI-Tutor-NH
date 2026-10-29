@@ -82,7 +82,7 @@ export function AppearanceSection() {
             />
             <ToggleRow
               label="Comfortable reading"
-              description="More space between lines, letters and words in the tutor's answers."
+              description="More space between lines, letters and words in NetSec AI's answers."
               checked={appearance.readingComfort}
               onCheckedChange={(readingComfort) => context.change({ readingComfort })}
             />

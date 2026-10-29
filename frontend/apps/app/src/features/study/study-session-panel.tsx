@@ -31,9 +31,9 @@ export function tabStatus(study: StudySnapshot, pathname: string | null): TabSta
 }
 
 export const STATUS_LABELS: Record<TabStatus, string> = {
-  studying: "Studying",
+  studying: "Practising",
   idle: "Idle",
-  prompting: "Still studying?",
+  prompting: "Still practising?",
   paused: "Paused",
   elsewhere: "Not counted on this page",
   offline: "Offline, not counted",
@@ -48,15 +48,15 @@ export function endedNote(session: StudySession): string | null {
   if (!session.endedAt) return null;
   if (session.endReason === "stale") {
     // 15 minutes without study activity, or an hour paused: it ends at the last activity.
-    return `Your study session ended at ${time(session.endedAt)}, after a while with no study activity.`;
+    return `Your lab session ended at ${time(session.endedAt)}, after a while with no lab activity.`;
   }
-  if (session.endReason === "limit") return `Your study session ended at ${time(session.endedAt)}: sessions stop after 8 hours.`;
+  if (session.endReason === "limit") return `Your lab session ended at ${time(session.endedAt)}: sessions stop after 8 hours.`;
   return null;
 }
 
 function useSubjectName(): (code: string | null) => string {
   const { catalog } = useCatalog();
-  return (code) => (code ? (catalog?.subjects.find((entry) => entry.code === code)?.name ?? code) : "No subject");
+  return (code) => (code ? (catalog?.subjects.find((entry) => entry.code === code)?.name ?? code) : "No exam track");
 }
 
 function contextLine(session: StudySession, subjectName: (code: string | null) => string): string {
@@ -68,9 +68,9 @@ function contextLine(session: StudySession, subjectName: (code: string | null) =
 }
 
 const CHAPTER_REASONS: Record<NonNullable<StudyChapters["reason"]>, string> = {
-  no_class: "To choose a chapter, set your class (6 to 12) in Academic Profile.",
-  unavailable: "Chapters can't be loaded right now. You can study without choosing one.",
-  not_configured: "Chapters aren't available. You can study without choosing one.",
+  no_class: "Domains for lab sessions arrive with the certification question bank, which isn't loaded yet.",
+  unavailable: "Domains can't be loaded right now. You can practise without choosing one.",
+  not_configured: "Domains aren't available. You can practise without choosing one.",
 };
 
 /** Subject, chapter (NCERT, optional) and activity: for starting a session or changing it. */
@@ -117,7 +117,7 @@ function ContextForm({
     >
       <div className="flex flex-col gap-1.5">
         <label htmlFor={`${id}-subject`} className="text-sm font-bold text-foreground">
-          Subject
+          Exam track
         </label>
         <select
           id={`${id}-subject`}
@@ -128,7 +128,7 @@ function ContextForm({
           }}
           className={selectClass}
         >
-          <option value="">No subject</option>
+          <option value="">No exam track</option>
           {catalog?.subjects.map((entry) => (
             <option key={entry.code} value={entry.code}>
               {entry.name}
@@ -139,7 +139,7 @@ function ContextForm({
       {subject && (
         <div className="flex flex-col gap-1.5">
           <label htmlFor={`${id}-chapter`} className="text-sm font-bold text-foreground">
-            Chapter <span className="font-normal text-text-secondary">(optional)</span>
+            Domain <span className="font-normal text-text-secondary">(optional)</span>
           </label>
           <select
             id={`${id}-chapter`}
@@ -149,7 +149,7 @@ function ContextForm({
             aria-describedby={chapters && chapters !== "loading" && !chapters.available ? `${id}-chapter-note` : undefined}
             className={cn(selectClass, "disabled:opacity-60")}
           >
-            <option value="">{chapters === "loading" ? "Loading chapters…" : "No chapter"}</option>
+            <option value="">{chapters === "loading" ? "Loading domains…" : "No domain"}</option>
             {chapters !== "loading" &&
               chapters?.chapters.map((chapter) => (
                 <option key={chapter.chapterId} value={chapter.chapterId}>
@@ -165,7 +165,7 @@ function ContextForm({
                 <>
                   {" "}
                   <Link href="/settings/academic" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-                    Set your class
+                    Set your level
                   </Link>
                 </>
               )}
@@ -220,13 +220,13 @@ export function StudySessionPanel() {
   if (!study.server) {
     return study.loadError ? (
       <p role="alert" className="text-sm text-text-secondary">
-        Study time can't be loaded right now.{" "}
+        Lab time can't be loaded right now.{" "}
         <button type="button" onClick={() => void studyStore.refresh()} className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
           Try again
         </button>
       </p>
     ) : (
-      <p className="text-sm text-text-secondary">Loading your study session…</p>
+      <p className="text-sm text-text-secondary">Loading your lab session…</p>
     );
   }
 
@@ -240,7 +240,7 @@ export function StudySessionPanel() {
       {!session && note && lastEnded && (
         <div role="status" className="rounded-xl border border-border bg-surface px-3.5 py-3 text-sm text-foreground">
           <p>{note}</p>
-          <p className="mt-1 text-text-secondary">It counted {formatStudyTime(lastEnded.activeSeconds)} of estimated study time.</p>
+          <p className="mt-1 text-text-secondary">It counted {formatStudyTime(lastEnded.activeSeconds)} of estimated lab time.</p>
           <button
             type="button"
             onClick={() => studyStore.dismissEnded(lastEnded.id)}
@@ -254,11 +254,11 @@ export function StudySessionPanel() {
       {!session ? (
         <>
           <p className="text-sm text-text-secondary">
-            Start a session when you sit down to study. Time counts only while this page is on screen, on the tutor or your
+            Start a session when you sit down to practise. Time counts only while this page is on screen, in the chat or your
             files, and you're active.
           </p>
           <ContextForm
-            submitLabel="Start studying"
+            submitLabel="Start session"
             onSubmit={(context) => void studyStore.start(context)}
           />
         </>
@@ -282,14 +282,14 @@ export function StudySessionPanel() {
           </div>
           {status === "prompting" && (
             <div role="alert" className="flex flex-wrap items-center gap-2 rounded-xl border border-brand/20 bg-brand-soft px-3.5 py-2.5 text-sm">
-              <span>Still studying? Without a reply, this tab stops counting in a moment.</span>
+              <span>Still practising? Without a reply, this tab stops counting in a moment.</span>
               <Button size="sm" onClick={() => studyStore.activate?.()}>
                 Yes, I'm here
               </Button>
             </div>
           )}
           <dl className="grid grid-cols-3 gap-3">
-            <Seconds label="estimated study" value={session.activeSeconds} />
+            <Seconds label="estimated lab time" value={session.activeSeconds} />
             <Seconds label="idle" value={session.idleSeconds} />
             <Seconds label="paused" value={session.pausedSeconds} />
           </dl>
@@ -304,7 +304,7 @@ export function StudySessionPanel() {
               </Button>
             )}
             <Button variant="outline" disabled={study.pending !== null} onClick={() => setChanging(true)}>
-              Change subject or activity
+              Change track or activity
             </Button>
             <Button variant="ghost" disabled={study.pending !== null} onClick={() => setEnding(true)}>
               End session
@@ -313,8 +313,8 @@ export function StudySessionPanel() {
           <ConfirmDialog
             open={ending}
             onOpenChange={setEnding}
-            title="End this study session?"
-            description={`It has ${formatStudyTime(session.activeSeconds)} of estimated study time so far. You can start a new one any time.`}
+            title="End this lab session?"
+            description={`It has ${formatStudyTime(session.activeSeconds)} of estimated lab time so far. You can start a new one any time.`}
             confirmLabel="End session"
             pending={study.pending === "end"}
             onConfirm={async () => {

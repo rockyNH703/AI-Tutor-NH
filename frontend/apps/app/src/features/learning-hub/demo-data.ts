@@ -7,38 +7,38 @@
  * exists. Search for an import of this file to find everything still waiting.
  */
 
-/** Homework Helper: one worked example. */
+/** Troubleshooter: one worked example. */
 export const HOMEWORK_EXAMPLE = {
-  source: "Class 10 CBSE Math NCERT Ch 4",
-  question: "Find the roots of the equation 2x² - 5x + 3 = 0 by factorization method.",
+  source: "Cisco IOS · show interfaces",
+  question: "GigabitEthernet0/1 is up, line protocol is down after the uplink cable was replaced.",
   steps: [
     {
-      title: "Step 1: Split the middle term (-5x)",
-      note: "Product needed = 2 × 3 = 6. Sum needed = -5. Factors are -2 and -3.",
-      work: ["2x² - 2x - 3x + 3 = 0"],
+      title: "Step 1: Check layer 1 and 2",
+      note: "Interface up but line protocol down points at cabling, optics or a speed/duplex mismatch.",
+      work: ["show interfaces gi0/1 | include duplex|CRC", "Full-duplex, 1000Mb/s · 2290 CRC"],
     },
-    { title: "Step 2: Factor by grouping", note: null, work: ["2x(x - 1) - 3(x - 1) = 0", "(2x - 3)(x - 1) = 0"] },
+    { title: "Step 2: Match the far end", note: null, work: ["interface gi0/1", "speed auto", "duplex auto"] },
   ],
-  answer: "Roots are x = 3/2 and x = 1",
+  answer: "Set speed and duplex to auto on both ends (or the same fixed values); replace the cable if CRC errors continue.",
 } as const;
 
 /** Summarizer: one summary. */
 export const SUMMARY_EXAMPLE = {
-  title: "Key Summary: Metals & Non-Metals (Class 10)",
+  title: "Key Summary: OSPF adjacency troubleshooting",
   readTime: "2 Min Read",
   points: [
     {
-      term: "Physical Properties",
-      text: "Metals are malleable, ductile, and good conductors of electricity. Non-metals are brittle and non-conductive (except Graphite).",
+      term: "Neighbor states",
+      text: "Down, Init, 2-Way, ExStart, Exchange, Loading, Full. Stuck in ExStart or Exchange usually means an MTU mismatch.",
     },
     {
-      term: "Amphoteric Oxides",
-      text: "Metal oxides that react with both acids and bases to produce salt and water (e.g., Al₂O₃, ZnO).",
+      term: "Must match",
+      text: "Area ID, subnet and mask, hello and dead timers, authentication and stub flags must agree on both ends.",
     },
     {
-      term: "Reactivity Series",
-      text: "Potassium (K) & Sodium (Na) are most reactive; Gold (Au) & Platinum (Pt) are least.",
+      term: "Router ID",
+      text: "Duplicate router IDs stop adjacencies forming and make LSAs flap; set them explicitly.",
     },
-    { term: "Ionic Bonds", text: "Formed by complete transfer of electrons from metals to non-metals (High melting point)." },
+    { term: "Useful commands", text: "show ip ospf neighbor, show ip ospf interface, debug ip ospf adj." },
   ],
 } as const;

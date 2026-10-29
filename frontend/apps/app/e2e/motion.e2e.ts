@@ -240,7 +240,7 @@ test("sending, streaming, menus and Settings shift nothing on the page", async (
   await waitForIdle(page);
   await openSettingsFromSidebar(page);
   const nav = page.getByRole("navigation", { name: "Settings sections" });
-  for (const name of ["Notifications", "Learning & Streak", "Appearance & Accessibility"]) {
+  for (const name of ["Notifications", "Practice Streak", "Appearance & Accessibility"]) {
     await nav.getByRole("link", { name, exact: true }).click();
     await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
   }

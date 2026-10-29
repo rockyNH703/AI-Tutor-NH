@@ -22,19 +22,19 @@ export function StudyTrackingSection() {
   return (
     <>
       <SectionHeading
-        title="Study Tracking"
-        description="How NetSec AI estimates your study time in the study sessions you start. You'll find the numbers in Study Activity."
+        title="Lab Tracking"
+        description="How NetSec AI estimates your lab time in the lab sessions you start. You'll find the numbers in Lab Activity."
       />
       <div className="flex flex-col gap-4">
         <Notice>
-          Study time is an estimate of learning activity, not proof of attention or understanding. Only you can see it, and it
+          Lab time is an estimate of practice activity, not proof of attention or understanding. Only you can see it, and it
           is never compared with anyone else's.
         </Notice>
-        <SettingsCard title="What counts as study time">
+        <SettingsCard title="What counts as lab time">
           <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-text-secondary">
-            <li>A study session you started is running (not paused).</li>
-            <li>You're on the tutor or your File Library, and that page is on screen.</li>
-            <li>You're active: typing, clicking, scrolling or touching, or the tutor is writing you an answer.</li>
+            <li>A lab session you started is running (not paused).</li>
+            <li>You're in the chat or your File Library, and that page is on screen.</li>
+            <li>You're active: typing, clicking, scrolling or touching, or NetSec AI is writing you an answer.</li>
             <li>
               Several tabs or devices at once count once. Time offline, or when NetSec AI didn't hear from your device, isn't
               counted and is never added later.
@@ -43,27 +43,27 @@ export function StudyTrackingSection() {
         </SettingsCard>
         <SettingsCard title="Idle">
           <p className="text-sm leading-relaxed text-text-secondary">
-            While reading or revising, you become idle after {reading} without any input; shortly before, NetSec AI asks whether
-            you're still studying. While practising or taking a test, after {solving}. Idle time is shown, but isn't study time.
-            These limits are the same for every student and can't be changed.
+            While reading or reviewing, you become idle after {reading} without any input; shortly before, NetSec AI asks whether
+            you're still practising. While practising or taking a test, after {solving}. Idle time is shown, but isn't lab time.
+            These limits are the same for everyone and can't be changed.
           </p>
         </SettingsCard>
         <SettingsCard title="Hidden tabs and other pages">
           <p className="text-sm leading-relaxed text-text-secondary">
-            When NetSec AI is in a hidden tab or a minimised window, or you're in Settings, Help or Study Activity, the session keeps
-            running but the time isn't counted. Time in NetSec AI (any time the app is open, studying or not) is shown separately.
+            When NetSec AI is in a hidden tab or a minimised window, or you're in Settings, Help or Lab Activity, the session keeps
+            running but the time isn't counted. Time in NetSec AI (any time the app is open, practising or not) is shown separately.
           </p>
         </SettingsCard>
         <SettingsCard title="Pause, resume and end">
           <p className="text-sm leading-relaxed text-text-secondary">
-            Paused time never counts. A session ends when you end it; after 15 minutes without study activity it ends by
+            Paused time never counts. A session ends when you end it; after 15 minutes without lab activity it ends by
             itself at your last activity (after an hour, if paused), and every session stops after 8 hours.
           </p>
         </SettingsCard>
         <p className="text-sm text-text-secondary">
-          See your study time in{" "}
+          See your lab time in{" "}
           <Link href="/study" className={link}>
-            Study Activity
+            Lab Activity
           </Link>
           .
         </p>

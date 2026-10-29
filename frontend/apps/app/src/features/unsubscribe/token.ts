@@ -1,11 +1,11 @@
 /**
  * What an unsubscribe link is for, read from its token only to word the page ("Stop daily
- * study reminders?"). The token is `base64url("<user id>:<kind>").<signature>`; only the API
+ * practice reminders?"). The token is `base64url("<user id>:<kind>").<signature>`; only the API
  * can check the signature, and it alone decides what is switched off.
  */
 export const EMAIL_KINDS = {
-  daily_reminder: "daily study reminders",
-  streak_warning: "streak reminders",
+  daily_reminder: "daily practice reminders",
+  streak_warning: "practice streak reminders",
   weekly_summary: "weekly summaries",
   security_sign_in: "new sign-in alerts",
 } as const;

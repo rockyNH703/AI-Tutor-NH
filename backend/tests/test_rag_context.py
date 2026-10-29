@@ -102,3 +102,22 @@ def test_personal_memory_uses_budget_before_earlier_history_but_never_drops_late
     assert out.messages[-1].content == "latest"
     assert "M" * 40 in out.messages[1].content
     assert out.history_dropped == 2
+
+
+def test_a_source_with_vendor_platform_and_version_names_them_in_its_label():
+    labelled = doc(1)
+    labelled.metadata["attributes"] = {
+        "version": "17.9",
+        "vendor": "cisco",
+        "platform": "ios-xe\n(catalyst; 9300)",  # one line, nothing that ends the label early
+        "audience": "ignored",  # only vendor, platform and version are shown
+    }
+    long = doc(2)
+    long.metadata["attributes"] = {"vendor": "v" * 60, "platform": None, "version": True}
+    docs = [labelled, long, doc(3)]
+    out = build_llm_messages(SYSTEM, convo("q"), docs, max_input_chars=100_000, max_context_chars=10_000)
+    context = out.messages[1].content
+    assert "[1] T1 (source: kb; vendor: cisco; platform: ios-xe catalyst, 9300; version: 17.9)\nchunk1" in context
+    assert f"[2] T2 (source: kb; vendor: {'v' * 39}…)\nchunk2" in context
+    assert "[3] T3 (source: kb)\nchunk3" in context  # no attributes: the label as it always was
+    assert "audience" not in context

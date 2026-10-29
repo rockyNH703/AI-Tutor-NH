@@ -77,13 +77,13 @@ const STATUS_TEXT = {
   paused: "Paused",
   ended: "Ended",
 } as const;
-const END_TEXT = { ended: "you ended it", stale: "no study activity", limit: "8-hour limit" } as const;
+const END_TEXT = { ended: "you ended it", stale: "no lab activity", limit: "8-hour limit" } as const;
 
 function when(iso: string): string {
   return new Date(iso).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 }
 
-/** The day's goal is the existing active-time goal (Learning Goals), shown as it is measured. */
+/** The day's goal is the existing active-time goal (Settings > Practice & Lab Time), shown as it is measured. */
 function DailyGoal() {
   const [progress, setProgress] = useState<Progress | null | "failed">(null);
   useEffect(() => {
@@ -103,8 +103,8 @@ function DailyGoal() {
     return (
       <p className="text-sm text-text-secondary">
         You haven't set a daily goal.{" "}
-        <Link href="/settings/goals" className={link}>
-          Set one in Learning Goals
+        <Link href="/settings/subjects" className={link}>
+          Set one in Practice &amp; Lab Time
         </Link>
         .
       </p>
@@ -113,7 +113,7 @@ function DailyGoal() {
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-text-secondary">
-        Your goal is measured in active time in NetSec AI (any use of the app), not study time: today {progress.today.activeMinutes}{" "}
+        Your goal is measured in active time in NetSec AI (any use of the app), not lab time: today {progress.today.activeMinutes}{" "}
         min.
       </p>
       <GoalBar done={progress.today.activeMinutes} goal={goal} label="Today's goal" />
@@ -138,7 +138,7 @@ export function StudySummaryContent({
   if (error) {
     return (
       <ErrorState
-        title="Couldn't load your study activity"
+        title="Couldn't load your lab activity"
         description={describeError(error).message}
         action={
           <Button variant="outline" onClick={onRetry}>
@@ -150,7 +150,7 @@ export function StudySummaryContent({
   }
   if (!shown) {
     return (
-      <SkeletonGroup label="Loading your study activity" className="space-y-3">
+      <SkeletonGroup label="Loading your lab activity" className="space-y-3">
         <Skeleton className="h-28 w-full rounded-2xl" />
         <Skeleton className="h-56 w-full rounded-2xl" />
       </SkeletonGroup>
@@ -161,7 +161,7 @@ export function StudySummaryContent({
       <EmptyState
         icon={Timer}
         title="Nothing recorded yet"
-        description="Start a study session from the tutor or your files: your estimated study time will show here."
+        description="Start a lab session from the chat or your files: your estimated lab time will show here."
         action={null}
       />
     );
@@ -172,20 +172,20 @@ export function StudySummaryContent({
         <dl className="grid gap-5 sm:grid-cols-2">
           <Stat
             value={formatStudyTime(shown.totals.activeSeconds)}
-            label="estimated study time"
-            hint="Active learning in your study sessions."
+            label="estimated lab time"
+            hint="Active practice in your lab sessions."
           />
           <Stat
             value={formatStudyTime(shown.totals.appSeconds)}
             label="time in NetSec AI"
-            hint="Any time NetSec AI was open, studying or not."
+            hint="Any time NetSec AI was open, practising or not."
           />
         </dl>
         <dl className="mt-5 grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-3">
           <Stat
             value={formatStudyTime(shown.totals.activeSeconds)}
             label="active"
-            hint="In a running session, on the tutor or your files, page on screen, and you were active."
+            hint="In a running session, in the chat or your files, page on screen, and you were active."
           />
           <Stat
             value={formatStudyTime(shown.totals.idleSeconds)}
@@ -196,7 +196,7 @@ export function StudySummaryContent({
         </dl>
         {shown.firstRecordedDate > shown.from && (
           <p className="mt-4 text-2xs text-text-secondary">
-            Study time has been recorded since {new Date(`${shown.firstRecordedDate}T00:00:00`).toLocaleDateString()}: earlier
+            Lab time has been recorded since {new Date(`${shown.firstRecordedDate}T00:00:00`).toLocaleDateString()}: earlier
             days have no data.
           </p>
         )}
@@ -211,22 +211,22 @@ export function StudySummaryContent({
           <ActivityChart
             days={shown.days.map((day) => ({ date: day.date, activeMinutes: Math.floor(day.activeSeconds / 60) }))}
             goal={null}
-            title={`Estimated study minutes, last ${shown.days.length} days`}
-            valueLabel="of estimated study"
-            columnLabel="Study time"
+            title={`Estimated lab minutes, last ${shown.days.length} days`}
+            valueLabel="of estimated lab time"
+            columnLabel="Lab time"
           />
         </Panel>
       )}
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Panel id="study-subjects" title="By subject">
+        <Panel id="study-subjects" title="By exam track">
           <Breakdown
             rows={shown.subjects.map((row) => ({
               key: row.subject ?? "none",
               label: subjectName(row.subject),
               seconds: row.activeSeconds,
             }))}
-            empty="No study time in this range."
+            empty="No lab time in this range."
           />
         </Panel>
         <Panel id="study-activities" title="By activity">
@@ -236,19 +236,19 @@ export function StudySummaryContent({
               label: ACTIVITY_LABELS[row.activity],
               seconds: row.activeSeconds,
             }))}
-            empty="No study time in this range."
+            empty="No lab time in this range."
           />
         </Panel>
       </div>
 
-      <Panel id="study-chapters" title="By chapter">
+      <Panel id="study-chapters" title="By domain">
         <Breakdown
           rows={shown.chapters.map((row) => ({
             key: row.chapterId,
             label: `${row.chapterTitle}${row.subject ? ` (${subjectName(row.subject)})` : ""}`,
             seconds: row.activeSeconds,
           }))}
-          empty="No chapter was chosen for study time in this range."
+          empty="No domain was chosen for lab time in this range."
         />
       </Panel>
 
@@ -260,7 +260,7 @@ export function StudySummaryContent({
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
                   <span className="font-semibold text-foreground">{when(session.startedAt)}</span>
                   <span className="tabular-nums text-text-secondary">
-                    {formatStudyTime(session.activeSeconds)} study · {formatStudyTime(session.durationSeconds)} long
+                    {formatStudyTime(session.activeSeconds)} lab time · {formatStudyTime(session.durationSeconds)} long
                   </span>
                 </div>
                 <p className="text-xs text-text-secondary">
@@ -275,7 +275,7 @@ export function StudySummaryContent({
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-text-secondary">No study sessions in this range.</p>
+          <p className="text-sm text-text-secondary">No lab sessions in this range.</p>
         )}
       </Panel>
     </>
@@ -310,14 +310,14 @@ export function StudyActivityView() {
   }, [range, sessionKey, attempt]);
 
   const subjectName = (code: string | null) =>
-    code ? (catalog?.subjects.find((entry) => entry.code === code)?.name ?? code) : "No subject chosen";
+    code ? (catalog?.subjects.find((entry) => entry.code === code)?.name ?? code) : "No exam track chosen";
 
   return (
     <div
       // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard-focusable to be scrollable
       tabIndex={0}
       role="region"
-      aria-label="Study Activity"
+      aria-label="Lab Activity"
       className="scrollbar-subtle focus-ring-inset h-full overflow-y-auto"
     >
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-6 sm:px-6">
@@ -344,7 +344,7 @@ export function StudyActivityView() {
         />
 
         <p className="text-xs leading-relaxed text-text-secondary">
-          Study time is an estimate of learning activity, not proof of attention or understanding, and only you can see it.{" "}
+          Lab time is an estimate of practice activity, not proof of attention or understanding, and only you can see it.{" "}
           <Link href="/settings/study-tracking" className={link}>
             How it's measured
           </Link>

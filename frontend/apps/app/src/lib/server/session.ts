@@ -3,7 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { cache } from "react";
 
-import type { Appearance, ConversationPage, StudyGreetingPool, User } from "@/lib/api/types";
+import type { Appearance, ConversationPage, User } from "@/lib/api/types";
 import { type BackendResult, backendGet } from "./backend";
 import { apiBaseUrl, authSecret } from "./config";
 import { readSessionToken } from "./cookies";
@@ -28,16 +28,6 @@ export const getCurrentUser = cache(
 export const getInitialConversations = cache(
   async (): Promise<BackendResult<ConversationPage>> =>
     backendGet<ConversationPage>(apiBaseUrl(), "/v1/conversations?limit=30", await sessionToken()),
-);
-
-/**
- * This week's study greetings (app-level). Per request like everything here (React `cache` and a
- * `no-store` fetch), so they can never outlive their week; a short timeout, so a slow answer never
- * holds up the page: the empty chat then shows the fallback (lib/greeting.ts).
- */
-export const getStudyGreetings = cache(
-  async (): Promise<BackendResult<StudyGreetingPool>> =>
-    backendGet<StudyGreetingPool>(apiBaseUrl(), "/v1/greetings", await sessionToken(), { timeoutMs: 1500 }),
 );
 
 /** How the app looks for this user; applied on the client (AppearanceProvider). */

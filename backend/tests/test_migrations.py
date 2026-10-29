@@ -326,6 +326,81 @@ def test_migration_0019_empty_downgrade_and_forward_preserve_legacy_memory():
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 
 
+ENGINEERING = "0020_engineering_profiles"
+
+
+async def _refused(sql: str, *args) -> bool:
+    """Whether a CHECK refuses the statement (run() cannot carry an exception out of its thread)."""
+    try:
+        await _query(sql, *args)
+    except asyncpg.CheckViolationError:
+        return True
+    return False
+
+
+def test_migration_0020_adds_and_removes_the_engineering_profile_without_touching_anything_else():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", MEMORY_FOUNDATION)
+        user_id = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Existing user') RETURNING id",
+                "engineering-existing@example.com",
+            )
+        )[0]["id"]
+        run(_query("INSERT INTO learner_profiles (user_id, grade) VALUES ($1, 'class_10')", user_id))
+        before = run(_snapshot(("engineering_profiles",)))
+
+        alembic("upgrade", ENGINEERING)
+        constraints = {
+            row["conname"]: row["contype"]
+            for row in run(
+                _query(
+                    "SELECT conname, contype::text AS contype FROM pg_constraint "
+                    "WHERE conrelid = 'engineering_profiles'::regclass"
+                )
+            )
+        }
+        assert constraints == {
+            "pk_engineering_profiles": "p",
+            "fk_engineering_profiles_user_id_users": "f",
+            "ck_engineering_profiles_focus_areas": "c",
+            "ck_engineering_profiles_platforms": "c",
+        }
+        run(_query("INSERT INTO engineering_profiles (user_id, role) VALUES ($1, 'soc_analyst')", user_id))
+        row = run(_query("SELECT version, focus_areas, platforms, updated_at FROM engineering_profiles"))[0]
+        assert (row["version"], row["focus_areas"], row["platforms"]) == (0, [], [])
+        assert row["updated_at"] is not None
+        assert run(_refused("UPDATE engineering_profiles SET platforms = $1", [f"p{n}" for n in range(13)]))
+        assert run(_refused("UPDATE engineering_profiles SET focus_areas = $1", [f"f{n}" for n in range(9)]))
+        assert not run(_refused("UPDATE engineering_profiles SET platforms = $1", [f"p{n}" for n in range(12)]))
+        after = run(_snapshot(("engineering_profiles",)))
+        assert {t: v for t, v in after.items() if t != "alembic_version"} == {
+            t: v for t, v in before.items() if t != "alembic_version"
+        }
+        leaving = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Leaving user') RETURNING id",
+                "engineering-leaving@example.com",
+            )
+        )[0]["id"]
+        run(_query("INSERT INTO engineering_profiles (user_id) VALUES ($1)", leaving))
+        run(_query("DELETE FROM users WHERE id = $1", leaving))  # the profile goes with its user
+        assert run(_query("SELECT count(*) AS n FROM engineering_profiles"))[0]["n"] == 1
+
+        alembic("downgrade", MEMORY_FOUNDATION)
+        assert run(_query("SELECT to_regclass('public.engineering_profiles') AS t"))[0]["t"] is None
+        down = run(_snapshot(("engineering_profiles",)))
+        assert {t: v for t, v in down.items() if t != "alembic_version"} == {
+            t: v for t, v in before.items() if t != "alembic_version"
+        }
+        alembic("upgrade", ENGINEERING)
+        assert run(_query("SELECT count(*) AS n FROM engineering_profiles"))[0]["n"] == 0
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
 AUTH_BEFORE = "0011_notification_cleared_at"
 AUTH_AFTER = "0012_better_auth"
 

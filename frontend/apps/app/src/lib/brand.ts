@@ -13,7 +13,7 @@
 export const BRAND = {
   name: "NetSec AI",
   wordmark: { lead: "NetSec", accent: " AI" },
-  description: "NetSec AI, your intelligent learning assistant.",
+  description: "NetSec AI, an assistant for network, security and infrastructure engineers.",
   /** Served from `public/`. A square image that carries its own background. */
   markSrc: "/brand/padhai-mark.svg",
 } as const;

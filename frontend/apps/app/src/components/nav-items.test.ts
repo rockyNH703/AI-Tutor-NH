@@ -10,7 +10,7 @@ describe("nav items", () => {
     expect(visibleNavItems(true).map((item) => item.id)).toEqual(["tutor", "homework", "summarizer"]);
   });
 
-  test("the Learning Hub never lists the chat itself, and is empty without preview features", () => {
+  test("the Tools list never lists the chat itself, and is empty without preview features", () => {
     expect(hubItems(false)).toEqual([]);
     expect(hubItems(true).map((item) => item.id)).toEqual(["homework", "summarizer"]);
   });
@@ -35,7 +35,7 @@ describe("nav items", () => {
     expect(navItemFor("/")?.id).toBe("tutor");
     expect(navItemFor("/summarizer")?.id).toBe("summarizer");
     expect(navItemFor("/settings")).toBeNull();
-    expect(navItemFor("/learning")).toBeNull(); // My Learning is a place of its own, not a tool
+    expect(navItemFor("/learning")).toBeNull(); // Skills & Certifications is a place of its own, not a tool
   });
 
   test("every href is unique and absolute", () => {

@@ -16,7 +16,7 @@ const LABELS: Record<VoiceState, string> = {
   listening: "Listening…",
   transcribing: "Thinking…",
   thinking: "Thinking…",
-  speaking: "Speaking · tap the tutor to interrupt",
+  speaking: "Speaking · tap to interrupt",
   interrupted: "Listening…",
   muted: "Microphone off",
   error: "Voice mode stopped",
@@ -111,7 +111,7 @@ export default function VoiceMode({ chatKey, onClose }: { chatKey: string; onClo
           ref={glow}
           type="button"
           onClick={interruptible ? () => session.interrupt() : undefined}
-          aria-label={interruptible ? "Interrupt the tutor" : "The tutor"}
+          aria-label={interruptible ? "Interrupt NetSec AI" : "NetSec AI"}
           aria-disabled={!interruptible || undefined}
           tabIndex={interruptible ? 0 : -1}
           className={cn("focus-ring rounded-[40%] p-8", !interruptible && "cursor-default")}

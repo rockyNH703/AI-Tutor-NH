@@ -57,20 +57,20 @@ export function StreakSection() {
   return (
     <>
       <SectionHeading
-        title="Learning & Streak"
-        description="Your streak counts the days you learnt with your tutor: a real question, fully answered. Days follow India time."
+        title="Practice Streak"
+        description="Your practice streak counts the days you practised with NetSec AI: a real question, fully answered. Days follow India time."
       />
       <div className="flex flex-col gap-4">
         {streak.status === "loading" ? (
-          <SkeletonGroup label="Loading your streak">
+          <SkeletonGroup label="Loading your practice streak">
             <Skeleton className="h-36 w-full rounded-2xl" />
           </SkeletonGroup>
         ) : !data ? (
-          <SettingsCard title="Couldn't load your streak">
-            <p className="text-sm text-text-secondary">Your streak is safe; it just can't be shown right now.</p>
+          <SettingsCard title="Couldn't load your practice streak">
+            <p className="text-sm text-text-secondary">Your practice streak is safe; it just can't be shown right now.</p>
           </SettingsCard>
         ) : (
-          <SettingsCard title="Your streak">
+          <SettingsCard title="Your practice streak">
             <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               <div className="flex flex-col-reverse">
                 <dt className="text-xs text-text-secondary">Current streak</dt>
@@ -84,7 +84,7 @@ export function StreakSection() {
                 <dd className="text-2xl font-bold tabular-nums text-foreground">{daysLabel(data.longestStreak)}</dd>
               </div>
               <div className="col-span-2 flex flex-col-reverse sm:col-span-1">
-                <dt className="text-xs text-text-secondary">Today's learning</dt>
+                <dt className="text-xs text-text-secondary">Today's practice</dt>
                 <dd className="flex items-center gap-1.5 text-base font-semibold text-foreground">
                   {data.todayActive ? (
                     <>
@@ -102,14 +102,14 @@ export function StreakSection() {
               {data.todayActive
                 ? "Today counts. Come back tomorrow to keep it going."
                 : data.currentStreak
-                  ? "Ask your tutor a real question today to keep your streak going."
-                  : "Ask your tutor a real question to start a streak."}{" "}
+                  ? "Ask NetSec AI a real question today to keep your practice streak going."
+                  : "Ask NetSec AI a real question to start a practice streak."}{" "}
               Greetings like "hi" and unanswered questions don't count.
             </p>
           </SettingsCard>
         )}
 
-        <SettingsCard title="Activity" description="Each square is a day; the darker, the more you learnt.">
+        <SettingsCard title="Activity" description="Each square is a day; the darker, the more you practised.">
           {calendarError ? (
             <div className="flex flex-col items-start gap-2">
               <p className="text-sm text-text-secondary">{describeError(calendarError).message}</p>
@@ -136,8 +136,8 @@ export function StreakSection() {
                     <p className="font-semibold text-foreground">{longDate(selected)}</p>
                     <p className="text-text-secondary">
                       {selectedDay
-                        ? `✓ Learning day · ${selectedDay.interactions} learning interaction${selectedDay.interactions === 1 ? "" : "s"}`
-                        : "No learning that day"}
+                        ? `✓ Practice day · ${selectedDay.interactions} practice interaction${selectedDay.interactions === 1 ? "" : "s"}`
+                        : "No practice that day"}
                     </p>
                   </>
                 ) : (
@@ -151,8 +151,8 @@ export function StreakSection() {
         {appearance?.appearance && (
           <SettingsCard title="In the header">
             <ToggleRow
-              label="Show my streak in the header"
-              description="The 🔥 next to the time left today. Your streak counts either way."
+              label="Show my practice streak in the header"
+              description="The 🔥 next to the time left today. Your practice streak counts either way."
               checked={appearance.appearance.showStreak}
               onCheckedChange={(showStreak) => appearance.change({ showStreak })}
             />

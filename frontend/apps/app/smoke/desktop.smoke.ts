@@ -45,13 +45,13 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
   await hydrated(page);
 
   await check("header: 🔥 streak from the server, India day-end countdown, the bell", async () => {
-    await expect(badge(page)).toHaveAttribute("aria-label", /^\d+ day learning streak/);
+    await expect(badge(page)).toHaveAttribute("aria-label", /^\d+ day practice streak/);
     const name = await badge(page).getAttribute("aria-label");
-    await expect(banner(page).getByText(/left in today's learning day/)).toBeAttached();
+    await expect(banner(page).getByText(/left in today's practice day/)).toBeAttached();
     await expect(bell(page)).toBeVisible();
     const streak = await (await page.request.get("/api/v1/progress/streak")).json();
     expect(streak.timezone).toBe("Asia/Kolkata");
-    expect(name).toContain(`${streak.currentStreak} day learning streak`);
+    expect(name).toContain(`${streak.currentStreak} day practice streak`);
     return `${name}; day ends ${streak.dayEnd}`;
   });
 
@@ -72,7 +72,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     await expect(title.locator("[data-greeting-word]")).toHaveCount(greeting.split(" ").length);
     await expect(banner(page).getByRole("heading", { level: 1 })).toHaveText("New chat");
     await expect(page.getByText(/AI Tutor|Personal Doubts Solver|Powered by|can make mistakes/)).toHaveCount(0);
-    await expect(page.getByRole("navigation", { name: "Learning Hub" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Tools" })).toHaveCount(0);
     // Attach files, Send, (where the browser can dictate) Dictate and (where the API offers it to this account)
     // Voice mode; nothing else.
     const voice = (await (await page.request.get("/api/v1/voice")).json()).enabled === true;
@@ -81,7 +81,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     expect(buttons.filter((name) => name !== "Dictate")).toEqual(
       voice ? ["Attach files", "Voice mode", "Send message"] : ["Attach files", "Send message"],
     );
-    await expect(page.getByRole("textbox", { name: "Ask your doubt" })).toBeEditable();
+    await expect(page.getByRole("textbox", { name: "Message NetSec AI" })).toBeEditable();
     expect(await page.locator("form:has(textarea)").count()).toBe(1);
     const centred = await page.evaluate(() => {
       const main = (document.getElementById("main") as HTMLElement).getBoundingClientRect();
@@ -166,10 +166,10 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     const send = page.getByRole("button", { name: "Send message" });
     await expect(send).toBeDisabled();
     expect(await send.evaluate((button) => getComputedStyle(button).backgroundColor)).toBe(await tokenColour(page, "--surface-2"));
-    await page.getByRole("textbox", { name: "Ask your doubt" }).fill("x");
+    await page.getByRole("textbox", { name: "Message NetSec AI" }).fill("x");
     await page.waitForTimeout(300);
     expect(await send.evaluate((button) => getComputedStyle(button).backgroundColor)).toBe(await tokenColour(page, "--brand"));
-    await page.getByRole("textbox", { name: "Ask your doubt" }).fill("");
+    await page.getByRole("textbox", { name: "Message NetSec AI" }).fill("");
   });
 
   await check("no indigo or violet on screen, light: the chat and Settings (computed styles)", async () => {
@@ -225,7 +225,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     const before = new Set(await listed());
     let id = "";
     try {
-      const box = page.getByRole("textbox", { name: "Ask your doubt" });
+      const box = page.getByRole("textbox", { name: "Message NetSec AI" });
       await box.fill("Explain photosynthesis");
       await box.press("Enter");
       await expect(page).toHaveURL(/\/c\/[0-9a-f-]{36}$/, { timeout: 30_000 });
@@ -382,25 +382,25 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     return `reduced ${reduced}s, normal ${normal}s`;
   });
 
-  await check("Study Activity: in the sidebar; the page, the header's Study button and the API (nothing started)", async () => {
+  await check("Lab Activity: in the sidebar; the page, the header's Lab button and the API (nothing started)", async () => {
     await page.goto("/");
-    await expect(page.getByRole("button", { name: /^(Start a study session|.*Study session controls)$/ })).toBeVisible();
-    await page.getByRole("complementary").getByRole("link", { name: "Study Activity" }).click();
+    await expect(page.getByRole("button", { name: /^(Start a lab session|.*Lab session controls)$/ })).toBeVisible();
+    await page.getByRole("complementary").getByRole("link", { name: "Lab Activity" }).click();
     await expect(page).toHaveURL("/study");
-    await expect(page.getByRole("heading", { level: 1, name: "Study Activity" })).toBeVisible();
-    await expect(page.getByRole("region", { name: "Study Activity" }).getByText("Current session")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Lab Activity" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Lab Activity" }).getByText("Current session")).toBeVisible();
     for (const path of ["/api/v1/study/session", "/api/v1/study/summary?days=7"]) {
       expect((await page.request.get(path)).status(), path).toBe(200);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   });
 
-  await check("My Learning: in the sidebar; every panel loads, its six APIs answer (read only), nothing sideways at 320px", async () => {
-    await page.getByRole("complementary").getByRole("link", { name: "My Learning" }).click();
+  await check("Skills & Certifications: in the sidebar; every panel loads, its six APIs answer (read only), nothing sideways at 320px", async () => {
+    await page.getByRole("complementary").getByRole("link", { name: "Skills & Certifications" }).click();
     await expect(page).toHaveURL("/learning");
-    await expect(page.getByRole("heading", { level: 1, name: "My Learning" })).toBeVisible();
-    const region = page.getByRole("region", { name: "My Learning" });
-    for (const name of ["Today's plan", "Practice by chapter", "Revision due", "Exam date", "Mastery", "Mistakes", "Recent tests"]) {
+    await expect(page.getByRole("heading", { level: 1, name: "Skills & Certifications" })).toBeVisible();
+    const region = page.getByRole("region", { name: "Skills & Certifications" });
+    for (const name of ["Today's plan", "Practice by domain", "Topics to review", "Exam date", "Topic mastery", "Missed questions", "Recent practice tests"]) {
       await expect(region.getByRole("heading", { level: 2, name })).toBeVisible();
     }
     await expect(region.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 15_000 });
@@ -418,13 +418,13 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     await page.setViewportSize({ width: 1280, height: 800 });
   });
 
-  await check("Settings: 13 sections; Learning & Streak with stats and calendar (one Tab stop, today in view)", async () => {
+  await check("Settings: 13 sections; Practice Streak with stats and calendar (one Tab stop, today in view)", async () => {
     await page.getByRole("complementary").getByRole("button", { name: /^Account: / }).click();
     await page.getByRole("menuitem", { name: "Settings" }).click();
     await expect(page).toHaveURL("/settings/profile");
     const nav = page.getByRole("navigation", { name: "Settings sections" });
     await expect(nav.getByRole("link")).toHaveCount(13);
-    await nav.getByRole("link", { name: "Learning & Streak", exact: true }).click();
+    await nav.getByRole("link", { name: "Practice Streak", exact: true }).click();
     await expect(page).toHaveURL("/settings/streak");
     await expect(page.locator("dt", { hasText: /^Current streak$/ })).toBeVisible();
     await expect(page.locator('svg.calendar-heatmap[role="group"]')).toBeVisible();
@@ -438,10 +438,10 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     expect(await page.locator(".learning-calendar").evaluate((box) => box.scrollWidth - box.clientWidth)).toBeLessThanOrEqual(0);
     await nav.getByRole("link", { name: "Notifications", exact: true }).click();
     await expect(page.getByRole("switch", { name: "Reminders in the app" })).toBeVisible();
-    await nav.getByRole("link", { name: "Progress & Goals", exact: true }).click();
-    await expect(page.getByRole("heading", { level: 2, name: "Progress & Goals" })).toBeVisible();
-    await nav.getByRole("link", { name: "Study Tracking", exact: true }).click();
-    await expect(page.getByRole("heading", { level: 2, name: "Study Tracking" })).toBeVisible();
+    await nav.getByRole("link", { name: "Practice & Goals", exact: true }).click();
+    await expect(page.getByRole("heading", { level: 2, name: "Practice & Goals" })).toBeVisible();
+    await nav.getByRole("link", { name: "Lab Tracking", exact: true }).click();
+    await expect(page.getByRole("heading", { level: 2, name: "Lab Tracking" })).toBeVisible();
     await nav.getByRole("link", { name: "Profile", exact: true }).click();
     const label = await page.getByText("Display name", { exact: true }).boundingBox();
     const input = await page.getByLabel("Display name").boundingBox();
@@ -481,7 +481,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
       await page.waitForTimeout(gap);
       await open.click();
       expect(await settled(page), `gap ${gap}`).toMatchObject({ dialogs: 1, running: 0 });
-      await page.getByRole("dialog", { name: "Navigation" }).getByRole("link", { name: "Ask New Doubt" }).click();
+      await page.getByRole("dialog", { name: "Navigation" }).getByRole("link", { name: "New chat", exact: true }).click();
       await expect(page).toHaveURL("/");
       expect(await settled(page), `gap ${gap}`).toMatchObject({ dialogs: 0, bodyBlocked: false, scrollLocked: false, running: 0 });
     }
@@ -493,7 +493,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     const origin = new URL(page.url()).origin;
     const policy = (await page.request.get("/")).headers()["permissions-policy"] ?? "";
     expect(policy).toContain("microphone=(self)");
-    const text = `AI Tutor production smoke ${Date.now()}: photosynthesis makes food in the leaves of green plants.`;
+    const text = `NetSec AI production smoke ${Date.now()}: photosynthesis makes food in the leaves of green plants.`;
     const created = await page.request.post(`/api/v1/files?filename=${encodeURIComponent("smoke-check.txt")}`, {
       headers: { "Content-Type": "application/octet-stream", Origin: origin },
       data: Buffer.from(text),

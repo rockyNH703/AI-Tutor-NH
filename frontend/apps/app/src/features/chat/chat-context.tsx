@@ -24,7 +24,6 @@ import { retargetAppPath } from "@/features/navigation/app-return";
 import { leaving } from "@/features/navigation/leaving";
 import { fromAnswer, fromReply } from "@/features/streak/celebrations/queue";
 import { CELEBRATE_EVENT, LEARNING_EVENT } from "@/lib/activity";
-import { FALLBACK_GREETING } from "@/lib/greeting";
 import { onUnauthorized } from "@/lib/api/http";
 import type { ConversationPage } from "@/lib/api/types";
 import { ConversationsStore, type ConversationsState } from "@/features/conversations/conversations-store";
@@ -35,9 +34,6 @@ import { type ChatEntry, type ChatMessage, ChatStore } from "./chat-store";
 type Stores = { chat: ChatStore; conversations: ConversationsStore; attachments: AttachmentStore };
 
 const ChatContext = createContext<Stores | null>(null);
-/** This week's study greetings, loaded with the page by the signed-in layout (lib/greeting.ts). */
-const GreetingContext = createContext<readonly string[]>([FALLBACK_GREETING]);
-const FALLBACK_POOL = [FALLBACK_GREETING];
 
 /** Opens the "Storage full" dialog (an upload anywhere can be refused for storage). */
 const StorageFullContext = createContext<() => void>(() => {});
@@ -47,11 +43,9 @@ const FOCUS_REFRESH_MS = 30_000;
 
 export function ChatProvider({
   initialConversations,
-  greetings = FALLBACK_POOL,
   children,
 }: {
   initialConversations: ConversationPage | null;
-  greetings?: readonly string[];
   children: ReactNode;
 }) {
   const router = useRouter();
@@ -145,7 +139,7 @@ export function ChatProvider({
   return (
     <ChatContext.Provider value={stores}>
       <StorageFullContext.Provider value={showStorageFull}>
-        <GreetingContext.Provider value={greetings}>{children}</GreetingContext.Provider>
+        {children}
         <StorageFullDialog open={storageFull} onOpenChange={setStorageFull} />
       </StorageFullContext.Provider>
     </ChatContext.Provider>
@@ -154,11 +148,6 @@ export function ChatProvider({
 
 export function useShowStorageFull(): () => void {
   return useContext(StorageFullContext);
-}
-
-/** The lines a new chat's greeting is picked from: this week's pool, the same for everyone. */
-export function useStudyGreetings(): readonly string[] {
-  return useContext(GreetingContext);
 }
 
 export function useStores(): Stores {

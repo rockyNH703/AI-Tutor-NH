@@ -1,5 +1,5 @@
-"""Learning: the learner profile, subjects and learning preferences. Every query is scoped by
-the calling user's id; nothing here can read or write another user's rows.
+"""Learning: the Engineering Profile, the learner profile, subjects and learning preferences.
+Every query is scoped by the calling user's id; nothing here can read or write another user's rows.
 
 Each resource is versioned (docs/api-contract.md, "Versioned edits"). A write takes the row
 lock, compares the version it was sent, applies the change and moves the version on, all in
@@ -15,13 +15,14 @@ from sqlalchemy import delete, func, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import LearnerProfile, LearnerSubject, LearningPreferences
+from app.db.models import EngineeringProfile, LearnerProfile, LearnerSubject, LearningPreferences
 from app.errors import ValidationFailed, VersionConflict
 from app.learning import catalog
 from app.learning.context import (
     SubjectChoice,
     TutorProgress,
     build_context,
+    engineering_values,
     preference_values,
     profile_values,
     read_subjects,
@@ -45,6 +46,9 @@ class LearningService:
 
     async def get_preferences(self, user_id: uuid.UUID) -> LearningPreferences | None:
         return await self.db.get(LearningPreferences, user_id, populate_existing=True)
+
+    async def get_engineering(self, user_id: uuid.UUID) -> EngineeringProfile | None:
+        return await self.db.get(EngineeringProfile, user_id, populate_existing=True)
 
     async def get_subjects(self, user_id: uuid.UUID) -> tuple[int, list[LearnerSubject]]:
         profile = await self.get_profile(user_id)
@@ -72,6 +76,56 @@ class LearningService:
             elif entry.deprecated and changes[column] != current.get(column):
                 problems.append({"field": field, "reason": "deprecated"})
         return problems
+
+    @staticmethod
+    def _check_engineering(changes: dict[str, object], current: dict[str, object], prefix: str) -> list[dict]:
+        """Engineering catalog codes: unknown ones are refused, and a deprecated one only while the
+        profile already has it (in a list: anywhere in the stored list)."""
+        problems = []
+        for column, entries in catalog.ENGINEERING_FIELDS.items():
+            code = changes.get(column)
+            if code is None:  # not changed, or cleared in a preview draft
+                continue
+            entry = catalog.lookup(entries, code)
+            field = f"{prefix}{_camel(column)}"
+            if entry is None:
+                problems.append({"field": field, "reason": "unknown_code"})
+            elif entry.deprecated and code != current.get(column):
+                problems.append({"field": field, "reason": "deprecated"})
+        for column, entries in catalog.ENGINEERING_LIST_FIELDS.items():
+            kept = set(current.get(column) or ())
+            for index, code in enumerate(changes.get(column) or ()):
+                entry = catalog.lookup(entries, code)
+                field = f"{prefix}{_camel(column)}.{index}"
+                if entry is None:
+                    problems.append({"field": field, "reason": "unknown_code"})
+                elif entry.deprecated and code not in kept:
+                    problems.append({"field": field, "reason": "deprecated"})
+        return problems
+
+    async def update_engineering(
+        self, user_id: uuid.UUID, version: int, changes: dict[str, object], reset: list[str]
+    ) -> EngineeringProfile | None:
+        if not changes and not reset:  # nothing to do: nothing written, version unchanged
+            return await self.get_engineering(user_id)
+        row = await self._locked(EngineeringProfile, user_id)
+        if row.version != version:
+            await self.db.rollback()
+            raise VersionConflict()
+        problems = self._check_engineering(changes, engineering_values(row), "set.")
+        if problems:
+            await self.db.rollback()
+            raise ValidationFailed("Some values are not allowed.", fields=problems)
+
+        values = dict(changes)
+        values.update({column: ([] if column in catalog.ENGINEERING_LIST_FIELDS else None) for column in reset})
+        await self.db.execute(
+            update(EngineeringProfile)
+            .where(EngineeringProfile.user_id == user_id)
+            .values(**values, version=EngineeringProfile.version + 1, updated_at=func.clock_timestamp())
+        )
+        await self.db.commit()
+        return await self.get_engineering(user_id)
 
     async def update_profile(
         self, user_id: uuid.UUID, version: int, changes: dict[str, object], reset: list[str]
@@ -174,11 +228,13 @@ class LearningService:
         profile: dict[str, object] | None,
         subjects: list[SubjectChoice] | None,
         preferences: dict[str, str] | None,
+        engineering: dict[str, object] | None = None,
         progress: TutorProgress | None = None,
     ) -> str:
-        """The stored settings with a draft laid over them, as the tutor would be told (with
+        """The stored settings with a draft laid over them, as the assistant would be told (with
         `progress`, read by the caller). Nothing is written; unknown codes are refused like a save
-        would refuse them."""
+        would refuse them (a deprecated one may be shown). The academic draft is still checked,
+        though it no longer adds anything."""
         stored = await self.get_profile(user_id)
         values = {**profile_values(stored), **(profile or {})}
         if isinstance(values.get("preferred_study_time"), str):  # a draft's "HH:MM", as a save stores it
@@ -191,12 +247,19 @@ class LearningService:
                 for index, item in enumerate(subjects)
                 if catalog.lookup(catalog.SUBJECTS, item.code) is None
             ]
+        if engineering:
+            problems += [
+                p for p in self._check_engineering(engineering, {}, "engineering.") if p["reason"] == "unknown_code"
+            ]
         if problems:
             raise ValidationFailed("Some values are not allowed.", fields=problems)
         if subjects is None:
             subjects = subject_choices(await read_subjects(self.db, user_id)) if stored else []
         merged_preferences = {**preference_values(await self.get_preferences(user_id)), **(preferences or {})}
-        return build_tutor_instructions(build_context(values, subjects, merged_preferences, progress))
+        merged_engineering = {**engineering_values(await self.get_engineering(user_id)), **(engineering or {})}
+        return build_tutor_instructions(
+            build_context(values, subjects, merged_preferences, progress, merged_engineering)
+        )
 
 
 def _camel(column: str) -> str:

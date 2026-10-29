@@ -3,13 +3,13 @@
 - **One place writes them:** `notify`, an insert that does nothing when the same `dedup_key`
   exists for the user. That makes each notification happen once: a streak milestone once
   ever, a reminder once a day, an alert once per event, however often the caller runs.
-- **Plain text only.** Titles and bodies are shown as text (never HTML), so nothing a student
+- **Plain text only.** Titles and bodies are shown as text (never HTML), so nothing a user
   or an event carries can become markup.
 - **Every existing email event also appears here** (security alerts, reminders), and streak
   milestones only here. Emails keep their own switches (notification_preferences); in-app
   reminders follow `in_app_reminders`, security alerts and milestones are always shown.
-- **The streak reminder needs no scheduler:** it is created when the student's list is read
-  (`ensure_streak_reminder`), in the evening of a day with no learning yet.
+- **The streak reminder needs no scheduler:** it is created when the user's list is read
+  (`ensure_streak_reminder`), in the evening of a day with no practice yet.
 """
 
 from __future__ import annotations
@@ -81,7 +81,7 @@ async def list_for(session: AsyncSession, user_id: uuid.UUID, limit: int = LIST_
 
 
 async def mark_read(session: AsyncSession, user_id: uuid.UUID, ids: list[uuid.UUID] | None) -> int:
-    """Mark the student's own notifications read: the ones listed, or all of them (also those
+    """Mark the user's own notifications read: the ones listed, or all of them (also those
     beyond the LIST_MAX shown). Ids of anyone else's notifications match nothing. Returns how
     many changed; marking again changes nothing."""
     statement = update(UserNotification).where(UserNotification.user_id == user_id, UserNotification.read_at.is_(None))
@@ -91,7 +91,7 @@ async def mark_read(session: AsyncSession, user_id: uuid.UUID, ids: list[uuid.UU
 
 
 async def clear_all(session: AsyncSession, user_id: uuid.UUID) -> int:
-    """Clear all: every notification of the student's leaves the bell and counts as read. Rows
+    """Clear all: every notification of the user's leaves the bell and counts as read. Rows
     stay until `purge_read` deletes them, so a cleared one keeps its dedup_key (today's reminder is
     not made again) and anything new still arrives. Returns how many changed; clearing again, or
     alongside "Read all", changes nothing more (each touches only rows still not cleared / unread)."""
@@ -113,9 +113,9 @@ async def purge_read(session: AsyncSession, now: datetime) -> int:
 
 
 async def ensure_streak_reminder(session: AsyncSession, user_id: uuid.UUID, now: datetime) -> bool:
-    """In the evening (India time) of a day with no learning yet, remind a student who has a
-    streak going, or has learnt before, once that day. Nothing when they turned in-app
-    reminders off, or already learnt today."""
+    """In the evening (India time) of a day with no practice yet, remind a user who has a
+    streak going, or has practised before, once that day. Nothing when they turned in-app
+    reminders off, or already practised today."""
     from app.progress.learning import LEARNING_ZONE, remaining_label, streak_state
 
     local = now.astimezone(LEARNING_ZONE)
@@ -130,7 +130,7 @@ async def ensure_streak_reminder(session: AsyncSession, user_id: uuid.UUID, now:
         body = f"A question today keeps it going. You have {left} left today."
     else:
         title = "🔥 Start a new streak today"
-        body = f"Ask your tutor a question to begin. You have {left} left today."
+        body = f"Ask a question or practise a few certification questions to begin. You have {left} left today."
     return await notify(
         session,
         user_id,

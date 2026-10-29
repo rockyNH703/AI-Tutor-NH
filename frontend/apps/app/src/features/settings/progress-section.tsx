@@ -77,7 +77,7 @@ export function ProgressSection() {
   return (
     <>
       <SectionHeading
-        title="Progress & Goals"
+        title="Practice & Goals"
         description="Your active time in NetSec AI and the questions you've asked, measured from how you use the app."
       />
       {error ? (
@@ -133,23 +133,23 @@ export function ProgressSection() {
           {!progress.goals.dailyActiveMinutes && !progress.goals.weeklyActiveMinutes && (
             <p className="text-sm text-text-secondary">
               Set daily or weekly goals in{" "}
-              <Link href="/settings/goals" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-                Learning Goals
+              <Link href="/settings/subjects" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
+                Practice &amp; Lab Time
               </Link>
               .
             </p>
           )}
           <p className="text-sm text-text-secondary">
-            Your estimated study time, from the study sessions you start, is in{" "}
+            Your estimated lab time, from the lab sessions you start, is in{" "}
             <Link href="/study" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-              Study Activity
+              Lab Activity
             </Link>
             .
           </p>
           <p className="text-sm text-text-secondary">
-            Your learning streak and calendar are in{" "}
+            Your practice streak and calendar are in{" "}
             <Link href="/settings/streak" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-              Learning &amp; Streak
+              Practice Streak
             </Link>
             .
           </p>
@@ -160,7 +160,7 @@ export function ProgressSection() {
             <p className="text-sm leading-relaxed text-text-secondary">
               A minute counts when NetSec AI is open and on screen, and you used it (typed, clicked, scrolled) or a reply
               was being written, within the last two minutes. At most one minute is counted per minute, however many
-              tabs or devices you use. It's how much you used the app, not all of your studying, and it's never
+              tabs or devices you use. It's how much you used the app, not all of your work, and it's never
               compared with anyone else's.
             </p>
           </SettingsCard>

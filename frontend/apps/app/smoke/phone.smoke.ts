@@ -33,7 +33,7 @@ test("phone: the new chat, the drawer, a chat and Settings fit, light and dark",
   await check("new chat: the greeting and the composer are on screen; the header fits; no sideways scroll", async () => {
     const title = page.getByRole("main").getByRole("heading", { level: 2 });
     await expect(title).toHaveText(GREETING_SHAPE);
-    await expect(page.getByRole("textbox", { name: "Ask your doubt" })).toBeInViewport();
+    await expect(page.getByRole("textbox", { name: "Message NetSec AI" })).toBeInViewport();
     await expect(title).toBeInViewport();
     await expect(badge(page)).toBeVisible();
     await expect(bell(page)).toBeVisible();
@@ -61,7 +61,7 @@ test("phone: the new chat, the drawer, a chat and Settings fit, light and dark",
     await page.getByRole("button", { name: "Open menu" }).click();
     const drawer = page.getByRole("dialog", { name: "Navigation" });
     await expect(drawer).toBeVisible();
-    await expect(drawer.getByRole("link", { name: "Ask New Doubt" })).toBeVisible();
+    await expect(drawer.getByRole("link", { name: "New chat", exact: true })).toBeVisible();
     await page.waitForTimeout(800);
     const running = await drawer.locator(".marquee-track").evaluateAll((tracks) => tracks.map((track) => track.getAnimations().length));
     expect(running.every((count) => count === 0)).toBe(true);

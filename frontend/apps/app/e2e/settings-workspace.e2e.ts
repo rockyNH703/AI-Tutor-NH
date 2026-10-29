@@ -26,14 +26,15 @@ import {
 
 const SECTIONS = [
   ["profile", "Profile"],
-  ["academic", "Academic Profile"],
-  ["goals", "Learning Goals"],
+  ["engineering", "Engineering Profile"],
+  ["goals", "Skills & Certification Goals"],
   ["learning", "Learning Preferences"],
-  ["tutor", "AI Tutor"],
-  ["subjects", "Subjects & Study"],
-  ["progress", "Progress & Goals"],
-  ["study-tracking", "Study Tracking"],
-  ["streak", "Learning & Streak"],
+  ["tutor", "AI Assistant"],
+  ["memory", "Memory"],
+  ["subjects", "Practice & Lab Time"],
+  ["progress", "Practice & Goals"],
+  ["study-tracking", "Lab Tracking"],
+  ["streak", "Practice Streak"],
   ["notifications", "Notifications"],
   ["appearance", "Appearance & Accessibility"],
   ["privacy", "Privacy & Security"],
@@ -78,8 +79,8 @@ test("opened from a chat: the app shell steps aside, focus is on the section, Cl
   await openSettingsFromSidebar(page);
   await expect(page).toHaveURL("/settings/profile");
   await expect(title(page)).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Learning Hub" })).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "Recent Doubts" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Tools" })).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Chats", exact: true })).toHaveCount(0);
   await expect(panel(page)).toBeVisible();
   await expect(section(page, "Profile")).toHaveAttribute("aria-current", "page");
   await expect(heading(page, "Profile")).toBeFocused();
@@ -325,21 +326,23 @@ test("the workspace's landmarks, headings and names", async ({ page, account: _ 
         - listitem:
           - link "Profile"
         - listitem:
-          - link "Academic Profile"
+          - link "Engineering Profile"
         - listitem:
-          - link "Learning Goals"
+          - link "Skills & Certification Goals"
         - listitem:
           - link "Learning Preferences"
         - listitem:
-          - link "AI Tutor"
+          - link "AI Assistant"
         - listitem:
-          - link "Subjects & Study"
+          - link "Memory"
         - listitem:
-          - link "Progress & Goals"
+          - link "Practice & Lab Time"
         - listitem:
-          - link "Study Tracking"
+          - link "Practice & Goals"
         - listitem:
-          - link "Learning & Streak"
+          - link "Lab Tracking"
+        - listitem:
+          - link "Practice Streak"
         - listitem:
           - link "Notifications"
         - listitem:
@@ -428,7 +431,7 @@ test("signed out, a Settings link signs in first and then opens that section", a
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("/settings/progress");
-  await expect(heading(page, "Progress & Goals")).toBeVisible();
+  await expect(heading(page, "Practice & Goals")).toBeVisible();
   await context.close();
 });
 
@@ -488,7 +491,7 @@ test("a section that can't load says so, with Try again, and the workspace keeps
   await expect(page.getByRole("heading", { name: "Couldn't load your progress" })).toBeVisible();
   await section(page, "Profile").click();
   await expect(heading(page, "Profile")).toBeVisible();
-  await section(page, "Progress & Goals").click();
+  await section(page, "Practice & Goals").click();
   await expect(page.getByRole("heading", { name: "Couldn't load your progress" })).toBeVisible();
   await page.unroute("**/api/v1/progress?*");
   await page.getByRole("button", { name: "Try again" }).click();

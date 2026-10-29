@@ -249,7 +249,7 @@ export function LibraryView() {
           <div className="rounded-2xl border border-dashed border-border p-8 text-center">
             <p className="font-semibold text-foreground">No files yet</p>
             <p className="mt-1 text-sm text-text-secondary">
-              Upload notes, chapters or worksheets, then ask the tutor about them.
+              Upload configs, logs, diagrams or documentation, then ask NetSec AI about them.
             </p>
           </div>
         ) : (
@@ -315,7 +315,7 @@ export function LibraryView() {
         title={deleting ? `Delete ${deleting.filename}?` : "Delete file?"}
         description={
           deleting
-            ? `This frees ${formatBytes(deleting.sizeBytes)}. The tutor won't use it any more, and chats that used it will show it as deleted.`
+            ? `This frees ${formatBytes(deleting.sizeBytes)}. NetSec AI won't use it any more, and chats that used it will show it as deleted.`
             : undefined
         }
         confirmLabel="Delete"

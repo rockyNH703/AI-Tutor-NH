@@ -1,7 +1,7 @@
 """The first words of a voice reply, spoken by the server as soon as they are written (VOICE_SERVER_SPEECH).
 
 The web app reads a reply aloud chunk by chunk (features/voice/speech-text.ts), each chunk a request of its own
-once its words have reached the browser. The first is the one the student waits for, so the server makes it
+once its words have reached the browser. The first is the one the user waits for, so the server makes it
 from the tokens as they arrive and sends the audio with the reply, a round trip sooner. Only where that is safe
 without the web app's Markdown reader: the reply's first line, plain prose (letters, digits, ordinary
 punctuation), up to its first pause. Citation markers ([1], [F2]) are left out, as the web app leaves them out.

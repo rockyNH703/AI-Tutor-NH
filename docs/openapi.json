@@ -1374,6 +1374,224 @@
         "title": "EmailConfirmRequest",
         "type": "object"
       },
+      "EngineeringCatalogOut": {
+        "properties": {
+          "certifications": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntryOut"
+            },
+            "title": "Certifications",
+            "type": "array"
+          },
+          "experienceLevels": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntryOut"
+            },
+            "title": "Experiencelevels",
+            "type": "array"
+          },
+          "focusAreas": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntryOut"
+            },
+            "title": "Focusareas",
+            "type": "array"
+          },
+          "platforms": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntryOut"
+            },
+            "title": "Platforms",
+            "type": "array"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntryOut"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "roles",
+          "experienceLevels",
+          "focusAreas",
+          "platforms",
+          "certifications"
+        ],
+        "title": "EngineeringCatalogOut",
+        "type": "object"
+      },
+      "EngineeringProfileOut": {
+        "properties": {
+          "certificationGoal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certificationgoal"
+          },
+          "experienceLevel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experiencelevel"
+          },
+          "focusAreas": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Focusareas",
+            "type": "array"
+          },
+          "platforms": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Platforms",
+            "type": "array"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          },
+          "version": {
+            "description": "Send it back with PATCH /v1/engineering/profile.",
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "role",
+          "experienceLevel",
+          "focusAreas",
+          "platforms",
+          "certificationGoal",
+          "updatedAt"
+        ],
+        "title": "EngineeringProfileOut",
+        "type": "object"
+      },
+      "EngineeringProfileSet": {
+        "additionalProperties": false,
+        "description": "Fields to set. Absent fields are unchanged; `null` is not a value (use `reset`). Codes come\nfrom GET /v1/catalog/engineering; a list replaces the stored one, in its order.",
+        "properties": {
+          "certificationGoal": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certificationgoal"
+          },
+          "experienceLevel": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Experiencelevel"
+          },
+          "focusAreas": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 40,
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9_]+$",
+                  "type": "string"
+                },
+                "maxItems": 8,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focusareas"
+          },
+          "platforms": {
+            "anyOf": [
+              {
+                "items": {
+                  "maxLength": 40,
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9_]+$",
+                  "type": "string"
+                },
+                "maxItems": 12,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platforms"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          }
+        },
+        "title": "EngineeringProfileSet",
+        "type": "object"
+      },
       "FeedbackOut": {
         "properties": {
           "comment": {
@@ -5863,7 +6081,7 @@
       "TutorPreviewOut": {
         "properties": {
           "instructions": {
-            "description": "Exactly what the student's settings add to the tutor's instructions; empty when nothing.",
+            "description": "Exactly what the user's settings add to the assistant's instructions; empty when nothing.",
             "title": "Instructions",
             "type": "string"
           },
@@ -5881,8 +6099,18 @@
       },
       "TutorPreviewRequest": {
         "additionalProperties": false,
-        "description": "Unsaved edits to preview. Each part given replaces or overlays what is stored: `profile`\nand `preferences` fields override the stored ones, `subjects` replaces the stored list.\nNothing is saved.",
+        "description": "Unsaved edits to preview. Each part given replaces or overlays what is stored: `profile`,\n`engineering` and `preferences` fields override the stored ones (`null` clears one here),\n`subjects` replaces the stored list. Nothing is saved.",
         "properties": {
+          "engineering": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EngineeringProfileSet"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "preferences": {
             "anyOf": [
               {
@@ -5988,6 +6216,40 @@
           "version"
         ],
         "title": "UpdateAppearanceRequest",
+        "type": "object"
+      },
+      "UpdateEngineeringProfileRequest": {
+        "additionalProperties": false,
+        "description": "`{version, set, reset}` (docs/api-contract.md, \"Versioned edits\"); `reset` empties a field.",
+        "properties": {
+          "reset": {
+            "items": {
+              "enum": [
+                "role",
+                "experienceLevel",
+                "focusAreas",
+                "platforms",
+                "certificationGoal"
+              ],
+              "type": "string"
+            },
+            "maxItems": 5,
+            "title": "Reset",
+            "type": "array"
+          },
+          "set": {
+            "$ref": "#/components/schemas/EngineeringProfileSet"
+          },
+          "version": {
+            "minimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "title": "UpdateEngineeringProfileRequest",
         "type": "object"
       },
       "UpdateLearnerProfileRequest": {
@@ -6503,6 +6765,29 @@
         ]
       }
     },
+    "/v1/catalog/engineering": {
+      "get": {
+        "description": "The values an Engineering Profile may use. The same for everyone, behind a session: cache it\nprivately by its ETag (`If-None-Match` answers 304). Codes are permanent; `deprecated` ones are\nshown but can no longer be chosen anew.",
+        "operationId": "engineering_catalog_v1_catalog_engineering_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineeringCatalogOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Engineering Catalog",
+        "tags": [
+          "learning",
+          "catalog"
+        ]
+      }
+    },
     "/v1/chat": {
       "post": {
         "operationId": "chat_complete_v1_chat_post",
@@ -6922,6 +7207,70 @@
         "summary": "Replace the last reply with a new one (Server-Sent Events)",
         "tags": [
           "chat"
+        ]
+      }
+    },
+    "/v1/engineering/profile": {
+      "get": {
+        "description": "What the assistant is told about the user's work. Version 0 and empty values until first saved.",
+        "operationId": "get_engineering_profile_v1_engineering_profile_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineeringProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Engineering Profile",
+        "tags": [
+          "learning",
+          "engineering"
+        ]
+      },
+      "patch": {
+        "description": "Versioned edit: `{version, set, reset}` (docs/api-contract.md). Codes must be in the engineering\ncatalog (422 `unknown_code`); a deprecated one may only be kept (422 `deprecated`). Lists are\ndistinct, at most 8 focus areas and 12 platforms. A stale version is 409 with the current profile.",
+        "operationId": "update_engineering_profile_v1_engineering_profile_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEngineeringProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineeringProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Engineering Profile",
+        "tags": [
+          "learning",
+          "engineering"
         ]
       }
     },
@@ -7488,7 +7837,7 @@
     },
     "/v1/learning/tutor-preview": {
       "post": {
-        "description": "What the tutor would be told with these (unsaved) edits: the same function the chat\nuses, with the same \"Learning so far\", so the preview is exactly what the next message is\ntold. Nothing is saved.",
+        "description": "What the assistant would be told with these (unsaved) edits: the same function the chat\nuses, with the same \"Practice so far\", so the preview is exactly what the next message is\ntold. Nothing is saved.",
         "operationId": "tutor_preview_v1_learning_tutor_preview_post",
         "requestBody": {
           "content": {

@@ -1,8 +1,21 @@
 import { describe, expect, test } from "bun:test";
 
 import { CONTRACT } from "@/lib/api/contract.gen";
-import { LEARNING_FIELDS, PREFERENCES, TUTOR_FIELDS } from "./learning-labels";
-import { addSubject, addTopic, editFor, moveSubject, removeSubject, toggleSubject } from "./learning-model";
+import { FOCUS_AREAS_MAX, MAIN_GOALS, PLATFORMS_MAX } from "@/lib/api/types";
+import { ASSISTANT_FIELDS, LEARNING_FIELDS, MAIN_GOAL_LABELS, PREFERENCES, TUTOR_FIELDS, reachesAssistant } from "./learning-labels";
+import {
+  addSubject,
+  addTopic,
+  canToggle,
+  chosenText,
+  editFor,
+  engineeringPreview,
+  moveSubject,
+  removeSubject,
+  toggleCode,
+  toggleSubject,
+  wholeNumber,
+} from "./learning-model";
 
 type Values = { grade: string; board: string; boardState: string; weakTopics: string[]; targetScorePercent: number };
 type Loose = { [K in keyof Values]?: Values[K] | null | "" };
@@ -78,4 +91,68 @@ test("every preference is on exactly one page, and labelled for every value the 
   for (const field of all) {
     expect(Object.keys(PREFERENCES[field].options).sort()).toEqual([...CONTRACT.LearningPreferencesSet[field].enum].sort());
   }
+});
+
+test("the six preferences that reach the assistant, three on each page", () => {
+  expect([...ASSISTANT_FIELDS].sort() as string[]).toEqual(
+    ["answerMode", "explanationLevel", "language", "responseLength", "stepByStep", "visualExplanations"].sort(),
+  );
+  expect(LEARNING_FIELDS.filter(reachesAssistant)).toEqual(["language", "explanationLevel", "visualExplanations"]);
+  expect(TUTOR_FIELDS.filter(reachesAssistant)).toEqual(["responseLength", "answerMode", "stepByStep"]);
+});
+
+test("every main goal the API has is labelled, for engineers, with its code unchanged", () => {
+  expect(Object.keys(MAIN_GOAL_LABELS).sort()).toEqual([...MAIN_GOALS].sort());
+  expect(MAIN_GOAL_LABELS.board_exams).toBe("Pass a certification exam");
+  expect(MAIN_GOAL_LABELS.competitive_exam).toBe("Prepare for an advanced certification (CCNP, CCIE, OSCP)");
+  expect(MAIN_GOAL_LABELS.homework_help).toBe("Get help with lab and work tasks");
+  expect(new Set(Object.values(MAIN_GOAL_LABELS)).size).toBe(MAIN_GOALS.length);
+});
+
+describe("the Engineering Profile's multiple choices", () => {
+  test("the limits are the contract's", () => {
+    expect([FOCUS_AREAS_MAX, PLATFORMS_MAX]).toEqual([8, 12]);
+  });
+
+  test("a code is checked once, at the end, only while there is room; unchecking always works", () => {
+    expect(toggleCode([], "vpn", 2)).toEqual(["vpn"]);
+    expect(toggleCode(["vpn"], "linux", 2)).toEqual(["vpn", "linux"]);
+    expect(toggleCode(["vpn", "linux"], "cloud", 2)).toEqual(["vpn", "linux"]);
+    expect(toggleCode(["vpn", "linux"], "vpn", 2)).toEqual(["linux"]);
+    expect(toggleCode(["vpn"], "", 2)).toEqual(["vpn"]);
+    // A list over the limit (it cannot be saved that way, but never grows) can still be emptied.
+    expect(toggleCode(["a", "b", "c"], "d", 2)).toEqual(["a", "b", "c"]);
+    expect(toggleCode(["a", "b", "c"], "b", 2)).toEqual(["a", "c"]);
+  });
+
+  test("a full list disables only what is unchecked", () => {
+    expect(canToggle(["a", "b"], "a", 2)).toBe(true);
+    expect(canToggle(["a", "b"], "c", 2)).toBe(false);
+    expect(canToggle(["a"], "c", 2)).toBe(true);
+  });
+
+  test("how full it is, in words", () => {
+    expect(chosenText(0, 8)).toBe("0 of 8 chosen");
+    expect(chosenText(7, 8)).toBe("7 of 8 chosen");
+    expect(chosenText(8, 8)).toBe("8 of 8 chosen, the most you can choose");
+  });
+
+  test("the preview gets every field, unset ones cleared", () => {
+    expect(engineeringPreview({ role: "soc_analyst", focusAreas: ["soc_siem"], platforms: null, certificationGoal: "" })).toEqual({
+      role: "soc_analyst",
+      experienceLevel: null,
+      certificationGoal: null,
+      focusAreas: ["soc_siem"],
+      platforms: [],
+    });
+  });
+});
+
+test("a whole number within its limits, or nothing", () => {
+  expect(wholeNumber("45", 600)).toBe(45);
+  expect(wholeNumber("44.6", 600)).toBe(45);
+  expect(wholeNumber("-5", 600)).toBe(0);
+  expect(wholeNumber("9000", 600)).toBe(600);
+  expect(wholeNumber("  ", 600)).toBeNull();
+  expect(wholeNumber("abc", 600)).toBeNull();
 });

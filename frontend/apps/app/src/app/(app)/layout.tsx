@@ -14,10 +14,9 @@ import { NavigationGuardRoot } from "@/features/navigation/navigation-guard-root
 import { ActivityHeartbeat } from "@/features/progress/activity-heartbeat";
 import { SessionKeeper } from "@/features/progress/session-keeper";
 import { StudyHeartbeat } from "@/features/study/study-heartbeat";
-import { greetingPool } from "@/lib/greeting";
 import { previewEnabled } from "@/lib/preview";
 import { safeRedirect } from "@/lib/safe-redirect";
-import { getAppearance, getCurrentUser, getInitialConversations, getStudyGreetings } from "@/lib/server/session";
+import { getAppearance, getCurrentUser, getInitialConversations } from "@/lib/server/session";
 
 /**
  * Every signed-in page. The session is checked HERE, on the server, against the
@@ -25,9 +24,8 @@ import { getAppearance, getCurrentUser, getInitialConversations, getStudyGreetin
  *
  *   401          → /api/session/expired (re-checks, clears the cookie, → sign in)
  *   unreachable  → an outage screen, NOT a sign-out
- *   ok           → the app, with the user, their appearance, the first page of chats
- *                  and this week's study greetings already loaded, so the first paint is
- *                  complete (the greeting falls back quietly: lib/greeting.ts)
+ *   ok           → the app, with the user, their appearance and the first page of chats
+ *                  already loaded, so the first paint is complete
  *
  * Also decides, per request, whether preview UI may render (lib/preview.ts).
  *
@@ -37,11 +35,10 @@ import { getAppearance, getCurrentUser, getInitialConversations, getStudyGreetin
  * and the session is still watched while Settings is open.
  */
 export default async function AppLayout({ children }: { children: ReactNode }) {
-  const [session, conversations, appearance, greetings] = await Promise.all([
+  const [session, conversations, appearance] = await Promise.all([
     getCurrentUser(),
     getInitialConversations(),
     getAppearance(),
-    getStudyGreetings(),
   ]);
 
   if (session.status === "unauthorized") {
@@ -54,10 +51,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     <PreviewProvider enabled={previewEnabled()}>
       <UserProvider user={session.data}>
         <AppearanceProvider initial={appearance.status === "ok" ? appearance.data : null}>
-          <ChatProvider
-            initialConversations={conversations.status === "ok" ? conversations.data : null}
-            greetings={greetingPool(greetings)}
-          >
+          <ChatProvider initialConversations={conversations.status === "ok" ? conversations.data : null}>
             <ActivityHeartbeat />
             <StudyHeartbeat />
             <SessionKeeper />

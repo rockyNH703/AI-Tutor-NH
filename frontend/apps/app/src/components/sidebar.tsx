@@ -13,7 +13,7 @@ import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@v1/ui/tooltip";
 import { cn } from "@v1/ui/utils";
 import {
-  BookOpenCheck,
+  Award,
   ChevronsUpDown,
   FolderOpen,
   LogOut,
@@ -100,11 +100,11 @@ function RailTip({ label, collapsed, children }: { label: string; collapsed: boo
 }
 
 /**
- * The brand, "Ask New Doubt", the Learning Hub (only when there are tools besides the chat), the
- * chat list ("Recent Doubts") and the account. Rendered in the desktop rail and inside the mobile drawer
+ * The brand, "New chat", the Tools (only when there are tools besides the chat), the
+ * chat list ("Chats") and the account. Rendered in the desktop rail and inside the mobile drawer
  * (`onNavigate` closes the drawer). The collapse control lives in the header.
  */
-/** A sidebar place (My Learning, File Library, Study Activity): its page and everything under it. */
+/** A sidebar place (Skills & Certifications, File Library, Lab Activity): its page and everything under it. */
 function PlaceLink({
   href,
   label,
@@ -229,27 +229,27 @@ export function SidebarContent({
       <div ref={scroller} className="scrollbar-subtle flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 
         <div className={cn("shrink-0", collapsed ? "flex justify-center px-3 py-4" : "px-4 py-4")}>
-          <RailTip label="Ask New Doubt" collapsed={collapsed}>
+          <RailTip label="New chat" collapsed={collapsed}>
             <Link
               href="/"
               onClick={onNavigate}
-              aria-label={collapsed ? "Ask New Doubt" : undefined}
+              aria-label={collapsed ? "New chat" : undefined}
               className={cn(
                 "focus-ring group flex items-center justify-center gap-2 rounded-xl border border-border bg-card font-semibold text-foreground elev-1 transition hover:bg-surface-2 hover:elev-2 active:scale-[0.98]",
                 collapsed ? "h-11 w-11" : "w-full px-4 py-3 text-sm",
               )}
             >
               <Plus aria-hidden className="h-5 w-5" />
-              {!collapsed && "Ask New Doubt"}
+              {!collapsed && "New chat"}
             </Link>
           </RailTip>
         </div>
 
-        {/* Places of their own, not Learning Hub items: your practice, the files the tutor can read, your study time. */}
+        {/* Places of their own, not tools: your certification practice, the files NetSec AI can read, your lab time. */}
         <div className={cn("shrink-0 space-y-1", collapsed ? "flex flex-col items-center px-3 pb-3" : "px-3 pb-3")}>
-          <PlaceLink href="/learning" label="My Learning" icon={BookOpenCheck} collapsed={collapsed} onNavigate={onNavigate} />
+          <PlaceLink href="/learning" label="Skills & Certifications" icon={Award} collapsed={collapsed} onNavigate={onNavigate} />
           <PlaceLink href="/library" label="File Library" icon={FolderOpen} collapsed={collapsed} onNavigate={onNavigate} />
-          <PlaceLink href="/study" label="Study Activity" icon={Timer} collapsed={collapsed} onNavigate={onNavigate} />
+          <PlaceLink href="/study" label="Lab Activity" icon={Timer} collapsed={collapsed} onNavigate={onNavigate} />
         </div>
 
         {hub.length > 0 && (
@@ -261,7 +261,7 @@ export function SidebarContent({
                 collapsed && "sr-only",
               )}
             >
-              Learning Hub
+              Tools
             </h2>
             {hub.map((item) => {
               const Icon = item.icon;
@@ -309,7 +309,7 @@ export function SidebarContent({
           <nav aria-labelledby="chats-heading" className="mt-5 flex min-h-[10rem] flex-1 flex-col">
             <div className="flex items-center justify-between px-6 pb-2">
               <h2 id="chats-heading" className="text-2xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
-                Recent Doubts
+                Chats
               </h2>
             </div>
             {list.items.length > 5 && (

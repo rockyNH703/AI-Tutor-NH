@@ -2,8 +2,8 @@
 
 import type { JSX } from "react";
 
-import { AcademicSection } from "./academic-section";
 import { AppearanceSection } from "./appearance-section";
+import { EngineeringSection } from "./engineering-section";
 import { GoalsSection } from "./goals-section";
 import { HelpSection } from "./help-section";
 import { NotificationsSection } from "./notifications-section";
@@ -22,7 +22,7 @@ export type SectionProps = { googleEnabled: boolean };
 
 const VIEWS: Record<SectionSlug, (props: SectionProps) => JSX.Element> = {
   profile: ProfileSection,
-  academic: AcademicSection,
+  engineering: EngineeringSection,
   goals: GoalsSection,
   learning: LearningSection,
   tutor: TutorSection,

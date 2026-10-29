@@ -48,14 +48,14 @@ const STATES: Record<MasteryState, { label: string; badge: Variant }> = {
   not_enough_evidence: { label: "Not enough answers yet", badge: "neutral" },
 };
 const TASKS: Record<PlanTask["kind"], { label: string; badge: Variant; action: string }> = {
-  revise: { label: "Revise", badge: "info", action: "Revise" },
+  revise: { label: "Review", badge: "info", action: "Review" },
   strengthen: { label: "Needs work", badge: "warning", action: "Practise" },
   learn: { label: "New", badge: "brand", action: "Practise" },
 };
 const REVISION_STATES: Record<RevisionItem["state"], { label: string; badge: Variant }> = {
   overdue: { label: "Overdue", badge: "danger" },
   due: { label: "Due today", badge: "info" },
-  done: { label: "Revised today", badge: "success" },
+  done: { label: "Reviewed today", badge: "success" },
   upcoming: { label: "Coming up", badge: "neutral" },
 };
 
@@ -84,9 +84,9 @@ function day(date: string): string {
 function reason(task: PlanTask): string {
   switch (task.reason) {
     case "overdue":
-      return `Revision is overdue by ${days(task.overdueDays ?? 0)}.`;
+      return `Review is overdue by ${days(task.overdueDays ?? 0)}.`;
     case "due":
-      return "Due for revision today.";
+      return "Due for review today.";
     case "weak_concept":
       return "Your recent answers show this needs more practice.";
     case "next_topic":
@@ -171,15 +171,12 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
     <div className="flex flex-col gap-4">
       {plan.needsProfile && (
         <Notice>
-          To suggest new topics from your own subjects, the plan needs your class (6 to 12) in{" "}
-          <Link href="/settings/academic" className={link}>
-            Academic Profile
+          Practice plans built from your exam tracks arrive with NetSec AI's certification question bank, which
+          isn't loaded yet. Your{" "}
+          <Link href="/settings/engineering" className={link}>
+            Engineering Profile
           </Link>{" "}
-          and your subjects in{" "}
-          <Link href="/settings/subjects" className={link}>
-            Subjects & Study
-          </Link>
-          .
+          already tells NetSec AI your platforms and certification goal.
         </Notice>
       )}
       {plan.tasks.length === 0 ? (
@@ -188,8 +185,8 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
           title={plan.summary.answered ? "Nothing planned for today" : "No plan yet"}
           description={
             plan.summary.answered
-              ? "Nothing is due for revision and no new topic is waiting. You can practise any chapter under Practice by chapter."
-              : "Your plan comes from the question-bank tests you take in the chat. Choose a chapter under Practice by chapter to take your first one."
+              ? "Nothing is due for review and no new topic is waiting. You can practise any domain under Practice by domain."
+              : "Your plan comes from the certification practice tests you take in the chat. Choose a domain under Practice by domain to take your first one."
           }
           action={null}
         />
@@ -197,7 +194,7 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
         <>
           {plan.insufficientHistory && (
             <p className="text-sm text-text-secondary">
-              There are only a few answers to go on so far, so this plan is a starting point: it adapts as you answer more test
+              There are only a few answers to go on so far, so this plan is a starting point: it adapts as you answer more practice
               questions.
             </p>
           )}
@@ -213,7 +210,7 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
                     <span className="min-w-0 break-words text-sm font-semibold text-foreground">{task.topicTitle}</span>
                   </div>
                   <p className="break-words text-xs text-text-secondary">
-                    {subjectName(task.subjectCode)} · Chapter {task.chapterNumber}: {task.chapterTitle}
+                    {subjectName(task.subjectCode)} · Domain {task.chapterNumber}: {task.chapterTitle}
                   </p>
                   <p className="text-xs text-text-secondary">
                     {reason(task)} About {task.minutes} min, {task.questions} questions.
@@ -243,21 +240,21 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
         {plan.answeredToday >= plan.answersForLearningDay ? (
           <Stat
             value={String(plan.answeredToday)}
-            label="test answers today"
-            hint="Enough to make today a learning day for your streak."
+            label="practice answers today"
+            hint="Enough to make today a practice day for your practice streak."
           />
         ) : (
           <Stat
             value={`${plan.answeredToday} of ${plan.answersForLearningDay}`}
-            label="test answers today"
-            hint={`${plan.answersForLearningDay} make today a learning day for your streak, as a question answered in the chat does.`}
+            label="practice answers today"
+            hint={`${plan.answersForLearningDay} make today a practice day for your practice streak, as a question answered in the chat does.`}
           />
         )}
         {plan.tasks.length > 0 && (
           <Stat
             value={`${plan.budgetMinutes} min`}
             label="planned for today"
-            hint={plan.budgetSource === "goal" ? "Your daily goal from Learning Goals." : "Set a daily goal in Learning Goals to change it."}
+            hint={plan.budgetSource === "goal" ? "Your daily goal from Practice & Lab Time." : "Set a daily goal in Practice & Lab Time to change it."}
           />
         )}
       </dl>
@@ -275,14 +272,14 @@ function RevisionRow({ item, subjectName, hint }: { item: RevisionItem; subjectN
           <span className="min-w-0 break-words text-sm font-semibold text-foreground">{item.topicTitle}</span>
         </div>
         <p className="break-words text-xs text-text-secondary">
-          {subjectName(item.subjectCode)} · Chapter {item.chapterNumber}: {item.chapterTitle}
+          {subjectName(item.subjectCode)} · Domain {item.chapterNumber}: {item.chapterTitle}
         </p>
         <p className="text-xs text-text-secondary">
           {item.state === "overdue" ? `Due ${day(item.dueDate)}, ${days(item.overdueDays)} ago.` : `Due ${day(item.dueDate)}.`}{" "}
           Last time {percent(item.lastAccuracy)} right ({day(item.lastReviewed)}).
         </p>
       </div>
-      {hint && <AskButton label="Revise" name={`Revise ${item.topicTitle} in a new chat`} request={item.prompt} hint={hint} />}
+      {hint && <AskButton label="Review" name={`Review ${item.topicTitle} in a new chat`} request={item.prompt} hint={hint} />}
     </li>
   );
 }
@@ -294,7 +291,7 @@ function Revision({ revisions, subjectName }: { revisions: Revisions; subjectNam
   if (!revisions.items.length) {
     return (
       <p className="text-sm text-text-secondary">
-        Nothing to revise yet. A topic you practise comes back for revision after {revisions.ladderDays.join(", ")} days, a
+        Nothing to review yet. A topic you practise comes back for review after {revisions.ladderDays.join(", ")} days, a
         longer gap each time you remember it.
       </p>
     );
@@ -356,18 +353,18 @@ function ExamDate({ profile, plan }: { profile: LearnerProfile; plan: PracticePl
                   ? undefined
                   : left > 0
                     ? `In ${days(left)}.`
-                    : "The exam is today. All the best!"
+                    : "The exam is today. Good luck."
             }
           />
         </dl>
       ) : (
         <p className="text-sm text-text-secondary">
           {profile.targetExam ? `You're preparing for ${profile.targetExam}. ` : ""}
-          No exam date is set. With one, the plan turns to revision as the exam gets close.
+          No exam date is set. With one, the plan turns to review as the exam gets close.
         </p>
       )}
       <Link href="/settings/goals" className={`${link} self-start text-sm`}>
-        {profile.examDate ? "Change in Learning Goals" : "Set it in Learning Goals"}
+        {profile.examDate ? "Change in Skills & Certification Goals" : "Set it in Skills & Certification Goals"}
       </Link>
     </div>
   );
@@ -377,7 +374,7 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
   if (!mastery.subjects.length) {
     return (
       <p className="text-sm text-text-secondary">
-        No estimates yet. They appear once you've answered questions in a test from the question bank.
+        No estimates yet. They appear once you've answered questions in a certification practice test.
       </p>
     );
   }
@@ -388,7 +385,7 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
           <details key={`${subject.subjectCode}:${subject.classLevel}:${subject.language}`} className="group">
             <summary className={summary}>
               <span className="min-w-0 break-words">
-                {subjectName(subject.subjectCode)}, Class {subject.classLevel}
+                {subjectName(subject.subjectCode)} · Level {subject.classLevel}
               </span>
               <span className="flex shrink-0 items-center gap-2 text-xs font-medium text-text-secondary">
                 {subjectEstimate(subject)}
@@ -399,7 +396,7 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
               {subject.chapters.map((chapter) => (
                 <section key={chapter.chapterId} aria-labelledby={`mastery-${chapter.chapterId}`} className="flex flex-col gap-2">
                   <h3 id={`mastery-${chapter.chapterId}`} className="break-words text-sm font-semibold text-foreground">
-                    Chapter {chapter.number}: {chapter.title}
+                    Domain {chapter.number}: {chapter.title}
                     <span className="block text-xs font-normal text-text-secondary">{chapter.bookTitle}</span>
                   </h3>
                   <ul className="flex flex-col gap-2.5">
@@ -435,7 +432,7 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
         ))}
       </div>
       <p className="text-2xs leading-relaxed text-text-secondary">
-        An estimate is how likely you are to know a topic now, worked out from your test answers: a guide, not a mark. A
+        An estimate is how likely you are to know a topic now, worked out from your practice answers: a guide, not a score. A
         concept needs at least {mastery.model.minAnswers} answers to {mastery.model.minQuestions} different questions before
         it can count as mastered.
       </p>
@@ -494,7 +491,7 @@ function MistakeEntry({ concept, subjectName, hint }: { concept: MistakeConcept;
                   <>
                     {" · "}
                     <Link href={`/c/${item.conversationId}`} className={link}>
-                      Open the test
+                      Open the practice test
                     </Link>
                   </>
                 )}
@@ -513,7 +510,7 @@ function MistakeList({ mistakes, subjectName }: { mistakes: Mistakes; subjectNam
   if (!mistakes.concepts.length) {
     return (
       <p className="text-sm text-text-secondary">
-        No mistakes to review. A question you get wrong in a test shows up here, with the right answer.
+        No missed questions to review. A question you get wrong in a practice test shows up here, with the right answer.
       </p>
     );
   }
@@ -538,7 +535,7 @@ function TestList({ tests }: { tests: PracticeTests }) {
   if (!tests.items.length) {
     return (
       <p className="text-sm text-text-secondary">
-        No tests yet. Ask the tutor for a test on a chapter, or choose one under Practice by chapter.
+        No practice tests yet. Ask NetSec AI for a certification practice test on a domain, or choose one under Practice by domain.
       </p>
     );
   }
@@ -595,7 +592,7 @@ export function MyLearningView() {
       // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard-focusable to be scrollable
       tabIndex={0}
       role="region"
-      aria-label="My Learning"
+      aria-label="Skills & Certifications"
       className="scrollbar-subtle focus-ring-inset h-full overflow-y-auto"
     >
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-6 sm:px-6">
@@ -609,13 +606,13 @@ export function MyLearningView() {
             arriving taller pushed every panel down (a layout shift of 0.61 on a phone, 2026-10-23); they
             are mounted from the start, hidden, so their requests (the chapters' too) run at once. */}
         <div className={planAnswered.current ? "contents" : "hidden"}>
-          <Panel id="learning-practice" title="Practice by chapter">
+          <Panel id="learning-practice" title="Practice by domain">
             <PracticePicker subjectName={subjectName} />
           </Panel>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <Panel id="learning-revision" title="Revision due">
-              <Loaded resource={revisions} what="your revision">
+            <Panel id="learning-revision" title="Topics to review">
+              <Loaded resource={revisions} what="your topics to review">
                 {(data) => <Revision revisions={data} subjectName={subjectName} />}
               </Loaded>
             </Panel>
@@ -626,29 +623,29 @@ export function MyLearningView() {
             </Panel>
           </div>
 
-          <Panel id="learning-mastery" title="Mastery">
-            <Loaded resource={mastery} what="your mastery">
+          <Panel id="learning-mastery" title="Topic mastery">
+            <Loaded resource={mastery} what="your topic mastery">
               {(data) => <MasteryList mastery={data} subjectName={subjectName} />}
             </Loaded>
           </Panel>
 
-          <Panel id="learning-mistakes" title="Mistakes">
-            <Loaded resource={mistakes} what="your mistakes">
+          <Panel id="learning-mistakes" title="Missed questions">
+            <Loaded resource={mistakes} what="your missed questions">
               {(data) => <MistakeList mistakes={data} subjectName={subjectName} />}
             </Loaded>
           </Panel>
 
-          <Panel id="learning-tests" title="Recent tests">
-            <Loaded resource={tests} what="your tests">
+          <Panel id="learning-tests" title="Recent practice tests">
+            <Loaded resource={tests} what="your practice tests">
               {(data) => <TestList tests={data} />}
             </Loaded>
           </Panel>
 
           <p className="text-xs leading-relaxed text-text-secondary">
-            Everything here comes only from your answers to question-bank tests in the chat: flashcards and exercises the
-            tutor writes itself are not counted. Only you can see it. Your study time is in{" "}
+            Everything here comes only from your answers to certification practice tests in the chat: flashcards and
+            exercises NetSec AI writes itself are not counted. Only you can see it. Your lab time is in{" "}
             <Link href="/study" className={link}>
-              Study Activity
+              Lab Activity
             </Link>
             .
           </p>

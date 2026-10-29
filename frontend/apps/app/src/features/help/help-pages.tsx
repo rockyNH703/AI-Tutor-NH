@@ -33,25 +33,36 @@ export function PageFrame({ title, intro, children }: { title: string; intro: st
 
 type Faq = { question: string; answer: ReactNode };
 
-const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
+export const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
   {
-    topic: "Using the tutor",
+    topic: `Using ${APP_NAME}`,
     items: [
       {
         question: `What can I ask ${APP_NAME}?`,
         answer: (
           <>
-            Any question from your studies: a doubt from class, a step you didn't follow, a topic to revise. Ask in
-            your own words, and ask follow-up questions in the same chat.
+            Anything about networks, security and infrastructure: configuration, troubleshooting, reading logs and packet
+            captures, hardening, cloud networking, and preparing for certifications such as CCNA, CCNP, Security+ or OSCP.
+            Say which platform you're on, and ask follow-up questions in the same chat.
           </>
         ),
       },
       {
-        question: "How do I make the tutor fit how I learn?",
+        question: "How do I get started?",
         answer: (
           <>
-            Fill in {inline("/settings/academic", "Academic Profile")}, {inline("/settings/learning", "Learning Preferences")}{" "}
-            and {inline("/settings/tutor", "AI Tutor")}. The AI Tutor page shows exactly what your tutor is told. Your
+            Set up your profile in {inline("/settings", "Settings")}, so answers fit the platforms you work with. Then paste
+            a config, log or question into the chat. Remove passwords, keys, community strings and other secrets before you
+            paste anything.
+          </>
+        ),
+      },
+      {
+        question: "How do I make the answers fit how I work?",
+        answer: (
+          <>
+            Fill in your profile, {inline("/settings/learning", "Learning Preferences")} and{" "}
+            {inline("/settings/tutor", "AI Assistant")}. The AI Assistant page shows exactly what {APP_NAME} is told. Your
             name, email address and photo are never sent to it.
           </>
         ),
@@ -61,14 +72,15 @@ const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
         answer: <>Press Stop while it's writing. Leaving the page or closing the tab stops it too.</>,
       },
       {
-        question: "Can the tutor read my files?",
+        question: `Can ${APP_NAME} read my files?`,
         answer: (
           <>
-            Yes. Attach a PDF, Word, PowerPoint, Excel, CSV, text file or a photo of printed text with the paperclip, or
-            add it in the {inline("/library", "File Library")}. You can send once a file shows Ready. The tutor then uses
-            the files attached in that chat; from a large file it reads the parts that fit your question. You have 100 MB
-            of storage; deleting a file frees its space. Handwriting, maths written by hand, diagrams and charts are not
-            read. To find what a file says, its text is sent to our AI provider, like your messages.
+            Yes. Attach a PDF, Word, PowerPoint, Excel, CSV or text file (configs and logs included) or a screenshot of
+            printed text with the paperclip, or add it in the {inline("/library", "File Library")}. You can send once a
+            file shows Ready. {APP_NAME} then uses the files attached in that chat; from a large file it reads the parts
+            that fit your question. You have 100 MB of storage; deleting a file frees its space. Handwriting, diagrams and
+            charts are not read. To find what a file says, its text is sent to our AI provider, like your messages, so
+            remove secrets from it first.
           </>
         ),
       },
@@ -86,25 +98,44 @@ const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
     ],
   },
   {
-    topic: "Progress",
+    topic: "Practice and progress",
     items: [
+      {
+        question: "What is Skills & Certifications?",
+        answer: (
+          <>
+            Your record from the certification practice tests you take in the chat: today's plan, topics to review, topic
+            mastery, missed questions and recent tests. Only you can see it.
+          </>
+        ),
+      },
+      {
+        question: "What is Lab Activity?",
+        answer: (
+          <>
+            The estimated time you spend in lab sessions. Start a session when you sit down to practise; time counts only
+            while {APP_NAME} is on screen, in the chat or your files, and you're active. It's an estimate, not a measure of
+            attention.
+          </>
+        ),
+      },
       {
         question: "How is active time measured?",
         answer: (
           <>
             A minute counts when {APP_NAME} is open and on screen, and within the last two minutes you used it (typed,
             clicked, scrolled) or a reply was being written. At most one minute counts per minute, however many tabs or
-            devices you use. It measures time in the app, not all of your studying.
+            devices you use. It measures time in the app, not all of your work.
           </>
         ),
       },
       {
-        question: "What is a streak?",
+        question: "What is a practice streak?",
         answer: (
           <>
             The number of days in a row on which you were active for at least a minute or asked a question. Days follow
             the time zone in your {inline("/settings/profile", "Profile")}. See yours in{" "}
-            {inline("/settings/progress", "Progress & Goals")}.
+            {inline("/settings/progress", "Practice & Goals")}.
           </>
         ),
       },
@@ -117,7 +148,7 @@ const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
         question: "Will you send me emails?",
         answer: (
           <>
-            Study reminders and summaries are off until you turn them on in{" "}
+            Practice reminders and summaries are off until you turn them on in{" "}
             {inline("/settings/notifications", "Notifications")}, and every one has a link to stop it. Security emails
             are on: when your password changes and, unless you turn it off, when your account is signed in on a new
             device. The Notifications page says if sending emails is paused.
@@ -194,17 +225,25 @@ export function AboutPage() {
       <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground">
         <h3 className="font-bold">What it does</h3>
         <p>
-          {APP_NAME} is an AI tutor for school students. You ask questions in a chat and it explains, step by step when
-          you want, in the language and at the depth you choose. It can draw on study material we've added, and it
-          adapts to the class, board and subjects you tell it about.
+          {APP_NAME} is an assistant for network, security and infrastructure engineers. You ask in a chat and it helps
+          with configuration, troubleshooting, logs and packet analysis, security and cloud networking, step by step when
+          you want. It can draw on reference material we've added and on files you attach, and it adapts to the profile
+          and preferences you set. It also helps you prepare for certifications with practice tests in the chat.
         </p>
-        <p>It's a study aid, not a replacement for your teachers or textbooks.</p>
+        <p>
+          It's an aid, not a replacement for your own judgement: check its answers against your platform's documentation
+          before you change a production network.
+        </p>
       </section>
       <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground">
         <h3 className="font-bold">Your data</h3>
         <ul className="list-disc space-y-1.5 pl-5">
           <li>Your chats, settings and progress are stored with your account. Other users can't see them.</li>
-          <li>The tutor is told your learning settings, never your name, email address or photo.</li>
+          <li>
+            {APP_NAME} is told your profile and preferences, never your name, email address or photo. What you send is
+            passed to our AI provider to write the answer.
+          </li>
+          <li>Remove passwords, keys and other secrets before you paste a config or log, or attach a file.</li>
           <li>Active time comes only from how you use the app, and it's never compared with anyone else's.</li>
           <li>
             You can delete your account, and everything with it, at any time in{" "}

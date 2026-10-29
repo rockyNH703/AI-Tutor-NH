@@ -1,11 +1,12 @@
 import { FileEdit, Lightbulb, type LucideIcon, MessageSquare } from "lucide-react";
 
 /**
- * The Learning Hub: every tool in the sidebar, in order, with the line under its
+ * The tools: every tool in the sidebar, in order, with the line under its
  * name and the colours of its icon chip. The header reads the same list, so a
- * tool's title is written once.
+ * tool's title is written once. Ids and paths are internal and stay as they are
+ * (`homework` is the Troubleshooter).
  *
- * Only the AI Tutor (the chat) is real today. The others are UI ahead of their
+ * Only the chat is real today. The others are UI ahead of their
  * backend, marked `preview`: they are listed, and their pages exist, only when
  * preview features are on (lib/preview.ts).
  */
@@ -24,8 +25,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     id: "tutor",
     href: "/",
-    label: "AI Tutor",
-    description: "24/7 Personal Doubts Solver",
+    label: "NetSec AI",
+    description: "Network & security engineering assistant",
     icon: MessageSquare,
     accent: "bg-brand-soft text-brand",
     preview: false,
@@ -33,8 +34,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     id: "homework",
     href: "/homework",
-    label: "Homework Helper",
-    description: "Snap & Solve Math / Science",
+    label: "Troubleshooter",
+    description: "Paste or snap a config, log or error and get the fix",
     icon: FileEdit,
     accent: "bg-success-soft text-success",
     preview: true,
@@ -43,7 +44,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     id: "summarizer",
     href: "/summarizer",
     label: "Summarizer",
-    description: "2-Min Chapter Recaps & Notes",
+    description: "Summarise logs, configs, RFCs and runbooks",
     icon: Lightbulb,
     accent: "bg-warning-soft text-warning",
     preview: true,
@@ -56,14 +57,14 @@ export function visibleNavItems(preview: boolean): readonly NavItem[] {
 }
 
 /**
- * The sidebar's Learning Hub: the tools besides the chat. The chat is already the sidebar's
- * "Ask New Doubt" and chat list, so it is not listed again; with no other tool, there is no hub.
+ * The sidebar's Tools: the tools besides the chat. The chat is already the sidebar's
+ * "New chat" and chat list, so it is not listed again; with no other tool, there is no Tools list.
  */
 export function hubItems(preview: boolean): readonly NavItem[] {
   return visibleNavItems(preview).filter((item) => item.id !== "tutor");
 }
 
-/** The tutor owns `/` and every conversation (`/c/<id>`); a tool owns its path and below. */
+/** The chat owns `/` and every conversation (`/c/<id>`); a tool owns its path and below. */
 export function isActive(item: NavItem, pathname: string | null): boolean {
   const path = pathname ?? "";
   if (item.href === "/") return path === "/" || path.startsWith("/c/");

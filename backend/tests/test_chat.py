@@ -47,7 +47,7 @@ async def test_history_is_loaded_server_side(client, app, fake_llm):
     cid = events[0][1]["conversationId"]
     await stream_chat(client, account["headers"], "second", conversation_id=cid)
     prompt = fake_llm.calls[-1]
-    assert prompt[0].role == "system" and "general-purpose AI assistant" in prompt[0].content
+    assert prompt[0].role == "system" and prompt[0].content.startswith("You are NetSec AI, an assistant for network")
     assert [(m.role, m.content) for m in prompt[1:]] == [
         ("user", "first"),
         ("assistant", "You said: first"),

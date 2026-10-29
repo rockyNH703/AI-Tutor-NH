@@ -6,7 +6,7 @@ export function describeRemaining(ms: number): { short: string; spoken: string }
   const pad = (value: number) => String(value).padStart(2, "0");
   const unit = (value: number, word: string) => `${value} ${word}${value === 1 ? "" : "s"}`;
   const spoken = hours ? `${unit(hours, "hour")} ${unit(minutes, "minute")}` : unit(minutes, "minute");
-  return { short: `${pad(hours)}h ${pad(minutes)}m`, spoken: `${spoken} left in today's learning day` };
+  return { short: `${pad(hours)}h ${pad(minutes)}m`, spoken: `${spoken} left in today's practice day` };
 }
 
 /** The learning day has ended (the header then asks the server for the new day). */

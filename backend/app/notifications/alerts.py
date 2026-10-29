@@ -2,7 +2,7 @@
 Better Auth signed someone in or changed how they sign in.
 
 - A sign-in from a device the account has no other live session on: an alert, emailed unless
-  the student turned sign-in alerts off.
+  the user turned sign-in alerts off.
 - A password change or reset, a Google account linked, and two-step sign-in turned on or off:
   always emailed, since each is how the owner learns that someone else may have taken the account.
 
@@ -40,7 +40,7 @@ def local_time(settings: Settings, user: User, moment: datetime) -> str:
 async def sign_in_alert(
     session: AsyncSession, settings: Settings, user: User, device: str, moment: datetime
 ) -> Email | None:
-    # In the app always; by email unless the student turned sign-in alerts off.
+    # In the app always; by email unless the user turned sign-in alerts off.
     await notify(
         session,
         user.id,

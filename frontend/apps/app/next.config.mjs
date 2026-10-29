@@ -112,6 +112,9 @@ const nextConfig = {
       { source: "/:locale(en|fr|es)", destination: "/", permanent: false },
       { source: "/:locale(en|fr|es)/:path*", destination: "/:path*", permanent: false },
       { source: "/consult", destination: "/", permanent: false },
+      // Settings sections that moved (features/settings/sections.ts, SECTION_REDIRECTS): the
+      // Academic Profile became the Engineering Profile.
+      { source: "/settings/academic", destination: "/settings/engineering", permanent: false },
     ];
   },
   async headers() {

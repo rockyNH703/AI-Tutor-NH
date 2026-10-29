@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator, Callable
 
 from app.llm.base import ChatMessage, GenerationOptions, LLMError, LLMStream, ProviderInfo, StreamPart, Usage
 
-# Asked this, the fake answers with what the student's settings and progress added to its system
+# Asked this, the fake answers with what the user's settings and practice record added to its system
 # prompt, so an end-to-end test can see on screen what the model was really told.
 PROBE = "[[e2e: what were you told?]]"
 
@@ -16,8 +16,8 @@ def default_reply(messages: list[ChatMessage]) -> str:
     last_user = next((m.content for m in reversed(messages) if m.role == "user"), "")
     if last_user == PROBE:
         system = next((m.content for m in messages if m.role == "system"), "")
-        _, found, student = system.partition("\n\n## ")
-        return f"## {student}" if found else "No student instructions."
+        _, found, added = system.partition("\n\n## ")
+        return f"## {added}" if found else "No user instructions."
     return f"You said: {last_user}"
 
 

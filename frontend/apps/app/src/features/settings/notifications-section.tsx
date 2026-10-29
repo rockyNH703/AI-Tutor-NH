@@ -56,11 +56,11 @@ export function NotificationsSection() {
         <div className="flex flex-col gap-4">
           <SettingsCard
             title="In the app"
-            description="Security alerts and streak milestones always appear in the bell at the top of the app."
+            description="Security alerts and practice streak milestones always appear in the bell at the top of the app."
           >
             <ToggleRow
               label="Reminders in the app"
-              description="A gentle streak reminder in the evening of a day you haven't learnt yet, and your study reminders."
+              description="A practice streak reminder in the evening of a day you haven't practised yet, and your practice reminders."
               checked={value.inAppReminders}
               onCheckedChange={(inAppReminders) => change({ inAppReminders })}
             />
@@ -70,7 +70,7 @@ export function NotificationsSection() {
               NetSec AI isn't sending notification emails yet. Your choices are saved and will apply as soon as it does.
             </Notice>
           )}
-          <SettingsCard title="Study reminders" description="Sent to your email address.">
+          <SettingsCard title="Practice reminders" description="Sent to your email address.">
             {value.remindersNeedTimezone && (
               <Notice tone="warning">
                 Reminders are sent at times in your own day, so they need your time zone.{" "}
@@ -82,13 +82,13 @@ export function NotificationsSection() {
             )}
             <ToggleRow
               label="Daily reminder"
-              description="At your preferred study time (6 pm until you choose one), only on days you haven't used NetSec AI yet."
+              description="At your preferred practice time (6 pm until you choose one), only on days you haven't used NetSec AI yet."
               checked={value.dailyReminder}
               onCheckedChange={(dailyReminder) => change({ dailyReminder })}
             />
             <ToggleRow
-              label="Streak reminder"
-              description="In the evening, when a streak of two or more days would end that night."
+              label="Practice streak reminder"
+              description="In the evening, when a practice streak of two or more days would end that night."
               checked={value.streakWarning}
               onCheckedChange={(streakWarning) => change({ streakWarning })}
             />

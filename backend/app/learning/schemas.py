@@ -1,4 +1,5 @@
-"""Learning API models. JSON is camelCase; codes are checked against the catalog by the service.
+"""Learning API models (and the Engineering Profile's). JSON is camelCase; codes are checked
+against the catalogs by the service.
 
 Free text a student writes (goals, target exam, topics) is normalised on the way in: every run
 of whitespace, including line breaks, becomes one space, and control and bidirectional-override
@@ -24,6 +25,8 @@ GOAL_MAX = 280
 TOPIC_MAX = 60
 TOPICS_MAX = 10
 SUBJECTS_MAX = 15
+FOCUS_AREAS_MAX = 8  # the database checks both (engineering_profiles)
+PLATFORMS_MAX = 12
 EXAM_DAYS_AHEAD = 730  # an exam date is from yesterday (any time zone's today) to two years ahead
 
 _INVISIBLE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f‪-‮⁦-⁩]")
@@ -249,20 +252,70 @@ class LearningPreferencesOut(ApiModel):
     updated_at: datetime | None
 
 
+# --------------------------------------------------------------- engineering profile
+EngineeringField = Literal["role", "experienceLevel", "focusAreas", "platforms", "certificationGoal"]
+
+
+def _distinct_codes(value: list[str] | None) -> list[str] | None:
+    if value is not None and len(set(value)) != len(value):
+        raise ValueError("a code is listed twice")
+    return value
+
+
+class EngineeringProfileSet(RequestModel):
+    """Fields to set. Absent fields are unchanged; `null` is not a value (use `reset`). Codes come
+    from GET /v1/catalog/engineering; a list replaces the stored one, in its order."""
+
+    role: Code | None = None
+    experience_level: Code | None = None
+    focus_areas: list[Code] | None = Field(default=None, max_length=FOCUS_AREAS_MAX)
+    platforms: list[Code] | None = Field(default=None, max_length=PLATFORMS_MAX)
+    certification_goal: Code | None = None
+
+    @field_validator("focus_areas", "platforms")
+    @classmethod
+    def _distinct(cls, value: list[str] | None) -> list[str] | None:
+        return _distinct_codes(value)
+
+
+class UpdateEngineeringProfileRequest(RequestModel):
+    """`{version, set, reset}` (docs/api-contract.md, "Versioned edits"); `reset` empties a field."""
+
+    version: int = Field(ge=0)
+    set: EngineeringProfileSet = Field(default_factory=EngineeringProfileSet)
+    reset: list[EngineeringField] = Field(default_factory=list, max_length=len(EngineeringProfileSet.model_fields))
+
+    @model_validator(mode="after")
+    def _one_meaning_per_field(self) -> UpdateEngineeringProfileRequest:
+        check_set_reset(self.set, self.reset)
+        return self
+
+
+class EngineeringProfileOut(ApiModel):
+    version: int = Field(description="Send it back with PATCH /v1/engineering/profile.")
+    role: str | None
+    experience_level: str | None
+    focus_areas: list[str]
+    platforms: list[str]
+    certification_goal: str | None
+    updated_at: datetime | None
+
+
 # -------------------------------------------------------------------- tutor preview
 class TutorPreviewRequest(RequestModel):
-    """Unsaved edits to preview. Each part given replaces or overlays what is stored: `profile`
-    and `preferences` fields override the stored ones, `subjects` replaces the stored list.
-    Nothing is saved."""
+    """Unsaved edits to preview. Each part given replaces or overlays what is stored: `profile`,
+    `engineering` and `preferences` fields override the stored ones (`null` clears one here),
+    `subjects` replaces the stored list. Nothing is saved."""
 
     profile: LearnerProfileSet | None = None
     subjects: list[SubjectIn] | None = Field(default=None, max_length=SUBJECTS_MAX)
     preferences: LearningPreferencesSet | None = None
+    engineering: EngineeringProfileSet | None = None
 
 
 class TutorPreviewOut(ApiModel):
     instructions: str = Field(
-        description="Exactly what the student's settings add to the tutor's instructions; empty when nothing."
+        description="Exactly what the user's settings add to the assistant's instructions; empty when nothing."
     )
     max_chars: int
 
@@ -282,3 +335,12 @@ class AcademicCatalogOut(ApiModel):
     mediums: list[CatalogEntryOut]
     academic_years: list[CatalogEntryOut]
     subjects: list[CatalogEntryOut]
+
+
+class EngineeringCatalogOut(ApiModel):
+    version: int
+    roles: list[CatalogEntryOut]
+    experience_levels: list[CatalogEntryOut]
+    focus_areas: list[CatalogEntryOut]
+    platforms: list[CatalogEntryOut]
+    certifications: list[CatalogEntryOut]

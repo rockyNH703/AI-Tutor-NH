@@ -6,7 +6,7 @@ import type { StudySummary } from "@/lib/api/types";
 import { StudySummaryContent } from "./study-activity-view";
 
 const NAMES: Record<string, string> = { science: "Science", mathematics: "Mathematics" };
-const subjectName = (code: string | null) => (code ? (NAMES[code] ?? code) : "No subject chosen");
+const subjectName = (code: string | null) => (code ? (NAMES[code] ?? code) : "No exam track chosen");
 
 const render = (summary: StudySummary | null, error: unknown = null, days = 7) =>
   renderToStaticMarkup(
@@ -55,9 +55,9 @@ const SUMMARY: StudySummary = {
 
 describe("Study Activity", () => {
   test("loading, error with a retry, and nothing recorded yet", () => {
-    expect(render(null)).toContain("Loading your study activity");
+    expect(render(null)).toContain("Loading your lab activity");
     const failed = render(null, new ApiError(0, "network_error"));
-    expect(failed).toContain("Couldn&#x27;t load your study activity");
+    expect(failed).toContain("Couldn&#x27;t load your lab activity");
     expect(failed).toContain("Try again");
     expect(render({ ...SUMMARY, firstRecordedDate: null, days: [], sessions: [] })).toContain("Nothing recorded yet");
   });
@@ -65,7 +65,7 @@ describe("Study Activity", () => {
   test("study time and time in NetSec AI are separate numbers; active, idle and paused are explained", () => {
     const html = render(SUMMARY);
     expect(html).toContain("1 h 05 min");
-    expect(html).toContain("estimated study time");
+    expect(html).toContain("estimated lab time");
     expect(html).toContain("2 h 00 min");
     expect(html).toContain("time in NetSec AI");
     expect(html).toContain("10 min");
@@ -77,18 +77,18 @@ describe("Study Activity", () => {
     const html = render(SUMMARY);
     expect(html).toContain("earlier days have no data");
     expect(html.match(/role="img"/g)).toHaveLength(SUMMARY.days.length);
-    expect(html).toContain("Estimated study minutes, last 3 days");
+    expect(html).toContain("Estimated lab minutes, last 3 days");
   });
 
   test("by subject, chapter and activity, and the recent sessions", () => {
     const html = render(SUMMARY);
     expect(html).toContain("Science");
-    expect(html).toContain("No subject chosen");
+    expect(html).toContain("No exam track chosen");
     expect(html).toContain("Microorganisms (Science)");
     expect(html).toContain("Reading");
     expect(html).toContain("Practice");
-    expect(html).toContain("Ended (no study activity)");
-    expect(html).toContain("45 min study · 1 h 00 min long");
+    expect(html).toContain("Ended (no lab activity)");
+    expect(html).toContain("45 min lab time · 1 h 00 min long");
   });
 
   test("today alone has no trend chart", () => {

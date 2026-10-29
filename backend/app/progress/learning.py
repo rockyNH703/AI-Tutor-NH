@@ -210,7 +210,7 @@ async def record_learning(
         user_id,
         kind="streak_milestone",
         title=f"🔥 {state.current} Day Streak!",
-        body=f"You've learned for {state.current} days in a row.",
+        body=f"You've practised {state.current} days in a row.",
         link="/settings/streak",
         dedup_key=f"streak-milestone:{began.isoformat()}:{state.current}",
     )

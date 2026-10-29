@@ -136,7 +136,7 @@ class PreparedTurn:
     intent: dict | None = None
     # messages.metadata.scope (internal, STUDY_SCOPE): the same, for the study scope (_scope).
     scope: dict | None = None
-    # Spoken in voice mode (app/voice) by a student it is for: the tutor is told, and the face's expression is sent.
+    # Spoken in voice mode (app/voice) by a user it is for: the assistant is told, and the face's expression is sent.
     voice: bool = False
     client_request_id: uuid.UUID | None = None
     command: object | None = None
@@ -238,7 +238,7 @@ class ChatService:
         return assistant
 
     async def _student(self, session: AsyncSession, user: User, asked_at: datetime | None = None) -> StudentContext:
-        """What the tutor is told about this student: their settings and how they are doing, as
+        """What the assistant is told about this user: their settings and how they are doing, as
         before the question being answered (`asked_at` for a regenerated answer)."""
         progress = await tutor_progress(
             session, user.id, user.timezone, self.settings.default_timezone, now(), asked_at
@@ -301,7 +301,8 @@ class ChatService:
         if len(text) > self.settings.chat_max_message_chars:
             raise ValidationFailed("The message is too long.")
         repo = ConversationRepository(session)
-        command = parse_memory_command(text) if not attachment_ids and not voice else None
+        memory_on = self.settings.memory_enabled  # off: every /v1/memories route is off too
+        command = parse_memory_command(text) if memory_on and not attachment_ids and not voice else None
         request_id = client_request_id or (uuid.uuid4() if command is not None else None)
         replay = None
         if command is not None and request_id is not None:
@@ -679,14 +680,14 @@ class ChatService:
 
     async def _speak_first(self, turn: PreparedTurn, generation: Generation, chars: int, words: str) -> None:
         """The reply's first words as audio, sent with the reply (or `failed`: the web app speaks them itself).
-        Counted like the web app's own speech requests: the reply's budget and the student's limits."""
+        Counted like the web app's own speech requests: the reply's budget and the user's limits."""
         event = {"messageId": str(turn.assistant_id), "chars": chars, "text": words}
         started = time.monotonic()
         try:
             if self.voice is None or (self.voice_budget and not self.voice_budget.spend(turn.assistant_id, len(words))):
                 raise RateLimited("No speech left for this reply.")
             async with self.db.sessionmaker() as session:
-                # Only the per-student speech limits are used: no passwords or email here.
+                # Only the per-user speech limits are used: no passwords or email here.
                 await AuthService(session, self.settings, None, None).throttle_voice(turn.user, "tts")  # type: ignore[arg-type]
             audio, media = await self.voice.synthesize(words, turn.speech_format)
             event |= {"state": "ready", "type": media, "audio": base64.b64encode(audio).decode("ascii")}
@@ -727,7 +728,7 @@ class ChatService:
         if turn.user_message is None:
             return turn.config, turn.intent, None
         question = turn.user_message.content
-        if explicit_hint_only(question):  # a fixed rule on the student's own words: in every mode, even off
+        if explicit_hint_only(question):  # a fixed rule on the user's own words: in every mode, even off
             routed, source = HINT_ONLY, "explicit"
         elif mode == "off" or self.intents is None:
             return turn.config, None, None
@@ -747,7 +748,7 @@ class ChatService:
     async def _scope(
         self, turn: PreparedTurn, conversation: list[ChatMessage], generation: Generation
     ) -> tuple[dict | None, asyncio.Task | None]:
-        """Is the new message something PadhAI helps with (STUDY_SCOPE, app/intents/scope.py)? The fixed
+        """Is the new message something NetSec AI helps with (STUDY_SCOPE, app/intents/scope.py)? The fixed
         rules first (a hint-only request, small talk, files without a real question), then the classifier:
         applied (on), or only recorded (shadow: read beside the reply, which never waits for it). Returns
         messages.metadata.scope and the shadow reading still running. A regenerated reply's was read when
@@ -784,7 +785,7 @@ class ChatService:
             )
 
     async def _apply(self, turn: PreparedTurn, intent: str) -> tuple[AssistantConfig, str | None]:
-        """The turn's config with an intent, and the question bank's chapters it gives the tutor: a test
+        """The turn's config with an intent, and the question bank's domains it gives the assistant: a test
         intent gets them even when the message's words did not ask for a test (chat_tests.menu)."""
         bank = turn.bank
         if INTENTS[intent].bank and bank == "":
@@ -957,10 +958,8 @@ class ChatService:
                     await events.aclose()
         except LLMError as error:
             status, error_code = "error", error.code
-            log.warning(
-                "llm generation failed",
-                extra={"error_code": error.code, "error_type": type(error).__name__, "detail": str(error)[:300]},
-            )
+            # The class and code only, never the error's text: a provider's message can echo the input.
+            log.warning("llm generation failed", extra={"error_code": error.code, "error_type": type(error).__name__})
         except Exception:  # noqa: BLE001
             status, error_code = "error", "internal_error"
             log.exception("generation crashed")
@@ -1072,8 +1071,8 @@ class ChatService:
         conversation_id: uuid.UUID,
         asked: bool | None = None,
     ) -> str | None:
-        """What the tutor is told about the question bank: None when tests are the model's own
-        (QUESTION_BANK_TESTS off); the chapters it may set a test on when the question asks for one
+        """What the assistant is told about the question bank: None when tests are the model's own
+        (QUESTION_BANK_TESTS off); the domains (chapters) it may set a test on when the question asks for one
         (app/qbank/chat_tests.py; `asked`: the intent router read it as a test request); "" otherwise."""
         if not self.settings.question_bank_tests:
             return None
@@ -1148,7 +1147,7 @@ class ChatService:
         return metadata  # the fence named a test only inside another block: no test
 
     async def _tests(self, session: AsyncSession, conversation_id: uuid.UUID, exclude: uuid.UUID | None = None) -> str:
-        """The chat's practice tests for the tutor, newest first. Complete replies only: a
+        """The chat's practice tests for the assistant, newest first. Complete replies only: a
         regenerated (superseded) reply is gone, and its test with it."""
         query = (
             select(Message.metadata_["assessments"])
@@ -1298,7 +1297,7 @@ def _decision(scope: dict | None) -> str | None:
 
 
 def _bank_menu(bank: str | None, question: str, intent: str | None) -> str:
-    """How the tutor got the question bank's chapters on a turn (messages.metadata.intent): the message's
+    """How the assistant got the question bank's domains on a turn (messages.metadata.intent): the message's
     words asked for a test (regex), an applied test intent asked for them (forced), or it got none."""
     if not bank:
         return "none"

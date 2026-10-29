@@ -88,6 +88,9 @@ export const ROUTES = {
   "DELETE /v1/me": { auth: true, body: "DeleteMeRequest", session: "clear" },
 
   "GET /v1/catalog/academic": { auth: false },
+  "GET /v1/catalog/engineering": { auth: true },
+  "GET /v1/engineering/profile": { auth: true },
+  "PATCH /v1/engineering/profile": { auth: true, body: "UpdateEngineeringProfileRequest" },
   "GET /v1/learning/profile": { auth: true },
   "PATCH /v1/learning/profile": { auth: true, body: "UpdateLearnerProfileRequest" },
   "GET /v1/learning/subjects": { auth: true },

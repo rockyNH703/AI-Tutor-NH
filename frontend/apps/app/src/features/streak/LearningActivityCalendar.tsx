@@ -58,17 +58,17 @@ function tokenColor(name: string, fallback: string): string {
 }
 
 function interactionsText(interactions: number): string {
-  return `${interactions} learning interaction${interactions === 1 ? "" : "s"}`;
+  return `${interactions} practice interaction${interactions === 1 ? "" : "s"}`;
 }
 
 function describeDay(date: Date, interactions: number): string {
   const day = date.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  return `${day}: ${interactions ? `learning day, ${interactionsText(interactions)}` : "no learning"}`;
+  return `${day}: ${interactions ? `practice day, ${interactionsText(interactions)}` : "no practice"}`;
 }
 
 function shortDay(date: Date, interactions: number): string {
   const day = date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
-  return `${day} · ${interactions ? interactionsText(interactions) : "No learning"}`;
+  return `${day} · ${interactions ? interactionsText(interactions) : "No practice"}`;
 }
 
 /**
@@ -235,7 +235,7 @@ export function LearningActivityCalendar({
             legendEnabled
             accessibilityTable={false}
             labels={DAY_LABELS}
-            ariaLabel="Learning days in the last year"
+            ariaLabel="Practice days in the last year"
             ariaDescription="Use the arrow keys to move between days, and Enter to see a day."
             formatters={formatters}
             onHover={showTooltip}

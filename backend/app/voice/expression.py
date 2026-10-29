@@ -1,4 +1,4 @@
-"""The voice tutor's face on a turn, read from what the app already decided about the message: the study scope
+"""The voice assistant's face on a turn, read from what the app already decided about the message: the scope
 (app/intents/scope.py) and the intent router's reading (app/intents, messages.metadata.intent). No model is asked.
 
 The face only shows a manner; it never changes the reply. Only the expression word reaches the browser: never the
@@ -26,10 +26,10 @@ GROUP_EXPRESSIONS = {
 
 
 def expression_for(intent: dict | None, scope: str | None, min_group_confidence: float) -> str:
-    """`intent`: the turn's intent record (None: not read); `scope`: the study scope's decision (None: not read);
+    """`intent`: the turn's intent record (None: not read); `scope`: the scope decision (None: not read);
     `min_group_confidence`: the router's own INTENT_MIN_GROUP_CONFIDENCE, for a greeting it read (it applies no
     intent to one, so `applied` cannot say how sure it was)."""
-    if scope == ALLOW_SUPPORT:  # worried or stuck about studying
+    if scope == ALLOW_SUPPORT:  # app or account help, or stress about work or exams
         return "encouraging"
     if scope == CLARIFY:  # too vague to tell what they want
         return "thinking"

@@ -36,8 +36,8 @@ export function StreakBadge() {
   const rise = shown !== null && shown !== first.current;
   if (!streakBadgeVisible(appearance)) return null;
   const label = known
-    ? `${data.currentStreak} day learning streak${data.todayActive ? "" : ", today's learning still to do"}`
-    : "Learning streak unavailable";
+    ? `${data.currentStreak} day practice streak${data.todayActive ? "" : ", today's practice still to do"}`
+    : "Practice streak unavailable";
   return (
     <Link href="/settings/streak" aria-label={label} title={label} className={cn(pill, "hover:bg-surface-2")}>
       <Flame

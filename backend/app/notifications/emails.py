@@ -242,7 +242,7 @@ def daily_reminder(
             blocks=[
                 heading(_hello_html(name)),
                 hero("Ready for today's session?", asked),
-                button("Continue learning", app_link(settings, "home"), top=28, center=True),
+                button("Continue practising", app_link(settings, "home"), top=28, center=True),
             ],
             note=_reminder_note(app, "daily reminder"),
             settings_url=app_link(settings, "notifications"),
@@ -287,7 +287,7 @@ def streak_warning(
                     ),
                     top=28,
                 ),
-                button("Continue learning", app_link(settings, "home"), top=28, center=True),
+                button("Continue practising", app_link(settings, "home"), top=28, center=True),
             ],
             note=_reminder_note(app, "streak reminder"),
             settings_url=app_link(settings, "notifications"),
@@ -311,7 +311,7 @@ def weekly_summary(
     settings: Settings | None = None,
 ) -> Email:
     subject = f"Your {app} week: {week}"
-    note = "Active time counts the minutes you spent using the app, not all of your studying."
+    note = "Active time counts the minutes you spent using the app, not all of your work or practice."
     body = (
         f"{_hello(name)}\n\nHere is your week in {app} ({week}):\n\n"
         f"    Active time:  about {active_minutes} min\n"
@@ -328,7 +328,7 @@ def weekly_summary(
             preview=f"About {active_minutes} min, {questions} questions and {active_days} active days.",
             blocks=[
                 heading(f"Your week in {app}"),
-                paragraph(join(_hello_html(name), " here is your week with your personal AI tutor.")),
+                paragraph(join(_hello_html(name), f" here is your week in {app}.")),
                 caption(week),
                 stats(
                     [

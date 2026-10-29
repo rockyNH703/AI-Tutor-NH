@@ -1,6 +1,6 @@
 /** Pure helpers for the learning forms: tested in learning-model.test.ts, no React. */
 
-import type { SubjectItem } from "@/lib/api/types";
+import type { EngineeringDraft, SubjectItem } from "@/lib/api/types";
 
 type Empty = null | "" | undefined;
 
@@ -79,4 +79,45 @@ export function toggleSubject(
   flag: "isPriority" | "needsImprovement",
 ): SubjectItem[] {
   return items.map((item) => (item.code === code ? { ...item, [flag]: !item[flag] } : item));
+}
+
+/** A whole number within [0, max], or null for empty. */
+export function wholeNumber(text: string, max: number): number | null {
+  if (text.trim() === "") return null;
+  const value = Math.round(Number(text));
+  return Number.isFinite(value) ? Math.min(Math.max(value, 0), max) : null;
+}
+
+/**
+ * Check or uncheck one code of a multiple choice (focus areas, platforms): a checked code is
+ * removed; an unchecked one is added at the end, once, and only while the list has room.
+ */
+export function toggleCode(codes: readonly string[], code: string, max: number): string[] {
+  if (codes.includes(code)) return codes.filter((existing) => existing !== code);
+  if (!code || codes.length >= max) return [...codes];
+  return [...codes, code];
+}
+
+/** Whether a code can be toggled now: a checked one always (to uncheck it), an unchecked one only with room left. */
+export function canToggle(codes: readonly string[], code: string, max: number): boolean {
+  return codes.includes(code) || codes.length < max;
+}
+
+/** "3 of 8 chosen": how full a multiple choice is, said the same way everywhere. */
+export function chosenText(count: number, max: number): string {
+  return count >= max ? `${count} of ${max} chosen, the most you can choose` : `${count} of ${max} chosen`;
+}
+
+/**
+ * The Engineering Profile form as the preview's `engineering` draft: every field, so the preview is
+ * exactly what saving the form would tell the assistant (`null` and [] clear a field there).
+ */
+export function engineeringPreview(draft: EngineeringDraft): Required<EngineeringDraft> {
+  return {
+    role: draft.role || null,
+    experienceLevel: draft.experienceLevel || null,
+    certificationGoal: draft.certificationGoal || null,
+    focusAreas: [...(draft.focusAreas ?? [])],
+    platforms: [...(draft.platforms ?? [])],
+  };
 }

@@ -95,6 +95,39 @@ async def test_learning_data_is_per_user(client, app):
     assert (await client.get("/v1/learning/subjects", headers=a)).json()["items"][0]["code"] == "physics"
 
 
+async def test_the_engineering_profile_is_per_user(client, app):
+    """GET and PATCH /v1/engineering/profile and the preview only ever use the caller's own profile."""
+    alice = await register(client, app)
+    bob = await register(client, app)
+    a, b = alice["headers"], bob["headers"]
+    first = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 0, "set": {"role": "penetration_tester", "platforms": ["palo_alto"]}},
+        headers=a,
+    )
+    assert first.status_code == 200, first.text
+
+    theirs = (await client.get("/v1/engineering/profile", headers=b)).json()
+    assert (theirs["version"], theirs["role"], theirs["platforms"]) == (0, None, [])
+    assert (await client.post("/v1/learning/tutor-preview", json={}, headers=b)).json()["instructions"] == ""
+
+    # Alice's version means nothing for Bob (his own row is at 0); his writes land on his row only.
+    stale_for_bob = await client.patch(
+        "/v1/engineering/profile", json={"version": 1, "set": {"role": "soc_analyst"}}, headers=b
+    )
+    assert stale_for_bob.status_code == 409 and stale_for_bob.json()["error"]["current"]["role"] is None
+    bob_write = await client.patch(
+        "/v1/engineering/profile", json={"version": 0, "set": {"role": "soc_analyst"}}, headers=b
+    )
+    assert bob_write.status_code == 200 and bob_write.json()["version"] == 1
+    reset = await client.patch("/v1/engineering/profile", json={"version": 1, "reset": ["platforms"]}, headers=b)
+    assert reset.status_code == 200
+    mine = (await client.get("/v1/engineering/profile", headers=a)).json()
+    assert (mine["role"], mine["platforms"], mine["version"]) == ("penetration_tester", ["palo_alto"], 1)
+    preview = (await client.post("/v1/learning/tutor-preview", json={}, headers=a)).json()["instructions"]
+    assert "Penetration Tester" in preview and "SOC Analyst" not in preview
+
+
 async def test_progress_is_per_user(client, app):
     alice = await register(client, app)
     bob = await register(client, app)

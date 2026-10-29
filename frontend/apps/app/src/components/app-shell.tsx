@@ -64,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </main>
         </div>
       </Sheet>
-      {/* Streak celebrations, from the server's events only (features/streak/celebrations). */}
+      {/* Practice streak celebrations, from the server's events only (features/streak/celebrations). */}
       <CelebrationHost />
     </div>
   );
@@ -78,9 +78,9 @@ function useHeading(pathname: string | null): { title: string; subtitle: string 
   const { items } = useConversations();
   if (pathname === "/help") return { title: "Help", subtitle: "Answers to common questions" };
   if (pathname === "/about") return { title: "About", subtitle: `What ${APP_NAME} is and how it uses your data` };
-  if (pathname === "/library") return { title: "File Library", subtitle: "Files you've added for the tutor to read" };
-  if (pathname === "/study") return { title: "Study Activity", subtitle: "Your estimated study time" };
-  if (pathname === "/learning") return { title: "My Learning", subtitle: "Your plan, practice and progress" };
+  if (pathname === "/library") return { title: "File Library", subtitle: "Files you've added for NetSec AI to read" };
+  if (pathname === "/study") return { title: "Lab Activity", subtitle: "Time spent practising in labs and study sessions" };
+  if (pathname === "/learning") return { title: "Skills & Certifications", subtitle: "Your certification practice, topic mastery and progress" };
   const item = navItemFor(pathname);
   if (item?.id === "tutor") {
     // The chat's own name (named after its first answered question), "New chat" until then.
@@ -141,7 +141,7 @@ function Header({
           <PreviewBadge className="hidden lg:inline-flex" />
           <span className="hidden items-center gap-2 rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-semibold text-text-secondary lg:flex">
             <span aria-hidden className="h-2 w-2 rounded-full bg-success motion-safe:animate-pulse" />
-            CBSE Class 10 Syllabus Synchronized
+            Preview features
           </span>
           <button
             type="button"
@@ -173,7 +173,7 @@ function Header({
         <ThemeMenu />
       </div>
 
-      <Link href="/" aria-label="Ask New Doubt" className={`${iconButton} md:hidden`}>
+      <Link href="/" aria-label="New chat" className={`${iconButton} md:hidden`}>
         <Plus aria-hidden className="h-5 w-5" />
       </Link>
     </header>

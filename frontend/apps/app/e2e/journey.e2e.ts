@@ -187,7 +187,7 @@ test("a user's whole journey", async ({ page, context }) => {
 
   let second = "";
   await test.step("start a second chat", async () => {
-    await page.getByRole("link", { name: "Ask New Doubt" }).click();
+    await page.getByRole("link", { name: "New chat", exact: true }).click();
     await expect(page).toHaveURL("/");
     await expectStudyGreeting(page);
     await sendAndWait(page, "A second chat");

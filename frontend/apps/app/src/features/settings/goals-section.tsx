@@ -8,7 +8,6 @@ import { type KeyboardEvent, useId, useState } from "react";
 
 import { describeError } from "@/lib/api/errors";
 import {
-  DAILY_MINUTES_MAX,
   EXAM_DATE_MAX_DAYS,
   GOAL_MAX,
   type LearnerProfileField,
@@ -17,22 +16,22 @@ import {
   TARGET_EXAM_MAX,
   TOPICS_MAX,
   TOPIC_MAX,
-  WEEKLY_MINUTES_MAX,
 } from "@/lib/api/types";
 import { MAIN_GOAL_LABELS } from "./learning-labels";
-import { addTopic } from "./learning-model";
+import { addTopic, wholeNumber } from "./learning-model";
 import { Field, Notice, SectionHeading, SettingsCard } from "./primitives";
 import { SaveFooter, selectClass, useProfileForm } from "./profile-form";
 
+/**
+ * The learner profile's goal fields. The time goals (daily and weekly minutes, preferred time) are
+ * in Practice & Lab Time (subjects-section.tsx), a form of their own over the same profile.
+ */
 const FIELDS = [
   "mainGoal",
   "targetExam",
   "examDate",
   "targetScorePercent",
   "weakTopics",
-  "dailyActiveMinutesGoal",
-  "weeklyActiveMinutesGoal",
-  "preferredStudyTime",
   "shortTermGoal",
   "longTermGoal",
 ] as const satisfies readonly LearnerProfileField[];
@@ -47,13 +46,6 @@ function localDay(offset = 0): string {
 /** "YYYY-MM-DD" of the day `offset` days from today in UTC, the calendar the API checks an exam date on. */
 function utcDay(offset: number): string {
   return new Date(Date.now() + offset * 86_400_000).toISOString().slice(0, 10);
-}
-
-/** A whole number within [0, max], or null for empty. */
-function wholeNumber(text: string, max: number): number | null {
-  if (text.trim() === "") return null;
-  const value = Math.round(Number(text));
-  return Number.isFinite(value) ? Math.min(Math.max(value, 0), max) : null;
 }
 
 function TopicsEditor({
@@ -89,7 +81,7 @@ function TopicsEditor({
     <div className="flex flex-col gap-2">
       <Field
         label="Topics you find difficult"
-        hint={`Up to ${TOPICS_MAX}. The tutor takes extra care with these.`}
+        hint={`Up to ${TOPICS_MAX}: a protocol, a feature or a skill you want to get right.`}
         error={error ?? (invalid ? "Check these topics." : null)}
       >
         {(props) => (
@@ -98,7 +90,7 @@ function TopicsEditor({
               {...props}
               value={text}
               maxLength={TOPIC_MAX}
-              placeholder="e.g. Trigonometry"
+              placeholder="e.g. BGP path selection"
               onChange={(event) => setText(event.target.value)}
               onKeyDown={onKeyDown}
               aria-controls={listId}
@@ -140,8 +132,8 @@ export function GoalsSection() {
   return (
     <>
       <SectionHeading
-        title="Learning Goals"
-        description="What you're working towards. The tutor keeps it in mind; reminders and Progress use your study time and goals."
+        title="Skills & Certification Goals"
+        description="What you're working towards: a certification, an exam date, a target score and the topics you find hard. Your practice plan in My Learning counts down to your exam date."
       />
       {form.loadError ? (
         <SettingsCard title="Couldn't load your goals">
@@ -179,7 +171,11 @@ export function GoalsSection() {
                 </select>
               )}
             </Field>
-            <Field label="Exam you're preparing for" hint="For example: CBSE Class 10 boards, NEET, JEE Main." error={check("targetExam")}>
+            <Field
+              label="Certification or exam you're preparing for"
+              hint="For example: CCNA 200-301, CCNP ENCOR 350-401, OSCP."
+              error={check("targetExam")}
+            >
               {(props) => (
                 <Input
                   {...props}
@@ -192,7 +188,7 @@ export function GoalsSection() {
             </Field>
             <Field
               label="Exam date"
-              hint="Optional. As it gets close, your plan in My Learning turns to revision."
+              hint="Optional. As it gets close, your practice plan in My Learning turns to review."
               error={check("examDate")}
             >
               {(props) => (
@@ -210,7 +206,7 @@ export function GoalsSection() {
                 />
               )}
             </Field>
-            <Field label="Target score (%)" error={check("targetScorePercent")}>
+            <Field label="Target score (%)" hint="Your aim in the exam or in practice tests." error={check("targetScorePercent")}>
               {(props) => (
                 <Input
                   {...props}
@@ -250,67 +246,15 @@ export function GoalsSection() {
             </Field>
           </SettingsCard>
 
-          <SettingsCard title="Topics">
+          <SettingsCard
+            title="Topics"
+            footer={<SaveFooter dirty={form.dirty} pending={form.pending} onCancel={form.reset} />}
+          >
             <TopicsEditor
               topics={draft.weakTopics ?? []}
               onChange={(weakTopics) => form.change({ weakTopics })}
               invalid={form.invalid("weakTopics")}
             />
-          </SettingsCard>
-
-          <SettingsCard
-            title="Study time"
-            description="Goals are measured in active time in NetSec AI: minutes you're actually using the app, not all your studying."
-            footer={<SaveFooter dirty={form.dirty} pending={form.pending} onCancel={form.reset} />}
-          >
-            <Field label="Daily goal (minutes)" error={check("dailyActiveMinutesGoal")}>
-              {(props) => (
-                <Input
-                  {...props}
-                  className="w-full sm:w-32"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={DAILY_MINUTES_MAX}
-                  value={draft.dailyActiveMinutesGoal ?? ""}
-                  onChange={(event) =>
-                    form.change({ dailyActiveMinutesGoal: wholeNumber(event.target.value, DAILY_MINUTES_MAX) })
-                  }
-                />
-              )}
-            </Field>
-            <Field label="Weekly goal (minutes)" error={check("weeklyActiveMinutesGoal")}>
-              {(props) => (
-                <Input
-                  {...props}
-                  className="w-full sm:w-32"
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={WEEKLY_MINUTES_MAX}
-                  value={draft.weeklyActiveMinutesGoal ?? ""}
-                  onChange={(event) =>
-                    form.change({ weeklyActiveMinutesGoal: wholeNumber(event.target.value, WEEKLY_MINUTES_MAX) })
-                  }
-                />
-              )}
-            </Field>
-            <Field
-              label="Preferred study time"
-              hint="In your time zone. The daily reminder, if you turn it on, comes at this time."
-              error={check("preferredStudyTime")}
-            >
-              {(props) => (
-                <Input
-                  {...props}
-                  className="w-full sm:w-40"
-                  type="time"
-                  step={60}
-                  value={draft.preferredStudyTime ?? ""}
-                  onChange={(event) => form.change({ preferredStudyTime: event.target.value.slice(0, 5) || null })}
-                />
-              )}
-            </Field>
           </SettingsCard>
         </form>
       )}

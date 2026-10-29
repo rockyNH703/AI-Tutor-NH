@@ -73,7 +73,7 @@ export function checklist(title: string) {
 }
 
 /**
- * The app reports an active minute every minute (Progress & Goals). The smoke is not the owner
+ * The app reports an active minute every minute (Practice & Goals). The smoke is not the owner
  * studying, so those reports are dropped; the app ignores a failed report.
  */
 export async function noActivityReports(page: Page) {
@@ -94,7 +94,7 @@ export async function closeCelebrations(page: Page) {
 
 export const hydrated = (page: Page) => page.waitForFunction(() => document.querySelector("next-route-announcer") !== null);
 export const banner = (page: Page) => page.getByRole("banner");
-export const badge = (page: Page) => banner(page).getByRole("link", { name: /learning streak/i });
+export const badge = (page: Page) => banner(page).getByRole("link", { name: /practice streak/i });
 export const bell = (page: Page) => banner(page).getByRole("button", { name: /^Notifications/ });
 
 /** Pixels the page is wider than its window (0 or less: no sideways scroll). */

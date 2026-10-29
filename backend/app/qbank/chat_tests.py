@@ -1,18 +1,19 @@
-"""Practice tests in the chat come from the question bank, never from the model.
+"""Certification practice tests in the chat come from the question bank, never from the model.
 
-The tutor is taught one block for tests (app/chat/assistant.py BANK_BLOCKS): ```question-bank with a
-chapter id (or up to three, for a mock test) from the list it is given on a turn that asks for a test
-(`menu`). Before the reply is saved, `fill` replaces that block with a ```quiz block of stored
-questions and removes any test block the model wrote itself (a fill-in-the-blanks exercise it writes
-stays, in its fence even if the model left that out: app/assessments grades it, and it is never
-practice evidence). The quiz is then recorded,
-answered and graded like every chat test (app/assessments/state.py, app/chat/service.py), so no model
-call checks or scores anything.
+The assistant is taught one block for tests (app/chat/assistant.py BANK_BLOCKS): ```question-bank with a
+domain id (the bank's chapter id, under the JSON key "chapter"; or up to three, for a practice exam) from
+the list it is given on a turn that asks for a test (`menu`). In what the model and the user read, a
+chapter is a domain and a book an exam track; the bank's tables, ids and keys keep their names.
+Before the reply is saved, `fill` replaces that block with a ```quiz block of stored questions and
+removes any test block the model wrote itself (a fill-in-the-blanks exercise it writes stays, in its
+fence even if the model left that out: app/assessments grades it, and it is never practice evidence).
+The quiz is then recorded, answered and graded like every chat test (app/assessments/state.py,
+app/chat/service.py), so no model call checks or scores anything.
 
 Every test is a practice set in the ledger (qb_sets mode `chat`, its request id the reply's id; one
 qb_set_items row per question served), whose answers are the evidence app/progress/practice.py reads.
 Choosing the questions is SQL alone (selection.pick_next): the servable questions of the named topics,
-or of the whole chapters, picked from the student's previous answer. An adaptive test
+or of the whole chapters, picked from the user's previous answer. An adaptive test
 (ADAPTIVE_CHAT_TESTS) shows its first question; app/chat/router.py records each answer in the ledger
 and serves the next question in the transaction that records it (`answer`, `next_question`, `close`).
 Otherwise every question is chosen when the test is set. The same reply always starts with the same
@@ -42,15 +43,14 @@ DEFAULT_COUNT = 10
 LEVELS = {"easy": 1, "medium": 2, "hard": 3}
 
 NOTE_UNKNOWN = (
-    "_No test was set: that chapter is not in the question bank. Tell me the class, subject and chapter, "
-    "and I'll set one._"
+    "_No test was set: that domain is not in the question bank. Tell me the exam track and domain, and I'll set one._"
 )
 NOTE_EMPTY = "_No test was set: there are no stored questions for that yet._"
-NOTE_MODEL = "_Practice questions come only from the question bank: ask for a test on a chapter._"
+NOTE_MODEL = "_Practice questions come only from the question bank: ask for a test on a domain._"
 NOTE_EXERCISE = "_One practice block per reply: ask for the exercise again once the test is done._"
 NOTE_FEWER = "_Only {n} stored questions match this, so the test has {n}._"
 
-# A message that may ask for a test: then (only) the tutor is given the chapter list. "question" alone
+# A message that may ask for a test: then (only) the assistant is given the domain list. "question" alone
 # is not one ("I have a question"); "5 questions", "questions on light" and "ask me" are.
 _TEST_REQUEST = re.compile(
     r"\b(?:quiz\w*|tests?|mcqs?|multiple[\s-]*choice|practi[cs]e|exam\w*|revis(?:e|ion)|ask me)\b"
@@ -68,7 +68,7 @@ _INLINE = re.compile(r"(?:::)?question-bank\s*(?=\{)|(?=\{\s*\"chapters?\"\s*:)"
 # A fill-in-the-blanks exercise the model wrote without its fence: {"text": "... [[answer]] ...",
 # "explanation": "..."} bare in the text, as a ::: card (`:::fill-blank`, the study cards' form; most of
 # them on 2026-10-23), or in a block with another language (json, none, a misspelt one). Put in its
-# fence, or the student would read the answer key instead of an exercise to answer.
+# fence, or the user would read the answer key instead of an exercise to answer.
 _BARE_EXERCISE = re.compile(r"\{\s*\"text\"\s*:")
 _CARD_OPEN = re.compile(r"(?:^|\n)[ \t]*:{3,}[ \t]*[\w-]*(?:fill|blank)[\w-]*(?:\[[^\]\n]*\]|\{[^}\n]*\})*\s*$", re.I)
 _CARD_CLOSE = re.compile(r"\s*\n[ \t]*:{3,}[ \t]*(?=\n|$)")
@@ -184,9 +184,9 @@ async def menu(
     *,
     asked: bool | None = None,
 ) -> str:
-    """The chapters the tutor may set a test on, when the student's message asks for one: the class
-    the message names, else theirs, else the last one named earlier in the chat (`earlier`), in their
-    medium, and the language subjects. "" otherwise. `asked`: whether the message asks for a test, as
+    """The domains (the bank's chapters) the assistant may set a test on, when the user's message asks for
+    one: the level the message names, else theirs, else the last one named earlier in the chat (`earlier`),
+    in their medium, and the language subjects. "" otherwise. `asked`: whether the message asks for a test, as
     the intent router read it (app/intents); None: its words decide (wants_test)."""
     if not (wants_test(message) if asked is None else asked):
         return ""
@@ -195,14 +195,14 @@ async def menu(
     level = int(next(group for group in named.groups() if group)) if named else int(own[1]) if own else None
     if level is None or not 6 <= level <= 12:
         return (
-            "Question bank: it has tests for Classes 6-12 (NCERT). The student's class is not known: "
-            "ask which class and chapter before writing a question-bank block."
+            "Question bank: its practice tests are stored by level (6-12). The user's level is not known: "
+            "ask which exam track and domain before writing a question-bank block."
         )
     language = "hindi" if (medium or "").casefold() == "hindi" else "english"
     rows = (await session.execute(MENU, {"class_level": level, "language": language})).all()
     if not rows:
-        return f"Question bank: there are no stored tests for Class {level} yet."
-    lines = [f"Question bank, Class {level}: the chapters a question-bank block may name (chapter id, then title)."]
+        return f"Question bank: there are no stored tests for level {level} yet."
+    lines = [f"Question bank, level {level}: the domains a question-bank block may name (domain id, then title)."]
     book = None
     for row in rows:
         if row.book != book:
@@ -344,7 +344,7 @@ async def _set(
 async def answer(
     session: AsyncSession, user_id: uuid.UUID, set_id: uuid.UUID, position: int, letter: str
 ) -> tuple[datetime, bool] | None:
-    """Record the student's answer to the question served at `position` of their test: graded by the
+    """Record the user's answer to the question served at `position` of their test: graded by the
     database from the key. (answered_at, is_correct), or None when it already has an answer or there
     is no such question. Never commits."""
     params = {"chosen": letter, "set_id": set_id, "position": position, "user_id": user_id}
@@ -533,7 +533,7 @@ async def fill(
     *,
     adaptive: bool = True,
 ) -> tuple[str, BankTest | None]:
-    """The reply (its id is `seed`) with its first test request set from the bank as the student's
+    """The reply (its id is `seed`) with its first test request set from the bank as the user's
     practice set (a note when it can't be), later ones dropped, every test block the model wrote
     itself replaced by a note, and an exercise written without its fence put in one. Never commits:
     the set is saved with the reply."""

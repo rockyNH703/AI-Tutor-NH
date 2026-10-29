@@ -5,21 +5,21 @@ import { PreviewBadge } from "@/components/preview-badge";
 import { HOMEWORK_EXAMPLE } from "./demo-data";
 import { SoonLabel, ToolPage } from "./tool-page";
 
-/** Homework Helper (preview): where a photo would go, and one worked example. */
+/** Troubleshooter (preview, at /homework): where a config, log or screenshot would go, and one worked example. */
 export function HomeworkView() {
   return (
-    <ToolPage label="Homework Helper">
+    <ToolPage label="Troubleshooter">
       <section className="rounded-3xl border-2 border-dashed border-brand/30 bg-brand-soft/40 p-6 text-center sm:p-8">
         <span aria-hidden className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-brand-soft text-brand">
           <UploadCloud className="h-8 w-8" />
         </span>
-        <h2 className="mb-1 text-lg font-bold text-foreground">Upload Homework Photo or Worksheet</h2>
+        <h2 className="mb-1 text-lg font-bold text-foreground">Upload a Config, Log or Screenshot</h2>
         <p className="mx-auto mb-5 max-w-sm text-xs text-text-secondary">
-          Take a snap of your NCERT Math problem, Physics numerical, or Chemistry reaction for step-by-step solutions.
+          Paste or snap a config, log or error message and get a step-by-step fix.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <Button type="button" disabled>
-            <SoonLabel>Select Image / PDF</SoonLabel>
+            <SoonLabel>Select File</SoonLabel>
           </Button>
           <Button type="button" variant="outline" disabled>
             <Camera aria-hidden className="h-4 w-4" />
@@ -32,7 +32,7 @@ export function HomeworkView() {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
           <h2 id="homework-example" className="flex items-center gap-2">
             <span className="flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 text-xs font-bold text-success">
-              <CheckCircle2 aria-hidden className="h-3.5 w-3.5" /> Solved Step-by-Step
+              <CheckCircle2 aria-hidden className="h-3.5 w-3.5" /> Fixed Step-by-Step
             </span>
             <PreviewBadge />
           </h2>
@@ -40,7 +40,7 @@ export function HomeworkView() {
         </div>
 
         <div className="rounded-xl border border-border bg-surface p-4 font-mono text-sm text-foreground">
-          <span className="mb-1 block font-sans text-xs font-bold text-text-secondary">Detected Question:</span>
+          <span className="mb-1 block font-sans text-xs font-bold text-text-secondary">Detected Problem:</span>
           {`“${HOMEWORK_EXAMPLE.question}”`}
         </div>
 
@@ -62,7 +62,7 @@ export function HomeworkView() {
         </ol>
 
         <div className="rounded-xl border border-success/30 bg-success-soft p-3">
-          <span className="mb-1 block text-xs font-bold text-success">Final Answer:</span>
+          <span className="mb-1 block text-xs font-bold text-success">Fix:</span>
           <p className="text-xs font-bold text-foreground">{HOMEWORK_EXAMPLE.answer}</p>
         </div>
       </section>

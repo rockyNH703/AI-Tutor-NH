@@ -193,6 +193,39 @@ export const CONTRACT = {
       "pattern": "^\\d{6}$"
     }
   },
+  "EngineeringProfileSet": {
+    "certificationGoal": {
+      "maxLength": 40,
+      "minLength": 1,
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "experienceLevel": {
+      "maxLength": 40,
+      "minLength": 1,
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "focusAreas": {
+      "items": {
+        "maxLength": 40,
+        "minLength": 1,
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "maxItems": 8
+    },
+    "platforms": {
+      "items": {
+        "maxLength": 40,
+        "minLength": 1,
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "maxItems": 12
+    },
+    "role": {
+      "maxLength": 40,
+      "minLength": 1,
+      "pattern": "^[a-z0-9_]+$"
+    }
+  },
   "FeedbackOut": {
     "rating": {
       "enum": [
@@ -888,6 +921,23 @@ export const CONTRACT = {
         ]
       },
       "maxItems": 6
+    },
+    "version": {
+      "minimum": 0
+    }
+  },
+  "UpdateEngineeringProfileRequest": {
+    "reset": {
+      "items": {
+        "enum": [
+          "role",
+          "experienceLevel",
+          "focusAreas",
+          "platforms",
+          "certificationGoal"
+        ]
+      },
+      "maxItems": 5
     },
     "version": {
       "minimum": 0

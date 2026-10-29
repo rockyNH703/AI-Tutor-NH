@@ -60,7 +60,7 @@ test("a spoken question is heard, sent in this chat, answered and read aloud; th
   expect(await liveTracks(page)).toBe(0); // the microphone is off
 });
 
-test("tap the tutor to interrupt: silent at once, then listening; muted it hears nothing; End lets go of everything", async ({
+test("tap to interrupt: silent at once, then listening; muted it hears nothing; End lets go of everything", async ({
   page,
   account: _,
 }) => {
@@ -69,7 +69,7 @@ test("tap the tutor to interrupt: silent at once, then listening; muted it hears
   await waitForHydration(page);
   const dialog = await openVoice(page);
   await expect(dialog).toHaveAttribute("data-voice-state", "speaking", { timeout: 20_000 });
-  await dialog.getByRole("button", { name: "Interrupt the tutor" }).click();
+  await dialog.getByRole("button", { name: "Interrupt NetSec AI" }).click();
   await expect(dialog).toHaveAttribute("data-voice-state", "listening");
   const turns = await voiceTurns(page);
   const interrupted = turns.find((turn) => turn.interrupted !== undefined);

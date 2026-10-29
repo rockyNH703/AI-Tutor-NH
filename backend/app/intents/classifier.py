@@ -1,4 +1,4 @@
-"""What a student's latest message asks for, read by Ollalink's classification model.
+"""What a user's latest message asks for, read by Ollalink's classification model.
 
 `POST {OLLALINK_BASE_URL}/v1/classify` with the header `X-NH-GPU-Key` (the key is the credential and
 is never logged). app/chat/service.py applies the reading (INTENT_ROUTER=on) or only records it (shadow).
@@ -12,13 +12,13 @@ is never logged). app/chat/service.py applies the reading (INTENT_ROUTER=on) or 
 - **What is sent** (`text_for`, at most about 1,100 characters): the latest message (its first 600
   and last 400 characters when longer) and the kinds of the files it attaches, never their names.
   For a short follow-up (six words or fewer and at most 200 characters: "why?", "make it shorter"),
-  also the message before it and the end of the tutor's reply, each labelled context only. Never who
-  the student is or their settings.
+  also the message before it and the end of the assistant's reply, each labelled context only. Never who
+  the user is or their settings.
 - **Applied only when it is clear** (`Scored.decide`): every field of each response is checked, or
   none of it is used (bad_response). The best intent is the most likely one in the group the group
   question chose, so its group is always that choice; it is applied only when the group is not
   `other`, P(group) is at least INTENT_MIN_GROUP_CONFIDENCE and P(group) x P(intent | group) at least
-  INTENT_MIN_CONFIDENCE. Otherwise there is no intent: the tutor as before.
+  INTENT_MIN_CONFIDENCE. Otherwise there is no intent: the assistant as before.
 - **An explicit constraint first** (`explicit_hint_only`): a message that asks only for a hint (in
   English, Hindi or Hinglish) is hint_only, whatever the model says and whether or not it answers.
 - **Fast failure:** one pooled client; both requests together are capped by INTENT_ROUTER_TIMEOUT_S
@@ -72,7 +72,7 @@ SLOW_PAUSE_S = 60.0
 KEY_PAUSE_S = 600.0
 RETRY_AFTER_S = (1, 30, 300)  # the shortest, the default and the longest pause after a 429
 KINDS = {"image": "an image", "pdf": "a PDF"}  # any other attached file is "a file"
-# Warm-ups (IntentClassifier.nudge): what one asks (no student's words), how long it may take (a whole cold
+# Warm-ups (IntentClassifier.nudge): what one asks (no user's words), how long it may take (a whole cold
 # start; it never holds up a reply), and how long an idle connection is kept (httpx's default is 5 s).
 WARM_TEXT = "Current message: hello"
 WARM_TIMEOUT_S = 10.0
@@ -99,7 +99,7 @@ QUESTIONS: dict[str, dict[str, Any]] = {
 ASKED: dict[str, dict[str, Any]] = {**QUESTIONS, SCOPE_ID: SCOPE_QUESTION}
 
 _FENCED = re.compile(r"(`{3,}|~{3,}).*?(?:\1|\Z)", re.S)
-# The student asks only for a hint, in their own words (English, Hinglish, Hindi): explicit constraints
+# The user asks only for a hint, in their own words (English, Hinglish, Hindi): explicit constraints
 # beat any reading of the message. Saying they do NOT want a hint (_NO_HINT) wins over it.
 _HINT_ONLY = re.compile(
     r"\bhints?\s+only\b|\bonly\s+(?:a\s+|one\s+|some\s+)?(?:small\s+|little\s+)?hints?\b"
@@ -161,7 +161,7 @@ _NO_HINT = re.compile(
 
 @dataclass(frozen=True)
 class Routed:
-    """One message's reading: the intent to apply (None: the tutor as before), the best guess with its
+    """One message's reading: the intent to apply (None: the assistant as before), the best guess with its
     group, its score and P(group), and why nothing is applied."""
 
     intent: str | None
@@ -238,7 +238,7 @@ def _clip(text: str, head: int, tail: int) -> str:
 
 def text_for(conversation: list[ChatMessage], attachments: tuple[str, ...] = ()) -> str:
     """What is classified: the latest message, with the kinds of the files it attaches; for a short
-    follow-up, the message before it and the end of the tutor's reply too, labelled context only. One
+    follow-up, the message before it and the end of the assistant's reply too, labelled context only. One
     line each, so only the last line starts with "Current message". At most about 1,100 characters."""
     users = [index for index, message in enumerate(conversation) if message.role == "user" and message.content.strip()]
     if not users:
@@ -257,7 +257,7 @@ def text_for(conversation: list[ChatMessage], attachments: tuple[str, ...] = ())
         reply = _flat(_FENCED.sub(" ", replies[-1])) if replies else ""
         if reply:
             lines.append(
-                f"Tutor's reply, end (context only): {'…' if len(reply) > REPLY_TAIL_CHARS else ''}"
+                f"Assistant's reply, end (context only): {'…' if len(reply) > REPLY_TAIL_CHARS else ''}"
                 f"{reply[-REPLY_TAIL_CHARS:]}"
             )
     lines.append(f"Current message: {current}")
@@ -316,7 +316,7 @@ def score(group_payload: Any, intent_payload: Any = None) -> Scored | None:
 
 
 def explicit_hint_only(text: str) -> bool:
-    """Does the message itself ask only for a hint, not the answer? A fixed rule on the student's own
+    """Does the message itself ask only for a hint, not the answer? A fixed rule on the user's own
     words, applied before (or without) the classifier: a hint asked for by name, only the next step, no
     full solution, or wanting to solve it themselves together with asking how to begin."""
     text = unicodedata.normalize("NFC", text).replace("’", "'").replace("‘", "'")
@@ -380,7 +380,7 @@ class IntentClassifier:
         await self._client.aclose()
 
     def nudge(self) -> None:
-        """A student is using the app (any signed-in request): when nothing has been sent to Ollalink for
+        """A user is using the app (any signed-in request): when nothing has been sent to Ollalink for
         warm_after_s, send one small warm-up in the background, so their next message doesn't wait for
         the service to wake (after a quiet minute or two a request took 1.2-1.8 s, after a long quiet
         3.6 s, against 0.3 s warm; measured 2026-10-23 from the server). At most one at a time and one

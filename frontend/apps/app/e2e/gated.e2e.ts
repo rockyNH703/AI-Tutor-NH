@@ -20,9 +20,9 @@ test("without preview features no sample data or unconnected control is shown", 
   for (const path of ["/", "/settings"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    // No tool besides the chat, so no Learning Hub (the chat is never listed as a tool of its own).
-    await expect(page.getByRole("navigation", { name: "Learning Hub" })).toHaveCount(0);
-    for (const text of [/Day Streak/, /\bXP\b/, /Leaderboard/, /Syllabus Synchronized/, /Class 10 •/]) {
+    // No tool besides the chat, so no Tools list (the chat is never listed as a tool of its own).
+    await expect(page.getByRole("navigation", { name: "Tools" })).toHaveCount(0);
+    for (const text of [/Day Streak/, /\bXP\b/, /Leaderboard/, /Topics Synchronized/, /Class 10 •/]) {
       await expect(page.getByText(text), `${text} on ${path}`).toHaveCount(0);
     }
     await expect(page.getByText(/^(Preview|Soon)$/)).toHaveCount(0);

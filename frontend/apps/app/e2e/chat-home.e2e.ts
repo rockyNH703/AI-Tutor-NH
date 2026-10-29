@@ -1,6 +1,5 @@
 import type { Page } from "@playwright/test";
 
-import { backendDir, sql } from "./db";
 import {
   LONG_MESSAGE,
   PASSWORD,
@@ -170,21 +169,6 @@ test("with reduced motion the composer moves without animating", async ({ page, 
   await page.waitForTimeout(60);
   expect((await layout(page)).atBottom).toBe(true);
   await waitForIdle(page);
-});
-
-test("no study greeting live this week: the fallback, and the chat works as ever", async ({ page, account: _ }) => {
-  test.skip(!backendDir, "needs the local backend's database");
-  sql("UPDATE study_greetings SET active_from = active_from + 700"); // 100 weeks on, Mondays kept
-  try {
-    await page.goto("/");
-    await waitForHydration(page);
-    await expect(emptyGreeting(page)).toHaveText("What are you studying today?");
-    await sendWithEnter(page, "Hello there");
-    await waitForIdle(page);
-    await expect(lastReply(page)).toContainText("You said: Hello there");
-  } finally {
-    sql("UPDATE study_greetings SET active_from = active_from - 700");
-  }
 });
 
 test("the theme menu: Dark, White, System with a check; saved to the account; keyboard and outside click", async ({

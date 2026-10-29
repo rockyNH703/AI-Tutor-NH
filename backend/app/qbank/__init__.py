@@ -1,3 +1,4 @@
-"""The question bank: stored, reviewed CBSE-pattern MCQs for Classes 6-12, and the practice sets
-and tests that serve them (docs/question_bank.md). Questions are picked by SQL filters and fixed
-rules only; nothing here calls a model (tests/test_architecture_guards.py)."""
+"""The question bank: stored, reviewed MCQs by level, exam track (book) and domain (chapter), and the
+practice sets and tests that serve them (docs/question_bank.md); for NetSec AI, certification practice.
+Questions are picked by SQL filters and fixed rules only; nothing here calls a model
+(tests/test_architecture_guards.py)."""

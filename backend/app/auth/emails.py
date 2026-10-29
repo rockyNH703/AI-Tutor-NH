@@ -265,7 +265,7 @@ def email_changed_email(
 
 def account_deleted_email(app_name: str, *, settings: Settings | None = None) -> Email:
     subject = f"Your {app_name} account was deleted"
-    deleted = f"Your {app_name} account and its data (chats, files and learning history) were deleted from the app."
+    deleted = f"Your {app_name} account and its data (chats, files and practice history) were deleted from the app."
     backups = "Copies in backups are removed when those backups expire."
     not_you = "someone had access to your account: contact support, and check the security of this email address."
     body = f"{deleted} {backups} Every device was signed out.\n\nIf you did not do this, {not_you}"
@@ -279,7 +279,7 @@ def account_deleted_email(app_name: str, *, settings: Settings | None = None) ->
                 heading("Your account was deleted"),
                 paragraph(join(deleted, " ", backups, " Every device was signed out.")),
                 alert("Didn't do this?", f"Then {not_you}"),
-                paragraph(f"Thank you for learning with {app_name}.", top=24),
+                paragraph(f"Thank you for using {app_name}.", top=24),
             ],
             note=REQUIRED,
         )
@@ -289,20 +289,23 @@ def account_deleted_email(app_name: str, *, settings: Settings | None = None) ->
 
 def welcome_email(app_name: str, display_name: str | None, *, settings: Settings | None = None) -> Email:
     """Sent best effort after the account's own first sign-in (app/auth/internal.py)."""
-    subject = f"Welcome to {app_name}: your personal AI tutor"
+    subject = f"Welcome to {app_name}: your AI assistant for network and security engineering"
     name = first_name(display_name)
     hello = f"Hi {name or 'there'},"
-    glad = f"We're glad you're here. {app_name} is your personal AI tutor, made to help you learn at your own pace."
+    glad = (
+        f"We're glad you're here. {app_name} is your AI assistant for networking, security and infrastructure "
+        "work, and for certification and lab practice."
+    )
     how = (
-        "Whether you need help with a concept, are revising for an exam or want to explore something new, "
-        "your tutor can guide you step by step when you want."
+        "Whether you're troubleshooting an outage, reviewing a configuration, hardening a system or preparing for "
+        "a certification, it can work through it with you step by step."
     )
     start = app_link(settings, "home")
     manage = app_link(settings, "notifications")
     reason = f"You received this email because you just created a {app_name} account."
     body = (
         f"{hello}\n\nWelcome to {app_name}. {TAGLINE}\n\n{glad}\n\n{how}\n\n"
-        + (f"Start learning: {start}" if start else f"Open {app_name} to start learning.")
+        + (f"Get started: {start}" if start else f"Open {app_name} to get started.")
         + f"\n\n--\n{reason}\nChoose which emails you get: {manage or f'{app_name} Settings'}"
     )
 
@@ -317,7 +320,7 @@ def welcome_email(app_name: str, display_name: str | None, *, settings: Settings
                 hero(f"Welcome to {app_name}", TAGLINE),
                 paragraph(glad, top=28),
                 paragraph(how),
-                html_button("Start learning", start, top=28, center=True),
+                html_button("Get started", start, top=28, center=True),
             ],
             note=reason,
             settings_url=manage,

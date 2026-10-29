@@ -1,16 +1,16 @@
 """Reminder emails, planned by the worker every minute and queued at most once per period.
 
-Only for students who turned a reminder on and confirmed a time zone (users.timezone): a
-reminder at the wrong hour is worse than none. Each has a window in the student's local time,
-and a dedup key naming the student, the kind and the period, so however often the worker
+Only for users who turned a reminder on and confirmed a time zone (users.timezone): a
+reminder at the wrong hour is worse than none. Each has a window in the user's local time,
+and a dedup key naming the user, the kind and the period, so however often the worker
 runs, and even if two ran at once, a period gets one email:
 
-- **daily_reminder**: in the hour from the preferred study time (the learner profile's, or
-  18:00), and only if the student has not been active yet that day.
-- **streak_warning**: 20:00–22:00 India time, when a learning streak of 2+ days would end
+- **daily_reminder**: in the hour from the preferred practice time (the learner profile's study
+  time, or 18:00), and only if the user has not been active yet that day.
+- **streak_warning**: 20:00–22:00 India time, when a practice streak of 2+ days would end
   tonight (app/progress/learning.py: the same streak the app shows).
 
-Each reminder queued as an email is also added to the app's notifications, unless the student
+Each reminder queued as an email is also added to the app's notifications, unless the user
 turned in-app reminders off (app/notifications/inbox.py; the streak one shares its daily key
 with the in-app streak reminder, so a day never gets two).
 - **weekly_summary**: Mondays 08:00–12:00, about the previous week, if it had any activity.
@@ -91,7 +91,7 @@ async def _queue(session: AsyncSession, row, kind: str, period: str, email: Emai
 
 
 async def _plan_for(session: AsyncSession, settings: Settings, row, due: set[str], now: datetime) -> int:
-    """The reminders due now for one student (`due`: the kinds they turned on)."""
+    """The reminders due now for one user (`due`: the kinds they turned on)."""
     zone = zone_for(row.timezone, settings.default_timezone)
     local = now.astimezone(zone)
     state = await snapshot(session, row.id, zone, now)
@@ -112,8 +112,8 @@ async def _plan_for(session: AsyncSession, settings: Settings, row, due: set[str
                     session,
                     row.id,
                     kind="daily_reminder",
-                    title="📚 Time to study",
-                    body="Your study time is now. Ask your tutor a question to get going.",
+                    title="🧪 Time to practise",
+                    body=f"Your practice time is now. Open a lab or ask {app} a question to get going.",
                     link="/",
                     dedup_key=f"daily-reminder:{state.today.isoformat()}",
                 )

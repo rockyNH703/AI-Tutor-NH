@@ -65,7 +65,7 @@ test("phones, upright and sideways: greeting, name, composer and the drawer's lo
       const drawer = width < 768;
       if (drawer) await page.getByRole("button", { name: "Open menu" }).click();
       const panel = drawer ? page.getByRole("dialog", { name: "Navigation" }) : page.getByRole("complementary");
-      await expect(panel.getByRole("navigation", { name: "Learning Hub" })).toHaveCount(0);
+      await expect(panel.getByRole("navigation", { name: "Tools" })).toHaveCount(0);
       const row = panel.locator(`a[href='/c/${long}']`);
       await expect(row).toHaveAccessibleName(LONG);
       expect(await row.locator(".marquee").evaluate((box) => box.scrollWidth > box.clientWidth)).toBe(true);

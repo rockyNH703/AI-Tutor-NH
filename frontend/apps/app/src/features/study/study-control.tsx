@@ -43,8 +43,8 @@ export function StudyControl() {
   if (!studyControlVisible(study, pathname)) return null;
 
   const label = session
-    ? `${STATUS_LABELS[status ?? "studying"]}: ${formatStudyTime(session.activeSeconds)} of estimated study time. Study session controls`
-    : "Start a study session";
+    ? `${STATUS_LABELS[status ?? "studying"]}: ${formatStudyTime(session.activeSeconds)} of estimated lab time. Lab session controls`
+    : "Start a lab session";
 
   return (
     <>
@@ -70,16 +70,16 @@ export function StudyControl() {
               </>
             ) : (
               <span aria-hidden className="hidden sm:inline">
-                Study
+                Lab
               </span>
             )}
           </button>
         </DialogTrigger>
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Study session</DialogTitle>
+            <DialogTitle>Lab session</DialogTitle>
             <DialogDescription>
-              Estimated study time: counted by NetSec AI while you're active on the tutor or your files. An estimate, not a
+              Estimated lab time: counted by NetSec AI while you're active in the chat or your files. An estimate, not a
               measure of attention.
             </DialogDescription>
           </DialogHeader>
@@ -89,7 +89,7 @@ export function StudyControl() {
             onClick={() => setOpen(false)}
             className="focus-ring self-start rounded text-sm font-semibold text-brand underline underline-offset-2"
           >
-            See your Study Activity
+            See your Lab Activity
           </Link>
         </DialogContent>
       </Dialog>

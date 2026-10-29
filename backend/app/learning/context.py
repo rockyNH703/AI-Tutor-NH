@@ -1,11 +1,15 @@
-"""The Learning domain's public reads: what the tutor may know about a student (their settings,
-and how they are doing: TutorProgress, read by app.progress.learning), the student's
-active-time goals, and what their practice plan needs (read_plan_profile).
+"""The Learning domain's public reads: what the assistant may know about a user (their
+Engineering Profile, answer preferences and how their practice is going: TutorProgress, read by
+app.progress.learning; plus the academic settings that retrieval and the question bank still
+read), the user's active-time goals, and what their practice plan needs (read_plan_profile).
+
+The academic profile no longer reaches the assistant's instructions (app/learning/tutor.py); the
+Engineering Profile replaces it there.
 
 Chat reads the context once per turn, inside its prepare transaction (app/chat/service.py);
 Progress reads the goals and the plan's profile (app/progress) and reminders the study time
 (app/notifications). None of them touches the learning tables itself. The
-context holds display names, not codes, and nothing that identifies the student: no name,
+context holds display names, not codes, and nothing that identifies the user: no name,
 email address or photo ever reaches the model.
 """
 
@@ -20,7 +24,13 @@ from datetime import date, time
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import PREFERENCE_CHOICES, LearnerProfile, LearnerSubject, LearningPreferences
+from app.db.models import (
+    PREFERENCE_CHOICES,
+    EngineeringProfile,
+    LearnerProfile,
+    LearnerSubject,
+    LearningPreferences,
+)
 from app.learning import catalog
 
 
@@ -80,6 +90,12 @@ class StudentContext:
     # Only the preferences that are not "auto", in PREFERENCE_CHOICES order.
     preferences: tuple[tuple[str, str], ...] = ()
     progress: TutorProgress | None = None
+    # The Engineering Profile, as display names: `other` and codes the catalog doesn't have are left out.
+    role: str | None = None
+    experience_level: str | None = None
+    focus_areas: tuple[str, ...] = ()
+    platforms: tuple[str, ...] = ()
+    certification_goal: str | None = None
 
 
 @dataclass(frozen=True)
@@ -95,6 +111,10 @@ def _name(entries: tuple[catalog.Entry, ...], code: str | None) -> str | None:
     return entry.name if entry and entry.code != "other" else None
 
 
+def _names(entries: tuple[catalog.Entry, ...], codes: Iterable[str] | None) -> tuple[str, ...]:
+    return tuple(name for code in codes or () if (name := _name(entries, code)))
+
+
 def subject_name(code: str | None) -> str | None:
     """A subject's name from its catalog code; None for a code the catalog doesn't have (app/study)."""
     entry = catalog.lookup(catalog.SUBJECTS, code)
@@ -106,10 +126,12 @@ def build_context(
     subjects: Iterable[SubjectChoice],
     preferences: Mapping[str, str],
     progress: TutorProgress | None = None,
+    engineering: Mapping[str, object] | None = None,
 ) -> StudentContext:
-    """Pure: from stored (or draft) values to what the tutor is told. `profile` and
-    `preferences` map column names to values; anything missing counts as unset. `progress` is
-    read by the caller (app.progress.learning.tutor_progress)."""
+    """Pure: from stored (or draft) values to what the assistant is told. `profile`, `preferences`
+    and `engineering` (the Engineering Profile) map column names to values; anything missing counts
+    as unset. `progress` is read by the caller (app.progress.learning.tutor_progress)."""
+    engineering = engineering or {}
     board_state = _name(catalog.BOARD_STATES, profile.get("board_state")) if profile.get("board") == "state" else None
     named_subjects = []
     for subject in subjects:
@@ -136,11 +158,17 @@ def build_context(
             (name, preferences[name]) for name in PREFERENCE_CHOICES if preferences.get(name, "auto") != "auto"
         ),
         progress=progress,
+        role=_name(catalog.ROLES, engineering.get("role")),
+        experience_level=_name(catalog.EXPERIENCE_LEVELS, engineering.get("experience_level")),
+        focus_areas=_names(catalog.FOCUS_AREAS, engineering.get("focus_areas")),
+        platforms=_names(catalog.PLATFORMS, engineering.get("platforms")),
+        certification_goal=_name(catalog.CERTIFICATIONS, engineering.get("certification_goal")),
     )
 
 
 PROFILE_COLUMNS = tuple(column.key for column in LearnerProfile.__table__.columns)
 PREFERENCE_COLUMNS = tuple(PREFERENCE_CHOICES)
+ENGINEERING_COLUMNS = ("role", "experience_level", "focus_areas", "platforms", "certification_goal")
 
 
 def profile_values(row: LearnerProfile | None) -> dict[str, object]:
@@ -149,6 +177,10 @@ def profile_values(row: LearnerProfile | None) -> dict[str, object]:
 
 def preference_values(row: LearningPreferences | None) -> dict[str, str]:
     return {column: getattr(row, column) for column in PREFERENCE_COLUMNS} if row else {}
+
+
+def engineering_values(row: EngineeringProfile | None) -> dict[str, object]:
+    return {column: getattr(row, column) for column in ENGINEERING_COLUMNS} if row else {}
 
 
 async def read_subjects(session: AsyncSession, user_id: uuid.UUID) -> list[LearnerSubject]:
@@ -212,7 +244,15 @@ async def read_plan_profile(session: AsyncSession, user_id: uuid.UUID) -> PlanPr
 async def read_student_context(
     session: AsyncSession, user_id: uuid.UUID, progress: TutorProgress | None = None
 ) -> StudentContext:
+    """What the assistant is told about this user, with `progress` read by the caller."""
     profile = await session.get(LearnerProfile, user_id)
     preferences = await session.get(LearningPreferences, user_id)
+    engineering = await session.get(EngineeringProfile, user_id)
     subjects = await read_subjects(session, user_id) if profile else []  # subjects need a profile row
-    return build_context(profile_values(profile), subject_choices(subjects), preference_values(preferences), progress)
+    return build_context(
+        profile_values(profile),
+        subject_choices(subjects),
+        preference_values(preferences),
+        progress,
+        engineering_values(engineering),
+    )

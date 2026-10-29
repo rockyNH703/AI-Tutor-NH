@@ -11,6 +11,11 @@ import { CatalogSelect, SaveFooter, useProfileForm } from "./profile-form";
 const FIELDS = ["grade", "board", "boardState", "medium", "academicYear"] as const satisfies readonly LearnerProfileField[];
 const CHECK = "Choose one from the list.";
 
+/**
+ * The former Academic Profile. Settings shows the Engineering Profile in its place
+ * (engineering-section.tsx; /settings/academic redirects there); this form is kept, not listed,
+ * because the learner profile still stores these fields.
+ */
 export function AcademicSection() {
   const { catalog, error: catalogError, retry: retryCatalog } = useCatalog();
   const form = useProfileForm(FIELDS, "Academic profile saved.");

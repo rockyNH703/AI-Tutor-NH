@@ -74,7 +74,7 @@ test("every control reached by Tab shows where focus is", async ({ page, account
 test("the collapsed rail names its controls on keyboard focus", async ({ page, account: _ }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Collapse sidebar" }).click();
-  for (const name of ["Ask New Doubt"]) {
+  for (const name of ["New chat"]) {
     const control = page.getByRole("complementary").getByRole("link", { name });
     await control.focus();
     // (Filtered: the previous tooltip can still be fading out.)

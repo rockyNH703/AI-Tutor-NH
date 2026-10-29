@@ -37,7 +37,7 @@ const COUNTER_FROM = MESSAGE_MAX - 1000;
  *   - Voice opens voice mode over this chat (features/voice): only where the API offers it and the
  *     browser can record and play; filled while the box is empty, quieter once Send has something
  *   - 16 px text on phones: iOS zooms the page when a focused field is smaller
- *   - no placeholder and no lines under it: its name ("Ask your doubt") and the keys are
+ *   - no placeholder and no lines under it: its name ("Message NetSec AI") and the keys are
  *     for assistive technology; only the character count shows, near the limit
  */
 export function Composer({
@@ -236,7 +236,7 @@ export function Composer({
               }}
             />
             <label htmlFor={`composer-${chatKey}`} className="sr-only">
-              Ask your doubt
+              Message NetSec AI
             </label>
             <textarea
               id={`composer-${chatKey}`}
@@ -288,7 +288,7 @@ export function Composer({
                   onVoice();
                 }}
                 aria-label="Voice mode"
-                title="Voice mode: talk with your tutor"
+                title="Voice mode"
                 className={cn(
                   "focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors sm:h-10 sm:w-10",
                   value.trim()

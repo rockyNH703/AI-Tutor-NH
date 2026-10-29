@@ -1,10 +1,10 @@
 """/v1/voice: voice mode's speech (docs/api-contract.md, "Voice").
 
-Every route checks, itself, that voice mode is for this student: the rollout (VOICE_MODE, VOICE_QA_EMAILS) and
-their tutor language (English or unset: OllaLink speaks no Hindi). Anyone else gets 404 and nothing is sent to
+Every route checks, itself, that voice mode is for this user: the rollout (VOICE_MODE, VOICE_QA_EMAILS) and
+their reply language (English or unset: OllaLink speaks no Hindi). Anyone else gets 404 and nothing is sent to
 OllaLink. `GET /v1/voice` says the same for the web app to show its button; it decides nothing.
 
-Bounded before OllaLink is asked: per student a minute and a day (auth_attempts), at once per student and in all
+Bounded before OllaLink is asked: per user a minute and a day (auth_attempts), at once per user and in all
 (this process), the audio's size, the speech per reply. A client that goes away cancels its OllaLink call. Audio
 is never stored; logs carry sizes and times only, never what was said.
 """

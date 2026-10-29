@@ -250,7 +250,7 @@ async def test_a_milestone_is_announced_once_per_streak(client, app, clock, data
     await ask(client, headers)  # again the same day
     milestones = [item for item in (await inbox(client, headers))["items"] if item["kind"] == "streak_milestone"]
     assert [(item["title"], item["body"]) for item in milestones] == [
-        ("🔥 7 Day Streak!", "You've learned for 7 days in a row.")
+        ("🔥 7 Day Streak!", "You've practised 7 days in a row.")
     ]
     # Broken, then built again: the new streak's seventh day is announced too, once.
     clock.ist("2026-10-10T11:30")

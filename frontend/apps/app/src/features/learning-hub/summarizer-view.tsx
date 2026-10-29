@@ -11,18 +11,18 @@ export function SummarizerView() {
     <ToolPage label="Summarizer">
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5 elev-1 sm:p-6">
         <div>
-          <h2 className="text-lg font-bold text-foreground">Chapter Summarizer</h2>
+          <h2 className="text-lg font-bold text-foreground">Summarizer</h2>
           <p className="mt-1 text-xs text-text-secondary">
-            Paste long textbook paragraphs or select a chapter from NCERT to get a 2-minute bullet summary.
+            Paste a long log, config, RFC section or runbook to get a 2-minute bullet summary.
           </p>
         </div>
         <label htmlFor="summarize-text" className="sr-only">
-          Text or chapter name to summarise
+          Text to summarise
         </label>
         <textarea
           id="summarize-text"
           className="focus-field h-32 w-full resize-y rounded-xl border border-input bg-card p-3 text-base text-foreground placeholder:text-text-secondary sm:text-sm"
-          placeholder="Paste text here or type chapter name like 'Acid Bases and Salts'…"
+          placeholder="Paste a log, config, RFC section or runbook…"
         />
         <Button type="button" disabled className="bg-warning text-warning-soft shadow-warning/20 hover:bg-warning">
           <Lightbulb aria-hidden className="h-4 w-4" />

@@ -1,4 +1,5 @@
-"""Learning: the academic catalog, the learner profile, subjects, preferences and the preview."""
+"""Learning: the catalogs, the Engineering Profile, the learner profile, subjects, preferences and
+the preview."""
 
 import asyncio
 import re
@@ -12,6 +13,10 @@ from tests.conftest import register
 CATALOG_FINGERPRINTS = {
     1: "b23e2375a9ca24fb2004c9a9432e648a72e112bf2adf2ecb69481b6c15e6c08c",
 }
+# The same for the engineering catalog and ENGINEERING_VERSION.
+ENGINEERING_FINGERPRINTS = {
+    1: "4306366cdf44cfc29e881b5e31e5f1c42297020e3e0fb16232f698eef249d5c9",
+}
 
 
 # ----------------------------------------------------------------------- catalog
@@ -21,13 +26,27 @@ def test_the_catalog_version_follows_its_content():
     )
 
 
+def test_the_engineering_catalog_version_follows_its_content():
+    assert ENGINEERING_FINGERPRINTS.get(catalog.ENGINEERING_VERSION) == catalog.engineering_hash(), (
+        "the engineering catalog changed: bump ENGINEERING_VERSION and record its new hash here"
+    )
+
+
 def test_catalog_codes_are_well_formed_and_unique():
-    for key, entries in catalog.LISTS.items():
+    for key, entries in [*catalog.LISTS.items(), *catalog.ENGINEERING_LISTS.items()]:
         codes = [entry.code for entry in entries]
         assert len(codes) == len(set(codes)), key
         for entry in entries:
             assert re.fullmatch(r"[a-z0-9_]{1,40}", entry.code), (key, entry.code)
             assert 0 < len(entry.name) <= 60, (key, entry.code)
+
+
+def test_engineering_names_can_be_listed_with_semicolons():
+    for key, entries in catalog.ENGINEERING_LISTS.items():
+        for entry in entries:
+            assert not re.search(r"[,;\n]", entry.name), (key, entry.code)
+    fields = {**catalog.ENGINEERING_FIELDS, **catalog.ENGINEERING_LIST_FIELDS}
+    assert {id(entries) for entries in fields.values()} == {id(e) for e in catalog.ENGINEERING_LISTS.values()}
 
 
 async def test_the_catalog_is_public_and_cacheable_by_version(client):
@@ -45,6 +64,229 @@ async def test_the_catalog_is_public_and_cacheable_by_version(client):
     assert same.headers["etag"] == catalog.ETAG
     older = await client.get("/v1/catalog/academic", headers={"If-None-Match": '"academic-0-old"'})
     assert older.status_code == 200
+
+
+async def test_the_engineering_catalog_needs_a_session_and_is_cacheable_by_version(client, app):
+    assert (await client.get("/v1/catalog/engineering")).status_code == 401
+    headers = (await register(client, app))["headers"]
+    response = await client.get("/v1/catalog/engineering", headers=headers)
+    assert response.status_code == 200
+    body = response.json()
+    assert body == catalog.engineering_json()
+    assert set(body) == {"version", "roles", "experienceLevels", "focusAreas", "platforms", "certifications"}
+    assert {"code": "cisco_ios", "name": "Cisco IOS / IOS XE", "deprecated": False} in body["platforms"]
+    assert response.headers["etag"] == catalog.ENGINEERING_ETAG != catalog.ETAG
+    assert response.headers["cache-control"] == "private, max-age=3600, must-revalidate"
+
+    same = await client.get("/v1/catalog/engineering", headers={**headers, "If-None-Match": catalog.ENGINEERING_ETAG})
+    assert same.status_code == 304 and same.content == b""
+    assert same.headers["etag"] == catalog.ENGINEERING_ETAG
+    older = await client.get("/v1/catalog/engineering", headers={**headers, "If-None-Match": '"engineering-0-old"'})
+    assert older.status_code == 200
+    no_session = await client.get("/v1/catalog/engineering", headers={"If-None-Match": catalog.ENGINEERING_ETAG})
+    assert no_session.status_code == 401
+
+
+# ----------------------------------------------------------- engineering profile
+FULL_ENGINEERING = {
+    "role": "network_engineer",
+    "experienceLevel": "senior",
+    "focusAreas": ["routing_switching", "network_security"],
+    "platforms": ["cisco_ios", "palo_alto", "aws"],
+    "certificationGoal": "ccnp_enterprise",
+}
+
+
+async def test_the_engineering_profile_starts_empty(client, app):
+    headers = (await register(client, app))["headers"]
+    profile = (await client.get("/v1/engineering/profile", headers=headers)).json()
+    assert profile == {
+        "version": 0,
+        "role": None,
+        "experienceLevel": None,
+        "focusAreas": [],
+        "platforms": [],
+        "certificationGoal": None,
+        "updatedAt": None,
+    }
+
+
+async def test_an_engineering_profile_edit_sets_and_resets(client, app):
+    headers = (await register(client, app))["headers"]
+    first = await client.patch("/v1/engineering/profile", json={"version": 0, "set": FULL_ENGINEERING}, headers=headers)
+    assert first.status_code == 200, first.text
+    profile = first.json()
+    assert profile["version"] == 1 and profile["updatedAt"] is not None
+    assert {key: profile[key] for key in FULL_ENGINEERING} == FULL_ENGINEERING  # lists keep their order
+
+    reset = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 1, "reset": ["focusAreas", "certificationGoal"], "set": {"platforms": ["juniper"]}},
+        headers=headers,
+    )
+    assert reset.status_code == 200, reset.text
+    after = reset.json()
+    assert (after["focusAreas"], after["certificationGoal"], after["platforms"]) == ([], None, ["juniper"])
+    assert (after["version"], after["role"], after["experienceLevel"]) == (2, "network_engineer", "senior")
+    assert (await client.get("/v1/engineering/profile", headers=headers)).json() == after
+
+    emptied = await client.patch(
+        "/v1/engineering/profile", json={"version": 2, "set": {"platforms": []}}, headers=headers
+    )
+    assert emptied.status_code == 200 and emptied.json()["platforms"] == []
+
+
+async def test_a_stale_engineering_edit_gets_the_current_profile(client, app):
+    headers = (await register(client, app))["headers"]
+    await client.patch("/v1/engineering/profile", json={"version": 0, "set": {"role": "soc_analyst"}}, headers=headers)
+    stale = await client.patch(
+        "/v1/engineering/profile", json={"version": 0, "set": {"role": "cloud_engineer"}}, headers=headers
+    )
+    assert stale.status_code == 409
+    error = stale.json()["error"]
+    assert error["code"] == "version_conflict"
+    assert error["current"] == (await client.get("/v1/engineering/profile", headers=headers)).json()
+    assert (error["current"]["role"], error["current"]["version"]) == ("soc_analyst", 1)
+
+
+async def test_two_engineering_edits_from_one_version_cannot_both_win(client, app):
+    headers = (await register(client, app))["headers"]
+    responses = await asyncio.gather(
+        *(
+            client.patch("/v1/engineering/profile", json={"version": 0, "set": {"role": role}}, headers=headers)
+            for role in ("security_engineer", "devops_engineer")
+        )
+    )
+    assert sorted(r.status_code for r in responses) == [200, 409]
+    assert (await client.get("/v1/engineering/profile", headers=headers)).json()["version"] == 1
+
+
+async def test_an_empty_engineering_edit_changes_nothing(client, app):
+    headers = (await register(client, app))["headers"]
+    response = await client.patch("/v1/engineering/profile", json={"version": 0}, headers=headers)
+    assert response.status_code == 200 and response.json()["version"] == 0
+
+
+async def test_engineering_codes_must_come_from_the_catalog(client, app):
+    headers = (await register(client, app))["headers"]
+    response = await client.patch(
+        "/v1/engineering/profile",
+        json={
+            "version": 0,
+            "set": {
+                "role": "wizard",
+                "experienceLevel": "senior",
+                "focusAreas": ["firewalls", "basket_weaving"],
+                "platforms": ["juniper", "cisco_ios"],
+                "certificationGoal": "ccna_voice",
+            },
+        },
+        headers=headers,
+    )
+    assert response.status_code == 422
+    assert response.json()["error"]["fields"] == [
+        {"field": "set.role", "reason": "unknown_code"},
+        {"field": "set.certificationGoal", "reason": "unknown_code"},
+        {"field": "set.focusAreas.1", "reason": "unknown_code"},
+    ]
+    # A code of one list is not a code of another.
+    crossed = await client.patch(
+        "/v1/engineering/profile", json={"version": 0, "set": {"platforms": ["firewalls"]}}, headers=headers
+    )
+    assert crossed.json()["error"]["fields"] == [{"field": "set.platforms.0", "reason": "unknown_code"}]
+    assert (await client.get("/v1/engineering/profile", headers=headers)).json()["version"] == 0
+
+
+async def test_a_deprecated_engineering_code_may_be_kept_but_not_chosen_anew(client, app, monkeypatch):
+    headers = (await register(client, app))["headers"]
+    first = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 0, "set": {"role": "it_manager", "platforms": ["mikrotik", "juniper"]}},
+        headers=headers,
+    )
+    assert first.status_code == 200, first.text
+    original = catalog.lookup
+
+    def deprecating(entries, code):
+        entry = original(entries, code)
+        if entry and entry.code in ("it_manager", "mikrotik"):
+            return catalog.Entry(entry.code, entry.name, deprecated=True)
+        return entry
+
+    monkeypatch.setattr(catalog, "lookup", deprecating)
+
+    kept = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 1, "set": {"role": "it_manager", "platforms": ["juniper", "mikrotik", "arista"]}},
+        headers=headers,
+    )
+    assert kept.status_code == 200, kept.text
+    moved = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 2, "set": {"role": "network_architect", "platforms": ["arista"]}},
+        headers=headers,
+    )
+    assert moved.status_code == 200
+    back = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 3, "set": {"role": "it_manager", "platforms": ["arista", "mikrotik"]}},
+        headers=headers,
+    )
+    assert back.status_code == 422
+    assert back.json()["error"]["fields"] == [
+        {"field": "set.role", "reason": "deprecated"},
+        {"field": "set.platforms.1", "reason": "deprecated"},
+    ]
+    assert (await client.get("/v1/engineering/profile", headers=headers)).json()["version"] == 3
+
+
+async def test_malformed_engineering_edits_are_refused(client, app):
+    headers = (await register(client, app))["headers"]
+    focus = [entry.code for entry in catalog.FOCUS_AREAS]
+    platforms = [entry.code for entry in catalog.PLATFORMS]
+    for patch in (
+        {"focusAreas": focus[:9]},
+        {"platforms": platforms[:13]},
+        {"focusAreas": ["firewalls", "firewalls"]},
+        {"platforms": ["aws", "azure", "aws"]},
+        {"role": None},
+        {"focusAreas": None},
+        {"role": "Network Engineer"},
+        {"role": "x" * 41},
+        {"platforms": "aws"},
+        {"platforms": [1]},
+        {"employer": "Acme"},
+    ):
+        response = await client.patch("/v1/engineering/profile", json={"version": 0, "set": patch}, headers=headers)
+        assert response.status_code == 422, patch
+    for body in (
+        {"set": {}},
+        {"version": -1},
+        {"version": 0, "reset": ["role", "role"]},
+        {"version": 0, "reset": ["grade"]},
+        {"version": 0, "set": {"role": "soc_analyst"}, "reset": ["role"]},
+        {"version": 0, "userId": "someone-else"},
+    ):
+        assert (await client.patch("/v1/engineering/profile", json=body, headers=headers)).status_code == 422, body
+    assert (await client.get("/v1/engineering/profile", headers=headers)).json()["version"] == 0
+    # The largest lists allowed are accepted.
+    full = await client.patch(
+        "/v1/engineering/profile",
+        json={"version": 0, "set": {"focusAreas": focus[:8], "platforms": platforms[:12]}},
+        headers=headers,
+    )
+    assert full.status_code == 200, full.text
+    assert (len(full.json()["focusAreas"]), len(full.json()["platforms"])) == (8, 12)
+
+
+async def test_the_engineering_profile_is_separate_from_the_learner_profile(client, app):
+    headers = (await register(client, app))["headers"]
+    await client.patch("/v1/learning/profile", json={"version": 0, "set": {"grade": "class_11"}}, headers=headers)
+    engineering = await client.patch(
+        "/v1/engineering/profile", json={"version": 0, "set": {"role": "soc_analyst"}}, headers=headers
+    )
+    assert engineering.status_code == 200 and engineering.json()["version"] == 1
+    assert (await client.get("/v1/learning/profile", headers=headers)).json()["grade"] == "class_11"
 
 
 # ----------------------------------------------------------------------- profile
@@ -310,38 +552,58 @@ async def test_the_preview_shows_a_draft_without_saving_it(client, app):
     headers = (await register(client, app))["headers"]
     empty = await client.post("/v1/learning/tutor-preview", json={}, headers=headers)
     assert empty.status_code == 200 and empty.json()["instructions"] == ""
-    assert empty.json()["maxChars"] > 0
+    assert empty.json()["maxChars"] == 3000
 
-    await client.patch("/v1/learning/profile", json={"version": 0, "set": {"grade": "class_7"}}, headers=headers)
+    await client.patch(
+        "/v1/engineering/profile", json={"version": 0, "set": {"role": "network_engineer"}}, headers=headers
+    )
     draft = await client.post(
         "/v1/learning/tutor-preview",
-        json={"profile": {"medium": "hindi"}, "subjects": [{"code": "science"}], "preferences": {"pace": "slow"}},
+        json={"engineering": {"platforms": ["juniper"]}, "preferences": {"answerMode": "direct"}},
         headers=headers,
     )
     assert draft.status_code == 200, draft.text
     text = draft.json()["instructions"]
-    assert "Class: Class 7" in text  # stored
-    assert "Medium of instruction at school: Hindi" in text and "Subjects: Science" in text  # draft
-    assert "Go slowly" in text
-    assert (await client.get("/v1/learning/profile", headers=headers)).json()["medium"] is None
-    assert (await client.get("/v1/learning/subjects", headers=headers)).json()["items"] == []
-    assert (await client.get("/v1/learning/preferences", headers=headers)).json()["pace"] == "auto"
+    assert "- Role: Network Engineer" in text  # stored
+    assert "- Platforms: Juniper Junos" in text  # draft
+    assert "Lead with the commands or configuration" in text
+    assert (await client.get("/v1/engineering/profile", headers=headers)).json()["platforms"] == []
+    assert (await client.get("/v1/learning/preferences", headers=headers)).json()["answerMode"] == "auto"
 
-    cleared = await client.post("/v1/learning/tutor-preview", json={"profile": {"grade": None}}, headers=headers)
+    cleared = await client.post("/v1/learning/tutor-preview", json={"engineering": {"role": None}}, headers=headers)
     assert cleared.json()["instructions"] == ""
+
+    # The retired school settings are still accepted in a draft, and add nothing.
+    retired = await client.post(
+        "/v1/learning/tutor-preview",
+        json={
+            "engineering": {"role": None},
+            "profile": {"grade": "class_7", "medium": "hindi"},
+            "subjects": [{"code": "science"}],
+            "preferences": {"pace": "slow", "personality": "friendly"},
+        },
+        headers=headers,
+    )
+    assert retired.status_code == 200 and retired.json()["instructions"] == ""
 
 
 async def test_the_preview_refuses_unknown_codes(client, app):
     headers = (await register(client, app))["headers"]
     response = await client.post(
         "/v1/learning/tutor-preview",
-        json={"profile": {"board": "hogwarts"}, "subjects": [{"code": "potions"}]},
+        json={
+            "profile": {"board": "hogwarts"},
+            "subjects": [{"code": "potions"}],
+            "engineering": {"role": "wizard", "platforms": ["juniper", "skynet"]},
+        },
         headers=headers,
     )
     assert response.status_code == 422
     assert response.json()["error"]["fields"] == [
         {"field": "profile.board", "reason": "unknown_code"},
         {"field": "subjects.0.code", "reason": "unknown_code"},
+        {"field": "engineering.role", "reason": "unknown_code"},
+        {"field": "engineering.platforms.1", "reason": "unknown_code"},
     ]
 
 

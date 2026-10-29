@@ -1,9 +1,11 @@
-/** The learning side of Settings: the academic catalog, the learner profile, subjects,
- * learning and tutor preferences, and the preview of what the tutor is told. */
+/** The learning side of Settings: the engineering and academic catalogs, the Engineering Profile,
+ * the learner profile, subjects, answer preferences, and the preview of what the assistant is told. */
 
 import { callRoute } from "./http";
 import type {
   AcademicCatalog,
+  EngineeringCatalog,
+  EngineeringProfile,
   LearnerProfile,
   LearningPreferenceField,
   LearningPreferenceValues,
@@ -12,6 +14,7 @@ import type {
   SubjectList,
   TutorPreview,
   TutorPreviewRequest,
+  UpdateEngineeringProfileRequest,
   UpdateLearnerProfileRequest,
   VersionedEdit,
 } from "./types";
@@ -19,6 +22,23 @@ import type {
 /** Public and the same for everyone; codes are permanent, `deprecated` ones may only be kept. */
 export function getCatalog(): Promise<AcademicCatalog> {
   return callRoute("GET /v1/catalog/academic");
+}
+
+/** The same for everyone, behind a session; codes are permanent, `deprecated` ones may only be kept. */
+export function getEngineeringCatalog(): Promise<EngineeringCatalog> {
+  return callRoute("GET /v1/catalog/engineering");
+}
+
+/** What the assistant is told about the user's work. Version 0 and empty values until first saved. */
+export function getEngineeringProfile(): Promise<EngineeringProfile> {
+  return callRoute("GET /v1/engineering/profile");
+}
+
+/** A versioned edit; a stale version is 409 `version_conflict` with the profile as it is now. */
+export function updateEngineeringProfile(edit: UpdateEngineeringProfileRequest): Promise<EngineeringProfile> {
+  return callRoute("PATCH /v1/engineering/profile", {
+    body: { version: edit.version, set: edit.set ?? {}, reset: edit.reset ?? [] },
+  });
 }
 
 export function getLearnerProfile(): Promise<LearnerProfile> {
@@ -61,7 +81,7 @@ export function updateLearningPreferences(
   });
 }
 
-/** What the tutor would be told with these (unsaved) edits over what is stored. Saves nothing. */
-export function previewTutor(draft: TutorPreviewRequest = {}): Promise<TutorPreview> {
-  return callRoute("POST /v1/learning/tutor-preview", { body: draft });
+/** What the assistant would be told with these (unsaved) edits over what is stored. Saves nothing. */
+export function previewTutor(draft: TutorPreviewRequest = {}, signal?: AbortSignal): Promise<TutorPreview> {
+  return callRoute("POST /v1/learning/tutor-preview", { body: draft, signal });
 }

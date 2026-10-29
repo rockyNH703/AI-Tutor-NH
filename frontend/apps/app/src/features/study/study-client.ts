@@ -134,6 +134,6 @@ export function formatStudyTime(seconds: number): string {
 export const ACTIVITY_LABELS: Record<StudyActivity, string> = {
   reading: "Reading",
   practice: "Practice",
-  revision: "Revision",
+  revision: "Review",
   test: "Test",
 };

@@ -13,13 +13,22 @@ from app.settings import Settings
 
 MAX_PROPOSALS = 3
 
-_SYSTEM_PROMPT = f"""You extract optional personal learning memories from one user message.
+_SYSTEM_PROMPT = f"""You extract optional personal memories from one user message to NetSec AI, an assistant for
+network, security and infrastructure engineers.
 Use only the supplied user text. Do not infer from an assistant, retrieved context, files, or prior memory.
+Keep only lasting facts the user explicitly stated about themselves that will help future answers: the
+environment and platforms they work with (vendors, operating systems, cloud providers, tools), their projects
+and responsibilities, their certification goals, and how they like answers (depth, format, vendor syntax).
+Use "learning_context" for certification goals and how they like answers, "study_context" for their
+environment, platforms and projects. Write each as one short sentence about the user, in general terms.
 Return exactly one JSON object and no markdown:
 {{"proposals":[{{"operation":"add","kind":"learning_context|study_context","content":"...","confidence":0.0,"evidenceReason":"..."}}]}}
 Return at most {MAX_PROPOSALS} proposals. Return an empty proposals array when nothing durable and useful was
 explicitly stated.
-Never extract credentials, profile facts, grades/classes/boards/exams, learning settings, mastery, scores, or streaks.
+Never extract credentials or secrets (passwords, keys, tokens, pre-shared keys, SNMP communities,
+certificates), configuration or log excerpts, IP addresses, hostnames, serial numbers or other identifiers of a
+system, network or organisation, one-off incident details, their role or experience level (their profile holds
+those), mastery, scores, or streaks.
 Schema version: {MEMORY_SCHEMA_VERSION}. Prompt version: {MEMORY_PROMPT_VERSION}.
 """
 

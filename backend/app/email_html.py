@@ -64,7 +64,7 @@ WARNING = "#7A5C00"
 DANGER = "#B23A48"
 FLAME = "#F28C45"
 GOLD = "#FFC46B"
-TAGLINE = "Your intelligent learning assistant."
+TAGLINE = "Your AI assistant for networking, security and infrastructure."
 
 # The pages an email may link to; nothing else is ever a link.
 PAGES = {
@@ -102,7 +102,7 @@ def checked_url(settings: Settings | None, url: str | None) -> str | None:
 
 
 def first_name(display_name: str | None) -> str | None:
-    """The first word of the name the student gave, if any ("Hi Aditi,")."""
+    """The first word of the name the user gave, if any ("Hi Aditi,")."""
     words = clean_text(display_name or "").split()
     return words[0][:40] if words else None
 
@@ -249,7 +249,7 @@ def alert(
 
 
 def hero(title: object, text: object) -> SafeHtml:
-    """The solid dark block of the learning emails, as the app's own (no gradient)."""
+    """The solid dark block of the reminder and welcome emails, as the app's own (no gradient)."""
     return _row(
         _table(
             f'<tr><td align="center" class="hero-wrap" bgcolor="{BRAND}" style="background-color:{BRAND};'

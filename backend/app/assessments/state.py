@@ -1,14 +1,14 @@
-"""Practice tests and exercises: what the tutor writes into a reply for the student to answer,
+"""Practice tests and exercises: what the assistant writes into a reply for the user to answer,
 graded and recorded by the server (docs/api-contract.md, "Practice tests").
 
 - **Built with the reply, all or nothing.** `build` runs when the reply is saved
   (ChatService._finalize), in the same UPDATE. A reply holds at most one practice block: a test
   (one ```quiz block, or one ```mcq for a single question) or an exercise (one ```fill-blank). The
   whole block is checked first: every question, its options and its answer (for a test, also the
-  number of questions the student asked for), every blank and its accepted answers. Anything
+  number of questions the user asked for), every blank and its accepted answers. Anything
   wrong keeps nothing (the reason is `assessmentError`), never part of it. There is no retry
-  behind the student's back: Regenerate is the retry.
-- **The tutor is told the record** (`tutor_summary`), latest first, in words a model reads as
+  behind the user's back: Regenerate is the retry.
+- **The assistant is told the record** (`tutor_summary`), latest first, in words a model reads as
   fact: what was answered, the score, what to do when asked. A model that is only given the
   score tends to believe the transcript instead, where no answer appears (scripts/eval_tutor_record.py
   measures this against the configured model).
@@ -43,15 +43,15 @@ LETTERS = "ABCDEFGH"
 LANGUAGES = ("quiz", "mcq", "fill-blank")  # the practice blocks the app records
 SUMMARY_HEADING = "## Practice tests in this chat"
 SUMMARY_FRAME = (
-    "The app records the student's answers to the tests and exercises you write (they are not in the "
+    "The app records the user's answers to the tests and exercises you write (they are not in the "
     "chat transcript). This record is authoritative."
 )
 USE_RECORD = (
-    "- When the student asks how they did, answer from this record: the score, what they got right and "
+    "- When the user asks how they did, answer from this record: the score, what they got right and "
     "wrong, and the ideas behind the wrong answers. Never say you cannot see their answers."
 )
 NOT_ANSWERED = (
-    "- There is no score yet: the student has not checked a single blank. If they ask how they did, say "
+    "- There is no score yet: the user has not checked a single blank. If they ask how they did, say "
     "they haven't answered it yet and invite them to fill in the blanks and press Check answers. Never "
     "state, guess or imply a score, or which blanks are right or wrong."
 )
@@ -61,9 +61,9 @@ _FILL_FENCE = re.compile(r"(^|\n)([ \t]*)(`{3,}|~{3,})[ \t]*fill-blank\b[^\n]*\n
 
 
 def for_model(content: str) -> str:
-    """A reply as the tutor is shown it in the chat history: each fill-in-the-blanks exercise with its
-    answers replaced by blanks. The record (tutor_summary) is the only place the tutor reads results and
-    right answers from, so the exercise's own answer key can never be mistaken for the student's answers."""
+    """A reply as the assistant is shown it in the chat history: each fill-in-the-blanks exercise with its
+    answers replaced by blanks. The record (tutor_summary) is the only place the assistant reads results and
+    right answers from, so the exercise's own answer key can never be mistaken for the user's answers."""
     if "fill-blank" not in content:
         return content
     return _FILL_FENCE.sub(lambda match: _ANSWER_KEY.sub("____", match.group(0)), content)
@@ -265,7 +265,7 @@ def _same(given: str, expected: str) -> bool:
 
 
 def asked_count(question: str | None) -> int | None:
-    """How many questions the student asked for ("10 MCQs", "give me five questions"), at most
+    """How many questions the user asked for ("10 MCQs", "give me five questions"), at most
     MAX_QUESTIONS; None when the message names no count ("class 10 questions" names a class)."""
     text = question or ""
     patterns = [_ASKED_MCQS] + ([_ASKED_QUESTIONS] if _TEST_WORDS.search(text) else [])
@@ -288,7 +288,7 @@ def _claimed_count(prose: list[str]) -> int | None:
 
 def build(content: str, question: str | None) -> tuple[list[dict] | None, str | None]:
     """The reply's test records, or why it has none: (records, None), (None, code), or (None, None)
-    for a reply without a test. `question` is the student's message the reply answers."""
+    for a reply without a test. `question` is the user's message the reply answers."""
     blocks, prose = _blocks(content)
     tests = [block for block in blocks if block.language in LANGUAGES]
     if not tests:
@@ -506,9 +506,9 @@ def public(record: dict, message_id: Any, status: str) -> dict | None:
     }
 
 
-# ------------------------------------------------------------------ what the tutor is told
+# ------------------------------------------------------------------ what the assistant is told
 def _quote(text: str, limit: int) -> str:
-    """Text on one line, in quotes it cannot close, at most `limit` characters. Student-typed text
+    """Text on one line, in quotes it cannot close, at most `limit` characters. User-typed text
     is only ever shown this way: information, never instructions (as in app/learning/tutor.py)."""
     flat = " ".join(str(text).split()).replace('"', "'")
     return f'"{flat if len(flat) <= limit else flat[: limit - 1] + "…"}"'
@@ -538,11 +538,11 @@ def _test_lines(record: dict) -> list[str]:
     else:
         state = f"NOT STARTED; question 1 of {total} is waiting."
     lines = [f"- Latest test{_title(record)}: {state}"]
-    if responses:  # every answered question: the tutor is asked about any of them
+    if responses:  # every answered question: the assistant is asked about any of them
         marks = "; ".join(_mark(response, questions) for response in responses)
         lines.append(f"- Answers (letter chosen; right answer in brackets): {marks}")
     # The wording of the latest missed questions, so "explain my mistakes" still works once a long
-    # chat has pushed the test itself out of the transcript the tutor sees.
+    # chat has pushed the test itself out of the transcript the assistant sees.
     missed = [response for response in responses if not response["earned"]][-MISSED_SHOWN:]
     if missed:
         details = []
@@ -589,7 +589,7 @@ def _exercise_lines(record: dict) -> list[str]:
     lines.append(f"- Text: {_quote(text, 200)}")
     if response is not None and response["status"] != "skipped":
         # Every blank, with what they typed: the exercise's own answers are in the transcript too,
-        # and a model told only the wrong ones may read those as the student's.
+        # and a model told only the wrong ones may read those as the user's.
         typed = [
             f"{number} {_quote(given, 16)} " + ("right" if mark else f"wrong ({_quote(accepted[0], 16)})")
             for number, (given, mark, accepted) in enumerate(

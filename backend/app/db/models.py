@@ -2,6 +2,7 @@
 
 User ─┬─ UserSettings
       ├─ LearnerProfile, LearnerSubject, LearningPreferences   (app/learning)
+      ├─ EngineeringProfile   what the assistant is told about their work   (app/learning)
       ├─ ActivityDay   active time and questions per local day   (app/progress)
       ├─ NotificationPreferences, EmailOutbox                    (app/notifications)
       ├─ SupportRequest                                          (app/support)
@@ -268,6 +269,30 @@ class LearningPreferences(Base):
     practice_questions: Mapped[str] = _choice()
     mistake_correction: Mapped[str] = _choice()
     highlight_key_concepts: Mapped[str] = _choice()
+    updated_at: Mapped[datetime] = _created()
+
+
+class EngineeringProfile(Base):
+    """What a user tells the assistant about their engineering work (0020): role, experience, focus
+    areas, platforms and certification goal. Codes come from the engineering catalog
+    (app/learning/catalog.py) and are checked by the service, so the catalog grows without a
+    migration; the database bounds the lists."""
+
+    __tablename__ = "engineering_profiles"
+    __table_args__ = (
+        CheckConstraint("cardinality(focus_areas) <= 8", name="focus_areas"),
+        CheckConstraint("cardinality(platforms) <= 12", name="platforms"),
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    role: Mapped[str | None] = mapped_column(String(40))
+    experience_level: Mapped[str | None] = mapped_column(String(40))
+    focus_areas: Mapped[list[str]] = mapped_column(ARRAY(String(40)), nullable=False, server_default=text("'{}'"))
+    platforms: Mapped[list[str]] = mapped_column(ARRAY(String(40)), nullable=False, server_default=text("'{}'"))
+    certification_goal: Mapped[str | None] = mapped_column(String(40))
     updated_at: Mapped[datetime] = _created()
 
 

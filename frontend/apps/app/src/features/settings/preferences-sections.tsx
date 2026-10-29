@@ -1,12 +1,17 @@
 "use client";
 
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { describeError } from "@/lib/api/errors";
+import { describeError, isAbortError } from "@/lib/api/errors";
 import { getLearningPreferences, previewTutor, updateLearningPreferences } from "@/lib/api/learning";
-import type { LearningPreferenceField, LearningPreferenceValues, LearningPreferences } from "@/lib/api/types";
-import { LEARNING_FIELDS, PREFERENCES, TUTOR_FIELDS } from "./learning-labels";
+import type {
+  LearningPreferenceField,
+  LearningPreferenceValues,
+  LearningPreferences,
+  TutorPreviewRequest,
+} from "@/lib/api/types";
+import { LEARNING_FIELDS, PREFERENCES, TUTOR_FIELDS, reachesAssistant } from "./learning-labels";
 import { ChoiceGroup, SectionHeading, SettingsCard } from "./primitives";
 import { useAutoSaver } from "./use-auto-saver";
 
@@ -55,6 +60,37 @@ function Choices({
   );
 }
 
+/**
+ * The preferences that add nothing to the assistant right now: kept, editable and saved like the
+ * others, but folded away under a heading that says so, so the ones that matter come first.
+ */
+function NotUsedNow({
+  fields,
+  value,
+  change,
+}: {
+  fields: readonly LearningPreferenceField[];
+  value: LearningPreferences;
+  change: (changes: Partial<LearningPreferences>) => void;
+}) {
+  if (!fields.length) return null;
+  return (
+    <SettingsCard
+      title="Not used by NetSec AI right now"
+      description="These are kept and still saved as you change them, but they don't change NetSec AI's answers at the moment."
+    >
+      <details>
+        <summary className="focus-ring cursor-pointer self-start rounded text-sm font-medium text-brand underline underline-offset-2">
+          {`Show ${fields.length} more ${fields.length === 1 ? "preference" : "preferences"}`}
+        </summary>
+        <div className="mt-6 flex flex-col gap-6">
+          <Choices fields={fields} value={value} change={change} />
+        </div>
+      </details>
+    </SettingsCard>
+  );
+}
+
 function LoadFailed({ error, retry }: { error: unknown; retry: () => void }) {
   return (
     <SettingsCard title="Couldn't load your preferences">
@@ -70,13 +106,21 @@ function LoadFailed({ error, retry }: { error: unknown; retry: () => void }) {
   );
 }
 
-const NEUTRAL_NOTE = "No preference leaves it to the tutor. Changes are saved as you make them.";
+const NEUTRAL_NOTE = "No preference leaves it to NetSec AI. Changes are saved as you make them.";
+
+const LEARNING_USED = LEARNING_FIELDS.filter(reachesAssistant);
+const LEARNING_UNUSED = LEARNING_FIELDS.filter((field) => !reachesAssistant(field));
+const TUTOR_USED = TUTOR_FIELDS.filter(reachesAssistant);
+const TUTOR_UNUSED = TUTOR_FIELDS.filter((field) => !reachesAssistant(field));
 
 export function LearningSection() {
   const { value, change, loadError, retry } = usePreferences();
   return (
     <>
-      <SectionHeading title="Learning Preferences" description="How you like to learn. The tutor follows these unless you ask it for something else in a chat." />
+      <SectionHeading
+        title="Learning Preferences"
+        description="How you like answers explained: language, depth and visuals. NetSec AI follows these unless you ask it for something else in a chat."
+      />
       {loadError ? (
         <LoadFailed error={loadError} retry={retry} />
       ) : !value ? (
@@ -84,46 +128,64 @@ export function LearningSection() {
           <Skeleton className="h-96 w-full rounded-2xl" />
         </SkeletonGroup>
       ) : (
-        <SettingsCard title="How you learn" description={NEUTRAL_NOTE}>
-          <Choices fields={LEARNING_FIELDS} value={value} change={change} />
-        </SettingsCard>
+        <div className="flex flex-col gap-4">
+          <SettingsCard title="How answers are explained" description={NEUTRAL_NOTE}>
+            <Choices fields={LEARNING_USED} value={value} change={change} />
+          </SettingsCard>
+          <NotUsedNow fields={LEARNING_UNUSED} value={value} change={change} />
+        </div>
       )}
     </>
   );
 }
 
+const PREVIEW_NOTE =
+  "Added to NetSec AI's standard instructions, from your Engineering Profile and the answer preferences in Learning Preferences and AI Assistant. Your name, email and photo are never included.";
+
 /**
- * "What your tutor is told": the API's own preview (POST /v1/learning/tutor-preview), built by
- * the same function the chat uses, so it cannot differ from a real conversation. Refreshed
- * after every save. It is instructions, never shown as if it were a reply.
+ * "What NetSec AI is told": the API's own preview (POST /v1/learning/tutor-preview), built by the
+ * same function the chat uses, so it cannot differ from a real conversation. `draft` lays unsaved
+ * edits over what is stored (the Engineering Profile form sends its own), so the preview is what
+ * saving them would tell the assistant. Refreshed after every save and every change of the draft
+ * (debounced; a newer request cancels an older one). It is instructions, never shown as a reply.
  */
-function TutorPreviewCard({ refreshKey }: { refreshKey: number }) {
+export function TutorPreviewCard({
+  refreshKey = 0,
+  draft,
+  description = PREVIEW_NOTE,
+}: {
+  refreshKey?: number;
+  draft?: TutorPreviewRequest;
+  description?: string;
+}) {
   const [text, setText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const refresh = useCallback(async () => {
-    try {
-      setText((await previewTutor()).instructions);
-      setError(null);
-    } catch (failure) {
-      setError(describeError(failure).message);
-    }
-  }, []);
+  const first = useRef(true);
+  const body = JSON.stringify(draft ?? {});
 
   useEffect(() => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => void refresh(), refreshKey === 0 ? 0 : 300);
+    const controller = new AbortController();
+    const delay = first.current ? 0 : 300;
+    first.current = false;
+    const timer = setTimeout(() => {
+      previewTutor(JSON.parse(body) as TutorPreviewRequest, controller.signal).then(
+        (preview) => {
+          setText(preview.instructions);
+          setError(null);
+        },
+        (failure) => {
+          if (!isAbortError(failure)) setError(describeError(failure).message);
+        },
+      );
+    }, delay);
     return () => {
-      if (timer.current) clearTimeout(timer.current);
+      clearTimeout(timer);
+      controller.abort();
     };
-  }, [refreshKey, refresh]);
+  }, [refreshKey, body]);
 
   return (
-    <SettingsCard
-      title="What your tutor is told"
-      description="Added to the tutor's standard instructions, from your Academic Profile, Learning Goals, Subjects and preferences. Your name, email and photo are never included."
-    >
+    <SettingsCard title="What NetSec AI is told" description={description}>
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : text === null ? (
@@ -132,7 +194,7 @@ function TutorPreviewCard({ refreshKey }: { refreshKey: number }) {
         </SkeletonGroup>
       ) : text === "" ? (
         <p className="text-sm text-text-secondary">
-          Nothing yet: with nothing chosen, your tutor gets only its standard instructions.
+          Nothing yet: with nothing chosen, NetSec AI gets only its standard instructions.
         </p>
       ) : (
         <pre
@@ -151,19 +213,23 @@ export function TutorSection() {
   const { value, change, loadError, retry } = usePreferences(() => setSaves((count) => count + 1));
   return (
     <>
-      <SectionHeading title="AI Tutor" description="How your tutor talks to you and works through problems with you." />
+      <SectionHeading
+        title="AI Assistant"
+        description="How long NetSec AI's answers are, how it works through problems with you, and what it is told."
+      />
       {loadError ? (
         <LoadFailed error={loadError} retry={retry} />
       ) : !value ? (
-        <SkeletonGroup label="Loading your tutor settings">
+        <SkeletonGroup label="Loading your assistant settings">
           <Skeleton className="h-96 w-full rounded-2xl" />
         </SkeletonGroup>
       ) : (
         <div className="flex flex-col gap-4">
-          <SettingsCard title="Your tutor" description={NEUTRAL_NOTE}>
-            <Choices fields={TUTOR_FIELDS} value={value} change={change} />
+          <SettingsCard title="Your assistant" description={NEUTRAL_NOTE}>
+            <Choices fields={TUTOR_USED} value={value} change={change} />
           </SettingsCard>
           <TutorPreviewCard refreshKey={saves} />
+          <NotUsedNow fields={TUTOR_UNUSED} value={value} change={change} />
         </div>
       )}
     </>

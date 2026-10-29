@@ -1,28 +1,154 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
+import { Input } from "@v1/ui/input";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { ArrowDown, ArrowUp, X } from "lucide-react";
+import Link from "next/link";
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ApiError, describeError } from "@/lib/api/errors";
 import { getSubjects, replaceSubjects } from "@/lib/api/learning";
-import { SUBJECTS_MAX, type SubjectItem, type SubjectList } from "@/lib/api/types";
+import {
+  DAILY_MINUTES_MAX,
+  type LearnerProfileField,
+  SUBJECTS_MAX,
+  type SubjectItem,
+  type SubjectList,
+  WEEKLY_MINUTES_MAX,
+} from "@/lib/api/types";
 import { catalogOptions, useCatalog } from "./learning-data";
-import { addSubject, moveSubject, removeSubject, toggleSubject } from "./learning-model";
-import { Notice, SectionHeading, SettingsCard } from "./primitives";
-import { selectClass } from "./profile-form";
+import { addSubject, moveSubject, removeSubject, toggleSubject, wholeNumber } from "./learning-model";
+import { Field, Notice, SectionHeading, SettingsCard } from "./primitives";
+import { SaveFooter, selectClass, useProfileForm } from "./profile-form";
 import { useUnsavedChanges } from "./use-unsaved-changes";
+
+/** The learner profile's time goals: Practice & Lab Time's own form (the other goals are in goals-section.tsx). */
+const TIME_FIELDS = [
+  "dailyActiveMinutesGoal",
+  "weeklyActiveMinutesGoal",
+  "preferredStudyTime",
+] as const satisfies readonly LearnerProfileField[];
+
+/**
+ * Settings > Practice & Lab Time (slug `subjects`, its address since it was Subjects & Study): the
+ * daily and weekly practice goals and the preferred practice time, which Practice & Goals, Lab
+ * Activity and the daily reminder use. What the user works on is the Engineering Profile's focus
+ * areas and platforms now, so this section points there instead of showing the subject list
+ * (SubjectListEditor, kept below: the stored list is unchanged and still read by the API).
+ */
+export function SubjectsSection() {
+  const form = useProfileForm(TIME_FIELDS, "Practice goals saved.");
+  const draft = form.draft;
+  const check = (field: LearnerProfileField) => (form.invalid(field) ? "Check this value." : null);
+
+  return (
+    <>
+      <SectionHeading
+        title="Practice & Lab Time"
+        description="How much time you want to spend practising in NetSec AI, and when. Practice & Goals measures your days and weeks against it."
+      />
+      {form.loadError ? (
+        <SettingsCard title="Couldn't load your practice goals">
+          <p className="text-sm text-text-secondary">{describeError(form.loadError).message}</p>
+          <button
+            type="button"
+            onClick={form.retry}
+            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
+          >
+            Try again
+          </button>
+        </SettingsCard>
+      ) : !draft ? (
+        <SkeletonGroup label="Loading your practice goals">
+          <Skeleton className="h-72 w-full rounded-2xl" />
+        </SkeletonGroup>
+      ) : (
+        <div className="flex flex-col gap-4">
+          <form onSubmit={form.submit}>
+            <SettingsCard
+              title="Practice and lab time"
+              description="Goals are measured in active time in NetSec AI: minutes you're actually using the app, not all your lab work."
+              footer={<SaveFooter dirty={form.dirty} pending={form.pending} onCancel={form.reset} />}
+            >
+              {form.notice && <Notice tone="warning">{form.notice}</Notice>}
+              <Field label="Daily goal (minutes)" error={check("dailyActiveMinutesGoal")}>
+                {(props) => (
+                  <Input
+                    {...props}
+                    className="w-full sm:w-32"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={DAILY_MINUTES_MAX}
+                    value={draft.dailyActiveMinutesGoal ?? ""}
+                    onChange={(event) =>
+                      form.change({ dailyActiveMinutesGoal: wholeNumber(event.target.value, DAILY_MINUTES_MAX) })
+                    }
+                  />
+                )}
+              </Field>
+              <Field label="Weekly goal (minutes)" error={check("weeklyActiveMinutesGoal")}>
+                {(props) => (
+                  <Input
+                    {...props}
+                    className="w-full sm:w-32"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={WEEKLY_MINUTES_MAX}
+                    value={draft.weeklyActiveMinutesGoal ?? ""}
+                    onChange={(event) =>
+                      form.change({ weeklyActiveMinutesGoal: wholeNumber(event.target.value, WEEKLY_MINUTES_MAX) })
+                    }
+                  />
+                )}
+              </Field>
+              <Field
+                label="Preferred practice time"
+                hint="In your time zone. The daily reminder, if you turn it on, comes at this time."
+                error={check("preferredStudyTime")}
+              >
+                {(props) => (
+                  <Input
+                    {...props}
+                    className="w-full sm:w-40"
+                    type="time"
+                    step={60}
+                    value={draft.preferredStudyTime ?? ""}
+                    onChange={(event) => form.change({ preferredStudyTime: event.target.value.slice(0, 5) || null })}
+                  />
+                )}
+              </Field>
+            </SettingsCard>
+          </form>
+          <SettingsCard title="What you work on">
+            <Notice>
+              Your technologies and platforms are part of your{" "}
+              <Link href="/settings/engineering" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
+                Engineering Profile
+              </Link>{" "}
+              now: choose your focus areas and platforms there, and NetSec AI shapes its answers around them.
+            </Notice>
+          </SettingsCard>
+        </div>
+      )}
+    </>
+  );
+}
 
 type Focus = { code: string; action: "up" | "down" } | null;
 
 /**
- * The subjects the student takes, in the order they want them, each optionally marked as a
- * priority or as needing work. Edited as a whole list and saved as one versioned PUT.
- * Reordering works from the keyboard: focus stays on the moved subject's button.
+ * The stored subject list (GET/PUT /v1/learning/subjects), in the order chosen, each optionally
+ * marked as a priority or as needing work. Edited as a whole list and saved as one versioned PUT.
+ * Reordering works from the keyboard: focus stays on the moved entry's button.
+ *
+ * Superseded in Settings by the Engineering Profile's focus areas and platforms (SubjectsSection
+ * links there) and not shown; kept, with the data it edits, rather than deleted.
  */
-export function SubjectsSection() {
+export function SubjectListEditor() {
   const { catalog, error: catalogError, retry: retryCatalog } = useCatalog();
   const [saved, setSaved] = useState<SubjectList | null>(null);
   const [items, setItems] = useState<SubjectItem[]>([]);

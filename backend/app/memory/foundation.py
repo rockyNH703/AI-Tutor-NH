@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 MEMORY_PROCESSOR_VERSION = "v1"
-MEMORY_PROMPT_VERSION = "v1"
+MEMORY_PROMPT_VERSION = "v2"
 MEMORY_SCHEMA_VERSION = "v1"
 
 

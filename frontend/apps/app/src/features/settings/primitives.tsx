@@ -3,9 +3,11 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@v1/ui/card";
 import { Switch } from "@v1/ui/switch";
 import { cn } from "@v1/ui/utils";
+import { Check } from "lucide-react";
 import { type ReactNode, useEffect, useId, useRef } from "react";
 
 import { takeHeadingFocus } from "./heading-focus";
+import { canToggle, chosenText } from "./learning-model";
 
 /**
  * The building blocks every Settings section uses, so they all look and behave alike: the
@@ -220,6 +222,87 @@ export function ChoiceGroup<T extends string>({
           </label>
         ))}
       </div>
+    </fieldset>
+  );
+}
+
+/**
+ * Several choices from a list, up to `max`: real checkboxes drawn as chips (Tab reaches each one,
+ * Space checks it). How many are chosen is shown and announced; once the list is full, the
+ * unchecked chips are disabled until one is unchecked, so the limit holds before the API's.
+ */
+export function ChipGroup({
+  legend,
+  description,
+  options,
+  value,
+  max,
+  onToggle,
+  error,
+}: {
+  legend: string;
+  description?: string;
+  options: readonly { value: string; label: string }[];
+  value: readonly string[];
+  max: number;
+  onToggle: (value: string) => void;
+  error?: string | null;
+}) {
+  const name = useId();
+  const describedBy = [description ? `${name}-description` : null, `${name}-count`, error ? `${name}-error` : null]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    <fieldset aria-labelledby={`${name}-legend`} aria-describedby={describedBy}>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p id={`${name}-legend`} className="text-sm font-bold text-foreground">
+          {legend}
+        </p>
+        <p id={`${name}-count`} aria-live="polite" className="text-2xs text-text-secondary">
+          {chosenText(value.length, max)}
+        </p>
+      </div>
+      {description && (
+        <p id={`${name}-description`} className="mt-0.5 text-sm text-text-secondary">
+          {description}
+        </p>
+      )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {options.map((option) => {
+          const checked = value.includes(option.value);
+          return (
+            <label key={option.value} className="relative">
+              {/* The real checkbox lies over its chip, invisible: it is what a pointer, a keyboard
+                  and assistive technology all reach, and the chip below only shows its state. */}
+              <input
+                type="checkbox"
+                value={option.value}
+                checked={checked}
+                disabled={!canToggle(value, option.value, max)}
+                onChange={() => onToggle(option.value)}
+                className="peer absolute inset-0 z-10 cursor-pointer opacity-0 disabled:cursor-not-allowed"
+              />
+              <span
+                className={cn(
+                  "flex min-h-10 items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition-colors",
+                  "border-border bg-card text-text-secondary hover:bg-surface-2 hover:text-foreground",
+                  "peer-checked:border-brand peer-checked:bg-brand-soft peer-checked:text-brand",
+                  "peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
+                  "peer-disabled:opacity-50",
+                )}
+              >
+                {checked && <Check aria-hidden className="h-3.5 w-3.5 shrink-0" />}
+                {option.label}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+      {error && (
+        <p id={`${name}-error`} className="mt-2 text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </fieldset>
   );
 }

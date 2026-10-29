@@ -608,7 +608,7 @@ export class VoiceSession {
     while (this.waiting.length && this.scheduler.enqueue(this.waiting[0] as SpeechChunk)) this.waiting.shift();
     if (this.finished && !this.waiting.length) {
       this.scheduler.finish();
-      if (message.status === "error") this.set({ notice: "The tutor couldn't finish this answer; what it wrote is in the chat." });
+      if (message.status === "error") this.set({ notice: "NetSec AI couldn't finish this answer; what it wrote is in the chat." });
     }
   }
 

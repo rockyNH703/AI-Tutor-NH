@@ -1,12 +1,12 @@
 import {
   Bell,
-  BookOpen,
   Bot,
   Brain,
+  Clock,
   Flame,
-  GraduationCap,
   LifeBuoy,
   type LucideIcon,
+  Network,
   Palette,
   ShieldCheck,
   SlidersHorizontal,
@@ -26,10 +26,14 @@ export type SettingsSectionInfo = {
 };
 
 /**
- * The Settings sections, in the product's order: Profile, Academic Profile, Learning Goals,
- * Learning Preferences, AI Tutor, Memory, Subjects & Study, Progress & Goals, Study Tracking, Notifications,
- * Appearance & Accessibility, Privacy & Security, Help & Support. Only sections that work
- * end to end are listed; there are no placeholder pages.
+ * The Settings sections, in the product's order: Profile, Engineering Profile, Skills & Certification
+ * Goals, Learning Preferences, AI Assistant, Memory, Practice & Lab Time, Practice & Goals, Lab
+ * Tracking, Practice Streak, Notifications, Appearance & Accessibility, Privacy & Security, Help &
+ * Support. Only sections that work end to end are listed; there are no placeholder pages.
+ *
+ * Slugs are addresses: `goals` and `subjects` kept theirs when they were renamed for engineers.
+ * The Academic Profile's `academic` became `engineering`; next.config.mjs redirects the old one
+ * (SECTION_REDIRECTS).
  */
 export const SETTINGS_SECTIONS = [
   {
@@ -40,30 +44,54 @@ export const SETTINGS_SECTIONS = [
     keywords: ["photo", "picture", "avatar", "display name", "email address", "time zone", "timezone"],
   },
   {
-    slug: "academic",
-    title: "Academic Profile",
-    description: "Your class, board, medium and academic year.",
-    icon: GraduationCap,
-    keywords: ["grade", "cbse", "icse", "state board", "school", "language of instruction"],
+    slug: "engineering",
+    title: "Engineering Profile",
+    description: "Your role, experience, focus areas, platforms and certification goal.",
+    icon: Network,
+    keywords: [
+      "role",
+      "job",
+      "experience",
+      "seniority",
+      "focus areas",
+      "technologies",
+      "platforms",
+      "vendor",
+      "cisco",
+      "juniper",
+      "arista",
+      "palo alto",
+      "fortinet",
+      "aws",
+      "azure",
+      "cloud",
+      "certification",
+      "ccna",
+      "ccnp",
+      "ccie",
+      "oscp",
+      "cissp",
+      "comptia",
+    ],
   },
   {
     slug: "goals",
-    title: "Learning Goals",
-    description: "What you're working towards, and your study time.",
+    title: "Skills & Certification Goals",
+    description: "What you're working towards: a certification, an exam date and the topics you find hard.",
     icon: Target,
-    keywords: ["exam", "exam date", "target score", "difficult topics", "weak topics", "daily goal", "weekly goal", "active time"],
+    keywords: ["main goal", "certification exam", "exam date", "target score", "difficult topics", "weak topics", "short-term goal", "long-term goal", "career"],
   },
   {
     slug: "learning",
     title: "Learning Preferences",
-    description: "Language, depth, pace and examples.",
+    description: "Language, depth, pace and examples in answers.",
     icon: SlidersHorizontal,
-    keywords: ["hindi", "english", "explanation", "difficulty", "real-world examples", "visual"],
+    keywords: ["hindi", "english", "reply language", "depth", "explanation", "difficulty", "real-world examples", "visual"],
   },
   {
     slug: "tutor",
-    title: "AI Tutor",
-    description: "How your tutor talks and teaches.",
+    title: "AI Assistant",
+    description: "How NetSec AI talks and explains.",
     icon: Bot,
     keywords: [
       "tone",
@@ -74,48 +102,49 @@ export const SETTINGS_SECTIONS = [
       "practice questions",
       "mistakes",
       "key concepts",
-      "what your tutor is told",
+      "what the assistant is told",
+      "tutor",
     ],
   },
   {
     slug: "memory",
     title: "Memory",
-    description: "Review and manage what your tutor remembers.",
+    description: "Review and manage what NetSec AI remembers.",
     icon: Brain,
     keywords: ["remember", "memories", "proposals", "automatic", "personalization", "export", "forget"],
   },
   {
     slug: "subjects",
-    title: "Subjects & Study",
-    description: "Your subjects, priorities and what needs work.",
-    icon: BookOpen,
-    keywords: ["priority", "needs work", "reorder"],
+    title: "Practice & Lab Time",
+    description: "Your daily and weekly practice goals, and when you like to practise.",
+    icon: Clock,
+    keywords: ["daily goal", "weekly goal", "practice time", "lab time", "preferred time", "minutes", "active time", "schedule"],
   },
   {
     slug: "progress",
-    title: "Progress & Goals",
+    title: "Practice & Goals",
     description: "Your active time, questions and goals.",
     icon: TrendingUp,
-    keywords: ["chart", "goals met", "study time", "active time"],
+    keywords: ["progress", "chart", "goals met", "lab time", "study time", "active time"],
   },
   {
     slug: "study-tracking",
-    title: "Study Tracking",
-    description: "What counts as study time: idle, hidden tabs and pauses.",
+    title: "Lab Tracking",
+    description: "What counts as lab time: idle, hidden tabs and pauses.",
     icon: Timer,
-    keywords: ["study session", "study activity", "idle", "inactivity", "pause", "resume", "hidden tab", "estimate"],
+    keywords: ["lab session", "lab activity", "study session", "idle", "inactivity", "pause", "resume", "hidden tab", "estimate"],
   },
   {
     slug: "streak",
-    title: "Learning & Streak",
-    description: "Your streak, today's learning and your calendar.",
+    title: "Practice Streak",
+    description: "Your practice streak, today's practice and your calendar.",
     icon: Flame,
-    keywords: ["streak", "calendar", "heatmap", "learning days", "milestone", "longest streak", "header"],
+    keywords: ["streak", "calendar", "heatmap", "practice days", "milestone", "longest streak", "header"],
   },
   {
     slug: "notifications",
     title: "Notifications",
-    description: "Study reminders and sign-in alerts by email.",
+    description: "Practice reminders and sign-in alerts by email.",
     icon: Bell,
     keywords: ["daily reminder", "streak reminder", "weekly summary", "security alerts", "unsubscribe", "in the app", "bell"],
   },
@@ -146,6 +175,9 @@ export type SettingsSection = (typeof SETTINGS_SECTIONS)[number];
 export type SectionSlug = SettingsSection["slug"];
 
 export const DEFAULT_SECTION: SectionSlug = "profile";
+
+/** Old section addresses and where they went (next.config.mjs redirects them; sections.test.ts checks both). */
+export const SECTION_REDIRECTS: Readonly<Record<string, SectionSlug>> = { academic: "engineering" };
 
 export function findSection(slug: string | undefined): SettingsSection | undefined {
   return SETTINGS_SECTIONS.find((section) => section.slug === slug);

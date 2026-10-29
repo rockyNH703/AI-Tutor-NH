@@ -1,7 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
 
-import { backendDir, sql } from "./db";
-
 import {
   chatLinks,
   composer,
@@ -29,9 +27,9 @@ import {
 
 const heading = (page: Page) => page.getByRole("banner").getByRole("heading", { level: 1 });
 
-/** "Ask New Doubt", and wait until the new chat is on screen (typing sooner would go to the old one). */
+/** "New chat", and wait until the new chat is on screen (typing sooner would go to the old one). */
 async function newChat(page: Page): Promise<void> {
-  await page.getByRole("link", { name: "Ask New Doubt" }).click();
+  await page.getByRole("link", { name: "New chat", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect(heading(page)).toHaveText("New chat");
   await expectStudyGreeting(page);
@@ -46,8 +44,8 @@ test("the header is the chat's name: New chat, then named after the first answer
   await expect(heading(page)).toHaveText("New chat");
   await expect(page).toHaveTitle(/^New chat · /);
   // The chat is not listed as a tool of its own, and no slogan repeats it.
-  await expect(page.getByText(/AI Tutor|Personal Doubts Solver/)).toHaveCount(0);
-  await expect(page.getByRole("navigation", { name: "Learning Hub" })).toHaveCount(0);
+  await expect(page.getByText(/AI Tutor|Personal Doubts Solver|Network & security engineering assistant/)).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Tools" })).toHaveCount(0);
 
   await send(page, "Hi");
   await waitForIdle(page);
@@ -72,7 +70,7 @@ test("the composer: no placeholder, no lines under it; its name and keys are for
   await page.goto("/");
   await waitForHydration(page);
   const box = composer(page);
-  await expect(box).toHaveAccessibleName("Ask your doubt");
+  await expect(box).toHaveAccessibleName("Message NetSec AI");
   await expect(box).toHaveAccessibleDescription("Enter to send, Shift + Enter for a new line.");
   expect(await box.getAttribute("placeholder")).toBeNull();
   await expect(page.getByText(/Powered by|can make mistakes/)).toHaveCount(0);
@@ -279,7 +277,7 @@ test("memory stays flat over fifteen turns", async ({ page, account: _ }) => {
   expect((await heap()) - before, "heap growth (bytes)").toBeLessThan(40 * 1024 * 1024);
 });
 
-test("the greeting: one of this week's, a new one for the next chat, word by word in one gradient", async ({
+test("the greeting: one of the fixed pool, a new one for the next chat, word by word in one gradient", async ({
   page,
   account: _,
 }) => {
@@ -319,20 +317,6 @@ test("the greeting: one of this week's, a new one for the next chat, word by wor
   const second = await expectStudyGreeting(page);
   expect(second).not.toBe(first);
 });
-
-/** The greeting is set to exactly `text` while `run` runs: the week's pool steps aside, then returns. */
-const MONDAY = "(date_trunc('week', now() AT TIME ZONE 'Asia/Kolkata'))::date";
-async function withGreeting(text: string, run: () => Promise<void>): Promise<void> {
-  const quoted = `'${text.replaceAll("'", "''")}'`;
-  sql("UPDATE study_greetings SET active_from = active_from + 700"); // 100 weeks on, Mondays kept
-  sql(`INSERT INTO study_greetings (text, active_from) VALUES (${quoted}, ${MONDAY})`);
-  try {
-    await run();
-  } finally {
-    sql(`DELETE FROM study_greetings WHERE text = ${quoted}`);
-    sql("UPDATE study_greetings SET active_from = active_from - 700");
-  }
-}
 
 /**
  * The lowest contrast anywhere in the greeting AS RENDERED: each word is photographed once as a
@@ -405,37 +389,30 @@ async function renderedGreetingContrast(page: Page): Promise<number> {
   );
 }
 
-const SHORT_GREETING = "Ready to learn?";
-const LONG_GREETING = "Ready to turn a confusing chapter into real clarity today?";
-
-test("the greeting as rendered clears 4.5:1 at every point: light and dark, short and long, wide and narrow", async ({
+test("the greeting as rendered clears 4.5:1 at every point: light and dark, wide and narrow", async ({
   page,
   account: _,
 }) => {
-  test.skip(!backendDir, "needs the local backend's database");
   test.setTimeout(120_000);
-  for (const text of [SHORT_GREETING, LONG_GREETING]) {
-    await withGreeting(text, async () => {
-      for (const scheme of ["light", "dark"] as const) {
-        for (const width of [1440, 390]) {
-          await page.setViewportSize({ width, height: 900 });
-          await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
-          await page.goto("/");
-          await waitForHydration(page);
-          await expect(emptyGreeting(page)).toHaveText(text);
-          const words = emptyGreeting(page).locator("[data-greeting-word]");
-          const lines = await words.evaluateAll((spans) => new Set(spans.map((span) => (span as HTMLElement).offsetTop)).size);
-          expect(lines, "the greeting stays on one line, phone or desktop").toBe(1);
-          const lowest = await renderedGreetingContrast(page);
-          expect(lowest, `"${text}", ${lines} line(s), ${scheme}, ${width}px`).toBeGreaterThanOrEqual(4.5);
-          // Reduced motion: every word in place at once.
-          const styles = await words.evaluateAll((spans) =>
-            spans.map((span) => `${getComputedStyle(span).animationName}|${getComputedStyle(span).opacity}`),
-          );
-          expect(new Set(styles)).toEqual(new Set(["none|1"]));
-        }
-      }
-    });
+  for (const scheme of ["light", "dark"] as const) {
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      await page.goto("/");
+      await waitForHydration(page);
+      // One of the fixed pool (lib/greeting.ts), picked at random: whichever it is must pass.
+      const text = await expectStudyGreeting(page);
+      const words = emptyGreeting(page).locator("[data-greeting-word]");
+      const lines = await words.evaluateAll((spans) => new Set(spans.map((span) => (span as HTMLElement).offsetTop)).size);
+      expect(lines, "the greeting stays on one line, phone or desktop").toBe(1);
+      const lowest = await renderedGreetingContrast(page);
+      expect(lowest, `"${text}", ${lines} line(s), ${scheme}, ${width}px`).toBeGreaterThanOrEqual(4.5);
+      // Reduced motion: every word in place at once.
+      const styles = await words.evaluateAll((spans) =>
+        spans.map((span) => `${getComputedStyle(span).animationName}|${getComputedStyle(span).opacity}`),
+      );
+      expect(new Set(styles)).toEqual(new Set(["none|1"]));
+    }
   }
   await expectAccessible(page);
 });
@@ -486,12 +463,12 @@ test("primary controls read clearly in both themes: at rest, hovered, disabled, 
     await page.emulateMedia({ colorScheme: scheme });
     await page.goto("/");
     await waitForHydration(page);
-    const ask = page.getByRole("complementary").getByRole("link", { name: "Ask New Doubt" });
+    const ask = page.getByRole("complementary").getByRole("link", { name: "New chat", exact: true });
     const send = page.getByRole("button", { name: "Send message" });
-    expect(await ownContrast(ask), `Ask New Doubt, ${scheme}`).toBeGreaterThanOrEqual(4.5);
+    expect(await ownContrast(ask), `New chat, ${scheme}`).toBeGreaterThanOrEqual(4.5);
     await ask.hover();
     await page.waitForTimeout(300);
-    expect(await ownContrast(ask), `Ask New Doubt hovered, ${scheme}`).toBeGreaterThanOrEqual(4.5);
+    expect(await ownContrast(ask), `New chat hovered, ${scheme}`).toBeGreaterThanOrEqual(4.5);
     await page.mouse.move(800, 300);
     await expect(send).toBeDisabled();
     await page.waitForTimeout(300);
@@ -651,7 +628,7 @@ test("keyboard: the controls come in reading order", async ({ page, account: _ }
   await waitForHydration(page);
   const names: string[] = [];
   // Enough presses to reach the message box (about 17 now) with room to spare: the sidebar's places
-  // (My Learning, File Library, Study Activity) sit between "Ask New Doubt" and the chats. The order
+  // (Skills & Certifications, File Library, Lab Activity) sit between "New chat" and the chats. The order
   // below is checked, not the count.
   for (let press = 0; press < 24; press++) {
     await page.keyboard.press("Tab");
@@ -665,7 +642,7 @@ test("keyboard: the controls come in reading order", async ({ page, account: _ }
   const expected = [
     /^Skip to content$/,
     /NetSec AI/,
-    /^Ask New Doubt$/,
+    /^New chat$/,
     /^Osmosis Definition$/,
     /^Rename/,
     /^Delete/,
@@ -674,7 +651,7 @@ test("keyboard: the controls come in reading order", async ({ page, account: _ }
     /streak/i,
     /^Notifications/,
     /^Colour theme$/,
-    /^Ask your doubt$|^TEXTAREA$/,
+    /^Message NetSec AI$|^TEXTAREA$/,
   ];
   let at = 0;
   for (const name of names) if (at < expected.length && expected[at]?.test(name)) at += 1;

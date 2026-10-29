@@ -215,7 +215,8 @@ async def test_sign_in_alert_only_for_a_new_device_and_only_for_real_sessions(cl
     outbox = app.state.email_sender.outbox
     await event(account["token"])
     # The sign-up's own session gets the best-effort welcome, never a sign-in alert.
-    assert [mail["subject"] for mail in outbox] == ["Welcome to Assistant: your personal AI tutor"]
+    welcome = "Welcome to Assistant: your AI assistant for network and security engineering"
+    assert [mail["subject"] for mail in outbox] == [welcome]
     assert "because you just created" in outbox[0]["body"]
     assert "You get this email once." not in outbox[0]["body"]
     assert outbox[0]["html"] is not None

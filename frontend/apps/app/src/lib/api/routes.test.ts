@@ -12,7 +12,6 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ROUTES, type RouteKey, type RouteSpec, buildPath, matchRoute, splitRouteKey } from "./routes";
-import type { StudyGreetingPool } from "./types";
 
 type Operation = {
   requestBody?: { content?: Record<string, { schema?: { $ref?: string } }>; "x-max-bytes"?: number };
@@ -74,6 +73,21 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     { version: 1, set: { grade: "class_10", board: "state", boardState: "kerala", weakTopics: ["Optics"] } },
     { version: 2, reset: ["boardState", "weakTopics"] },
   ],
+  UpdateEngineeringProfileRequest: [
+    { version: 0, set: {}, reset: [] },
+    {
+      version: 1,
+      set: {
+        role: "network_engineer",
+        experienceLevel: "mid",
+        focusAreas: ["routing_switching", "firewalls"],
+        platforms: ["cisco_ios", "palo_alto"],
+        certificationGoal: "ccnp_enterprise",
+      },
+      reset: [],
+    },
+    { version: 2, set: {}, reset: ["role", "experienceLevel", "focusAreas", "platforms", "certificationGoal"] },
+  ],
   ReplaceSubjectsRequest: [{ version: 0, items: [{ code: "physics", isPriority: true, needsImprovement: false }] }],
   UpdateLearningPreferencesRequest: [{ version: 0, set: { pace: "slow" } }, { version: 1, reset: ["pace"] }],
   UpdateNotificationPreferencesRequest: [
@@ -97,7 +111,19 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
       page: "/settings/help",
     },
   ],
-  TutorPreviewRequest: [{}, { profile: { grade: "class_9" }, subjects: [{ code: "physics" }], preferences: { pace: "fast" } }],
+  TutorPreviewRequest: [
+    {},
+    { profile: { grade: "class_9" }, subjects: [{ code: "physics" }], preferences: { pace: "fast" } },
+    {
+      engineering: {
+        role: "security_engineer",
+        experienceLevel: null,
+        focusAreas: ["vpn"],
+        platforms: [],
+        certificationGoal: null,
+      },
+    },
+  ],
   DeleteMeRequest: [{ password: "x" }, {}],
   RenameConversationRequest: [{ title: "T" }],
   ChatRequest: [
@@ -136,25 +162,22 @@ describe("request bodies the client sends", () => {
     });
   }
 
+  test("Engineering Profile edits and previews use only the profile's declared fields", () => {
+    const declared = Object.keys(openapi.components.schemas.EngineeringProfileSet?.properties ?? {});
+    expect(declared.sort()).toEqual(["certificationGoal", "experienceLevel", "focusAreas", "platforms", "role"]);
+    const nested = [
+      ...(SENT_BODIES.UpdateEngineeringProfileRequest ?? []).map((body) => body.set),
+      ...(SENT_BODIES.TutorPreviewRequest ?? []).map((body) => body.engineering),
+    ].filter((values): values is Record<string, unknown> => typeof values === "object" && values !== null);
+    expect(nested.length).toBeGreaterThan(2);
+    for (const values of nested) for (const field of Object.keys(values)) expect(declared).toContain(field);
+  });
+
   test("every body schema in the route table is covered above", () => {
     for (const key of keys) {
       const body = (ROUTES[key] as { body?: string }).body;
       if (body) expect(Object.keys(SENT_BODIES)).toContain(body);
     }
-  });
-});
-
-describe("responses read by server components (not proxied)", () => {
-  test("GET /v1/greetings answers exactly the StudyGreetingPool the app reads", () => {
-    const operation = openapi.paths["/v1/greetings"]?.get as
-      | { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }> }
-      | undefined;
-    const ref = operation?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref ?? "";
-    const schema = openapi.components.schemas[ref.split("/").pop() ?? ""];
-    // A typed sample: a field added to or removed from StudyGreetingPool fails here or in the typecheck.
-    const sample: Required<StudyGreetingPool> = { weekOf: "", items: [] };
-    expect(Object.keys(schema?.properties ?? {}).sort()).toEqual(Object.keys(sample).sort());
-    expect([...(schema?.required ?? [])].sort()).toEqual(Object.keys(sample).sort());
   });
 });
 

@@ -3,11 +3,10 @@
 import { type CSSProperties, Fragment, useLayoutEffect, useRef, useState } from "react";
 
 import { pickGreeting } from "@/lib/greeting";
-import { useStudyGreetings } from "./chat-context";
 
 /**
- * What a new, empty chat shows above the composer: a study greeting picked at random from this
- * week's pool, kept for this chat (lib/greeting.ts), and nothing else. It sits at the bottom of the transcript's space, so it is
+ * What a new, empty chat shows above the composer: a greeting picked at random from a fixed pool,
+ * kept for this chat (lib/greeting.ts), and nothing else. It sits at the bottom of the transcript's space, so it is
  * directly above the composer, which the chat view centres while the chat is empty.
  *
  * The words arrive one after another, each painted with its slice of ONE gradient that runs across
@@ -17,10 +16,9 @@ import { useStudyGreetings } from "./chat-context";
  * CSS size is the largest, and a sentence too wide for it is set smaller (fitOneLine).
  */
 export function ChatEmptyState({ chatKey }: { chatKey: string }) {
-  const pool = useStudyGreetings();
   // Picked on the client: the server cannot know the random pick, and a mismatch would flash.
   const [greeting, setGreeting] = useState<string | null>(null);
-  useLayoutEffect(() => setGreeting(pickGreeting(chatKey, pool)), [chatKey, pool]);
+  useLayoutEffect(() => setGreeting(pickGreeting(chatKey)), [chatKey]);
   const ref = useLineGradient(greeting);
 
   // Wider than the chat column (57rem, message-list.tsx): at 57rem a long greeting is shrunk to one line

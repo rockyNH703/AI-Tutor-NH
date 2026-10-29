@@ -6,12 +6,16 @@
 
 import type { LearningPreferenceField, LearningPreferenceValues, MainGoal } from "@/lib/api/types";
 
+/**
+ * The main goal, said for engineers. The codes are the API's and permanent (stored goals keep
+ * them); only what is shown changed when the app became NetSec AI.
+ */
 export const MAIN_GOAL_LABELS: Record<MainGoal, string> = {
-  board_exams: "Doing well in board exams",
-  competitive_exam: "Preparing for a competitive exam",
-  better_marks: "Better marks at school",
-  understand_concepts: "Understanding concepts deeply",
-  homework_help: "Help with homework",
+  board_exams: "Pass a certification exam",
+  competitive_exam: "Prepare for an advanced certification (CCNP, CCIE, OSCP)",
+  better_marks: "Improve my practice scores",
+  understand_concepts: "Understand protocols and technologies in depth",
+  homework_help: "Get help with lab and work tasks",
   other: "Something else",
 };
 
@@ -28,17 +32,17 @@ const NONE = "No preference";
 export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } = {
   language: {
     label: "Reply language",
-    description: "The language the tutor answers in, unless you ask it for another one.",
+    description: "The language NetSec AI answers in, unless you ask it for another one.",
     options: { auto: NONE, english: "English", hindi: "Hindi", hinglish: "Hinglish" },
   },
   explanationLevel: {
-    label: "Explanations",
-    description: "How deep the tutor goes.",
-    options: { auto: NONE, simple: "Simple", standard: "Like a textbook", detailed: "Detailed" },
+    label: "Depth",
+    description: "How deep answers go: plain terms, working knowledge assumed, or protocol internals.",
+    options: { auto: NONE, simple: "Simple", standard: "Standard", detailed: "Detailed" },
   },
   pace: {
     label: "Pace",
-    description: "How quickly the tutor moves through a topic.",
+    description: "How quickly answers move through a topic.",
     options: { auto: NONE, slow: "Slow", steady: "Steady", fast: "Fast" },
   },
   difficulty: {
@@ -48,7 +52,7 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
   },
   realWorldExamples: {
     label: "Real-world examples",
-    description: "Connecting ideas to everyday life.",
+    description: "Connecting ideas to real networks and systems.",
     options: { auto: NONE, more: "More", fewer: "Fewer" },
   },
   visualExplanations: {
@@ -58,7 +62,7 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
   },
   personality: {
     label: "Tone",
-    description: "How the tutor talks to you.",
+    description: "How NetSec AI talks to you.",
     options: { auto: NONE, friendly: "Friendly", encouraging: "Encouraging", professional: "Professional" },
   },
   responseLength: {
@@ -88,7 +92,7 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
   },
   mistakeCorrection: {
     label: "Correcting mistakes",
-    description: "How the tutor points out what went wrong.",
+    description: "How NetSec AI points out what went wrong.",
     options: { auto: NONE, gentle: "Gently", direct: "Directly" },
   },
   highlightKeyConcepts: {
@@ -98,7 +102,25 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
   },
 };
 
-/** The Learning Preferences section, then the AI Tutor section: every field exactly once. */
+/**
+ * The preferences that reach the assistant now (the API's app/learning/tutor.py): language, depth,
+ * answer length, answer mode, step-by-step and visual explanations. The others stay stored and
+ * editable, shown apart as not used by NetSec AI right now.
+ */
+export const ASSISTANT_FIELDS = [
+  "language",
+  "explanationLevel",
+  "visualExplanations",
+  "responseLength",
+  "answerMode",
+  "stepByStep",
+] as const satisfies readonly LearningPreferenceField[];
+
+export function reachesAssistant(field: LearningPreferenceField): boolean {
+  return (ASSISTANT_FIELDS as readonly LearningPreferenceField[]).includes(field);
+}
+
+/** The Learning Preferences section, then the AI Assistant section: every field exactly once. */
 export const LEARNING_FIELDS = [
   "language",
   "explanationLevel",

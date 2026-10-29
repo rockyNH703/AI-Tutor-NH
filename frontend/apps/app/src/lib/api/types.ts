@@ -163,9 +163,6 @@ export type AppearanceValues = {
 };
 export type Appearance = AppearanceValues & { version: number; updatedAt: Timestamp | null };
 
-/** This week's study greetings (`GET /v1/greetings`): app-level, the same pool for every user. */
-export type StudyGreetingPool = { weekOf: string; items: string[] };
-
 export type NotificationValues = {
   dailyReminder: boolean;
   streakWarning: boolean;
@@ -235,10 +232,46 @@ export type LearningPreferenceValues = { [K in keyof PreferenceEnums]: Preferenc
 export type LearningPreferenceField = keyof LearningPreferenceValues;
 export type LearningPreferences = LearningPreferenceValues & { version: number; updatedAt: Timestamp | null };
 
+/** GET /v1/catalog/engineering: the values an Engineering Profile may use (same for everyone). */
+export type EngineeringCatalog = {
+  version: number;
+  roles: CatalogEntry[];
+  experienceLevels: CatalogEntry[];
+  focusAreas: CatalogEntry[];
+  platforms: CatalogEntry[];
+  certifications: CatalogEntry[];
+};
+
+/** What an Engineering Profile field holds: catalog codes; every field may also be unset (null, or []). */
+export type EngineeringProfileValues = {
+  role: string;
+  experienceLevel: string;
+  focusAreas: string[];
+  platforms: string[];
+  certificationGoal: string;
+};
+export type EngineeringProfileField = keyof EngineeringProfileValues;
+export type EngineeringProfile = {
+  role: string | null;
+  experienceLevel: string | null;
+  focusAreas: string[];
+  platforms: string[];
+  certificationGoal: string | null;
+  version: number;
+  updatedAt: Timestamp | null;
+};
+export type UpdateEngineeringProfileRequest = VersionedEdit<EngineeringProfileValues, EngineeringProfileField>;
+/** An unsaved Engineering Profile for the preview: `null` clears a field there. */
+export type EngineeringDraft = Partial<{ [K in EngineeringProfileField]: EngineeringProfileValues[K] | null }>;
+
+export const FOCUS_AREAS_MAX = CONTRACT.EngineeringProfileSet.focusAreas.maxItems;
+export const PLATFORMS_MAX = CONTRACT.EngineeringProfileSet.platforms.maxItems;
+
 export type TutorPreviewRequest = {
   profile?: Partial<{ [K in LearnerProfileField]: LearnerProfileValues[K] | null }>;
   subjects?: SubjectItem[];
   preferences?: Partial<LearningPreferenceValues>;
+  engineering?: EngineeringDraft;
 };
 export type TutorPreview = { instructions: string; maxChars: number };
 

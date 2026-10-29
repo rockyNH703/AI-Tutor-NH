@@ -55,7 +55,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
   if (error) {
     return (
       <ErrorState
-        title="Couldn't load the chapters"
+        title="Couldn't load the domains"
         description={describeError(error).message}
         action={
           <Button variant="outline" onClick={() => setAttempt((count) => count + 1)}>
@@ -67,7 +67,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
   }
   if (!topics) {
     return (
-      <SkeletonGroup label="Loading the chapters" className="space-y-3">
+      <SkeletonGroup label="Loading the domains" className="space-y-3">
         <Skeleton className="h-10 w-full rounded-xl" />
         <Skeleton className="h-10 w-full rounded-xl" />
       </SkeletonGroup>
@@ -76,14 +76,15 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
   if (!topics.available || !topics.subjects.length) {
     return topics.reason === "no_class" ? (
       <Notice>
-        To practise by chapter, set your class (6 to 12) in{" "}
-        <Link href="/settings/academic" className={link}>
-          Academic Profile
+        Practice by domain arrives with NetSec AI's certification question bank, which isn't loaded yet. Set your
+        certification goal in your{" "}
+        <Link href="/settings/engineering" className={link}>
+          Engineering Profile
         </Link>
         .
       </Notice>
     ) : (
-      <Notice>There are no stored test questions for your class yet. You can still ask the tutor about any chapter.</Notice>
+      <Notice>There are no stored practice questions for your level yet. You can still ask NetSec AI about any domain.</Notice>
     );
   }
 
@@ -103,7 +104,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-1.5">
           <label htmlFor={`${id}-subject`} className="text-sm font-bold text-foreground">
-            Subject
+            Exam track
           </label>
           <select
             id={`${id}-subject`}
@@ -115,7 +116,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
             }}
             className={selectClass}
           >
-            <option value="">Choose a subject</option>
+            <option value="">Choose an exam track</option>
             {topics.subjects.map((entry) => (
               <option key={entry.subjectCode} value={entry.subjectCode}>
                 {subjectName(entry.subjectCode)}
@@ -125,7 +126,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
         </div>
         <div className="flex min-w-0 flex-col gap-1.5">
           <label htmlFor={`${id}-chapter`} className="text-sm font-bold text-foreground">
-            Chapter
+            Domain
           </label>
           <select
             id={`${id}-chapter`}
@@ -137,7 +138,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
             }}
             className={selectClass}
           >
-            <option value="">Choose a chapter</option>
+            <option value="">Choose a domain</option>
             {books.map((entry) => (
               <optgroup key={entry.bookId} label={entry.title}>
                 {entry.chapters.map((item) => (
@@ -160,7 +161,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
             onChange={(event) => setTopicId(event.target.value)}
             className={selectClass}
           >
-            <option value="">Whole chapter</option>
+            <option value="">Whole domain</option>
             {chapter?.topics.map((item) => (
               <option key={item.topicId} value={item.topicId}>
                 {item.number}. {item.title}

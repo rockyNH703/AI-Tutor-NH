@@ -337,8 +337,9 @@ async def test_my_learning_reads_the_record_and_the_tutor_is_told_it(client, app
     fake_llm.reply = lambda messages: "Here is how you are doing."
     await stream_chat(client, headers, "How am I doing in science?", message["conversationId"])
     system = fake_llm.calls[-1][0].content
-    assert "- Practice record (the app's question bank; estimates, not marks): weakest " in system
-    assert "today 3 of the 5 answers that make a learning day" in system
+    assert "## Practice so far\n" in system and "(estimates, not scores)" in system
+    assert "- Practice record (the app's question bank): weakest " in system
+    assert "today 3 of the 5 answers that make a practice day" in system
 
     async with app.state.db.sessionmaker() as db:  # the first question is edited after it was served
         await db.execute(

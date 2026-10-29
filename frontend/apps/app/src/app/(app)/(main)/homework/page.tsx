@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { HomeworkView } from "@/features/learning-hub/homework-view";
 import { previewEnabled } from "@/lib/preview";
 
-export const metadata = { title: "Homework Helper" };
+export const metadata = { title: "Troubleshooter" };
 
 // The preview switch is server configuration, read per request (lib/preview.ts).
 export const dynamic = "force-dynamic";

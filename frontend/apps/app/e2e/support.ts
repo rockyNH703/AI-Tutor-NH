@@ -3,7 +3,8 @@ import { createHmac } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
 import { type Locator, type Page, test as base, expect } from "@playwright/test";
 
-import { API_URL, APP_URL, MAILPIT_URL } from "./env";
+import { GREETINGS } from "../src/lib/greeting";
+import { APP_URL, MAILPIT_URL } from "./env";
 
 export { expect };
 
@@ -161,29 +162,14 @@ export async function logOutFromSidebar(page: Page): Promise<void> {
 /** The line above a new chat's composer. */
 export const emptyGreeting = (page: Page) => page.getByRole("main").getByRole("heading", { level: 2 });
 
-/** This week's study greetings, straight from the API with this page's session. */
-export async function studyGreetings(page: Page): Promise<string[]> {
-  // Better Auth's cookie is `<token>.<signature>`; the API takes the token.
-  const cookie = (await page.context().cookies()).find((each) => each.name === "padhai_session")?.value ?? "";
-  const token = decodeURIComponent(cookie).split(".")[0];
-  const response = await page.request.get(`${API_URL}/v1/greetings`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  expect(response.status(), "GET /v1/greetings").toBe(200);
-  return (await response.json()).items;
-}
-
-export const FALLBACK_GREETING = "What are you studying today?";
-
-/** The new chat shows one of this week's greetings (the fallback when none is live); returns it. */
+/** The new chat shows one of NetSec AI's fixed greetings (src/lib/greeting.ts); returns it. */
 export async function expectStudyGreeting(page: Page): Promise<string> {
-  const pool = await studyGreetings(page);
-  const choices = (pool.length ? pool : [FALLBACK_GREETING]).map((text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const choices = GREETINGS.map((text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   await expect(emptyGreeting(page)).toHaveText(new RegExp(`^(?:${choices.join("|")})$`));
   return (await emptyGreeting(page).textContent()) ?? "";
 }
 
-export const COMPOSER_NAME = "Ask your doubt";
+export const COMPOSER_NAME = "Message NetSec AI";
 export const composer = (page: Page) => page.getByRole("textbox", { name: COMPOSER_NAME });
 export const replies = (page: Page) => page.getByRole("article", { name: "Assistant" });
 export const lastReply = (page: Page) => replies(page).last();
@@ -221,7 +207,7 @@ export async function sendAndWait(page: Page, text: string): Promise<void> {
 /**
  * What the tutor was told about this student, as the model received it: the fake LLM answers
  * this question with the part of its system prompt the student's settings and progress added
- * (backend/app/llm/fake.py), or "No student instructions.". Asked in a new chat; the question
+ * (backend/app/llm/fake.py), or "No user instructions.". Asked in a new chat; the question
  * itself counts as one (a new message's prompt is read before it is counted).
  */
 export async function tutorKnows(page: Page): Promise<string> {

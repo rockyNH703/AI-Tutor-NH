@@ -8,7 +8,7 @@ import { composer, expect, expectAccessible, expectNoHorizontalOverflow, test } 
  * gated.e2e.ts checks the other half: none of this exists on the real server.
  */
 const TOOLS = [
-  { path: "/homework", title: "Homework Helper" },
+  { path: "/homework", title: "Troubleshooter" },
   { path: "/summarizer", title: "Summarizer" },
 ];
 
@@ -19,7 +19,7 @@ const SHELL_CALLS = new Set([
   "/api/v1/progress/activity",
   "/api/v1/progress/streak",
   "/api/v1/notifications",
-  // Study time (features/study): the header's session state and its beat, on every page of the shell.
+  // Lab time (features/study): the header's session state and its beat, on every page of the shell.
   "/api/v1/study/session",
   "/api/v1/study/beat",
 ]);
@@ -34,8 +34,8 @@ test.beforeAll(async () => {
 test("the shell lists every tool, and marks what is not real", async ({ page, account: _ }) => {
   await page.goto("/");
   await expect(composer(page)).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Learning Hub" }).getByRole("link")).toHaveCount(TOOLS.length); // not the chat itself
-  await expect(page.getByRole("banner").getByRole("link", { name: /day learning streak/ })).toBeVisible(); // the real one
+  await expect(page.getByRole("navigation", { name: "Tools" }).getByRole("link")).toHaveCount(TOOLS.length); // not the chat itself
+  await expect(page.getByRole("banner").getByRole("link", { name: /day practice streak/ })).toBeVisible(); // the real one
   await expect(page.getByRole("button", { name: /Leaderboard/ })).toBeDisabled();
   // Attach and dictation are real now (not preview): the same, enabled buttons in both modes.
   await expect(page.getByRole("button", { name: "Attach files" })).toBeEnabled();
@@ -57,7 +57,7 @@ for (const tool of TOOLS) {
     await page.goto(tool.path);
     await expect(page.getByRole("heading", { level: 1, name: tool.title })).toBeVisible();
     await expect(page.getByRole("note")).toContainText("Sample data, not connected yet");
-    await expect(page.getByRole("navigation", { name: "Learning Hub" }).getByRole("link", { name: new RegExp(tool.title) })).toHaveAttribute(
+    await expect(page.getByRole("navigation", { name: "Tools" }).getByRole("link", { name: new RegExp(tool.title) })).toHaveAttribute(
       "aria-current",
       "page",
     );

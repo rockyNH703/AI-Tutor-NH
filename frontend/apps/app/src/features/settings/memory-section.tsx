@@ -33,8 +33,8 @@ import { shortDate } from "@/lib/time";
 import { Notice, SectionHeading, SettingsCard, ToggleRow } from "./primitives";
 
 const KIND_LABELS: Record<MemoryKind, string> = {
-  learning_context: "Learning context",
-  study_context: "Study context",
+  learning_context: "Goals & preferences",
+  study_context: "Environment & projects",
 };
 
 const selectClass = "focus-field h-10 w-full rounded-xl border border-input bg-card px-3 text-base sm:text-sm";
@@ -147,7 +147,7 @@ function EditorDialog({
           <div className="space-y-1.5">
             <label htmlFor={expiryId} className="text-sm font-bold text-foreground">Expires (optional)</label>
             <input id={expiryId} className={inputClass} type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} />
-            <p className="text-xs text-text-secondary">After this date, the tutor will not recall it.</p>
+            <p className="text-xs text-text-secondary">After this date, NetSec AI will not recall it.</p>
           </div>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
@@ -397,7 +397,7 @@ export function MemorySection() {
 
   return (
     <>
-      <SectionHeading title="Memory" description="Review and control the learning and study context your tutor may recall in future chats." />
+      <SectionHeading title="Memory" description="Review and control the context NetSec AI may recall in future chats." />
       {error ? (
         <LoadFailure title="Couldn't load memory" error={error} retry={() => void load()} />
       ) : !preferences || !proposals || !memories ? (
@@ -408,7 +408,7 @@ export function MemorySection() {
       ) : (
         <div className="flex flex-col gap-4">
           {notice && <Notice tone="warning">{notice}</Notice>}
-          <SettingsCard title="Suggestions" description="The tutor never saves automatic suggestions until you approve them.">
+          <SettingsCard title="Suggestions" description="NetSec AI never saves automatic suggestions until you approve them.">
             <ToggleRow
               label="Suggest memories from chats"
               description="When on, eligible completed chats may create review items here. Turning it off stops future automatic proposals."
@@ -474,7 +474,7 @@ export function MemorySection() {
       {editor && (
         <EditorDialog
           title={editor.type === "new" ? "Add memory" : editor.type === "proposal" ? "Edit and approve" : "Correct memory"}
-          description={editor.type === "proposal" ? "Review every detail before this becomes active memory." : "Store only context that will be useful in future tutoring."}
+          description={editor.type === "proposal" ? "Review every detail before this becomes active memory." : "Store only context that will be useful in future chats."}
           initialKind={editorItem?.kind ?? "learning_context"}
           initialContent={editorItem?.content ?? ""}
           initialExpiresAt={editorItem?.expiresAt ?? null}

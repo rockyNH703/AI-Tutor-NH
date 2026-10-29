@@ -4,17 +4,17 @@ import { dayHasEnded, describeRemaining } from "./countdown";
 
 const minutes = (n: number) => n * 60_000;
 
-describe("the learning day countdown", () => {
+describe("the practice day countdown", () => {
   test("hours and minutes, padded, and in words", () => {
     expect(describeRemaining(minutes(134))).toEqual({
       short: "02h 14m",
-      spoken: "2 hours 14 minutes left in today's learning day",
+      spoken: "2 hours 14 minutes left in today's practice day",
     });
     expect(describeRemaining(minutes(18) + 59_000)).toEqual({
       short: "00h 18m",
-      spoken: "18 minutes left in today's learning day",
+      spoken: "18 minutes left in today's practice day",
     });
-    expect(describeRemaining(minutes(61)).spoken).toBe("1 hour 1 minute left in today's learning day");
+    expect(describeRemaining(minutes(61)).spoken).toBe("1 hour 1 minute left in today's practice day");
   });
 
   test("never negative at or after midnight", () => {

@@ -28,11 +28,74 @@ def test_normalization_policy_and_correction_schema():
     assert CorrectMemoryRequest.model_validate({"expectedVersion": 1, "expiresAt": None}).expires_at is None
 
 
+def test_engineering_facts_are_allowed_and_network_secrets_and_config_dumps_are_not():
+    for fact in (
+        "Uses a QoS class-map to prioritise voice on the WAN edge.",
+        "Runs carrier-grade NAT for mobile subscribers.",
+        "Manages a medium-sized site with two FortiGate firewalls in HA.",
+        "Wants a board-level summary after every change.",
+        "Prefers Junos set commands in examples.",
+        "Works on secrets management with HashiCorp Vault.",
+        "Studies for the CCNP Enterprise exam.",
+    ):
+        validate_memory_policy(fact)  # no "my ...": an engineering fact, not a profile setting
+    for blocked in (
+        "The SNMP community on the core switches is n0tpublic",
+        "Our IPsec pre-shared key is Hunter2Hunter2",
+        "psk: correct-horse-battery",
+        "enable secret 9 $9$abcdefghijklmnop",
+        "key chain OSPF key 1 key-string S3cret",
+        "token=" + "abc123def456",  # split: a fake, but scanners would flag it
+        "Repo token ghp_abcdefghijklmnopqrstuvwxyz0123",
+        "Backups go to sftp://backup:Sup3rS3cret@10.0.0.5/configs",
+        "-----BEGIN " + "OPENSSH PRIVATE KEY----- b3BlbnNzaC1rZXktdjE=",
+        "hostname edge1 interface GigabitEthernet0/1 ip address 10.1.1.1 255.255.255.0",
+        "set interfaces ge-0/0/0 unit 0 family inet address 192.0.2.1/24 set system host-name fw1",
+        "My target exam is CCNA",
+        "My streak is 12 days",
+    ):
+        with pytest.raises(ValidationFailed):
+            validate_memory_policy(blocked)
+
+
 class _Item:
     def __init__(self, row_id, kind, content):
         self.id = row_id
         self.kind = kind
         self.content = content
+
+
+def test_stored_memory_preferences_parse_defensively():
+    from types import SimpleNamespace
+
+    from app.memory.preferences import MemoryPreferences
+
+    stamp = datetime(2026, 10, 1, tzinfo=UTC)
+    good = MemoryPreferences.from_settings(
+        SimpleNamespace(
+            preferences={
+                "memoryAutomaticProposals": True,
+                "memoryConsentEpoch": 3,
+                "memoryClearedBefore": stamp.isoformat(),
+                "memoryVersion": 2,
+            },
+            updated_at=stamp,
+        )
+    )
+    assert (good.automatic_proposals, good.consent_epoch, good.cleared_before, good.version) == (True, 3, stamp, 2)
+    for bad in (
+        {"memoryAutomaticProposals": "false", "memoryConsentEpoch": "x", "memoryClearedBefore": "nope"},
+        {"memoryAutomaticProposals": 1, "memoryConsentEpoch": [1], "memoryClearedBefore": 5, "memoryVersion": -4},
+        {"memoryConsentEpoch": 10**30, "memoryVersion": float("inf"), "memoryUpdatedAt": {"a": 1}},
+    ):
+        parsed = MemoryPreferences.from_settings(SimpleNamespace(preferences=bad, updated_at=stamp))
+        assert (parsed.automatic_proposals, parsed.consent_epoch, parsed.cleared_before, parsed.version) == (
+            False,
+            0,
+            None,
+            0,
+        )
+        assert parsed.updated_at == stamp
 
 
 def test_expiry_must_be_future():
