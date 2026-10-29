@@ -21,7 +21,7 @@ to its reason in [decisions.md](decisions.md). Planned work is in [ROADMAP.md](.
 | **Voice mode is English only.** It is offered only when the tutor's language is English or unset | `app/voice/`; OllaLink's speech has no Hindi |
 | **Textbook search covers NCERT Classes 6–12 only**, and needs the separate NCERT Knowledge Service. Without the service, answers come without textbook sources | `app/rag/ncert.py` (`SERVED_CLASSES`) |
 | **Tests in the chat exist only for what the question bank covers** | `app/qbank/chat_tests.py` |
-| **The tutor can be wrong.** Its own fill-in-the-blank exercises are marked, but never counted as evidence of what a student knows | Help > "Can the tutor be wrong?"; [CLAUDE.md](../CLAUDE.md), "Backend internals" |
+| **The tutor can be wrong.** Its own fill-in-the-blank exercises are marked, but never counted as evidence of what a student knows | [CLAUDE.md](../CLAUDE.md), "Backend internals" |
 | **If the model fails partway through a reply, that reply ends with an error.** The fallback model is used only before the first word | `app/llm/fallback.py`; [decisions.md](decisions.md#one-model-call-per-turn-and-the-fallback-only-before-the-first-token) |
 | **Learning days follow India time** for every student | `app/progress/learning.py` (`Asia/Kolkata`) |
 | **Dictation depends on the browser's speech recognition.** Without it, there is no dictation button | `features/chat/dictation.ts` |

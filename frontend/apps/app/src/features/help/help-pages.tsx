@@ -47,15 +47,6 @@ const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
         ),
       },
       {
-        question: "Can the tutor be wrong?",
-        answer: (
-          <>
-            Yes. It's an AI and it can make mistakes, including confident-sounding ones. Check anything important
-            against your textbook or ask your teacher.
-          </>
-        ),
-      },
-      {
         question: "How do I make the tutor fit how I learn?",
         answer: (
           <>
@@ -207,7 +198,7 @@ export function AboutPage() {
           you want, in the language and at the depth you choose. It can draw on study material we've added, and it
           adapts to the class, board and subjects you tell it about.
         </p>
-        <p>It's a study aid, not a replacement for your teachers or textbooks, and it can make mistakes.</p>
+        <p>It's a study aid, not a replacement for your teachers or textbooks.</p>
       </section>
       <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground">
         <h3 className="font-bold">Your data</h3>
