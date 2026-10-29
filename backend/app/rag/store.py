@@ -115,7 +115,10 @@ class KnowledgeStore:
 
     async def apply_search_settings(self, session: AsyncSession) -> None:
         """Keep filtered searches on the HNSW index (pgvector >= 0.8 iterative scans). Transaction-local."""
-        await session.execute(text(f"SET LOCAL hnsw.ef_search = {self.hnsw_ef_search}"))
+        # set_config(..., true) is SET LOCAL with a bound value (SET itself takes no parameters).
+        await session.execute(
+            text("SELECT set_config('hnsw.ef_search', :value, true)"), {"value": str(self.hnsw_ef_search)}
+        )
         await session.execute(text("SET LOCAL hnsw.iterative_scan = strict_order"))
 
     @staticmethod

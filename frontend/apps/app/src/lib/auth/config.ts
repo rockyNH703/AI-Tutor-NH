@@ -40,7 +40,7 @@ import { Pool } from "pg";
 
 import { PLAIN_COOKIE, SECURE_COOKIE } from "@/lib/server/cookies";
 import { type InternalApi, postInternal } from "./events";
-import { CODE_CHECKS, CODE_SENDS, type Limit, SIGNIN, WATCH, keyHash, recent, record, reserve } from "./guard";
+import { CODE_CHECKS, CODE_SENDS, type Limit, SIGNIN, WATCH, claimCode, keyHash, recent, record, reserve } from "./guard";
 import { hashPassword, verifyPassword } from "./password";
 import { passwordBreached, turnstileOk } from "./protection";
 import { DISABLED_PATHS } from "./routes";
@@ -66,9 +66,6 @@ export const FRESH_MINUTES = 15;
 const NAME_MAX = 80;
 const USER_AGENT_MAX = 300;
 const TWO_FACTOR_COOKIE = "two_factor";
-/** An authenticator code works once (NIST SP 800-63B): kept as used for longer than it is valid. */
-const USED_CODE_SECONDS = 2 * 60;
-const usedCode = (userId: string, code: string) => `totp-used-${userId}-${code}`;
 
 /** Where a session is a sign-in (anything else is Better Auth renewing one for someone signed in). */
 const FIRST_STEP = new Set(["/sign-in/email", "/sign-in/email-otp", "/callback/:id"]);
@@ -310,6 +307,10 @@ export function createAuth(env: AuthEnv) {
       // `__Host-` instead of Better Auth's `__Secure-` prefix: Better Auth would put its prefix in
       // front of any name, so its own prefixing is off and Secure is set explicitly.
       useSecureCookies: false,
+      // Every other Better Auth cookie (the OAuth state, the two-step challenge) gets `__Host-` too:
+      // the site lives on a shared parent domain (*.trycloudflare.com), and without the prefix a
+      // sibling host could plant one (a login CSRF). The session cookie keeps its own name below.
+      cookiePrefix: https ? "__Host-netsecai" : "netsecai",
       defaultCookieAttributes: { secure: https, sameSite: "lax", httpOnly: true, path: "/" },
       cookies: {
         session_token: { name: https ? SECURE_COOKIE : PLAIN_COOKIE, attributes: { secure: https } },
@@ -432,15 +433,6 @@ export function createAuth(env: AuthEnv) {
                   postInternal(api, "events", { kind: "two_factor_off", userId: String(userId) });
                   return;
                 }
-                // The code just accepted can't be used again, at this sign-in or any other.
-                const code = bodyField(ctx.body, "code");
-                if (typeof code === "string") {
-                  await ctx.context.internalAdapter.createVerificationValue({
-                    identifier: usedCode(String(userId), code),
-                    value: "used",
-                    expiresAt: new Date(Date.now() + USED_CODE_SECONDS * 1000),
-                  });
-                }
                 // Turning it on is a verify-totp from someone signed in; a sign-in carries a challenge.
                 const challenge = await ctx.getSignedCookie(ctx.context.createAuthCookie(TWO_FACTOR_COOKIE).name, ctx.context.secret);
                 if (!challenge) postInternal(api, "events", { kind: "two_factor_on", userId: String(userId) });
@@ -512,16 +504,15 @@ export function createAuth(env: AuthEnv) {
           case "/two-factor/verify-totp": {
             // A code just used (seen over a shoulder, or by a phishing page) is refused, even at
             // another sign-in: the user is the challenge's at sign-in, else the one signed in.
+            // Claimed in the database BEFORE it is checked, so two parallel uses of one code can't
+            // both pass; a wrong code claimed costs nothing (the next code is a different one).
             const challenge = await ctx.getSignedCookie(ctx.context.createAuthCookie(TWO_FACTOR_COOKIE).name, ctx.context.secret);
             const userId = challenge
               ? (await ctx.context.internalAdapter.findVerificationValue(challenge))?.value
               : (await getSessionFromCtx(ctx))?.user.id;
             const code = bodyField(ctx.body, "code");
-            if (userId && typeof code === "string") {
-              const used = await ctx.context.internalAdapter.findVerificationValue(usedCode(String(userId), code));
-              if (used && new Date(used.expiresAt).getTime() > Date.now()) {
-                throw new APIError("UNAUTHORIZED", { code: "CODE_ALREADY_USED", message: "That code was just used." });
-              }
+            if (userId && typeof code === "string" && !(await claimCode(pool, String(userId), code))) {
+              throw new APIError("UNAUTHORIZED", { code: "CODE_ALREADY_USED", message: "That code was just used." });
             }
             // No "trust this device": the second step is asked for at every sign-in.
             return { context: { body: { ...(ctx.body as object), trustDevice: false } } };

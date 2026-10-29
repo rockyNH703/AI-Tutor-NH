@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Literal
 
 from sqlalchemy import and_, delete, func, or_, select, update
@@ -58,12 +58,16 @@ class ProposalRepository:
         return source == ("user", "complete") and assistant == ("assistant", "complete")
 
     async def preferences_allow(self, proposal: MemoryProposal) -> bool:
+        # The same reading of the consent keys as the worker (jobs/memory.py): a malformed stored
+        # value is no consent, never an error. Imported here: preferences.py imports this module.
+        from app.memory.preferences import MemoryPreferences
+
         row = await self.db.get(UserSettings, proposal.user_id, with_for_update=True)
-        values = dict(row.preferences) if row else {}
-        current_epoch = max(0, int(values.get("memoryConsentEpoch", 0)))
-        cleared = values.get("memoryClearedBefore")
-        cleared_before = datetime.fromisoformat(cleared) if cleared else None
-        return proposal.consent_epoch == current_epoch and (
+        current = MemoryPreferences.from_settings(row)
+        cleared_before = current.cleared_before
+        if cleared_before is not None and cleared_before.tzinfo is None:
+            cleared_before = cleared_before.replace(tzinfo=UTC)
+        return proposal.consent_epoch == current.consent_epoch and (
             cleared_before is None or proposal.observed_at > cleared_before
         )
 

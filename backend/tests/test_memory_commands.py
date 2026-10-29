@@ -93,3 +93,22 @@ async def test_memory_command_request_id_conflict_and_noncommand_regression(clie
     response, events = await stream_chat(client, account["headers"], "Explain osmosis")
     assert response.status_code == 200 and events[-1][0] == "done"
     assert len(fake_llm.calls) > before
+
+
+async def test_with_memory_off_a_remember_command_is_an_ordinary_message(client, app, fake_llm):
+    # MEMORY_ENABLED=false turns every /v1/memories route off; chat must not store memory behind it.
+    from tests.conftest import make_settings
+
+    app.state.chat.settings = make_settings(memory_enabled=False)
+    account = await register(client, app)
+    before = len(fake_llm.calls)
+    response = await client.post(
+        "/v1/chat/stream",
+        json={"message": "Remember that I run Junos 23.4 on the core", "clientRequestId": str(uuid.uuid4())},
+        headers=account["headers"],
+    )
+    assert response.status_code == 200 and "I’ll remember that." not in response.text
+    assert len(fake_llm.calls) == before + 1  # answered by the assistant like any other message
+    async with app.state.db.sessionmaker() as db:
+        assert list(await db.scalars(select(MemoryItem))) == []
+        assert list(await db.scalars(select(MemoryCommandReceipt))) == []

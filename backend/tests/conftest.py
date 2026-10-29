@@ -87,8 +87,9 @@ def database() -> str:
     worker = threading.Thread(target=lambda: asyncio.run(recreate()))
     worker.start()
     worker.join()
+    # Semgrep (dangerous-subprocess-use-tainted-env-args): this repo's own alembic, on the *_test database.
     subprocess.run(
-        [sys.executable, "-m", "alembic", "-x", f"url={TEST_DATABASE_URL}", "upgrade", "head"],
+        [sys.executable, "-m", "alembic", "-x", f"url={TEST_DATABASE_URL}", "upgrade", "head"],  # nosemgrep
         cwd=ROOT,
         check=True,
         capture_output=True,
@@ -167,7 +168,8 @@ async def sign_in(app, email: str, user_agent: str = "pytest", created_at: datet
     return {"token": token, "headers": {"Authorization": f"Bearer {token}"}}
 
 
-async def register(
+# Semgrep (hardcoded-password-default-argument): a fixed password for test accounts.
+async def register(  # nosemgrep
     client, app, email: str | None = None, password: str | None = PASSWORD, user_agent: str = "pytest"
 ) -> dict:
     """A verified account and a signed-in session, made the way Better Auth makes them (sign-up

@@ -138,7 +138,9 @@ if [ "$DO_FDEPS$DO_BUILD" != 00 ]; then ensure_node "$APP"; ensure_bun "$APP"; f
 NODE_BIN=$(node_bin_of "$APP")
 if [ "$DO_FDEPS" = 1 ]; then
   step "frontend dependencies (package.json / bun.lock)"
-  (cd "$APP/frontend" && PATH="$NODE_BIN:$PATH" build_step "$BUN" install --frozen-lockfile) || die "bun install failed; nothing was restarted"
+  # --force reinstalls from the lock and drops nested copies the lock no longer has: a plain install
+  # keeps them, so a patched package could keep loading its old, vulnerable copy (bun 1.3.14).
+  (cd "$APP/frontend" && PATH="$NODE_BIN:$PATH" build_step "$BUN" install --frozen-lockfile --force) || die "bun install failed; nothing was restarted"
   mark frontend-deps "$K_FDEPS"
   DONE+=("frontend-deps")
 fi

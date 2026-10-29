@@ -131,6 +131,62 @@ async def test_worker_rechecks_consent_before_provider_and_before_insert(client,
     assert report["invalidated"] == 1 and await rows(app, MemoryProposal) == []
 
 
+async def test_malformed_stored_consent_never_breaks_chat_or_other_users_jobs(client, app):
+    # Values written before /v1/me/settings refused the memory keys: one user's bad data stays theirs.
+    settings = make_settings(memory_automatic_proposals="on")
+    app.state.chat.settings = settings
+    accounts = [await register(client, app), await register(client, app)]
+    for account in accounts:
+        await enable_automatic_proposals(app, account)
+        await stream_chat(client, account["headers"], "Use diagrams for optics.")
+    async with app.state.db.sessionmaker() as session:
+        bad = await session.get(UserSettings, uuid.UUID(accounts[0]["user"]["id"]))
+        bad.preferences = {"memoryAutomaticProposals": True, "memoryConsentEpoch": "x", "memoryClearedBefore": "nope"}
+        await session.commit()
+
+    response, events = await stream_chat(client, accounts[0]["headers"], "Use diagrams for magnetism.")
+    assert response.status_code == 200 and events[-1][0] == "done"
+
+    llm = FakeProvider(reply=lambda messages: extraction_reply([proposal()]))
+    report = await process_memory_jobs(app.state.db, settings, llm)
+    assert report["claimed"] == 3 and report["completed"] == 3
+    assert {job.status for job in await rows(app, MemoryExtractionJob)} == {"completed"}
+
+    # Approving reads the same consent the worker did (MemoryPreferences): never a 500.
+    mine = [p for p in await rows(app, MemoryProposal) if p.user_id == uuid.UUID(accounts[0]["user"]["id"])]
+    assert mine
+    approved = await client.post(
+        f"/v1/memories/proposals/{mine[0].id}/approve", json={"expectedVersion": 1}, headers=accounts[0]["headers"]
+    )
+    assert approved.status_code == 200, approved.text
+
+
+async def test_one_jobs_unexpected_error_never_stops_the_batch(client, app, monkeypatch):
+    settings = make_settings(memory_automatic_proposals="on")
+    app.state.chat.settings = settings
+    accounts = [await register(client, app), await register(client, app)]
+    for account in accounts:
+        await enable_automatic_proposals(app, account)
+        await stream_chat(client, account["headers"], "Use diagrams for optics.")
+    broken = uuid.UUID(accounts[0]["user"]["id"])
+
+    import app.jobs.memory as worker
+
+    real = worker._eligibility
+
+    async def eligibility(session, job):
+        if job.user_id == broken:
+            raise RuntimeError("unexpected")
+        return await real(session, job)
+
+    monkeypatch.setattr(worker, "_eligibility", eligibility)
+    llm = FakeProvider(reply=lambda messages: extraction_reply([proposal()]))
+    report = await process_memory_jobs(app.state.db, settings, llm)
+    assert report["claimed"] == 2 and report["completed"] == 1 and report["retryable"] == 1
+    statuses = {job.user_id: job.status for job in await rows(app, MemoryExtractionJob)}
+    assert statuses[broken] == "retryable" and statuses[uuid.UUID(accounts[1]["user"]["id"])] == "completed"
+
+
 async def test_worker_retry_backoff_attempt_cap_and_shadow_non_persistence(client, app):
     account = await register(client, app)
     await enable_automatic_proposals(app, account)

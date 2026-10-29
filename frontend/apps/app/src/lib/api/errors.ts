@@ -18,6 +18,7 @@ export type ErrorCode =
   | "forbidden"
   | "not_found"
   | "conflict"
+  | "request_timeout"
   | "payload_too_large"
   | "validation_error"
   | "rate_limited"
@@ -94,6 +95,7 @@ export class ApiError extends Error {
 
 const KNOWN = new Set<ErrorCode>([
   "unauthorized",
+  "request_timeout",
   "invalid_credentials",
   "email_not_verified",
   "invalid_code",
@@ -228,6 +230,11 @@ const COPY: Record<ErrorCode, { title: string; message: string; action: Recovery
     message: "A reply is still being written in this chat (perhaps in another tab). Try again in a moment.",
     action: "retry",
   },
+  request_timeout: {
+    title: "Took too long to send",
+    message: "The upload or request did not finish arriving in time. Check your connection and try again.",
+    action: "retry",
+  },
   payload_too_large: {
     title: "Too long",
     message: "That's more than can be sent at once. Shorten it and try again.",
@@ -360,7 +367,7 @@ const COPY: Record<ErrorCode, { title: string; message: string; action: Recovery
   },
   voice_busy: {
     title: "Voice is busy",
-    message: "Lots of students are talking to the tutor right now. Please try again in a moment.",
+    message: "Voice mode is busy right now. Please try again in a moment.",
     action: "retry",
   },
   busy: {

@@ -26,10 +26,14 @@ done
   && [ "$POSTGRES_RUNTIME_USER" != "$POSTGRES_AUTH_USER" ] || die "database roles must be distinct"
 assert_database_identity
 
-# Passwords are passed as psql variables over stdin and are never interpolated into shell commands.
-db_compose exec -T postgres psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
-  -v runtime_role="$POSTGRES_RUNTIME_USER" -v runtime_password="$POSTGRES_RUNTIME_PASSWORD" \
-  -v auth_role="$POSTGRES_AUTH_USER" -v auth_password="$POSTGRES_AUTH_PASSWORD" <<'SQL'
+# The passwords travel only in environments (`-e NAME` takes the value from this shell's environment;
+# psql reads it with \getenv), never in arguments, which any local user can read in ps or
+# /proc/*/cmdline. They are never interpolated into shell commands either.
+NETSEC_RUNTIME_PW="$POSTGRES_RUNTIME_PASSWORD" NETSEC_AUTH_PW="$POSTGRES_AUTH_PASSWORD" \
+  db_compose exec -T -e NETSEC_RUNTIME_PW -e NETSEC_AUTH_PW postgres psql -v ON_ERROR_STOP=1 \
+  -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v runtime_role="$POSTGRES_RUNTIME_USER" -v auth_role="$POSTGRES_AUTH_USER" <<'SQL'
+\getenv runtime_password NETSEC_RUNTIME_PW
+\getenv auth_password NETSEC_AUTH_PW
 SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'runtime_role', :'runtime_password')
 WHERE NOT EXISTS (SELECT FROM pg_roles WHERE rolname = :'runtime_role') \gexec
 SELECT format('ALTER ROLE %I LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION', :'runtime_role', :'runtime_password') \gexec

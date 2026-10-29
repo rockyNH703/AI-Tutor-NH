@@ -5,7 +5,7 @@
 # Never prints secret values.
 #
 # Production runs the checkout /opt/netsecai/app (the commit last pushed to /opt/netsecai/app.git by
-# `bun run deploy`). The database, secrets and Node runtimes live outside it.
+# `bun run deploy:netsec`). The database, secrets and Node runtimes live outside it.
 
 ROOT=/opt/netsecai
 APP="$ROOT/app"            # the production checkout: the code that runs
@@ -175,11 +175,16 @@ SQL
 # urlencode(token + "." + base64(HMAC-SHA256(BETTER_AUTH_SECRET, token))). Made here for a token
 # that is no session, so the request passes the BFF's signature check and reaches the API.
 signed_session_cookie() {
-  local token=$1 secret signature
+  local token=$1 secret
   secret=$(env_value BETTER_AUTH_SECRET web.env)
   [ -n "$secret" ] || return 1
-  signature=$(printf '%s' "$token" | openssl dgst -sha256 -hmac "$secret" -binary | base64 | tr -d '\n')
-  python3.12 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$token.$signature"
+  # The secret reaches python through its environment, never its arguments: any local user can read
+  # another process's arguments (ps, /proc/*/cmdline), but only root and its owner its environment.
+  NETSEC_COOKIE_SECRET="$secret" python3.12 -c '
+import base64, hashlib, hmac, os, sys, urllib.parse
+token = sys.argv[1]
+mac = hmac.new(os.environ["NETSEC_COOKIE_SECRET"].encode(), token.encode(), hashlib.sha256).digest()
+print(urllib.parse.quote(token + "." + base64.b64encode(mac).decode(), safe=""))' "$token"
 }
 
 # The web app's database role reaches its identity tables (AUTH_DATABASE_URL, from web.env).

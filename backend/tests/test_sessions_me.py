@@ -53,6 +53,25 @@ async def test_settings_merge_remove_and_size_limit(client, app):
     assert row.preferences == {"theme": "dark"}
 
 
+async def test_settings_refuse_the_memory_consent_keys(client, app):
+    # The memory feature owns these keys (app/memory/preferences.py); only /v1/memories/preferences writes them.
+    account = await register(client, app)
+    await client.patch("/v1/me/settings", json={"preferences": {"theme": "dark"}}, headers=account["headers"])
+    for key, value in (
+        ("memoryAutomaticProposals", True),
+        ("memoryConsentEpoch", "x"),
+        ("memoryClearedBefore", "not-a-date"),
+        ("memoryVersion", 7),
+        ("memoryUpdatedAt", None),
+        ("memorySomethingNew", 1),
+    ):
+        r = await client.patch("/v1/me/settings", json={"preferences": {key: value}}, headers=account["headers"])
+        assert r.status_code == 422, key
+    async with app.state.db.sessionmaker() as s:
+        row = await s.scalar(select(UserSettings))
+    assert row.preferences == {"theme": "dark"}
+
+
 async def test_delete_account_requires_password_and_cascades(client, app):
     account = await register(client, app)
     await stream_chat(client, account["headers"], "hello")

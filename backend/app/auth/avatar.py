@@ -34,6 +34,10 @@ ACCEPTED = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}
 AVATAR_EDGE = 256
 MIN_EDGE = 32
 MAX_PIXELS = 40_000_000  # e.g. 8000 x 5000; phone photos are well below
+# What may be decoded at full size: PNG and WebP always are, a JPEG only after draft() (which can
+# scale it down by up to 8). AVATAR_DECODES of them at once, each with its copies, must fit in the
+# API's memory (MemoryMax=900M): 16 MP is 64 MB in RGBA.
+MAX_DECODED_PIXELS = 16_000_000
 MAX_STORED_BYTES = 65_536
 AVATAR_DECODES = 2
 STORED_TYPE = "image/webp"
@@ -64,7 +68,9 @@ def process(data: bytes, declared_type: str, max_bytes: int) -> ProcessedAvatar:
         # Pillow warns (rather than refuses) between MAX_IMAGE_PIXELS and twice that. Refuse.
         warnings.simplefilter("error", Image.DecompressionBombWarning)
         try:
-            with Image.open(io.BytesIO(data)) as source:  # reads the header only
+            # Reads the header only. Every format plugin may identify the bytes (so a mismatch is
+            # reported as such), but only the declared format is ever decoded.
+            with Image.open(io.BytesIO(data)) as source:
                 if source.format != expected:
                     raise _reject("type_mismatch", "The file is not the kind of image it claims to be.")
                 width, height = source.size
@@ -75,6 +81,9 @@ def process(data: bytes, declared_type: str, max_bytes: int) -> ProcessedAvatar:
                 if expected == "JPEG":
                     # Decode at a reduced scale when the file allows it: less memory, same result.
                     source.draft("RGB", (AVATAR_EDGE * 2, AVATAR_EDGE * 2))
+                decoded_width, decoded_height = source.size  # after draft(): what decoding will allocate
+                if decoded_width * decoded_height > MAX_DECODED_PIXELS:
+                    raise _reject("too_many_pixels", "The image is too large. Use a smaller photo.")
                 source.seek(0)  # animated images: the first frame
                 upright = ImageOps.exif_transpose(source)
                 has_alpha = upright.mode in ("RGBA", "LA") or (upright.mode == "P" and "transparency" in upright.info)

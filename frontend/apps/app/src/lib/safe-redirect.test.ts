@@ -19,6 +19,11 @@ describe("safeRedirect", () => {
       "/%5Cevil.com",
       "/%5C%5Cevil.com",
       "/%2F%2Fevil.com",
+      // Dot segments the URL parser removes: what is left would start with "//" (another site).
+      "/.//evil.com",
+      "/./%2Fevil.com",
+      "/a/..//evil.com",
+      "/%2E//evil.com",
       "javascript:alert(1)",
       "evil.com",
       "/\tevil",

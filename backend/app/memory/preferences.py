@@ -17,6 +17,24 @@ CONSENT_EPOCH = "memoryConsentEpoch"
 CLEARED_BEFORE = "memoryClearedBefore"
 VERSION = "memoryVersion"
 UPDATED_AT = "memoryUpdatedAt"
+_MAX_COUNT = 2**31 - 1  # the INTEGER columns these counters are copied into (memory_extraction_jobs.consent_epoch)
+
+
+def _count(value: object) -> int:
+    """A stored counter. Only this module writes it, but a malformed value (written before
+    /v1/me/settings refused these keys) reads as 0 instead of failing chat or the worker."""
+    if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= _MAX_COUNT:
+        return 0
+    return value
+
+
+def _instant(value: object) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
 
 
 class MemoryPreferences:
@@ -38,14 +56,13 @@ class MemoryPreferences:
     @classmethod
     def from_settings(cls, row: UserSettings | None) -> MemoryPreferences:
         values = dict(row.preferences) if row else {}
-        cleared = values.get(CLEARED_BEFORE)
-        updated = values.get(UPDATED_AT)
         return cls(
-            automatic_proposals=bool(values.get(AUTOMATIC_PROPOSALS, False)),
-            consent_epoch=max(0, int(values.get(CONSENT_EPOCH, 0))),
-            cleared_before=datetime.fromisoformat(cleared) if cleared else None,
-            version=max(0, int(values.get(VERSION, 0))),
-            updated_at=datetime.fromisoformat(updated) if updated else (row.updated_at if row else None),
+            # Only a real `true` is consent: the string "false" is not.
+            automatic_proposals=values.get(AUTOMATIC_PROPOSALS) is True,
+            consent_epoch=_count(values.get(CONSENT_EPOCH)),
+            cleared_before=_instant(values.get(CLEARED_BEFORE)),
+            version=_count(values.get(VERSION)),
+            updated_at=_instant(values.get(UPDATED_AT)) or (row.updated_at if row else None),
         )
 
     def public(self) -> dict:

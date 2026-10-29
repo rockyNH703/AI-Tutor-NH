@@ -1,6 +1,6 @@
 """Check the file extractor sandbox on this host, with the exact properties production uses.
 
-    cd /opt/aichat/app/backend && .venv/bin/python scripts/sandbox_probe.py      (as root, on the VM)
+    cd /opt/netsecai/app/backend && .venv/bin/python scripts/sandbox_probe.py      (as root, on the VM)
 
 Runs the real runner (app/files/processing.py) on a two-page text PDF and on an image that
 needs OCR, then runs a small script inside the same sandbox that must NOT be able to read the
@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.files.processing import BACKEND_DIR, SANDBOX_PROPERTIES, run_extractor  # noqa: E402
+from app.files.processing import BACKEND_DIR, SANDBOX_PROPERTIES, UNIT_PREFIX, run_extractor  # noqa: E402
 
 FIXTURE = BACKEND_DIR / "tests" / "fixtures" / "two-pages.pdf"
 results: list[bool] = []
@@ -48,9 +48,9 @@ async def pieces(data: bytes):
 
 
 async def extraction_checks() -> None:
-    result = await run_extractor("systemd", "aichat-extract-probe-pdf.service", "pdf", pieces(FIXTURE.read_bytes()))
+    result = await run_extractor("systemd", f"{UNIT_PREFIX}-probe-pdf.service", "pdf", pieces(FIXTURE.read_bytes()))
     check("pdf in the sandbox: two pages", result.code is None and len(result.pages) == 2, result.code or "")
-    result = await run_extractor("systemd", "aichat-extract-probe-png.service", "image", pieces(ocr_image()))
+    result = await run_extractor("systemd", f"{UNIT_PREFIX}-probe-png.service", "image", pieces(ocr_image()))
     text = " ".join(page["text"] for page in result.pages).lower()
     check(
         "image OCR in the sandbox (Tesseract eng+hin)",
@@ -68,9 +68,13 @@ def denied(path):
     except OSError:
         return True
 checks = {
-    "secrets": denied("/etc/aichat/api.env"),
+    "secrets": denied("/etc/netsecai/api.env"),
+    "web secrets": denied("/etc/netsecai/web.env"),
+    "deployment state": denied("/opt/netsecai/app-state"),
+    "shared data": denied("/opt/netsecai/shared"),
+    "backups": denied("/var/backups/netsecai"),
+    "PadhAI": denied("/etc/aichat") and denied("/opt/aichat"),
     "tunnel": denied("/etc/cloudflared"),
-    "backups": denied("/var/backups/aichat"),
     "docker": denied("/var/lib/docker"),
 }
 try:
@@ -92,7 +96,7 @@ def isolation_checks() -> None:
             "--pipe",
             "--wait",
             "--collect",
-            "--unit=aichat-extract-probe-escape.service",
+            f"--unit={UNIT_PREFIX}-probe-escape.service",
             *properties,
             sys.executable,
             "-c",

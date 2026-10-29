@@ -24,9 +24,21 @@ class DeleteMeRequest(RequestModel):
     password: str | None = ReauthPassword
 
 
+# Keys the memory feature owns in the same JSON (app/memory/preferences.py: consent, its epoch, the
+# clear-all time, a version): only PUT /v1/memories/preferences writes them, never this merge.
+RESERVED_SETTINGS_PREFIX = "memory"
+
+
 class UpdateSettingsRequest(RequestModel):
     # Top-level keys are merged; a null value removes the key.
     preferences: dict[str, Any]
+
+    @field_validator("preferences")
+    @classmethod
+    def _not_reserved(cls, value: dict[str, Any]) -> dict[str, Any]:
+        if any(key.startswith(RESERVED_SETTINGS_PREFIX) for key in value):
+            raise ValueError("keys starting with 'memory' belong to the memory settings (/v1/memories/preferences)")
+        return value
 
 
 class AvatarOut(ApiModel):

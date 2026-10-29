@@ -33,6 +33,7 @@ export async function POST(request: Request): Promise<Response> {
   // Read within the same cap as /api/auth, before anything parses it.
   const raw = await readBody(request, AUTH_BODY_BYTES);
   if (raw === "too_large") return fail(413, "payload_too_large");
+  if (raw === "too_slow") return fail(408, "request_timeout");
   const { auth } = getAuth();
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) return fail(401, "unauthorized");

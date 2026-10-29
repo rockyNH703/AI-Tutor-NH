@@ -221,6 +221,21 @@ async def test_a_decompression_bomb_is_refused_before_it_is_decoded(client, app)
     assert response.json()["error"]["fields"] == [{"field": "image", "reason": "too_many_pixels"}]
 
 
+async def test_formats_decoded_at_full_size_have_a_smaller_pixel_budget(client, app):
+    # PNG and WebP decode at full resolution (only JPEG can be decoded scaled down), so two of them
+    # at once must fit in the API's memory: 16 MP decodes to 64 MB in RGBA, before its copies.
+    headers = (await register(client, app))["headers"]
+    for fmt, content_type in (("PNG", "image/png"), ("WEBP", "image/webp")):
+        buffer = io.BytesIO()
+        Image.new("1" if fmt == "PNG" else "L", (5_000, 4_000)).save(buffer, fmt)  # 20 MP, under the old 40 MP cap
+        response = await _upload(client, headers, buffer.getvalue(), content_type)
+        assert response.status_code == 422, fmt
+        assert response.json()["error"]["fields"] == [{"field": "image", "reason": "too_many_pixels"}]
+    small = io.BytesIO()
+    Image.new("RGB", (3_000, 2_000), "teal").save(small, "PNG")  # 6 MP: fine
+    assert (await _upload(client, headers, small.getvalue(), "image/png")).status_code == 200
+
+
 async def test_only_the_photo_route_accepts_a_large_body(client, app, settings):
     headers = (await register(client, app))["headers"]
     too_big = await _upload(client, headers, b"\0" * (settings.avatar_max_bytes + 1))

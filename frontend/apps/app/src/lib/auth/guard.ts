@@ -55,6 +55,20 @@ export async function reserve(pool: Pool, limit: Limit, key: string): Promise<bo
 }
 
 /**
+ * An authenticator code works once (NIST SP 800-63B): each user's code is claimed before it is
+ * checked, and stays claimed for longer than it is valid (30 s either side of its own 30 s).
+ */
+export const USED_CODE: Limit = { scope: "totp_used", max: 1, minutes: 2 };
+
+/**
+ * True for the first claim of this user's code in the window, false after: `reserve` with a limit
+ * of one, so its advisory lock makes two parallel uses of one code (any process) claim it once.
+ */
+export function claimCode(pool: Pool, userId: string, code: string): Promise<boolean> {
+  return reserve(pool, USED_CODE, `${userId}|${code}`);
+}
+
+/**
  * Counters that only decide when the CAPTCHA is asked for (config.ts): attempts per network
  * (CF-Connecting-IP) and code requests per address, recorded whether or not the address has an
  * account, so asking for a CAPTCHA never says which addresses exist.

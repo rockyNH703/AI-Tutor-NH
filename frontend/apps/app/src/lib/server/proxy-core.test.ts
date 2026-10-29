@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { serializeSignedCookie } from "better-call";
 
 import { PLAIN_COOKIE, SECURE_COOKIE } from "./cookies";
-import { MAX_BODY_BYTES, VOICE_IN_FLIGHT_MAX, proxyRequest } from "./proxy-core";
+import { MAX_BODY_BYTES, VOICE_IN_FLIGHT_MAX, proxyRequest, readBody } from "./proxy-core";
 
 const SECRET = "a-test-secret-that-is-long-enough-for-better-auth";
 /** A session token as Better Auth makes them (32 letters and digits). */
@@ -524,5 +524,36 @@ describe("error details", () => {
     const other = upstream(() => json(409, { error: { code: "conflict", current } }));
     const plain = (await (await run(request(), "/v1/me/profile", other.fetchImpl)).json()) as { error: object };
     expect(plain.error).toEqual({ code: "conflict", requestId: "req1" });
+  });
+});
+
+describe("body deadline", () => {
+  // A sender that never finishes would otherwise hold the request, and an upload slot, open.
+  function trickle(chunks: Uint8Array[], stall: boolean): Request {
+    const body = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        const next = chunks.shift();
+        if (next) return controller.enqueue(next);
+        if (stall) return new Promise(() => undefined); // never sends the rest
+        controller.close();
+      },
+    });
+    return new Request("https://chat.example.test/api/v1/files", { method: "POST", body, duplex: "half" } as RequestInit);
+  }
+
+  test("a body that stops arriving is refused at the deadline", async () => {
+    const started = Date.now();
+    expect(await readBody(trickle([new Uint8Array(10)], true), 1_000, 100)).toBe("too_slow");
+    expect(Date.now() - started).toBeLessThan(2_000);
+  });
+
+  test("a complete body within the deadline and the limit is returned whole", async () => {
+    const read = await readBody(trickle([new Uint8Array(3), new Uint8Array(4)], false), 1_000, 1_000);
+    expect(read).toBeInstanceOf(Uint8Array);
+    expect((read as Uint8Array).byteLength).toBe(7);
+  });
+
+  test("the size limit still applies first", async () => {
+    expect(await readBody(trickle([new Uint8Array(600), new Uint8Array(600)], false), 1_000, 1_000)).toBe("too_large");
   });
 });

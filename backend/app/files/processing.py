@@ -26,12 +26,13 @@ import sys
 import time
 import uuid
 from dataclasses import dataclass, field
+from datetime import timedelta
 from pathlib import Path
 
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sqlalchemy import and_, delete, func, insert, select, text, update
+from sqlalchemy import and_, delete, func, insert, select, update
 from sqlalchemy.orm import aliased
 
 from app.db.models import FileChunk, UserFile, UserFileBlob
@@ -45,7 +46,12 @@ from app.settings import Settings
 log = get_logger("app.files")
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-DEPLOY_MARKER = Path("/run/aichat-deploying")  # written by deploy/server/update.sh while it runs
+# NetSec's production layout (deploy-netsec/server/lib.sh: ROOT, SECRETS). The extractor sees none of
+# it except this backend's code, bound read-only.
+DEPLOY_ROOT = "/opt/netsecai"
+SECRETS_DIR = "/etc/netsecai"
+UNIT_PREFIX = "netsecai-extract"  # what deploy-netsec/server/status.sh counts
+DEPLOY_MARKER = Path("/run/netsecai-deploying")  # written by deploy-netsec/server/update.sh while it runs
 DEPLOY_MARKER_MAX_AGE_S = 3600
 LEASE_S = 15 * 60
 JOB_TIMEOUT_S = 900
@@ -96,9 +102,11 @@ SANDBOX_PROPERTIES = (
     "CapabilityBoundingSet=",
     "SystemCallFilter=@system-service",
     "SystemCallErrorNumber=EPERM",
-    "TemporaryFileSystem=/opt/aichat:ro",
+    f"TemporaryFileSystem={DEPLOY_ROOT}:ro",
     f"BindReadOnlyPaths={BACKEND_DIR}",
-    "InaccessiblePaths=-/etc/aichat -/etc/cloudflared -/var/lib/docker -/var/backups -/run/dbus",
+    # PadhAI's /opt/aichat and /etc/aichat share this host: hidden too ("-": fine when absent).
+    f"InaccessiblePaths=-{SECRETS_DIR} -/etc/aichat -/opt/aichat -/etc/cloudflared -/var/lib/docker -/var/backups"
+    " -/run/dbus",
     "MemoryMax=512M",
     "MemorySwapMax=0",
     "RuntimeMaxSec=300",
@@ -134,7 +142,7 @@ class Claim:
 
     @property
     def unit(self) -> str:
-        return f"aichat-extract-{self.id}-{self.attempt}.service"
+        return f"{UNIT_PREFIX}-{self.id}-{self.attempt}.service"
 
 
 def parse_output(raw: bytes) -> Extraction:
@@ -343,8 +351,8 @@ class FileWorker:
     async def recover(self, *, self_test: bool) -> None:
         """After a (re)start: nothing from a previous process is still running, so settle its work."""
         if self.runner == "systemd":
-            await _systemctl("kill", "-s", "KILL", "aichat-extract-*.service")
-            await _systemctl("reset-failed", "aichat-extract-*.service")
+            await _systemctl("kill", "-s", "KILL", f"{UNIT_PREFIX}-*.service")
+            await _systemctl("reset-failed", f"{UNIT_PREFIX}-*.service")
         async with self.db.sessionmaker() as session:
             await session.execute(
                 update(UserFile)
@@ -380,12 +388,12 @@ class FileWorker:
 
     async def _self_test(self) -> bool:
         async def sample():
-            yield b"AI Tutor file self test: photosynthesis makes food in plants."
+            yield b"NetSec AI file self test: OSPF sends hellos every 10 seconds."
 
         try:
             result = await run_extractor(
                 self.runner,
-                f"aichat-extract-selftest-{uuid.uuid4().hex[:8]}.service",
+                f"{UNIT_PREFIX}-selftest-{uuid.uuid4().hex[:8]}.service",
                 "txt",
                 sample(),
                 timeout_s=SELF_TEST_TIMEOUT_S,
@@ -423,7 +431,7 @@ class FileWorker:
                 f.status == "processing",
                 f.attempts < MAX_ATTEMPTS,
                 (f.processing_started_at.is_(None))
-                | (f.processing_started_at < func.clock_timestamp() - text(f"interval '{LEASE_S} seconds'")),
+                | (f.processing_started_at < func.clock_timestamp() - timedelta(seconds=LEASE_S)),  # a bound interval
             )
             .order_by(last_started.asc().nulls_first(), f.updated_at)
             .limit(1)

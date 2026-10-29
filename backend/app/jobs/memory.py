@@ -12,11 +12,14 @@ from app.db.models import MemoryExtractionJob, MemoryProposal, Message, UserSett
 from app.db.session import Database
 from app.errors import ValidationFailed
 from app.llm.base import LLMError, LLMProvider
+from app.logging import get_logger
 from app.memory.extraction import ExtractedProposal, ExtractionOutputError, extract_user_memories
 from app.memory.foundation import MEMORY_PROMPT_VERSION, MEMORY_SCHEMA_VERSION, lock_memory_user
 from app.memory.policy import normalize_content
-from app.memory.preferences import AUTOMATIC_PROPOSALS, CLEARED_BEFORE, CONSENT_EPOCH
+from app.memory.preferences import MemoryPreferences
 from app.settings import Settings
+
+log = get_logger("app.jobs.memory")
 
 
 @dataclass(frozen=True)
@@ -55,11 +58,10 @@ async def enqueue_memory_extraction(
         or source_message.status != "complete"
     ):
         return False
-    preferences = await session.get(UserSettings, user_id)
-    values = dict(preferences.preferences) if preferences else {}
-    if not bool(values.get(AUTOMATIC_PROPOSALS, False)):
+    preferences = MemoryPreferences.from_settings(await session.get(UserSettings, user_id))
+    if not preferences.automatic_proposals:
         return False
-    consent_epoch = max(0, int(values.get(CONSENT_EPOCH, 0)))
+    consent_epoch = preferences.consent_epoch
     source_hash = _digest(source_message.content)
     idempotency_key = _digest(
         user_id,
@@ -106,7 +108,11 @@ async def process_memory_jobs(
     job_ids = await _claim_fair(db, settings, owner, now)
     totals = {"claimed": len(job_ids), "completed": 0, "retryable": 0, "dead": 0, "invalidated": 0, "proposals": 0}
     for job_id in job_ids:
-        outcome, count = await _process_one(db, settings, provider, job_id, owner, now)
+        try:
+            outcome, count = await _process_one(db, settings, provider, job_id, owner, now)
+        except Exception as error:  # noqa: BLE001 - one job's failure never stops the other users' jobs
+            log.error("memory job failed", extra={"job_id": str(job_id), "error_type": type(error).__name__})
+            outcome, count = await _fail(db, settings, job_id, owner, now, error, retryable=True), 0
         totals[outcome] += 1
         totals["proposals"] += count
     return totals
@@ -208,13 +214,10 @@ async def _eligibility(session, job: MemoryExtractionJob) -> tuple[str | None, M
         return "source_ineligible", source
     if _digest(source.content) != job.source_hash:
         return "source_changed", source
-    settings_row = await session.get(UserSettings, job.user_id)
-    values = dict(settings_row.preferences) if settings_row else {}
-    epoch = max(0, int(values.get(CONSENT_EPOCH, 0)))
-    cleared = values.get(CLEARED_BEFORE)
-    cleared_before = datetime.fromisoformat(cleared) if cleared else None
-    if not bool(values.get(AUTOMATIC_PROPOSALS, False)) or epoch != job.consent_epoch:
+    preferences = MemoryPreferences.from_settings(await session.get(UserSettings, job.user_id))
+    if not preferences.automatic_proposals or preferences.consent_epoch != job.consent_epoch:
         return "consent_changed", source
+    cleared_before = preferences.cleared_before
     if cleared_before is not None and _utc(job.source_created_at) <= _utc(cleared_before):
         return "memory_cleared", source
     return None, source

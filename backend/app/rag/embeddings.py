@@ -153,6 +153,13 @@ class KeywordHashEmbeddings(Embeddings):
 
 
 def build_embeddings(settings: Settings) -> Embeddings:
+    """Behind RedactingEmbeddings: file chunks and search queries reach the provider with secrets masked."""
+    from app.llm.redact import RedactingEmbeddings
+
+    return RedactingEmbeddings(_build_embeddings(settings))
+
+
+def _build_embeddings(settings: Settings) -> Embeddings:
     if settings.embedding_provider == "fake":
         return KeywordHashEmbeddings(settings.embedding_dimensions, model=f"fake:{settings.embedding_model}")
     return OpenAICompatibleEmbeddings(

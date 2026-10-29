@@ -125,15 +125,33 @@ export function isSameOrigin(request: Request): boolean {
  * Read a body, refusing more than `limit` bytes without buffering the excess. Also the size cap of
  * /api/auth and /api/account/password (lib/auth/routes.ts AUTH_BODY_BYTES).
  */
-export async function readBody(request: Request, limit: number): Promise<Uint8Array | "too_large"> {
+/** How long a body may take to arrive: a slow sender would otherwise hold a request (and an upload slot) open. */
+export const BODY_TIMEOUT_MS = 30_000;
+export const UPLOAD_TIMEOUT_MS = 300_000; // 25 MB at ~85 KB/s
+
+export async function readBody(
+  request: Request,
+  limit: number,
+  timeoutMs = BODY_TIMEOUT_MS,
+): Promise<Uint8Array | "too_large" | "too_slow"> {
   const declared = Number(request.headers.get("content-length") ?? "");
   if (Number.isFinite(declared) && declared > limit) return "too_large";
   if (!request.body) return new Uint8Array(0);
   const reader = request.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
+  const deadline = Date.now() + timeoutMs;
   while (true) {
-    const { done, value } = await reader.read();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const late = new Promise<"late">((resolve) => {
+      timer = setTimeout(() => resolve("late"), Math.max(0, deadline - Date.now()));
+    });
+    const next = await Promise.race([reader.read(), late]).finally(() => clearTimeout(timer));
+    if (next === "late") {
+      await reader.cancel().catch(() => undefined);
+      return "too_slow";
+    }
+    const { done, value } = next;
     if (done) break;
     size += value.byteLength;
     if (size > limit) {
@@ -272,8 +290,9 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps): P
   if (spec.upload) {
     bodyType = mediaType(request.headers.get("content-type"));
     if (!spec.upload.types.includes(bodyType)) return envelope(415, "unsupported_media_type", requestId);
-    const read = await readBody(request, spec.upload.maxBytes);
+    const read = await readBody(request, spec.upload.maxBytes, UPLOAD_TIMEOUT_MS);
     if (read === "too_large") return envelope(413, "payload_too_large", requestId);
+    if (read === "too_slow") return envelope(408, "request_timeout", requestId);
     body = read;
   } else if (spec.body) {
     const type = request.headers.get("content-type") ?? "";
@@ -282,6 +301,7 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps): P
     }
     const read = await readBody(request, MAX_BODY_BYTES);
     if (read === "too_large") return envelope(413, "payload_too_large", requestId);
+    if (read === "too_slow") return envelope(408, "request_timeout", requestId);
     body = new TextDecoder().decode(read);
     bodyType = "application/json";
   }

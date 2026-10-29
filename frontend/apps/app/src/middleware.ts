@@ -41,8 +41,10 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Everything except static assets, the app icon, robots.txt and the Sentry
-    // tunnel (`/monitoring`), which must never be redirected to a sign-in page.
-    "/((?!_next/static|_next/image|favicon\\.ico|icon\\.svg|robots\\.txt|monitoring|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|css|js|woff2?)$).*)",
+    // Everything except the API routes, static assets, the app icon, robots.txt and the Sentry
+    // tunnel (`/monitoring`), which must never be redirected to a sign-in page. API routes check
+    // origin, size and session themselves (lib/server/proxy-core.ts, Better Auth); through
+    // middleware, Next would buffer every request body first and cut uploads at 10 MB.
+    "/((?!api/|_next/static|_next/image|favicon\\.ico|icon\\.svg|robots\\.txt|monitoring|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|css|js|woff2?)$).*)",
   ],
 };

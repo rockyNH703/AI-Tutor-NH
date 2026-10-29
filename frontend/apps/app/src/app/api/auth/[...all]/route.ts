@@ -13,12 +13,13 @@ export const runtime = "nodejs";
 
 const NOT_FOUND = { error: { code: "not_found" } };
 const TOO_LARGE = { error: { code: "payload_too_large" } };
+const TOO_SLOW = { error: { code: "request_timeout" } };
 
-/** The request with its body read once, within AUTH_BODY_BYTES; null when the body is larger. */
-async function bounded(request: Request): Promise<Request | null> {
+/** The request with its body read once, within AUTH_BODY_BYTES and the body deadline. */
+async function bounded(request: Request): Promise<Request | "too_large" | "too_slow"> {
   if (request.method !== "POST") return request;
   const body = await readBody(request, AUTH_BODY_BYTES);
-  if (body === "too_large") return null;
+  if (body === "too_large" || body === "too_slow") return body;
   const headers = new Headers(request.headers);
   headers.delete("content-length");
   headers.delete("transfer-encoding");
@@ -30,7 +31,8 @@ async function handle(request: Request): Promise<Response> {
     return Response.json(NOT_FOUND, { status: 404, headers: { "Cache-Control": "no-store" } });
   }
   const read = await bounded(request);
-  if (!read) return Response.json(TOO_LARGE, { status: 413, headers: { "Cache-Control": "no-store" } });
+  if (read === "too_large") return Response.json(TOO_LARGE, { status: 413, headers: { "Cache-Control": "no-store" } });
+  if (read === "too_slow") return Response.json(TOO_SLOW, { status: 408, headers: { "Cache-Control": "no-store" } });
   const response = await getAuth().auth.handler(read);
   if (!(response.headers.get("content-type") ?? "").includes("application/json")) return response;
   const text = await response.text();

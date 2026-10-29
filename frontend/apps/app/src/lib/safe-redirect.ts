@@ -47,6 +47,14 @@ export function safeRedirect(target: string | null | undefined, fallback = "/"):
   if (url.origin !== BASE) return fallback;
 
   const path = url.pathname;
+  // The parser removes dot segments: "/.//evil.com" comes out as "//evil.com", another site. Checked
+  // decoded too, in case a later step decodes the path ("/./%2Fevil.com" comes out as "/%2Fevil.com").
+  if (unsafe(path)) return fallback;
+  try {
+    if (unsafe(decodeURIComponent(path))) return fallback;
+  } catch {
+    return fallback;
+  }
   if (path === "/api" || path.startsWith("/api/")) return fallback;
   if (path === "/login" || path === "/signup") return fallback;
 

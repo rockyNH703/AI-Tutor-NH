@@ -261,6 +261,20 @@ async def test_recovery_after_a_restart_settles_every_file(client, app):
     assert (await _get(app, leased)).status == "ready"
 
 
+def test_the_sandbox_hides_this_deployment_and_its_secrets():
+    # NetSec runs from /opt/netsecai with secrets in /etc/netsecai (deploy-netsec/server/lib.sh), on a
+    # host that also runs PadhAI (/opt/aichat, /etc/aichat): the extractor sees neither, only its code.
+    properties = dict(prop.split("=", 1) for prop in processing.SANDBOX_PROPERTIES)
+    assert properties["TemporaryFileSystem"] == "/opt/netsecai:ro"
+    assert properties["BindReadOnlyPaths"] == str(processing.BACKEND_DIR)
+    hidden = properties["InaccessiblePaths"].split()
+    for path in ("/etc/netsecai", "/etc/aichat", "/opt/aichat", "/etc/cloudflared", "/var/backups", "/var/lib/docker"):
+        assert f"-{path}" in hidden, path
+    assert processing.DEPLOY_MARKER == Path("/run/netsecai-deploying")  # deploy-netsec/server/update.sh
+    job = processing.Claim(id=uuid.uuid4(), user_id=uuid.uuid4(), kind="txt", attempt=2, size_bytes=1)
+    assert job.unit == f"netsecai-extract-{job.id}-2.service"  # what deploy-netsec/server/status.sh counts
+
+
 async def test_a_machine_problem_requeues_without_using_an_attempt(client, app, monkeypatch, tmp_path):
     headers = (await register(client, app))["headers"]
     file_id = (await upload(client, headers, "notes.txt", TEXT)).json()["id"]
@@ -279,7 +293,7 @@ async def test_a_machine_problem_requeues_without_using_an_attempt(client, app, 
     assert await app.state.file_worker.run_once() is False  # still leased: not claimed again yet
 
     await _set(app, file_id, processing_started_at=None)  # the lease ran out: claimable again
-    marker = tmp_path / "aichat-deploying"
+    marker = tmp_path / "netsecai-deploying"
     marker.write_text("deploying")
     monkeypatch.setattr(processing, "DEPLOY_MARKER", marker)
     assert await app.state.file_worker.run_once() is False  # no new claims while a deploy runs

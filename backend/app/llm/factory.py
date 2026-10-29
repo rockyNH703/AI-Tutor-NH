@@ -7,6 +7,7 @@ from app.llm.base import LLMProvider
 from app.llm.fake import FakeProvider
 from app.llm.fallback import FallbackProvider
 from app.llm.openai_compatible import OpenAICompatibleProvider
+from app.llm.redact import RedactingProvider
 from app.settings import Settings
 
 # Connections to the model's API are kept a minute (the SDK's default is 5 s): a chat's next turn usually comes
@@ -21,6 +22,12 @@ def _http_client() -> httpx.AsyncClient:
 
 
 def build_llm(settings: Settings) -> LLMProvider:
+    """The model every caller uses (the API, the jobs worker, the scripts), behind RedactingProvider:
+    secrets in pasted configs are masked before any provider, the fallback included, sees them."""
+    return RedactingProvider(_build_llm(settings))
+
+
+def _build_llm(settings: Settings) -> LLMProvider:
     if settings.llm_provider == "fake":
         return FakeProvider(token_delay_s=settings.llm_fake_token_delay_s)
 
