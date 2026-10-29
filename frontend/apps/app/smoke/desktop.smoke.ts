@@ -226,7 +226,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     let id = "";
     try {
       const box = page.getByRole("textbox", { name: "Message NetSec AI" });
-      await box.fill("Explain photosynthesis");
+      await box.fill("What does the OSPF EXSTART state mean?");
       await box.press("Enter");
       await expect(page).toHaveURL(/\/c\/[0-9a-f-]{36}$/, { timeout: 30_000 });
       id = new URL(page.url()).pathname.split("/").pop() as string;
@@ -251,7 +251,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
       await page.reload();
       await expect(name).toHaveText(named);
       await expect(row).toHaveText(named);
-      // Deleted again through the sidebar, like a student: hover the row, Delete, confirm.
+      // Deleted again through the sidebar, as a user would: hover the row, Delete, confirm.
       const item = page.locator("nav[aria-labelledby='chats-heading'] li").filter({ has: page.locator(`a[href='/c/${id}']`) });
       await item.hover();
       await item.getByRole("button", { name: /^Delete/ }).click();
@@ -322,12 +322,12 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     return `${list.items.length} items, ${list.unreadCount} unread (left as they were)`;
   });
 
-  await check("motion: the tokens are live (150 / 220 / 320 ms, one easing family)", async () => {
+  await check("motion: the tokens are live (180 / 300 / 300 ms, one easing family)", async () => {
     const tokens = await page.evaluate(() => {
       const root = getComputedStyle(document.documentElement);
       return ["--motion-fast", "--motion-base", "--motion-slow", "--ease-standard"].map((name) => root.getPropertyValue(name).trim());
     });
-    expect(tokens.slice(0, 3)).toEqual(["150ms", "220ms", "320ms"]);
+    expect(tokens.slice(0, 3)).toEqual(["180ms", "300ms", "300ms"]);
     expect(tokens[3]).toMatch(/^cubic-bezier\(/);
   });
 
@@ -418,12 +418,12 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     await page.setViewportSize({ width: 1280, height: 800 });
   });
 
-  await check("Settings: 13 sections; Practice Streak with stats and calendar (one Tab stop, today in view)", async () => {
+  await check("Settings: 14 sections; Practice Streak with stats and calendar (one Tab stop, today in view)", async () => {
     await page.getByRole("complementary").getByRole("button", { name: /^Account: / }).click();
     await page.getByRole("menuitem", { name: "Settings" }).click();
     await expect(page).toHaveURL("/settings/profile");
     const nav = page.getByRole("navigation", { name: "Settings sections" });
-    await expect(nav.getByRole("link")).toHaveCount(13);
+    await expect(nav.getByRole("link")).toHaveCount(14);
     await nav.getByRole("link", { name: "Practice Streak", exact: true }).click();
     await expect(page).toHaveURL("/settings/streak");
     await expect(page.locator("dt", { hasText: /^Current streak$/ })).toBeVisible();
@@ -493,7 +493,7 @@ test("desktop, 1280px: the chat, menus, streak, bell, branding, dark, a real que
     const origin = new URL(page.url()).origin;
     const policy = (await page.request.get("/")).headers()["permissions-policy"] ?? "";
     expect(policy).toContain("microphone=(self)");
-    const text = `NetSec AI production smoke ${Date.now()}: photosynthesis makes food in the leaves of green plants.`;
+    const text = `NetSec AI production smoke ${Date.now()}: OSPF neighbours stuck in EXSTART usually have an MTU mismatch.`;
     const created = await page.request.post(`/api/v1/files?filename=${encodeURIComponent("smoke-check.txt")}`, {
       headers: { "Content-Type": "application/octet-stream", Origin: origin },
       data: Buffer.from(text),

@@ -46,9 +46,9 @@ test("one set of tokens; nothing transitions `all`", async ({ page, account: _ }
     );
   });
   expect(tokens).toEqual([
-    "150ms",
-    "220ms",
-    "320ms",
+    "180ms",
+    "300ms",
+    "300ms",
     "cubic-bezier(0.25,0.1,0.25,1)",
     "cubic-bezier(0.22,1,0.36,1)",
     "cubic-bezier(0.4,0,1,1)",
@@ -58,7 +58,7 @@ test("one set of tokens; nothing transitions `all`", async ({ page, account: _ }
     const style = getComputedStyle(button);
     return [style.transitionDuration.split(",")[0]?.trim(), style.transitionTimingFunction.split("),")[0]?.trim()];
   });
-  expect(send[0]).toBe("0.15s");
+  expect(send[0]).toBe("0.18s");
   expect(send[1]).toContain("cubic-bezier(0.25, 0.1, 0.25, 1");
 
   expect(await transitionsOnAll(page)).toEqual([]);
