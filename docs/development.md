@@ -1,107 +1,105 @@
 # Local development
 
-> **New to the project?** [beginner-guide.md](beginner-guide.md) walks through the same setup one step at a time,
-> with what you should see and what to do when a step fails.
+> NetSec AI, checked against `scripts/run.mjs`, `package.json` and `docker-compose.dev.yml` on 2026-10-29. The rules
+> for changes are in [CLAUDE.md](../CLAUDE.md); tests are in [testing.md](testing.md).
 
-One clone has everything: `backend/` (FastAPI) and `frontend/` (Next.js). Requirements: Python 3.12,
-[Bun](https://bun.sh) 1.3.14 (`.bun-version`), Node 24 (`.node-version`; the end-to-end tests run the
-web app on Node, as production does), Docker (Docker Desktop on Windows). Run the commands from the repository
-root; on Windows use Git Bash or PowerShell.
+One clone has everything: `backend/` (FastAPI) and `frontend/` (Next.js). Run commands from the repository root.
 
-## Set up and run
+**Requirements:** Git, Python 3.12, [Bun](https://bun.sh) 1.3.14 (`.bun-version`), Node 24 (`.node-version`; the
+web app runs on Node in production and in the end-to-end tests). On the owner's Windows PC also **WSL Ubuntu 24.04**:
+the backend tests run there against a PostgreSQL 16 + pgvector cluster, and the security gate's scanners live there
+(`/root/sec-tools`). **There is no Docker on the owner's PC** (owner's rule): never install it or ask for it.
+
+## Set up
 
 ```sh
-git clone <repository> && cd <repository>
-bun run setup      # backend/.venv + requirements, backend/.env from the example, frontend bun install
-bun run dev        # dev database (Docker) + migrations, then API :4000 and web :3000 together
+git clone https://github.com/rockyNH703/AI-Tutor-NH.git && cd AI-Tutor-NH   # private repository
+bun run setup      # backend/.venv + requirements-dev.txt, backend/.env from its example, frontend bun install
 ```
 
-- Open **http://localhost:3000**, not `127.0.0.1:3000`. Next.js rewrites 127.0.0.1 to `localhost` in
-  redirects, and the session cookie is per host name.
-- `docker-compose.dev.yml` runs PostgreSQL 16 + pgvector on `127.0.0.1:5432` (user, password and db
-  all `aichat`, development only) and Mailpit, which catches sign-up and reset emails. Its SMTP is
-  on `127.0.0.1:1025` and its inbox at http://127.0.0.1:8025.
-- `backend/.env` needs an LLM key (`LLM_PRIMARY_API_KEY`). Without one, set `LLM_PROVIDER=fake`
-  (replies echo your message word by word).
-- API docs: http://127.0.0.1:4000/docs (development only).
+Never run `bun install` at the repository root: the Bun workspace root is `frontend/`.
 
-Separately: `bun run dev:backend` (API with reload) and `bun run dev:frontend` (web; expects the API on
-:4000). The frontend's settings are in `frontend/apps/app/.env.local` (from `.env.example`); by
-default it calls the API at `http://127.0.0.1:4000`.
+Settings: `backend/.env` for the API (`LLM_PROVIDER=fake` and `EMBEDDING_PROVIDER=fake` work offline; the fake
+model replies `You said: <message>`), `frontend/apps/app/.env.local` for the web app (sign-in needs
+`AUTH_DATABASE_URL`, `BETTER_AUTH_SECRET` and the API's `AUTH_INTERNAL_TOKEN`). Every variable:
+[environment-variables.md](environment-variables.md). Never commit or print an env file.
+
+## Run
+
+- **With Docker** (other machines): `bun run dev` starts PostgreSQL 16 + pgvector on `127.0.0.1:5432` and Mailpit
+  (SMTP `:1025`, inbox `http://127.0.0.1:8025`) from `docker-compose.dev.yml`, migrates, then runs the API on `:4000`
+  (with reload) and the web app on `:3000`. Open `http://localhost:3000`, not `127.0.0.1` (the session cookie is per
+  host name). API docs: `http://127.0.0.1:4000/docs` (development only).
+- **Without Docker:** `bun run dev:backend` and `bun run dev:frontend` run the two halves; the API then needs a
+  reachable PostgreSQL + pgvector in `DATABASE_URL` (for example a database in the WSL cluster) and an email
+  backend. This combination is **not verified** end to end on the owner's PC; frontend checks and the WSL backend
+  tests are the verified local workflow.
 
 ## Commands
 
 | Command (repository root) | What it runs |
 |---|---|
-| `bun run test` | backend pytest (own `aichat_test` database) + frontend typecheck and unit tests + the deploy gate's tests |
-| `bun run test:e2e` | Playwright + axe end-to-end: a production build on :3100 against an API on :4100 with the fake LLM, codes read from Mailpit. Starts the API from `backend/` unless one is already running. |
-| `bun run lint` | ruff check + format check, Biome |
-| `bun run build` | frontend production build + "is `docs/openapi.json` current?" |
-| `bun run contract` | regenerate `docs/openapi.json` from the backend, then the frontend contract test |
-| `bun run lock:backend` | regenerate `backend/requirements.lock` (hashed pins, Linux + Python 3.12, in Docker) after changing `backend/requirements.txt` |
-| `bun run deploy` / `bun run rollback` / `bun run status` | production, always both halves together ([deployment.md](deployment.md), [rollback.md](rollback.md)) |
-| `bun run rehearse` | the release model end to end on a throwaway systemd container (Docker, ~45 min) |
+| `bun run test` | backend pytest (needs a reachable `*_test` database), frontend typecheck + unit tests, `bun test deploy-netsec/tests` |
+| `bun run lint` | `ruff check`, `ruff format --check`, Biome |
+| `bun run build` | "is `docs/openapi.json` current?", then the frontend production build |
+| `bun run contract` | regenerate `docs/openapi.json` and `contract.gen.ts`, then the contract tests |
+| `bun run security` | the local security gate ([security/security-tools.md](security/security-tools.md)); PASS on a clean commit writes the deploy receipt |
+| `bun run graph`, `bun run test:graph` | the code graph and its boundary tests ([graphify.md](graphify.md)) |
+| `bun run test:e2e` | Playwright + axe against a local API on `:4100` and Mailpit (not on the owner's PC) |
+| `bun run lock:backend` | regenerate `backend/requirements.lock` in an Ubuntu 24.04 container: needs Docker, so it does not run on the owner's PC |
+| `bun run deploy:netsec`, `status:netsec`, `rollback:netsec`, `smoke:netsec` | NetSec production ([deployment.md](deployment.md)); changes need the owner's authorization |
 
-`scripts/run.mjs` implements them over the existing tools, so the underlying commands still work:
-in `backend/`, `.venv\Scripts\python -m pytest tests/test_chat.py` (Linux: `.venv/bin/python`); in
-`frontend/`, `bun run test`, `bun run typecheck`; in `frontend/apps/app`, `bun test src/lib/api/routes.test.ts`.
-Don't run `bun install` at the repository root: the Bun workspace root is `frontend/`.
+`bun run deploy`, `rollback`, `status`, `rehearse` and `verify` belong to PadhAI's `deploy/` and are not used here
+(`deploy/deploy.sh` refuses to run from this repository). `bun run smoke` defaults to PadhAI's site: see
+[deployment.md](deployment.md#check-production).
 
-The backend suite creates and migrates its own database `aichat_test` (override with
-`TEST_DATABASE_URL`; the name must end in `_test`), truncates tables before each test, uses a fake
-LLM and an in-memory mailbox, and never touches the development database. CI (GitHub Actions) runs
-three jobs on every push and pull request: Backend (lint, contract, tests), Frontend (typecheck, lint,
-tests incl. contract, build) and Integration (end-to-end). CI is advisory: `bun run deploy` never waits
-for it, and `bun run status` shows its verdict ([deployment.md](deployment.md)).
+Directly: in `backend/`, `.venv\Scripts\python -m ruff check .` and `.venv\Scripts\python -m ruff format --check .`
+(Linux: `.venv/bin/python`); in `frontend/`, `bun run typecheck`, `bun run lint`, `bun run test`; in
+`frontend/apps/app`, `bun test src/lib/api/routes.test.ts`.
+
+## Before you change anything
+
+Follow [security/secure-development.md](security/secure-development.md): `git status` (others share this checkout),
+`bun run graph`, then `affected` on what you will change, and the planning template for anything security-relevant.
 
 ## Dependencies
 
-Production and CI install the backend from `backend/requirements.lock`: every package at one exact
-version with its hashes (`pip install --require-hashes`). `requirements.txt` holds the allowed
-ranges; after changing it, run `bun run lock:backend` and commit both (a test fails if they
-disagree). The frontend is locked by `frontend/bun.lock`. The runtimes are pinned by `.node-version`
-and `.bun-version`, which CI and every release use.
+Production installs the backend from `backend/requirements.lock` (exact versions with hashes, `pip install
+--require-hashes`); `requirements.txt` holds the ranges, and `requirements-dev.txt` adds the test tools. The frontend
+is locked by `frontend/bun.lock`. Runtimes are pinned by `.node-version` and `.bun-version`. `bun run security`
+audits both lockfiles (pip-audit, `bun audit`). Changing `requirements.txt` needs a regenerated lock, which needs
+Docker (`bun run lock:backend`); doing it in WSL instead is not scripted (unverified).
 
 ## Changing the API
 
-The contract is `docs/openapi.json`, generated from the backend. After changing a route or a
-request/response model:
-
-```sh
-bun run contract
-```
-
-This regenerates the file and runs the frontend's `routes.test.ts`, which fails if a route the
-frontend proxy allows, or a request field it sends, no longer exists. Frontend and backend changes
-go in the same commit, and CI checks the file is current. A new endpoint the browser needs also has
-to be added to the proxy's allowlist, `frontend/apps/app/src/lib/api/routes.ts`.
+The contract is `docs/openapi.json`, generated from the backend. After changing a route or a request/response model,
+run `bun run contract`: it regenerates the file and the web app's `contract.gen.ts` and runs `routes.test.ts`, which
+fails if a route the proxy allows, or a request field it sends, no longer exists. Both halves change in the same
+commit. A new endpoint the browser needs also goes into `frontend/apps/app/src/lib/api/routes.ts`.
 
 ## Adding a migration
 
 Change `backend/app/db/models.py`, then in `backend/`: `.venv\Scripts\python -m alembic revision -m "describe it"`,
-and write the upgrade by hand (or `--autogenerate` and review it). `tests/test_foundation.py` fails
-if the models and the migrated schema differ. Production runs migrations before switching to a new
-release, while the old one still serves, so they must be backward compatible
+and write the upgrade by hand. `tests/test_foundation.py` fails if the models and the migrated schema differ.
+Migrations must be backward compatible: production runs them before the new API starts
 ([deployment.md](deployment.md#migrations)).
 
-## Verify the whole flow with a real model
+## Knowledge base
 
-With the API running (a real `LLM_PRIMARY_API_KEY`) and Mailpit up, in `backend/`:
-
-```sh
-.venv\Scripts\python scripts\smoke_chat.py
-```
-
-It signs up a throwaway account (code from Mailpit), streams a reply, stops one mid-stream,
-regenerates, leaves feedback, renames, checks persisted history, and deletes the conversation and
-the account. Never point it at production.
-
-## Knowledge base (RAG)
+The owner will provide NetSec's documents. Ingest `.md`/`.txt` files with an explicit visibility:
 
 ```sh
-set EMBEDDING_PROVIDER=fake     # offline keyword-hash embedder; or set EMBEDDING_API_KEY for real embeddings
-.venv\Scripts\python scripts\ingest_documents.py --source demo --global docs\my-notes
+cd backend
+.venv\Scripts\python scripts\ingest_documents.py --source <name> --global --metadata vendor=<v> --metadata platform=<p> <folder>
 ```
 
-Without an embedding key (and not `fake`) retrieval is skipped and chat works normally. See
-[rag.md](rag.md), including what the fake embedder does not verify.
+`--metadata key=value` is repeatable and stored with every chunk; the keys are conventions, not enforced. Without an
+embeddings key (and not `fake`), retrieval is skipped and chat still works. Never point the script at production
+without an approved plan ([rag.md](rag.md), written for PadhAI).
+
+## Checks with a real model
+
+`backend/scripts/eval_engineering.py` asks the configured model synthetic engineering questions and scores the
+replies (pass-rate gates); it runs on the host with production settings and uses the production key, so the owner
+decides when. `backend/scripts/smoke_chat.py` drives a full chat flow against a local API with Mailpit; never point
+it at production.

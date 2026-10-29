@@ -1,18 +1,48 @@
 # Known limitations
 
-> Verified at commit `0e33ec0` (2026-10-26). Production states are as reported by `bun run status` and the
-> release session on the dates given; they live in the server's settings, not in git.
+> The [NetSec AI](#netsec-ai-2026-10-29) section was checked against the working tree on 2026-10-29 (the final
+> review). The other sections were written for PadhAI and verified at commit `0e33ec0` (2026-10-26); they are not
+> yet re-verified for NetSec ([README.md](README.md)). Production states live in the server's settings, not in git.
 
 These are the gaps that are true today, each with where it shows. A limitation that was chosen on purpose links
 to its reason in [decisions.md](decisions.md). Planned work is in [ROADMAP.md](../ROADMAP.md).
 
 ## Contents
 
+- [NetSec AI (2026-10-29)](#netsec-ai-2026-10-29)
 - [For students](#for-students)
 - [Files](#files)
 - [Production and operations](#production-and-operations)
 - [Development and testing](#development-and-testing)
 - [Platform](#platform)
+
+## NetSec AI (2026-10-29)
+
+From the final review of the working tree. Each is true of the code today; none is a security hole on its own.
+
+**The product**
+
+| Limitation | Where it shows |
+|---|---|
+| **Certification practice still scopes by the school class and subjects.** There is no certification question bank yet (`qbank/` holds PadhAI's NCERT content): practice topics need a class level (reason `no_class`), the plan needs a subject list, chat tests find the level only from a "Class N" grade or "class/grade/std N" in a message, and the practice requests put into a chat still say "Class N … Chapter N". Needs the owner's certification bank and scoping by the Engineering Profile | `backend/app/progress/practice.py:400-409, 713, 779-785`; `backend/app/qbank/chat_tests.py:61, 178-198`; `frontend/apps/app/src/features/my-learning/practice-picker.tsx:18-27` |
+| **The lab session's "Exam track" picker lists school subjects** (Mathematics, Science, Sanskrit, …) from the academic catalog, and Lab Activity's "By exam track" names them the same way, until the certification catalog lands | `frontend/apps/app/src/features/study/study-session-panel.tsx:120-136`; `study-activity-view.tsx:222`; `backend/app/learning/catalog.py:119` (`SUBJECTS`) |
+| **The academic fields (class, medium, subjects) remain in the API and the database**, hidden from Settings, and still choose the question bank's level and language, the practice plan's order and the dormant NCERT source's ranking | `backend/app/chat/service.py:1088` (`chat_tests.menu`); `backend/app/chat/assistant.py:196-206` (`retrieval_for`); `backend/app/progress/practice.py` |
+| **The empty chat shows a fixed pool of engineering greetings.** The weekly LLM-refreshed pool (its prompt now written for engineers) is not shown: the web app no longer calls `GET /v1/greetings`, which is what starts a week's refresh | `frontend/apps/app/src/lib/greeting.ts` (`GREETINGS`); `backend/app/greetings/refresh.py` |
+| **Eight answer preferences and the Skills & Certification Goals are saved in Settings but not given to the assistant.** Only language, explanation level, visual explanations, response length, answer mode and step by step reach it, with the Engineering Profile; pace, difficulty, real-world examples, tone, ask-before-answer, practice questions, mistake correction and key-concept highlighting sit under "Not used by NetSec AI right now" | `backend/app/learning/tutor.py:59` (`TEACHING_TEXT`), `:125` (`_about_lines`); `frontend/apps/app/src/features/settings/preferences-sections.tsx:67-92`; `goals-section.tsx` |
+| **The frozen prompt does not teach the chart block, output blocks or math**, although the web app still renders them | `backend/app/chat/assistant.py:63-73`; `frontend/apps/app/src/features/markdown/rich-block.tsx:15` (chart), `message-content.tsx:77` (output), `:5-8` (KaTeX) |
+
+**The web app, sign-in and deploys**
+
+| Limitation | Where it shows |
+|---|---|
+| **Uploads are not capped per user in the BFF.** Each process allows 2 uploads at once, and a slow body holds a slot for up to 300 s before the body deadline answers 408, so one account can keep both slots busy | `frontend/apps/app/src/lib/server/proxy-core.ts:129-130, 202` |
+| **`/api/*` is outside the middleware's matcher**, so its HTTP → HTTPS upgrade (308) does not apply to API routes. Cloudflare serves the site over HTTPS, and the `__Host-` cookies need HTTPS, so no session is sent over plain HTTP | `frontend/apps/app/src/middleware.ts:22-26, 48` |
+| **The first deploy of the `__Host-netsecai.*` cookie names interrupts sign-ins in progress:** a two-step code or a Google redirect started before it fails, for up to 10 minutes (the two-step cookie's life). Existing sessions keep working (the session cookie's name is unchanged) | `frontend/apps/app/src/lib/auth/config.ts:213, 313` |
+| **A rollback to any ancestor of GitHub `main` skips the security gate**, without a log line: the check is ancestry, not that the commit was ever released | `deploy-netsec/deploy.sh:93-99`; [rollback.md](rollback.md) |
+| **A rollback runs the local `HEAD`'s `deploy-netsec/` scripts as root on the host**, with no gate, clean-tree or `HEAD` = `main` check for them | `deploy-netsec/deploy.sh:87-90, 117` |
+| **Gate overrides are logged only in the local checkout's `.git`** (`netsec-security-gate.overrides`); the host's `HISTORY` does not record the gate's outcome | `deploy-netsec/deploy.sh:61`; `deploy-netsec/server/update.sh:285` |
+| **The gate's receipt names a commit, but its scanners read the working tree**: a sparse-checkout or skip-worktree file can differ from that commit while `git status` stays clean (the history scan reads commits) | `scripts/security.sh:62-78` |
+| **A deploy that changes the frontend's dependencies runs `bun install --force` in the live `node_modules`**: the running web app serves from a reinstalled tree during the build, until its restart; a failed install leaves it on a partly reinstalled one. The first deploy of the 2026-10-29 dependency changes takes this path | `deploy-netsec/server/update.sh:143` |
 
 ## For students
 
@@ -49,19 +79,19 @@ to its reason in [decisions.md](decisions.md). Planned work is in [ROADMAP.md](.
 | **One host:** no staging environment, no replica, no load balancing. A host failure is an outage until restored | [INFRASTRUCTURE.md](../INFRASTRUCTURE.md), "Known limits" |
 | **The API is one process**, and it tracks replies in flight in that process | `aichat-api.service`; `app/chat/streams.py` |
 | **A deploy that restarts the API ends any reply being written at that moment**; it is saved as cancelled | [INFRASTRUCTURE.md](../INFRASTRUCTURE.md), "Known limits" |
-| **The services run as root, and there is no alerting.** `bun run status` and `infra-check.sh` are run by hand | `deploy/systemd/`; [INFRASTRUCTURE.md](../INFRASTRUCTURE.md) |
-| **Backups stay on the same host** unless copied off by hand, and they are kept for 7 days. A deleted account's data stays in the dumps taken before the deletion, until they rotate out | `deploy/backup.sh` (`KEEP_DAYS`) |
+| **The services run as root, and there is no alerting.** `bun run status:netsec` and `infra-check.sh` are run by hand | `deploy-netsec/systemd/`; [INFRASTRUCTURE.md](../INFRASTRUCTURE.md) |
+| **Backups stay on the same host, unencrypted**, and are kept for 7 days. Copying them off the host is not set up: an encrypted off-host copy is an owner decision not yet made. A deleted account's data stays in the dumps taken before the deletion, until they rotate out | `deploy-netsec/backup.sh` (`KEEP_DAYS`) |
 | **No metrics, tracing or backend error reporting.** Browser errors are reported only when `NEXT_PUBLIC_SENTRY_DSN` is set | [operations.md](operations.md#logs-and-what-they-contain) |
 
 ## Development and testing
 
 | Limitation | Where it shows |
 |---|---|
-| **No Docker on the owner's PC** (the owner's rule), so the backend tests, the end-to-end suite and `bun run verify` run only in CI | [testing.md](testing.md) |
+| **No Docker on the owner's PC** (the owner's rule): the backend tests run in WSL against a `*_test` database; the end-to-end suite and `bun run verify` do not run there | [testing.md](testing.md#where-each-layer-runs) |
 | **The local setup steps are verified by reading the code**, not by running them on that PC; macOS isn't verified at all | [beginner-guide.md](beginner-guide.md) |
-| **The example env files leave settings out:** the web app's sign-in settings, the API's `AUTH_INTERNAL_TOKEN`, and the voice, study-time and question-bank settings | [environment-variables.md](environment-variables.md#what-the-example-files-list) |
+| **The production template leaves settings out:** `api.env.example` lists 63 of the 147 API settings; the voice rollout switches and limits, the question-bank switches, the memory worker's bounds and the `RAG_*` tuning keep their defaults unless set | [environment-variables.md](environment-variables.md#what-the-production-template-lists) |
 | **`HOST` and `PORT` are declared in the API's settings, but never read.** uvicorn's flags decide | `app/settings.py`; `scripts/run.mjs` |
-| **A CI job is red:** "Integration (end-to-end)" at `0e33ec0` (2026-10-26), after "Backend (lint, contract, tests)" on 2026-10-22 and 10-23. At `0e33ec0` it is one flaky WebKit Settings test (190 passed, 1 failed), not yet fixed | [testing.md](testing.md#known-baseline) |
+| **CI does not run:** GitHub Actions are out of credit, so CI is reported as NOT RUN; the enforced check is the local gate `bun run security` | [testing.md](testing.md#ci) |
 | **The visual regression baselines were recorded on Windows**, so they are meant to run there | `e2e/visual-regression.e2e.ts` |
 | **Fake embeddings only match shared words.** They prove the plumbing, not search quality | [rag.md](rag.md) |
 
@@ -70,4 +100,4 @@ to its reason in [decisions.md](decisions.md). Planned work is in [ROADMAP.md](.
 | Limitation | Where it shows |
 |---|---|
 | **The web app is the only client.** Native apps would need a published API and the changes listed in [architecture.md](architecture.md), "Clients" | `docs/architecture.md` |
-| **The API has no public address.** Only the web app's server can reach it | [security.md](security.md) |
+| **The API has no public address.** Only the web app's server can reach it | [security.md](security/README.md) |

@@ -8,7 +8,7 @@ Report a suspected vulnerability privately by email to **sunny@networkershome.co
 Please include:
 - what is affected (a page, an API route, a script) and the commit, if you know it;
 - the steps to reproduce it, and what you expected instead;
-- what an attacker could gain (another student's data, a session, a secret, running code);
+- what an attacker could gain (another user's data, a session, a secret, running code);
 - any logs or screenshots, with personal data and secrets removed.
 
 ## Rules while you investigate
@@ -21,32 +21,33 @@ Please include:
 
 ## Supported versions
 
-Production always runs the latest deployed commit of `main`, and only that version is supported. Fixes are
-released the normal way: a commit to `main`, then a deploy ([docs/deployment.md](docs/deployment.md)).
+Only the latest commit of `main` is supported. Fixes are released the normal way: a commit to `main` that passes the
+local security gate (`bun run security`), then a deploy ([docs/deployment.md](docs/deployment.md)).
 
 ## Scope
 
 **In scope:**
 - the web app (`frontend/`), including its proxy and sign-in;
 - the API (`backend/`);
-- the deploy scripts (`deploy/`);
-- the production deployment of this repository.
+- the deploy scripts (`deploy-netsec/`);
+- NetSec AI's production deployment (its units, paths and tunnel on the shared host).
 
-**Out of scope:** the outside services PadhAI uses. Report their problems to them:
-- the model providers;
+**Out of scope:** PadhAI, which shares the production host but is a separate application, and the outside services
+NetSec AI uses. Report their problems to them:
+- the model and embeddings providers;
 - OllaLink;
-- the NCERT Knowledge Service (a separate repository);
 - Cloudflare, Google, and the email providers.
 
-## How PadhAI is secured
+## How NetSec AI is secured
 
-The design is documented in [docs/security.md](docs/security.md):
+The design is documented in [docs/security/README.md](docs/security/README.md):
 - trust boundaries;
 - sign-in and sessions;
-- per-student ownership;
+- per-user ownership;
 - secrets;
 - the sandbox for uploaded files;
-- AI-specific risks;
+- AI-specific risks, including the masking of secrets in pasted configs before the LLM and embeddings providers
+  see them (not in OllaLink's intent and scope classifier or voice requests, which are off by default);
 - privacy in logs;
 - where each rule is tested.
 
@@ -56,8 +57,9 @@ If a key, token or password ever appears in a commit, a log, an issue or a messa
 1. **Treat it as compromised, and rotate it at once.**
    - Rotating the sign-in secrets and the database passwords is explained in
      [docs/deployment.md, "Sign-in (Better Auth)"](docs/deployment.md#sign-in-better-auth).
-   - A provider key is replaced at the provider, then in the server's `api.env`. The API reads it when it next
-     starts.
+   - A provider key is replaced at the provider, then in the server's `/etc/netsecai/api.env`. The API reads it when
+     it next starts.
+   - Every rotation on the server needs the owner's explicit authorization.
 2. Then remove it from wherever it appeared.
 
 Deleting the commit alone doesn't make it safe.

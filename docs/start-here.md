@@ -78,7 +78,7 @@ Every module, with what it does: [codebase-map.md](codebase-map.md).
 - **Production changes need the owner's approval.** Nothing is edited by hand on the server; changes reach it only
   through `bun run deploy` from GitHub `main`.
 - **Never commit or print secrets.** The settings files (`backend/.env`, `frontend/apps/app/.env.local`) and the
-  root key files are git-ignored. The rules are in [security.md](security.md).
+  root key files are git-ignored. The rules are in [security.md](security/README.md).
 - **The API enforces the rules.** The web app may mirror a rule for a better experience, but the API checks it.
 - **`/v1` only grows.** A breaking change needs a new endpoint ([api-contract.md](api-contract.md)).
 - **Make the smallest safe change**, then run the checks

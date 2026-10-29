@@ -155,6 +155,9 @@ Shapes and rules: [api-contract.md, Learning profile](api-contract.md#learning-w
 | Method | Path | Sign-in | Browser (web app) | Source |
 |---|---|---|---|---|
 | GET | `/v1/catalog/academic` | none | `/api/v1/catalog/academic` | `app/learning/router.py` `academic_catalog` |
+| GET | `/v1/catalog/engineering` | session | `/api/v1/catalog/engineering` | `app/learning/router.py` `engineering_catalog` |
+| GET | `/v1/engineering/profile` | session | `/api/v1/engineering/profile` | `app/learning/router.py` `get_engineering_profile` |
+| PATCH | `/v1/engineering/profile` | session | `/api/v1/engineering/profile` | `app/learning/router.py` `update_engineering_profile` |
 | GET | `/v1/learning/preferences` | session | `/api/v1/learning/preferences` | `app/learning/router.py` `get_learning_preferences` |
 | PATCH | `/v1/learning/preferences` | session | `/api/v1/learning/preferences` | `app/learning/router.py` `update_learning_preferences` |
 | GET | `/v1/learning/profile` | session | `/api/v1/learning/profile` | `app/learning/router.py` `get_learner_profile` |
@@ -389,4 +392,4 @@ The stream prints `: open`, an `event: meta` line with its JSON, `event: token` 
 
 - [api-contract.md](api-contract.md): shapes, fields, error codes, compatibility and client obligations.
 - [request-lifecycle.md](request-lifecycle.md): what happens inside a chat turn.
-- [security.md](security.md): the trust boundaries these surfaces implement.
+- [security.md](security/README.md): the trust boundaries these surfaces implement.

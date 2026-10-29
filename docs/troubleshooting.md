@@ -51,7 +51,7 @@ and the fix.
 | No code arrives | `AUTH_INTERNAL_TOKEN` is missing from `backend/.env`, or differs from the web app's. Without it, the API's `/internal/auth/*` routes don't exist (404) | Both files; Mailpit at http://127.0.0.1:8025 | Set the same value in both, and restart both |
 | Signed in, but sent straight back to sign-in | The site was opened as `127.0.0.1:3000`; the session cookie belongs to one host name | The address bar | Use **http://localhost:3000** |
 | Saving a password fails with "service unavailable" | The breached-password check couldn't reach `api.pwnedpasswords.com`, and it refuses when it can't (fails closed) | Internet access from your computer | Sign in with an email code meanwhile ("Email me a code instead") |
-| "Too many attempts" while testing | The per-account limits (for example 10 sign-ins in 15 minutes, 5 codes in 15 minutes) or Better Auth's per-address limit | The limits in [security.md](security.md) | Wait for the window to pass. Locally only, `AUTH_RATE_LIMIT=off` in `.env.local` turns off Better Auth's per-address limit, as the end-to-end tests do; the per-account limits stay. Never set it in production |
+| "Too many attempts" while testing | The per-account limits (for example 10 sign-ins in 15 minutes, 5 codes in 15 minutes) or Better Auth's per-address limit | The limits in [security.md](security/README.md) | Wait for the window to pass. Locally only, `AUTH_RATE_LIMIT=off` in `.env.local` turns off Better Auth's per-address limit, as the end-to-end tests do; the per-account limits stay. Never set it in production |
 | No "Continue with Google" button | Google sign-in isn't configured | `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` unset | Expected locally. Production setup: [deployment.md](deployment.md) |
 
 ## Chat and answers
@@ -117,7 +117,7 @@ In Mailpit, at http://127.0.0.1:8025. The API sends every email there.
 
 **Why can't the browser call the API directly?**
 The session token must never reach page code. The browser calls the web app's own `/api/v1/*`, which checks the
-request and adds the token ([security.md](security.md)).
+request and adds the token ([security.md](security/README.md)).
 
 **Why is the API on port 4000 here and 4100 in production?**
 4000 is development (`bun run dev`). 4100 is production's port, and the end-to-end tests also use it.

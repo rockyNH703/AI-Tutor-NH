@@ -153,9 +153,10 @@ The renderer is a separate lazy chunk (`lazy-message-content.tsx`), preloaded wh
 - **Small screens:** below 768 px, `/settings` is the list and each section is its own screen.
 - **Larger screens:** the panel sits beside the section.
 
-**The 13 sections** (`features/settings/sections.ts`): Profile, Academic Profile, Learning Goals, Learning
-Preferences, AI Tutor, Subjects & Study, Progress & Goals, Study Tracking, Learning & Streak, Notifications,
-Appearance & Accessibility, Privacy & Security, and Help & Support.
+**The 14 sections** (`features/settings/sections.ts`): Profile, Engineering Profile, Skills & Certification
+Goals, Learning Preferences, AI Assistant, Memory, Practice & Lab Time, Practice & Goals, Lab Tracking, Practice
+Streak, Notifications, Appearance & Accessibility, Privacy & Security, and Help & Support. (`/settings/academic`,
+the former Academic Profile, redirects to `/settings/engineering`.)
 
 **How they save:**
 - Each section is one or more versioned API resources (`{version, set, reset}`).

@@ -1,79 +1,72 @@
 # Rollback
 
-A rollback is a deploy of an earlier commit: the same path as `bun run deploy`
-([deployment.md](deployment.md)), so only the parts that differ are rebuilt or restarted.
+> NetSec AI, checked against `deploy-netsec/rollback.sh`, `deploy.sh` and `server/update.sh` on 2026-10-29. A
+> rollback changes production: it needs the owner's explicit authorization.
+
+A rollback is a deploy of an earlier commit by the same path as `deploy:netsec` ([deployment.md](deployment.md)),
+so only the parts that differ are rebuilt or restarted.
 
 ```sh
-bun run rollback                  # the commit that was live before the last deploy
-bun run rollback -- <commit>      # any earlier commit (from git log, or the server's HISTORY)
+NETSEC_DEPLOY_HOST=root@10.1.50.94 bun run rollback:netsec                 # the commit live before the last deploy
+NETSEC_DEPLOY_HOST=root@10.1.50.94 bun run rollback:netsec -- <commit>     # any earlier commit (git log, or the host's HISTORY)
 ```
 
-It pushes that commit to the production Git repository, moves the production checkout to it, and:
+Without a commit it reads `/opt/netsecai/app-state/previous` on the host. It then runs `deploy-netsec/deploy.sh
+--rollback-to <commit>`, which pushes that commit to the production Git repository, moves the checkout to it and:
 
-- **Frontend:** if it goes back to the build the last deploy replaced, that build is swapped back
-  **without building** (seconds). Otherwise the older frontend is built beside the served one
-  first, like any deploy.
+- **Security gate:** not checked when the commit is an ancestor of GitHub `main` (restoring service must not wait
+  on scanners); any other commit needs a PASS receipt like a deploy. The check is ancestry only
+  ([`deploy.sh:93-99`](../deploy-netsec/deploy.sh)): it does not prove the commit was ever released, and the skip is
+  not logged ([known-limitations.md](known-limitations.md#netsec-ai-2026-10-29)).
+- **Tooling:** the `deploy-netsec/` scripts that run on the host come from this checkout's `HEAD`, not from the
+  commit being restored, and rollback mode skips the clean-tree and `HEAD` = `main` checks: roll back from a clean
+  checkout of `main`.
+- **Frontend:** going back to the build the last deploy replaced (`.next-prev`) is a swap **without building**;
+  otherwise the older frontend is built beside the served one first.
 - **Backend:** the API restarts on the older code only if the backend differs.
-- **Checks:** the same smoke check as a deploy, then the SHAs and a status line.
+- **Checks:** the same local smoke as a deploy, then the SHAs and a status line.
 
-Afterwards the status says `MISMATCH (the production checkout is not GitHub main)`. That is
-expected: production is deliberately behind `main`. Fix the problem, `git push origin main`, and
-`bun run deploy`; the status is `MATCH` again.
+Afterwards `status:netsec` says `MISMATCH (the production checkout is not GitHub main)`. That is expected: fix the
+problem, push, and `deploy:netsec` (with its receipt); the status is `MATCH` again.
 
-Running `bun run rollback` twice does not go further back; it returns to the same commit. To go
-further back, name the commit (the server's `/opt/aichat/app-state/HISTORY` lists every deploy).
+Running the rollback twice does not go further back: a rollback never overwrites `previous`. To go further, name the
+commit (`/opt/netsecai/app-state/HISTORY` lists every deploy and rollback).
 
 ## The database
 
-A rollback never touches the database. If the commit you leave ran a migration, the older code
-runs on the newer schema, and the deploy says so (a warning). That is safe because every migration
-is backward compatible ([deployment.md](deployment.md#migrations)). To undo a schema change, write a
-new migration and deploy it. Never downgrade the production database by hand. Every migration was
-preceded by a backup in `/var/backups/aichat`; restoring one loses everything written since, so it
-is a last resort (header of `deploy/backup.sh`).
+A rollback never touches the database. If the commit you leave ran a migration, the older code runs on the newer
+schema (the deploy prints a warning when the database is at a revision the code doesn't know). That is safe because
+every migration is backward compatible ([deployment.md](deployment.md#migrations)). To undo a schema change, write a
+new migration and deploy it. Never downgrade the production database by hand.
 
-**Sign-in across a rollback past 2026-10-01 (Better Auth, migration 0012).** The older code runs on
-the newer schema: the triggers keep `users.password_hash` and `email_verified_at` up to date in both
-directions, so every password and verification still holds. The older web app reads its own cookie,
-so everyone signs in again once; an account made with Google (no password) uses "forgot password".
-While a deploy or rollback swaps the halves, sessions keep working: the API finds every session by
-the SHA-256 of its token, whichever release wrote it. If a deploy stops after restarting the API but
-with the old web build back (`STOP: the new frontend did not start`), roll back at once:
-`bun run rollback`.
+Every migration was preceded by a dump in `/var/backups/netsecai`. Restoring one loses everything written since, so
+it is a last resort, done only with the owner's approval; the commands are in the header of
+[`deploy-netsec/backup.sh`](../deploy-netsec/backup.sh) (dumps leave out file chunks, re-queued after a restore, and
+live sessions and sign-in codes: everyone signs in again).
 
-**Two-step sign-in across a rollback past 2026-10-02 (migration 0013).** The older release runs on
-this schema, but it does not know two-step sign-in: until this release is deployed again, accounts
-that turned it on sign in with their password or an email code alone. Their authenticator setup is
-kept and applies again after the redeploy. The older release also runs on Next 14.2.35 (open
-advisories): roll forward as soon as possible.
-
-Students' files are database rows: a rollback keeps them (older code ignores the tables that hold
-them), and deploying `main` again brings the File Library back. To stop only file processing, use
-the kill switch instead of a rollback (`FILES_ENABLED=false`, [deployment.md](deployment.md#file-library-appfiles)).
+Users' files are database rows: a rollback keeps them. To stop only file processing, use the kill switch instead
+(`FILES_ENABLED=false`, [deployment.md](deployment.md#file-library)).
 
 ## Automatic protection during a deploy
 
 - **Frontend build fails:** users keep the previous build; nothing is restarted.
-- **New frontend doesn't start:** the previous build is swapped back in and restarted
-  automatically.
-- **API fails its readiness check after a restart:** the deploy stops with `STOP:`; run
-  `bun run rollback`.
-- **First deploy (the cutover) fails:** the services of the old release layout are put back
-  automatically.
+- **New frontend doesn't start:** the previous build is swapped back in and restarted automatically.
+- **API fails its readiness check after a restart:** the deploy stops with `STOP:`; run `rollback:netsec`.
+- **Migration fails:** the API is not restarted; the dump taken just before is named in the output.
 
 ## Emergency: without the scripts
 
-Only if the deploy scripts themselves are broken. On the server:
+Only if the deploy scripts themselves are broken, and only with the owner's authorization. On the host:
 
 ```sh
-cd /opt/aichat/app
+cd /opt/netsecai/app
 git log --oneline -5                                   # pick a known-good commit
 git reset --hard <commit> && printf 'commit=%s\n' "$(git rev-parse HEAD)" > RELEASE
-systemctl restart aichat-api                           # if the backend differs
+systemctl restart netsecai-api                         # if the backend differs
 # the frontend: a build of that commit must be in place (.next-prev is the one before the last deploy)
-systemctl stop aichat-web && mv frontend/apps/app/.next frontend/apps/app/.next-bad \
-  && mv frontend/apps/app/.next-prev frontend/apps/app/.next && systemctl start aichat-web
+systemctl stop netsecai-web && mv frontend/apps/app/.next frontend/apps/app/.next-bad \
+  && mv frontend/apps/app/.next-prev frontend/apps/app/.next && systemctl start netsecai-web
 ```
 
-Then fix the scripts, push, and deploy normally: the next deploy compares against the recorded
-state and redoes whatever is needed.
+Then fix the scripts, commit, `bun run security`, push, and deploy normally: the next deploy compares against the
+recorded state and redoes whatever is needed (`status:netsec` reports MISMATCH until then).
