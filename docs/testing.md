@@ -91,7 +91,29 @@ are updated in the working tree but have not been run on this PC. Variables:
 - **`backend/scripts/eval_engineering.py`:** the real model on synthetic engineering cases
   (`backend/tests/fixtures/engineering_eval_cases.jsonl`), scored by regex with pass-rate gates, including a
   forbidden school-tutor register. Run on the host after any change to what the model is told; it uses the
-  production key, so the owner decides when. Its scorer has unit tests (`tests/test_eval_engineering.py`).
+  production key, so the owner decides when. Its scorer has unit tests (`tests/test_eval_engineering.py`). On the
+  host, with production's settings (a candidate prompt can run from a copy of `backend/` under `/tmp`, with
+  `PYTHONPATH` pointing at it, without a deploy):
+
+  ```sh
+  systemd-run --pipe --wait --collect --quiet -p EnvironmentFile=/etc/netsecai/api.env \
+    -p WorkingDirectory=/opt/netsecai/app/backend --setenv=PYTHONPATH=/opt/netsecai/app/backend \
+    /opt/netsecai/app/backend/.venv/bin/python scripts/eval_engineering.py --runs 3 [--show-failures]
+  ```
+
+  Results on 2026-10-29 (`gemini-3.5-flash-lite`, 3 runs per case, 57 replies):
+
+  | Prompt | Pass rate |
+  |---|---|
+  | PadhAI's prompt | 37/57 (65%) |
+  | The first NetSec prompt (`0d868b7`), temperature 0.7 | 43/57 (75%) |
+  | The same at temperature 0.3 | 39/57 (68%), so the default 0.7 stays |
+  | The tuned prompt (3,780 characters) | 45/57 (79%) |
+
+  Still below their gates with the tuned prompt: a vague request ("my VPN is down") asks for too little (1/3); AWS
+  egress never names VPC flow logs; the Ansible backup rarely offers check mode; the OSPF review rarely advises a lab
+  test (1/3). A difference of two or three replies is within run-to-run noise. Known scorer false negative:
+  `k8s_netpol` does not accept "deny-by-default".
 - **After a release:** `deploy:netsec` runs a local smoke on the host (units, `/health`, `/ready`, `/login`, sign-in
   database, web → API → database). Then `status:netsec`; `smoke:netsec` currently runs the same read-only checks.
   The live check of what changed is done by hand through the tunnel URL.
