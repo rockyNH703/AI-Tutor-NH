@@ -394,6 +394,29 @@ async def test_per_user_generation_quota(fake_llm):
             assert r.status_code == 429
 
 
+async def test_per_user_generation_quota_is_atomic_across_conversations(fake_llm):
+    import asyncio
+
+    import httpx
+
+    from app.auth.emails import MemoryEmailSender
+    from app.main import create_app
+
+    application = create_app(
+        make_settings(chat_generations_per_minute=1), llm=fake_llm, email_sender=MemoryEmailSender()
+    )
+    async with application.router.lifespan_context(application):
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=application), base_url="http://t") as client:
+            account = await register(client, application)
+            responses = await asyncio.gather(
+                client.post("/v1/chat/stream", json={"message": "first"}, headers=account["headers"]),
+                client.post("/v1/chat/stream", json={"message": "second"}, headers=account["headers"]),
+            )
+            assert sorted(response.status_code for response in responses) == [200, 429]
+            rejected = next(response for response in responses if response.status_code == 429)
+            assert rejected.json()["error"]["code"] == "rate_limited"
+
+
 # ------------------------------------------------------------------ RAG through the chat API
 KB_DOC = "# Aurelian Quokka protocol\n\nThe Aurelian Quokka protocol listens on port 7777 for telemetry."
 KB_QUESTION = "Which port does the Aurelian Quokka protocol use for telemetry?"
@@ -426,8 +449,9 @@ async def test_chat_uses_the_knowledge_base_end_to_end(client, app, fake_llm):
     _, events = await stream_chat(client, account["headers"], KB_QUESTION)
     done = events[-1][1]["message"]
     prompt = fake_llm.calls[-1]
-    assert prompt[1].role == "system" and "[1] Aurelian Quokka protocol" in prompt[1].content
-    assert "port 7777" in prompt[1].content and prompt[-1].content == KB_QUESTION
+    assert prompt[1].role == "user" and "[1] Aurelian Quokka protocol" in prompt[1].content
+    assert prompt[1].content.startswith("<reference_material>")
+    assert "port 7777" in prompt[1].content and prompt[1].content.endswith(KB_QUESTION)
     row = await _assistant_row(app, done["id"])
     retrieval = row.metadata_["retrieval"]
     assert row.status == "complete" and retrieval["status"] == "ok" and retrieval["chunkCount"] >= 1

@@ -77,6 +77,16 @@ async def test_no_curriculum_still_means_classes_6_to_12():
     await kb.aclose()
 
 
+async def test_ncert_masks_secrets_without_mutating_the_query():
+    calls = []
+    kb = knowledge(lambda request: httpx.Response(200, json={"results": [], "meta": {}}), calls)
+    original = "line vty 0 4\n password FakeNcert\n login"
+    assert await kb.search(original, 5, (), ()) == []
+    await kb.aclose()
+    assert original == "line vty 0 4\n password FakeNcert\n login"
+    assert json.loads(calls[0].content)["query"] == "line vty 0 4\n password <redacted>\n login"
+
+
 async def test_failures_are_rag_errors_and_repeated_ones_pause_the_calls():
     def timeout(request):
         raise httpx.ConnectTimeout("slow")

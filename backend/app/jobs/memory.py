@@ -242,23 +242,31 @@ async def _process_one(
             await session.commit()
             return "invalidated", 0
         source_text = source.content
-        try:
-            result = await extract_user_memories(provider, settings, source_text)
-        except Exception as error:  # noqa: BLE001 - every job failure is isolated and classified
-            await session.rollback()
-            permanent = isinstance(error, (ExtractionOutputError, ValidationFailed))
-            retryable = not permanent and (not isinstance(error, LLMError) or getattr(error, "retryable", True))
-            return await _fail(db, settings, job_id, owner, now, error, retryable), 0
         await session.rollback()
 
+    try:
+        result = await extract_user_memories(provider, settings, source_text)
+    except Exception as error:  # noqa: BLE001 - every job failure is isolated and classified
+        permanent = isinstance(error, (ExtractionOutputError, ValidationFailed))
+        retryable = not permanent and (not isinstance(error, LLMError) or getattr(error, "retryable", True))
+        return await _fail(db, settings, job_id, owner, now, error, retryable), 0
+
     async with db.sessionmaker() as session:
-        job = await session.get(MemoryExtractionJob, job_id, with_for_update=True)
+        job = await session.get(MemoryExtractionJob, job_id)
+        if job is None or job.status != "running" or job.lease_owner != owner:
+            return "invalidated", 0
+        await lock_memory_user(session, job.user_id)
+        session.expunge_all()
+        job = await session.get(MemoryExtractionJob, job_id)
         if job is None or job.status != "running" or job.lease_owner != owner:
             return "invalidated", 0
         reason, _ = await _eligibility(session, job)
         if reason:
             await _finish(session, job, "invalidated", now, error_code=reason)
             await session.commit()
+            return "invalidated", 0
+        job = await session.get(MemoryExtractionJob, job_id, with_for_update=True)
+        if job is None or job.status != "running" or job.lease_owner != owner:
             return "invalidated", 0
         inserted = 0
         if settings.memory_automatic_proposals == "on":

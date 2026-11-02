@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
-from sqlalchemy import case, func, select, update
+from sqlalchemy import case, func, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -204,6 +204,12 @@ class ChatService:
             await session.commit()
 
     async def _check_turn_allowed(self, session: AsyncSession, user_id: uuid.UUID, conversation_id: uuid.UUID) -> None:
+        # Conversation rows serialize one chat; this user-scoped lock also serializes quota
+        # check + reservation across different conversations for the same account.
+        await session.execute(
+            text("SELECT pg_advisory_xact_lock(hashtextextended(:key, 0))"),
+            {"key": f"chat-generation:{user_id}"},
+        )
         await self._sweep_stale(session, conversation_id)
         live = await session.scalar(
             select(func.count())

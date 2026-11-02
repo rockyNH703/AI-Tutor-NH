@@ -347,6 +347,12 @@ NOT_MASKED = [
     ("settings", "max_tokens: 4096\npassword_min_length: 12\ntoken_url: https://auth.example.com/token"),
     ("references", "token: ${TOKEN}\napi_key: settings.api_key\nAuthorization: Bearer $TOKEN"),
     ("prose-colon", "Password: I forgot it"),
+    ("cve", "CVE-2026-12345 affects password parsing"),
+    ("sha256-hash", "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"),
+    (
+        "public-key",
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePublicMaterialOnly engineer@example",
+    ),
 ]
 
 

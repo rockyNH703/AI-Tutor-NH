@@ -21,6 +21,7 @@
 #
 # A copy of the docker volume is not a backup: it can catch the database mid-write.
 set -euo pipefail
+umask 077
 SAFETY_LIB=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/server/safety.sh
 . "$SAFETY_LIB"
 safety_preflight
@@ -44,7 +45,16 @@ COMPOSE=(docker compose --env-file /etc/netsecai/postgres.env -f /opt/netsecai/s
 
 mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR"
-out="$BACKUP_DIR/netsecai-$(date +%Y-%m-%d-%H%M%S).dump"
+final_out="$BACKUP_DIR/netsecai-$(date +%Y-%m-%d-%H%M%S).dump"
+out="$final_out.partial"
+backup_complete=0
+cleanup_incomplete_backup() {
+  if [ "$backup_complete" != 1 ]; then
+    rm -f -- "$out"
+  fi
+}
+trap cleanup_incomplete_backup EXIT
+trap 'exit 1' HUP INT TERM
 
 unexpected_schemas=$("${COMPOSE[@]}" exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
   "SELECT string_agg(schema_name, ',' ORDER BY schema_name) FROM information_schema.schemata WHERE schema_name NOT IN ('public', 'information_schema', 'pg_catalog', 'pg_toast') AND schema_name NOT LIKE 'pg_temp_%' AND schema_name NOT LIKE 'pg_toast_temp_%'" \
@@ -67,12 +77,20 @@ fi
 "${COMPOSE[@]}" exec -T postgres pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom \
   --exclude-table-data=file_chunks --exclude-table-data=auth_sessions --exclude-table-data=auth_verifications > "$out"
 
-# Fail loudly on an empty dump rather than rotating away the last good copy.
+# Fail loudly on an empty or unreadable dump rather than rotating away the last good copy.
 if [ ! -s "$out" ]; then
   echo "backup: pg_dump produced no data at $out" >&2
   exit 1
 fi
-echo "backup: wrote $out ($(du -h "$out" | cut -f1))"
+if ! "${COMPOSE[@]}" exec -T postgres pg_restore --list < "$out" > /dev/null; then
+  echo "backup: pg_restore could not read the new archive; removing it" >&2
+  exit 1
+fi
+chmod 600 "$out"
+mv -- "$out" "$final_out"
+out="$final_out"
+backup_complete=1
+echo "backup: wrote $final_out ($(du -h "$final_out" | cut -f1))"
 find "$BACKUP_DIR" -name 'netsecai-*.dump' -type f -mtime "+$KEEP_DAYS" -print -delete
 
 # Copy off the host for a real backup (a dump on the same disk does not survive the disk).

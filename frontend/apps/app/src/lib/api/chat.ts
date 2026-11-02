@@ -206,6 +206,8 @@ export function streamChat(
     : { message: request.message };
   body.clientRequestId = request.clientRequestId ?? crypto.randomUUID();
   if (request.attachmentIds?.length) body.attachmentIds = request.attachmentIds;
+  if (request.mode !== undefined) body.mode = request.mode;
+  if (request.speechFormat !== undefined) body.speechFormat = request.speechFormat;
   return openStream("POST /v1/chat/stream", {}, body, handlers, options);
 }
 

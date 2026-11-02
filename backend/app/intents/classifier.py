@@ -55,6 +55,7 @@ from app.intents.taxonomy import (
 )
 from app.llm.base import ChatMessage
 from app.llm.openai_compatible import redact_secrets
+from app.llm.redact import mask_secrets
 from app.logging import get_logger
 from app.rag.graph import FOLLOW_UP_MAX_WORDS
 
@@ -234,6 +235,11 @@ def _flat(text: str) -> str:
 
 def _clip(text: str, head: int, tail: int) -> str:
     return text if len(text) <= head + tail else f"{text[:head]} … {text[-tail:]}"
+
+
+def _masked_conversation(conversation: list[ChatMessage]) -> list[ChatMessage]:
+    """A provider-only copy masked before whitespace is flattened; the stored messages stay untouched."""
+    return [replace(message, content=mask_secrets(message.content)[0]) for message in conversation]
 
 
 def text_for(conversation: list[ChatMessage], attachments: tuple[str, ...] = ()) -> str:
@@ -452,7 +458,7 @@ class IntentClassifier:
     async def _classify(self, conversation: list[ChatMessage], attachments: tuple[str, ...]) -> tuple[Routed, dict]:
         if time.monotonic() < self._paused_until:
             return Routed(None, reason="paused"), {}
-        text = text_for(conversation, attachments)
+        text = text_for(_masked_conversation(conversation), attachments)
         if not text:
             return Routed(None, reason="empty"), {}
         question = "group"
@@ -509,7 +515,7 @@ class IntentClassifier:
     async def _scope(self, conversation: list[ChatMessage], attachments: tuple[str, ...]) -> tuple[Scope, dict]:
         if time.monotonic() < self._paused_until:
             return Scope(None, reason="paused"), {}
-        text = text_for(conversation, attachments)
+        text = text_for(_masked_conversation(conversation), attachments)
         if not text:
             return Scope(None, reason="empty"), {}
         try:

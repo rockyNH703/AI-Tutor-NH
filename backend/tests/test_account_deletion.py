@@ -5,14 +5,18 @@ users.id), so a table added later is covered without anyone remembering to exten
 test. Rows keyed by the email address rather than the user id are checked by address.
 """
 
+import asyncio
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from app.db.models import FileChunk, UserFile
+from app.files import processing
 from app.notifications.outbox import WEEKLY_SUMMARY, queue_email
-from tests.conftest import PASSWORD, image_bytes, ingest_docs, register, sign_in, stream_chat
+from app.rag.errors import EmbeddingError
+from tests.conftest import PASSWORD, SpyEmbeddings, image_bytes, ingest_docs, register, sign_in, stream_chat
 
 USER_REFERENCES = text(
     """
@@ -245,6 +249,47 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
     for token_headers in (headers, other_headers):
         for url in ("/v1/me", "/v1/conversations", "/v1/me/settings"):
             assert (await client.get(url, headers=token_headers)).status_code == 401, url
+
+
+async def test_account_deletion_stops_embedding_retries_after_the_cascade(client, app, monkeypatch):
+    monkeypatch.setattr(processing, "EMBED_RETRY_DELAYS_S", (0,))
+    monkeypatch.setattr(processing.random, "random", lambda: 0.0)
+    account = await register(client, app)
+    uploaded = await client.post(
+        "/v1/files",
+        params={"filename": "notes.txt"},
+        content=b"Private network notes that must not leave after account deletion.",
+        headers={**account["headers"], "Content-Type": "application/octet-stream"},
+    )
+    assert uploaded.status_code == 201, uploaded.text
+    file_id = uuid.UUID(uploaded.json()["id"])
+    worker = app.state.file_worker
+
+    class BarrierEmbeddings(SpyEmbeddings):
+        def __init__(self, inner):
+            super().__init__(inner)
+            self.entered = asyncio.Event()
+            self.release = asyncio.Event()
+
+        async def aembed_documents(self, texts):
+            self.calls += 1
+            self.entered.set()
+            await self.release.wait()
+            raise EmbeddingError("embedding_failed", "provider down")
+
+    embeddings = BarrierEmbeddings(worker.embeddings)
+    monkeypatch.setattr(worker, "embeddings", embeddings)
+    processing_task = asyncio.create_task(worker.run_once())
+    await embeddings.entered.wait()
+    deleted = await client.request("DELETE", "/v1/me", json={"password": PASSWORD}, headers=account["headers"])
+    assert deleted.status_code == 204, deleted.text
+    embeddings.release.set()
+    assert await processing_task
+
+    assert embeddings.calls == 1
+    async with app.state.db.sessionmaker() as db:
+        assert await db.get(UserFile, file_id) is None
+        assert list(await db.scalars(select(FileChunk).where(FileChunk.file_id == file_id))) == []
 
 
 async def test_a_code_of_a_deleted_account_dies_with_it(client, app, database):

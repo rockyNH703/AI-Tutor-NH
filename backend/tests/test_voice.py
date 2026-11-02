@@ -302,6 +302,21 @@ async def test_ollalink_text_to_speech_as_documented():
     }
 
 
+async def test_ollalink_text_to_speech_masks_secrets_without_mutating_text():
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content)["input"])
+        return httpx.Response(200, content=b"ID3mp3", headers={"Content-Type": "audio/mpeg"})
+
+    original = "enable secret FakeVoice"
+    provider = ollalink(handler)
+    assert await provider.synthesize(original) == (b"ID3mp3", "audio/mpeg")
+    await provider.aclose()
+    assert original == "enable secret FakeVoice"
+    assert seen == ["enable secret <redacted>"]
+
+
 def text_ok() -> httpx.Response:
     return httpx.Response(200, json={"text": "Hi", "duration": 1})
 

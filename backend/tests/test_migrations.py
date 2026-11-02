@@ -327,6 +327,8 @@ def test_migration_0019_empty_downgrade_and_forward_preserve_legacy_memory():
 
 
 ENGINEERING = "0020_engineering_profiles"
+HYBRID_SEARCH = "0021_kb_hybrid_search"
+PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -397,6 +399,260 @@ def test_migration_0020_adds_and_removes_the_engineering_profile_without_touchin
         }
         alembic("upgrade", ENGINEERING)
         assert run(_query("SELECT count(*) AS n FROM engineering_profiles"))[0]["n"] == 0
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+def test_migration_0021_adds_hybrid_search_without_rewriting_the_insert_contract():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", ENGINEERING)
+        user_id = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'KB owner') RETURNING id",
+                "kb-0021@example.com",
+            )
+        )[0]["id"]
+        source_id = run(
+            _query(
+                "INSERT INTO knowledge_sources (name, owner_user_id) VALUES ('Private KB', $1) RETURNING id", user_id
+            )
+        )[0]["id"]
+        document_id = run(
+            _query(
+                "INSERT INTO documents (source_id, uri, title, content_hash, ingest_signature) "
+                "VALUES ($1, 'kb://existing', 'Existing', $2, $3) RETURNING id",
+                source_id,
+                "a" * 64,
+                "b" * 64,
+            )
+        )[0]["id"]
+        vector = "[" + ",".join(["0"] * 1536) + "]"
+        existing_id = run(
+            _query(
+                "INSERT INTO document_chunks "
+                "(document_id, source_id, ordinal, content, embedding, embedding_model) "
+                "VALUES ($1, $2, 0, 'Configure OSPF area 0', $3::vector, 'legacy-model') RETURNING id",
+                document_id,
+                source_id,
+                vector,
+            )
+        )[0]["id"]
+
+        alembic("upgrade", HYBRID_SEARCH)
+        column = run(
+            _query(
+                "SELECT format_type(atttypid, atttypmod) AS type, attgenerated, "
+                "pg_get_expr(adbin, adrelid) AS expression "
+                "FROM pg_attribute JOIN pg_attrdef ON adrelid = attrelid AND adnum = attnum "
+                "WHERE attrelid = 'document_chunks'::regclass AND attname = 'content_tsv'"
+            )
+        )[0]
+        assert column["type"] == "tsvector"
+        assert column["attgenerated"] in ("s", b"s")
+        assert column["expression"] == "to_tsvector('simple'::regconfig, content)"
+        index = run(
+            _query(
+                "SELECT am.amname, pg_get_indexdef(i.indexrelid) AS definition "
+                "FROM pg_index i "
+                "JOIN pg_class c ON c.oid = i.indexrelid "
+                "JOIN pg_am am ON am.oid = c.relam "
+                "WHERE c.relname = 'ix_document_chunks_content_tsv_gin'"
+            )
+        )[0]
+        assert index["amname"] == "gin"
+        assert "USING gin (content_tsv)" in index["definition"]
+        existing = run(
+            _query("SELECT content, content_tsv::text AS tsv FROM document_chunks WHERE id = $1", existing_id)
+        )[0]
+        assert tuple(existing) == ("Configure OSPF area 0", "'0':4 'area':3 'configure':1 'ospf':2")
+
+        inserted = run(
+            _query(
+                "INSERT INTO document_chunks "
+                "(document_id, source_id, ordinal, content, embedding, embedding_model) "
+                "VALUES ($1, $2, 1, 'BGP route policy', $3::vector, 'legacy-model') "
+                "RETURNING content_tsv::text AS tsv",
+                document_id,
+                source_id,
+                vector,
+            )
+        )[0]
+        assert inserted["tsv"] == "'bgp':1 'policy':3 'route':2"
+
+        alembic("downgrade", ENGINEERING)
+        assert (
+            run(
+                _query(
+                    "SELECT count(*) AS n FROM document_chunks "
+                    "WHERE document_id = $1 AND content = 'Configure OSPF area 0'",
+                    document_id,
+                )
+            )[0]["n"]
+            == 1
+        )
+        assert (
+            run(
+                _query(
+                    "SELECT count(*) AS n FROM information_schema.columns "
+                    "WHERE table_schema = 'public' AND table_name = 'document_chunks' AND column_name = 'content_tsv'"
+                )
+            )[0]["n"]
+            == 0
+        )
+        assert run(_query("SELECT to_regclass('public.ix_document_chunks_content_tsv_gin') AS t"))[0]["t"] is None
+
+        alembic("upgrade", HYBRID_SEARCH)
+        assert run(_query("SELECT content_tsv::text AS tsv FROM document_chunks WHERE id = $1", existing_id))[0][
+            "tsv"
+        ] == ("'0':4 'area':3 'configure':1 'ospf':2")
+        alembic("upgrade", "head")
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == PASSWORD_SESSION_REVOCATION
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+def test_migration_0022_revokes_only_sessions_that_predate_a_real_password_change():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", HYBRID_SEARCH)
+        credential_user = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) "
+                "VALUES ('credential-0022@example.com', '$argon2id$old', 'Credential user') RETURNING id"
+            )
+        )[0]["id"]
+        passwordless_user = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) "
+                "VALUES ('passwordless-0022@example.com', NULL, 'Passwordless user') RETURNING id"
+            )
+        )[0]["id"]
+        run(
+            _query(
+                "INSERT INTO auth_accounts (user_id, account_id, provider_id) VALUES ($1, 'google-0022', 'google')",
+                credential_user,
+            )
+        )
+        run(
+            _query(
+                "INSERT INTO auth_sessions (user_id, token, expires_at) VALUES "
+                "($1, 'credential-old-a', now() + interval '1 day'), "
+                "($1, 'credential-old-b', now() + interval '1 day'), "
+                "($2, 'passwordless-current', now() + interval '1 day')",
+                credential_user,
+                passwordless_user,
+            )
+        )
+
+        alembic("upgrade", PASSWORD_SESSION_REVOCATION)
+        function = run(
+            _query(
+                "SELECT prosecdef FROM pg_proc WHERE oid = "
+                "'auth_accounts_revoke_sessions_on_password_change()'::regprocedure"
+            )
+        )[0]
+        assert function["prosecdef"] is False
+
+        # OAuth account writes and the first credential insert are not password changes.
+        run(_query("UPDATE auth_accounts SET access_token = 'ignored' WHERE provider_id = 'google'"))
+        run(
+            _query(
+                "INSERT INTO auth_accounts (user_id, account_id, provider_id, password) "
+                "VALUES ($1, $2, 'credential', '$argon2id$first')",
+                passwordless_user,
+                str(passwordless_user),
+            )
+        )
+        assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", passwordless_user))[0]["n"] == 1
+
+        # A no-op password write changes no credential and keeps every session.
+        run(
+            _query(
+                "UPDATE auth_accounts SET password = password, updated_at = clock_timestamp() "
+                "WHERE user_id = $1 AND provider_id = 'credential'",
+                credential_user,
+            )
+        )
+        assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", credential_user))[0]["n"] == 2
+
+        # The password hash and all sessions disappear atomically if the statement commits.
+        async def rolled_back_password_change() -> None:
+            conn = await asyncpg.connect(DSN)
+            try:
+                async with conn.transaction():
+                    await conn.execute(
+                        "UPDATE auth_accounts SET password = '$argon2id$rolled-back' "
+                        "WHERE user_id = $1 AND provider_id = 'credential'",
+                        credential_user,
+                    )
+                    assert (
+                        await conn.fetchval("SELECT count(*) FROM auth_sessions WHERE user_id = $1", credential_user)
+                        == 0
+                    )
+                    raise RuntimeError("force rollback")
+            except RuntimeError as error:
+                assert str(error) == "force rollback"
+            finally:
+                await conn.close()
+
+        run(rolled_back_password_change())
+        assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", credential_user))[0]["n"] == 2
+        assert (
+            run(
+                _query(
+                    "SELECT password FROM auth_accounts WHERE user_id = $1 AND provider_id = 'credential'",
+                    credential_user,
+                )
+            )[0]["password"]
+            == "$argon2id$old"
+        )
+
+        run(
+            _query(
+                "UPDATE auth_accounts SET password = '$argon2id$new' WHERE user_id = $1 AND provider_id = 'credential'",
+                credential_user,
+            )
+        )
+        assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", credential_user))[0]["n"] == 0
+        assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", passwordless_user))[0]["n"] == 1
+        assert (
+            run(_query("SELECT password_hash FROM users WHERE id = $1", credential_user))[0]["password_hash"]
+            == "$argon2id$new"
+        )
+
+        # Better Auth creates the caller replacement after changing the hash; the trigger must not
+        # delete sessions inserted after that update.
+        run(
+            _query(
+                "INSERT INTO auth_sessions (user_id, token, expires_at) "
+                "VALUES ($1, 'credential-replacement', now() + interval '1 day')",
+                credential_user,
+            )
+        )
+        assert run(_query("SELECT token FROM auth_sessions WHERE user_id = $1", credential_user))[0]["token"] == (
+            "credential-replacement"
+        )
+
+        alembic("downgrade", HYBRID_SEARCH)
+        assert (
+            run(_query("SELECT to_regprocedure('auth_accounts_revoke_sessions_on_password_change()') AS function"))[0][
+                "function"
+            ]
+            is None
+        )
+        run(
+            _query(
+                "UPDATE auth_accounts SET password = '$argon2id$post-downgrade' "
+                "WHERE user_id = $1 AND provider_id = 'credential'",
+                credential_user,
+            )
+        )
+        assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", credential_user))[0]["n"] == 1
+        alembic("upgrade", PASSWORD_SESSION_REVOCATION)
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == PASSWORD_SESSION_REVOCATION
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 

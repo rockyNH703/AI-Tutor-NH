@@ -354,6 +354,8 @@ class FileWorker:
             await _systemctl("kill", "-s", "KILL", f"{UNIT_PREFIX}-*.service")
             await _systemctl("reset-failed", f"{UNIT_PREFIX}-*.service")
         async with self.db.sessionmaker() as session:
+            exhausted = select(UserFile.id).where(UserFile.status == "processing", UserFile.attempts >= MAX_ATTEMPTS)
+            await session.execute(delete(FileChunk).where(FileChunk.file_id.in_(exhausted)))
             await session.execute(
                 update(UserFile)
                 .where(UserFile.status == "processing", UserFile.attempts >= MAX_ATTEMPTS)
@@ -537,7 +539,7 @@ class FileWorker:
         try:
             for start in range(0, len(chunks), EMBED_BATCH):
                 batch = chunks[start : start + EMBED_BATCH]
-                vectors = await self._embed([chunk.page_content for chunk in batch])
+                vectors = await self._embed(claim, [chunk.page_content for chunk in batch])
                 if claim.id in self._cancelled:
                     raise FileGone
                 async with self.db.sessionmaker() as session:
@@ -599,8 +601,9 @@ class FileWorker:
                 yield bytes(data)
                 seq += 1
 
-    async def _embed(self, texts: list[str]) -> list[list[float]]:
+    async def _embed(self, claim: Claim, texts: list[str]) -> list[list[float]]:
         for attempt, delay in enumerate((*EMBED_RETRY_DELAYS_S, None)):
+            await self._assert_active_claim(claim)
             try:
                 return await self.embeddings.aembed_documents(texts)
             except EmbeddingError as error:
@@ -609,6 +612,21 @@ class FileWorker:
                 log.warning("embedding batch retry", extra={"attempt": attempt + 1, "reason": error.code})
                 await asyncio.sleep(delay + random.random())  # noqa: S311 - jitter, not security
         raise EmbeddingError("embedding_failed", "retries exhausted")
+
+    async def _assert_active_claim(self, claim: Claim) -> None:
+        """Authorize the claim again immediately before content leaves for an embedding provider."""
+        async with self.db.sessionmaker() as session:
+            active = await session.scalar(
+                select(UserFile.id).where(
+                    UserFile.id == claim.id,
+                    UserFile.user_id == claim.user_id,
+                    UserFile.status == "processing",
+                    UserFile.attempts == claim.attempt,
+                    UserFile.processing_started_at.is_not(None),
+                )
+            )
+        if active is None:
+            raise FileGone
 
     async def _capacity_problem(self, claim: Claim, chunks: int) -> str | None:
         if chunks == 0:

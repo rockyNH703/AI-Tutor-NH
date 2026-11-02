@@ -118,6 +118,20 @@ describe("streamChat", () => {
     });
   });
 
+  test("forwards mode and speechFormat exactly", async () => {
+    const { impl, calls } = fakeFetch([frame("done", DONE)]);
+    await streamChat(
+      { message: "Hi", mode: "text", speechFormat: "aac" },
+      {},
+      { fetchImpl: impl },
+    );
+    expect(JSON.parse(String(calls[0]?.init.body))).toMatchObject({
+      message: "Hi",
+      mode: "text",
+      speechFormat: "aac",
+    });
+  });
+
   test("error event ends the reply (no done)", async () => {
     const { impl } = fakeFetch([
       frame("meta", META),

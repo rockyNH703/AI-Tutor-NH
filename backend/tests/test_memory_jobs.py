@@ -131,6 +131,44 @@ async def test_worker_rechecks_consent_before_provider_and_before_insert(client,
     assert report["invalidated"] == 1 and await rows(app, MemoryProposal) == []
 
 
+async def test_worker_serializes_final_insert_with_consent_withdrawal(client, app):
+    account = await register(client, app)
+    await enable_automatic_proposals(app, account)
+    settings = make_settings(memory_automatic_proposals="on")
+    app.state.chat.settings = settings
+    await stream_chat(client, account["headers"], "Use diagrams for BGP path selection.")
+    started = asyncio.Event()
+    release = asyncio.Event()
+
+    class BlockedProvider(FakeProvider):
+        async def stream(self, messages, options):
+            result = await super().stream(messages, options)
+            started.set()
+            await release.wait()
+            return result
+
+    worker = asyncio.create_task(
+        process_memory_jobs(
+            app.state.db,
+            settings,
+            BlockedProvider(reply=lambda messages: extraction_reply([proposal()])),
+        )
+    )
+    await started.wait()
+    withdrawn = await client.put(
+        "/v1/memories/preferences",
+        json={"automaticProposals": False, "expectedVersion": 0},
+        headers=account["headers"],
+    )
+    assert withdrawn.status_code == 200
+    assert withdrawn.json()["consentEpoch"] == 1
+    release.set()
+    report = await worker
+
+    assert report["invalidated"] == 1 and report["proposals"] == 0
+    assert await rows(app, MemoryProposal) == []
+
+
 async def test_malformed_stored_consent_never_breaks_chat_or_other_users_jobs(client, app):
     # Values written before /v1/me/settings refused the memory keys: one user's bad data stays theirs.
     settings = make_settings(memory_automatic_proposals="on")

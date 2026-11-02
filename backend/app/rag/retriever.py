@@ -11,10 +11,11 @@ from langchain_core.callbacks import AsyncCallbackManagerForRetrieverRun, Callba
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.retrievers import BaseRetriever
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator
 
 from app.rag.embeddings import embedding_model_id, is_configured
 from app.rag.errors import EmbeddingError
+from app.rag.lexical import build_lexical_query
 from app.rag.store import FileHit, KnowledgeStore
 from app.rag.types import AccessScope
 
@@ -37,8 +38,19 @@ class PgVectorRetriever(BaseRetriever):
     source_names: list[str] | None = None
     metadata_filter: dict[str, Any] | None = None
     max_query_chars: int = 8_000
+    hybrid: bool = False
+    dense_candidates: int = 20
+    lexical_candidates: int = 20
+    rrf_k: int = 60
     # Filled by each call, for observability (milliseconds).
-    last_timings: dict[str, int] = Field(default_factory=dict)
+    last_timings: dict[str, int | str] = Field(default_factory=dict)
+
+    @field_validator("k", "max_query_chars", "dense_candidates", "lexical_candidates", "rrf_k")
+    @classmethod
+    def _positive_bounded_int(cls, value: int) -> int:
+        if isinstance(value, bool) or not isinstance(value, int) or value <= 0 or value > 1_000:
+            raise ValueError("retrieval limits must be integers between 1 and 1000")
+        return value
 
     def _get_relevant_documents(self, query: str, *, run_manager: CallbackManagerForRetrieverRun) -> list[Document]:
         raise NotImplementedError("PgVectorRetriever is async-only; use `await retriever.ainvoke(query)`")
@@ -61,19 +73,40 @@ class PgVectorRetriever(BaseRetriever):
         embedded = time.perf_counter()
 
         model = embedding_model_id(self.embeddings)
-        hits = await self.store.search(
-            self.scope,
-            vector,
-            embedding_model=model,
-            k=self.k,
-            source_names=self.source_names,
-            metadata_filter=self.metadata_filter,
-            min_score=self.min_score,
-        )
-        self.last_timings = {
-            "embedding_ms": int((embedded - started) * 1000),
-            "search_ms": int((time.perf_counter() - embedded) * 1000),
-        }
+        if self.hybrid:
+            result = await self.store.hybrid_search(
+                self.scope,
+                vector,
+                build_lexical_query(query),
+                embedding_model=model,
+                k=self.k,
+                dense_candidates=max(self.k, self.dense_candidates),
+                lexical_candidates=max(self.k, self.lexical_candidates),
+                rrf_k=self.rrf_k,
+                source_names=self.source_names,
+                metadata_filter=self.metadata_filter,
+                min_score=self.min_score,
+            )
+            hits = result.hits
+            self.last_timings = {
+                "embedding_ms": int((embedded - started) * 1000),
+                "search_ms": int((time.perf_counter() - embedded) * 1000),
+                **result.timings,
+            }
+        else:
+            hits = await self.store.search(
+                self.scope,
+                vector,
+                embedding_model=model,
+                k=self.k,
+                source_names=self.source_names,
+                metadata_filter=self.metadata_filter,
+                min_score=self.min_score,
+            )
+            self.last_timings = {
+                "embedding_ms": int((embedded - started) * 1000),
+                "search_ms": int((time.perf_counter() - embedded) * 1000),
+            }
         return [
             Document(
                 page_content=hit.content,

@@ -301,14 +301,51 @@ ensure_node() {
   note "installed Node $version (checksum verified)"
 }
 
-# The pinned Bun (.bun-version), installed when it changes.
+# Bun is installed from the exact pinned GitHub release archive only after its repository-controlled
+# SHA-256 identity is verified. The reviewed manifest must bind the .bun-version and architecture.
+bun_release_asset() {
+  case "$1" in
+    x86_64|amd64) printf '%s\n' bun-linux-x64 ;;
+    *) die "unsupported Linux architecture for Bun: $1" ;;
+  esac
+}
+
 ensure_bun() {
-  local want
-  want=$(tr -d '[:space:]' < "$1/.bun-version")
+  local dir=$1 want arch asset manifest expected record_count url tmp archive staged
+  want=$(tr -d '[:space:]' < "$dir/.bun-version")
+  [[ "$want" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "invalid .bun-version in $dir: '$want'"
   [ -x "$BUN" ] && [ "$("$BUN" --version)" = "$want" ] && return 0
-  curl -fsSL https://bun.sh/install | BUN_INSTALL=/root/.bun bash -s "bun-v$want" >/dev/null || die "could not install bun $want"
+
+  arch=$(uname -m)
+  asset=$(bun_release_asset "$arch")
+  manifest="$dir/deploy-netsec/bun-sha256.manifest"
+  [ -f "$manifest" ] || die "missing repository-controlled Bun digest manifest: $manifest"
+  record_count=$(awk -v version="$want" -v asset="$asset" '$1 == version && $2 == asset { count++ } END { print count + 0 }' "$manifest")
+  [ "$record_count" = 1 ] || die "Bun digest manifest must contain exactly one $want $asset record"
+  expected=$(awk -v version="$want" -v asset="$asset" '$1 == version && $2 == asset { print $3 }' "$manifest")
+  [[ "$expected" =~ ^[0-9a-f]{64}$ ]] || die "Bun $want $asset has no reviewed SHA-256 digest"
+
+  url="https://github.com/oven-sh/bun/releases/download/bun-v$want/$asset.zip"
+  umask 077
+  tmp=$(mktemp -d) || die "could not create private Bun download directory"
+  [ ! -L "$tmp" ] && [ -d "$tmp" ] || die "Bun download directory is not a private real directory"
+  chmod 700 "$tmp"
+  archive="$tmp/$asset.zip"
+  staged="$tmp/staged"
+  trap 'rm -rf -- "$tmp"' RETURN
+  curl -fsSL --proto '=https' -o "$archive" "$url" || die "could not download Bun $want for $arch"
+  printf '%s  %s\n' "$expected" "$archive" | sha256sum -c --status \
+    || die "Bun $want $asset failed its repository-controlled SHA-256 check"
+  mkdir "$staged"
+  unzip -q "$archive" -d "$staged" || die "could not extract Bun $want"
+  [ -f "$staged/$asset/bun" ] && [ ! -L "$staged/$asset/bun" ] \
+    || die "Bun $want archive did not contain the expected regular executable"
+  install -d -m 755 "$(dirname "$BUN")"
+  install -m 755 "$staged/$asset/bun" "$BUN"
   [ "$("$BUN" --version)" = "$want" ] || die "bun $want could not be installed"
-  note "installed bun $want"
+  trap - RETURN
+  rm -rf -- "$tmp"
+  note "installed Bun $want for $arch (repository-controlled checksum verified)"
 }
 
 # Run an install or build capped in memory and at low priority, so the kernel kills the build,

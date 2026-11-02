@@ -90,6 +90,10 @@ def build_rag(
             min_score=settings.rag_min_score if options.min_score is None else options.min_score,
             source_names=list(options.source_names) if options.source_names else None,
             metadata_filter=options.metadata_filter,
+            hybrid=settings.rag_hybrid,
+            dense_candidates=settings.rag_dense_candidates,
+            lexical_candidates=settings.rag_lexical_candidates,
+            rrf_k=settings.rag_rrf_k,
         )
 
     async def has_knowledge(scope: AccessScope) -> bool:

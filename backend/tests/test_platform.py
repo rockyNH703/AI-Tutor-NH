@@ -52,11 +52,20 @@ PRODUCTION_LIKE = dict(
     app_env="production",
     app_name="NetSec AI",
     secret_key="s" * 40,
+    auth_internal_token="t" * 40,
     llm_provider="openai_compatible",
+    llm_primary_api_key="primary-key",
     embedding_provider="openai_compatible",
+    embedding_api_key="embedding-key",
     email_backend="smtp",
     database_url="postgresql+asyncpg://u:p@db/x",
 )
+
+
+async def test_chat_rejects_u0000_before_storage(client, app):
+    account = await register(client, app)
+    response = await client.post("/v1/chat/stream", json={"message": "show\u0000run"}, headers=account["headers"])
+    assert response.status_code == 422 and response.json()["error"]["code"] == "validation_error"
 
 
 def test_production_refuses_unsafe_configuration():
@@ -74,6 +83,50 @@ def test_production_refuses_unsafe_configuration():
         create_app(make_settings(**{**PRODUCTION_LIKE, "app_name": "Assistant"}))
     with pytest.raises(RuntimeError, match="PUBLIC_APP_URL must be a bare HTTPS origin"):
         create_app(make_settings(**{**PRODUCTION_LIKE, "public_app_url": "https://padhai.example/path"}))
+
+
+@pytest.mark.parametrize(
+    ("overrides", "problem"),
+    [
+        ({"llm_primary_api_key": ""}, "LLM primary provider needs LLM_PRIMARY_API_KEY"),
+        ({"llm_primary_base_url": "http://provider.example/v1"}, "LLM_PRIMARY_BASE_URL"),
+        (
+            {"llm_fallback_model": "fallback", "llm_fallback_api_key": ""},
+            "enabled LLM fallback needs LLM_FALLBACK_API_KEY",
+        ),
+        ({"embedding_api_key": ""}, "enabled embeddings need EMBEDDING_API_KEY"),
+        ({"embedding_base_url": "http://provider.example/v1"}, "EMBEDDING_BASE_URL"),
+        ({"ncert_kb_base_url": "http://127.0.0.1:4200", "ncert_kb_api_key": "key"}, "NCERT_KB_"),
+        ({"intent_router": "on", "ollalink_api_key": "key"}, "INTENT_ROUTER=on"),
+        ({"study_scope": "shadow", "ollalink_api_key": "key"}, "STUDY_SCOPE must be off"),
+    ],
+)
+def test_production_refuses_unsafe_provider_configuration(overrides, problem):
+    with pytest.raises(RuntimeError, match=problem):
+        make_settings(**{**PRODUCTION_LIKE, **overrides}).validate_for_env()
+
+
+def test_production_allows_shadow_intent_and_explicit_loopback_provider_urls():
+    make_settings(
+        **{
+            **PRODUCTION_LIKE,
+            "intent_router": "shadow",
+            "ollalink_api_key": "key",
+            "llm_primary_base_url": "http://127.0.0.1:11434/v1",
+            "embedding_base_url": "http://localhost:11434/v1",
+        }
+    ).validate_for_env()
+
+
+@pytest.mark.parametrize("name", ["LANGCHAIN_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_TRACING"])
+def test_production_refuses_active_tracing_names_without_values(monkeypatch, name):
+    secret = "trace-value-must-not-appear"
+    monkeypatch.setenv(name, secret)
+    make_settings(**PRODUCTION_LIKE).validate_for_env()
+    monkeypatch.setenv(name, "true")
+    with pytest.raises(RuntimeError) as error:
+        make_settings(**PRODUCTION_LIKE).validate_for_env()
+    assert name not in str(error.value) and secret not in str(error.value)
 
 
 def test_production_hides_api_docs():

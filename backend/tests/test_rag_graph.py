@@ -100,10 +100,12 @@ async def test_streams_retrieval_then_tokens_and_puts_numbered_context_in_the_pr
     events, summary, text = await h.run()
     kinds = [e["event"] for e in events]
     assert kinds[0] == "retrieval" and kinds[1] == "llm_started" and kinds[-1] == "llm_finished"
-    assert text == "You said: Which port does Zephyr use?"
+    assert text.startswith("You said: <reference_material>") and text.endswith("Which port does Zephyr use?")
     assert summary["status"] == "ok" and summary["chunkCount"] == 1 and summary["sources"][0]["uri"] == "zephyr.md"
     prompt = h.llm.calls[-1]
-    assert prompt[1].role == "system" and "[1] Zephyr (source: kb)" in prompt[1].content and "7777" in prompt[1].content
+    assert [message.role for message in prompt] == ["system", "user"]
+    assert "[1] Zephyr (source: kb)" in prompt[-1].content and "7777" in prompt[-1].content
+    assert prompt[-1].content.endswith("Which port does Zephyr use?")
     assert len(h.llm.calls) == 1  # exactly one generation per turn
 
 

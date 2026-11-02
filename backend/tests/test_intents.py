@@ -214,6 +214,24 @@ def test_an_explicit_request_for_a_hint_only_is_read_in_english_hindi_and_hingli
         assert not explicit_hint_only(text), text
 
 
+async def test_classifier_masks_secrets_without_mutating_the_conversation():
+    sent = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        sent.append(body["text"])
+        (question,) = body["questions"]
+        return httpx.Response(200, json=answer(question, "define_term"))
+
+    original = "line vty 0 4\n password FakeClassifier\n login"
+    conversation = [ChatMessage("user", original)]
+    found = classifier(handler)
+    assert (await found.classify(conversation)).intent == "define_term"
+    await found.aclose()
+    assert conversation[0].content == original
+    assert sent == ["Current message: line vty 0 4 password <redacted> login"] * 2
+
+
 async def test_two_short_requests_fail_fast_and_the_key_never_reaches_a_log(caplog):
     caplog.set_level(logging.DEBUG, logger="app.intents")
     calls = []

@@ -551,6 +551,23 @@ export class ChatStore {
       return;
     }
 
+    if (outcome === "aborted" && teardown === "stop" && !assistantId) {
+      const map = this.messageMap(canonical);
+      const entry = this.entries.get(canonical);
+      const stopped = optimisticId ? map.get(optimisticId)?.attachments : undefined;
+      if (optimisticId) map.delete(optimisticId);
+      if (stopped?.length) this.onSendRefused?.(canonical, stopped);
+      this.drafts.set(canonical, this.drafts.get(canonical) || sentText || "");
+      this.update(canonical, {
+        stream: null,
+        order: (entry?.order ?? []).filter((id) => id !== optimisticId),
+        composerError: null,
+      });
+      const conversationId = this.entries.get(canonical)?.conversationId;
+      if (conversationId) await this.reload(conversationId);
+      return;
+    }
+
     if (assistantId && (outcome === "interrupted" || outcome === "failed" || outcome === "aborted")) {
       const current = this.getMessage(canonical, assistantId);
       if (current && current.status === "streaming") {

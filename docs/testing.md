@@ -11,6 +11,8 @@
 - [The layers](#the-layers)
 - [Where each layer runs](#where-each-layer-runs)
 - [Backend tests in WSL](#backend-tests-in-wsl)
+- [Local hybrid retrieval benchmark](#local-hybrid-retrieval-benchmark)
+- [Local restore rehearsal](#local-restore-rehearsal)
 - [Commands](#commands)
 - [End-to-end tests](#end-to-end-tests)
 - [Model behaviour and production checks](#model-behaviour-and-production-checks)
@@ -61,6 +63,61 @@ Give each parallel run its own directory and database name. Then, in WSL:
 
 `bun run test` at the repository root also runs the backend step, which succeeds only where a `*_test` database is
 reachable from Windows (otherwise that step fails and the frontend and deploy steps still run).
+
+## Local hybrid retrieval benchmark
+
+`backend/scripts/benchmark_hybrid_retrieval.py` measures the PostgreSQL part of dense and hybrid retrieval without
+calling an embedding provider. It requires `TEST_DATABASE_URL` explicitly, does not read application settings or
+`.env*`, and refuses non-loopback hosts or database names that do not end in `_test`. Run it only against an
+isolated database whose migrations are already at the current head. The script creates uniquely named synthetic
+users, sources, documents and chunks, and removes them on exit; use a dedicated disposable database anyway.
+
+The default corpus is 3,000 documents with 20 generic chunks each (60,000 generic chunks), plus four sentinel
+chunks. Generic chunks are distributed across 12 deterministic topic vectors and six overlapping lexical families.
+Sentinels cover an exact interface identifier, two private owners, and a second embedding model. Vectors are local,
+deterministic 1,536-dimensional values, so reported latency is database search latency and excludes provider
+embedding latency.
+
+For dense and hybrid modes, the harness runs warmups and then recorded repetitions at concurrency 1, 4 and 8. Its
+bounded JSON report contains sample/failure counts, p50/p95/p99, exact-identifier retrieval and cross-user/model-isolation
+assertions, and compact `EXPLAIN (ANALYZE, BUFFERS)` evidence for the HNSW and GIN indexes. It exits nonzero unless
+all hybrid concurrency levels have zero failures and p95 is strictly below 300 ms. The JSON contains no document
+content, query text, vectors, connection URL or credentials.
+
+Run in WSL with the backend venv and a local PostgreSQL + pgvector test cluster:
+
+```sh
+TEST_DATABASE_URL='postgresql+asyncpg://benchmark_operator@127.0.0.1:55432/retrieval_benchmark_test' \
+.venv/bin/python scripts/benchmark_hybrid_retrieval.py --output retrieval-benchmark.json
+```
+
+Scale can be changed with `--documents` and `--chunks-per-document`; the product must remain between 100 and
+250,000 generic chunks. `--warmups` and `--repetitions` control measurement counts. Do not publish the report as
+production evidence: it is a local acceptance measurement and production performance remains unverified until an
+authorized host run.
+
+## Local restore rehearsal
+
+`deploy-netsec/restore-drill.sh` is a local, destructive recovery check for an explicit PostgreSQL custom-format
+archive. It never reads `.env*`, has no host or database default, and accepts only an explicit loopback database
+whose lowercase name ends in `_test` and does not look like a NetSec/PadhAI/production target. The database is
+force-dropped before the drill and again on exit, so use a unique disposable name. The script validates the
+archive, restores without owners or grants, upgrades to the current Alembic head, starts the API in test mode with
+fake LLM/embeddings and in-memory email, checks `/health` and `/ready`, then cleans up.
+
+Run it in WSL (or another local Linux environment with the PostgreSQL client tools, the backend venv, and a local
+PostgreSQL + pgvector test cluster). Do not put the password in the URL; use a mode-600 password file. Example:
+
+```sh
+TEST_DATABASE_URL='postgresql+asyncpg://restore_operator@127.0.0.1:55432/netsec_restore_rehearsal_test' \
+PGPASSWORD_FILE="$HOME/.config/netsecai/restore-test-password" \
+bash deploy-netsec/restore-drill.sh "$HOME/backups/netsecai-example.dump"
+```
+
+The supplied database user must be able to create/drop the named test database, restore the archive, create
+extensions, and run migrations. This is a local rehearsal only; it must never be pointed at production or a
+non-loopback host. The deploy-script suite validates the fail-closed guards and command sequence with mocks; it
+does not restore a real archive automatically.
 
 ## Commands
 

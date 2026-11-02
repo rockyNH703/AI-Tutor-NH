@@ -124,7 +124,9 @@ async def test_a_password_change_records_when(client, app, database):
         "UPDATE auth_accounts SET password = 'new-hash' WHERE provider_id = 'credential' AND user_id = :id",
         id=uuid.UUID(account["user"]["id"]),
     )
-    assert (await client.get("/v1/me", headers=account["headers"])).json()["passwordChangedAt"] is not None
+    response = await client.get("/v1/me", headers=account["headers"])
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "unauthorized"
 
 
 # ------------------------------------------------------------------ profile photo

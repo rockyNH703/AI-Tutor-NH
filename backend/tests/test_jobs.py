@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.auth.emails import EmailDeliveryError
+from app.jobs import __main__ as jobs_main
 from app.jobs.runner import LOCK_KEY, run_once
 from app.notifications.outbox import SECURITY_PASSWORD_CHANGED, SECURITY_SIGN_IN, queue_email
 from tests.conftest import make_settings, register
@@ -37,6 +38,51 @@ async def sql(database: str, statement: str, **params) -> list[dict]:
 
 def sent_to(app, address: str) -> list[dict]:
     return [mail for mail in app.state.email_sender.outbox if mail["to"] == address]
+
+
+class _JobsSettings:
+    log_level = "INFO"
+
+    def validate_for_env(self) -> None:
+        pass
+
+
+class _JobsLog:
+    def __init__(self) -> None:
+        self.extra: dict | None = None
+
+    def info(self, message: str, *, extra: dict) -> None:
+        assert message == "jobs run finished"
+        self.extra = extra
+
+
+def _jobs_exit_code(monkeypatch, report: dict) -> tuple[int, dict]:
+    log = _JobsLog()
+
+    async def fake_run(settings: _JobsSettings) -> dict:
+        return report
+
+    monkeypatch.setattr(jobs_main, "Settings", _JobsSettings)
+    monkeypatch.setattr(jobs_main, "configure_logging", lambda level: None)
+    monkeypatch.setattr(jobs_main, "get_logger", lambda name: log)
+    monkeypatch.setattr(jobs_main, "_run", fake_run)
+    code = jobs_main.main()
+    assert log.extra is not None
+    return code, log.extra
+
+
+def test_jobs_process_exits_nonzero_after_a_partial_failure(monkeypatch):
+    report = {"recovered": 0, "send": "failed", "retention": {"sessions": 1}}
+    code, summary = _jobs_exit_code(monkeypatch, report)
+    assert code == 1
+    assert summary == {"report": report, "failed_steps": ("send",)}
+
+
+def test_jobs_process_exits_zero_after_all_steps_succeed(monkeypatch):
+    report = {"recovered": 0, "send": {"sent": 0}, "retention": {"sessions": 0}}
+    code, summary = _jobs_exit_code(monkeypatch, report)
+    assert code == 0
+    assert summary == {"report": report, "failed_steps": ()}
 
 
 async def statuses(database: str, user_id: str) -> list[tuple[str, str]]:

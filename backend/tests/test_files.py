@@ -250,6 +250,17 @@ async def test_recovery_after_a_restart_settles_every_file(client, app):
     leased = (await upload(client, headers, "b.txt", TEXT + b" b")).json()["id"]
     await _set(app, exhausted, attempts=3, processing_started_at=None)
     await _set(app, leased, attempts=1, processing_started_at=func.clock_timestamp())
+    async with app.state.db.sessionmaker() as session:
+        session.add(
+            FileChunk(
+                file_id=uuid.UUID(exhausted),
+                ordinal=0,
+                content="partial stale chunk",
+                embedding=[0.0] * 1536,
+                embedding_model=app.state.file_worker.model,
+            )
+        )
+        await session.commit()
 
     await app.state.file_worker.recover(self_test=False)
     assert ((await _get(app, exhausted)).status, (await _get(app, exhausted)).error_code) == (
@@ -257,6 +268,7 @@ async def test_recovery_after_a_restart_settles_every_file(client, app):
         "processing_interrupted",
     )
     assert (await _get(app, leased)).processing_started_at is None  # a dead process's lease is released
+    assert await chunks_of(app, exhausted) == []
     assert await app.state.file_worker.run_once()
     assert (await _get(app, leased)).status == "ready"
 
@@ -311,6 +323,38 @@ async def test_deleting_a_file_while_it_is_read_discards_the_work(client, app, m
 
     monkeypatch.setattr(processing, "run_extractor", delete_meanwhile)
     assert await app.state.file_worker.run_once()
+    assert await _get(app, file_id) is None
+    assert await chunks_of(app, file_id) == []
+
+
+async def test_deleting_a_file_after_an_embedding_failure_stops_provider_retries(client, app, monkeypatch):
+    monkeypatch.setattr(processing, "EMBED_RETRY_DELAYS_S", (0,))
+    monkeypatch.setattr(processing.random, "random", lambda: 0.0)
+    headers = (await register(client, app))["headers"]
+    file_id = (await upload(client, headers, "notes.txt", TEXT)).json()["id"]
+    worker = app.state.file_worker
+
+    class BarrierEmbeddings(SpyEmbeddings):
+        def __init__(self, inner):
+            super().__init__(inner)
+            self.entered = asyncio.Event()
+            self.release = asyncio.Event()
+
+        async def aembed_documents(self, texts):
+            self.calls += 1
+            self.entered.set()
+            await self.release.wait()
+            raise EmbeddingError("embedding_failed", "provider down")
+
+    embeddings = BarrierEmbeddings(worker.embeddings)
+    monkeypatch.setattr(worker, "embeddings", embeddings)
+    processing_task = asyncio.create_task(worker.run_once())
+    await embeddings.entered.wait()
+    assert (await client.delete(f"/v1/files/{file_id}", headers=headers)).status_code == 204
+    embeddings.release.set()
+    assert await processing_task
+
+    assert embeddings.calls == 1
     assert await _get(app, file_id) is None
     assert await chunks_of(app, file_id) == []
 

@@ -81,10 +81,7 @@ docker info >/dev/null 2>&1 || die "the docker daemon is not reachable"
 docker compose version >/dev/null 2>&1 || die "docker compose v2 is missing; install the compose plugin that matches this Docker"
 
 log "2/5 bun $BUN_VERSION"
-if [ ! -x "$BUN" ] || [ "$("$BUN" --version)" != "$BUN_VERSION" ]; then
-  curl -fsSL https://bun.sh/install | BUN_INSTALL=/root/.bun bash -s "bun-v$BUN_VERSION" >/dev/null
-fi
-[ "$("$BUN" --version)" = "$BUN_VERSION" ] || die "bun $BUN_VERSION could not be installed"
+ensure_bun "$SRC"
 
 log "3/5 directories and the pinned Node runtime"
 install -d -m 755 "$STATE" "$SHARED" "$RUNTIMES"

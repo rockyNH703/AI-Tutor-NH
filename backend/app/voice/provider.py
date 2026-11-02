@@ -29,6 +29,7 @@ from typing import Protocol
 
 import httpx
 
+from app.llm.redact import mask_secrets
 from app.logging import get_logger
 
 log = get_logger("app.voice")
@@ -127,11 +128,12 @@ class OllalinkVoice:
 
     async def synthesize(self, text: str, fmt: str = "mp3") -> tuple[bytes, str]:
         expected = SPEECH_FORMATS[fmt]
+        masked, _ = mask_secrets(text)
         response = await self._send(
             "tts",
             lambda: self._client.post(
                 self.tts_url,
-                json={"input": text, "language": "en", "voice": self.voice, "response_format": fmt},
+                json={"input": masked, "language": "en", "voice": self.voice, "response_format": fmt},
                 timeout=httpx.Timeout(self.tts_timeout_s - 3, connect=3.0),
             ),
             self.tts_timeout_s,

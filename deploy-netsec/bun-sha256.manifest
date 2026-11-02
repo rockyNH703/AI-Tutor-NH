@@ -1,0 +1,4 @@
+# Bun release archive SHA-256 identities reviewed into this repository.
+# Format: <version> <release-asset-without-.zip> <lowercase-sha256>
+# Source: GitHub release asset metadata for oven-sh/bun tag bun-v1.3.14.
+1.3.14 bun-linux-x64 951ee2aee855f08595aeec6225226a298d3fea83a3dcd6465c09cbccdf7e848f

@@ -327,6 +327,41 @@ describe("failures", () => {
 });
 
 describe("stop, regenerate, delete", () => {
+  test("a pre-meta Stop removes the optimistic turn, restores the draft, and refreshes committed state", async () => {
+    const { api, store } = setup();
+    api.pages.set(`${A}:`, {
+      items: [message(uuid(90), A, "user", "q"), message(uuid(91), A, "assistant", "a")],
+      nextCursor: null,
+    });
+    await store.ensureLoaded(A);
+    const sending = store.send(A, "q2");
+    const optimisticId = store.getEntry(A)?.order.at(-1);
+    expect(store.getMessage(A, optimisticId ?? "")?.pending).toBe(true);
+
+    api.pages.set(`${A}:`, {
+      items: [
+        message(uuid(90), A, "user", "q"),
+        message(uuid(91), A, "assistant", "a"),
+        message(uuid(92), A, "user", "q2"),
+        message(uuid(93), A, "assistant", "", "cancelled"),
+      ],
+      nextCursor: null,
+    });
+    await store.stop(A);
+    await sending;
+
+    expect(api.cancelled).toEqual([]);
+    expect(api.streams[0]?.signal?.aborted).toBe(true);
+    expect(store.getDraft(A)).toBe("q2");
+    expect(store.getEntry(A)?.stream).toBeNull();
+    expect(store.getMessage(A, optimisticId ?? "")).toBeUndefined();
+    expect(api.listCalls).toEqual([
+      { id: A, before: undefined },
+      { id: A, before: undefined },
+    ]);
+    expect(store.getEntry(A)?.order).toEqual([uuid(90), uuid(91), uuid(92), uuid(93)]);
+  });
+
   test("stop cancels via the API and keeps reading until the persisted `done`", async () => {
     const { api, store } = setup();
     const draft = store.freshDraftKey();

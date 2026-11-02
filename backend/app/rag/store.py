@@ -11,8 +11,9 @@ runs only inside that set. Name and metadata filters can narrow it, never widen 
 from __future__ import annotations
 
 import re
+import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from sqlalchemy import delete, func, literal_column, or_, select, text
@@ -22,6 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import Document, DocumentChunk, FileChunk, KnowledgeSource, UserFile
 from app.db.session import Database
 from app.rag.errors import IngestionError, RetrievalError
+from app.rag.lexical import LexicalQuery, reciprocal_rank_fusion
 from app.rag.types import AccessScope
 
 _FILTER_KEY = re.compile(r"^[a-z0-9_]{1,64}$")
@@ -40,6 +42,12 @@ class SearchHit:
     content: str
     metadata: dict[str, Any]
     score: float  # cosine similarity, 1 - cosine distance
+
+
+@dataclass(frozen=True)
+class HybridSearchResult:
+    hits: list[SearchHit]
+    timings: dict[str, int | str]
 
 
 @dataclass(frozen=True)
@@ -156,10 +164,92 @@ class KnowledgeStore:
         hits = hits.cte("hits")
         return (
             select(hits, Document.title, Document.uri, KnowledgeSource.name.label("source_name"))
-            .join(Document, Document.id == hits.c.document_id)
+            .join(Document, (Document.id == hits.c.document_id) & (Document.source_id == hits.c.source_id))
             .join(KnowledgeSource, KnowledgeSource.id == hits.c.source_id)
             .order_by(hits.c.distance)
         )
+
+    @staticmethod
+    def lexical_search_statement(
+        query: LexicalQuery,
+        embedding_model: str,
+        allowed_source_ids: list[uuid.UUID],
+        k: int,
+        metadata_filter: dict[str, Any] | None = None,
+    ):
+        """Rank plain lexical query text against generated tsvectors with bound values."""
+        tsquery = func.websearch_to_tsquery(literal_column("'simple'::regconfig"), query.text)
+        rank = func.ts_rank_cd(DocumentChunk.content_tsv, tsquery).label("lexical_rank")
+        statement = (
+            select(
+                DocumentChunk.id,
+                DocumentChunk.document_id,
+                DocumentChunk.source_id,
+                DocumentChunk.ordinal,
+                DocumentChunk.content,
+                DocumentChunk.metadata_.label("metadata"),
+                rank,
+                Document.title,
+                Document.uri,
+                KnowledgeSource.name.label("source_name"),
+            )
+            .join(
+                Document,
+                (Document.id == DocumentChunk.document_id) & (Document.source_id == DocumentChunk.source_id),
+            )
+            .join(KnowledgeSource, KnowledgeSource.id == DocumentChunk.source_id)
+            .where(
+                DocumentChunk.content_tsv.op("@@")(tsquery),
+                DocumentChunk.embedding_model == embedding_model,
+                DocumentChunk.source_id.in_(allowed_source_ids),
+            )
+            .order_by(rank.desc(), DocumentChunk.id)
+            .limit(k)
+        )
+        if metadata_filter:
+            statement = statement.where(DocumentChunk.metadata_.contains(metadata_filter))
+        return statement
+
+    @staticmethod
+    def _dense_hits(rows, min_score: float) -> list[SearchHit]:
+        results = []
+        for row in rows:
+            score = 1.0 - float(row.distance)
+            if score < min_score:
+                continue
+            results.append(
+                SearchHit(
+                    chunk_id=row.id,
+                    document_id=row.document_id,
+                    source_id=row.source_id,
+                    source_name=row.source_name,
+                    title=row.title,
+                    uri=row.uri,
+                    ordinal=row.ordinal,
+                    content=row.content,
+                    metadata=dict(row.metadata or {}),
+                    score=round(score, 6),
+                )
+            )
+        return results
+
+    @staticmethod
+    def _lexical_hits(rows) -> list[SearchHit]:
+        return [
+            SearchHit(
+                chunk_id=row.id,
+                document_id=row.document_id,
+                source_id=row.source_id,
+                source_name=row.source_name,
+                title=row.title,
+                uri=row.uri,
+                ordinal=row.ordinal,
+                content=row.content,
+                metadata=dict(row.metadata or {}),
+                score=0.0,
+            )
+            for row in rows
+        ]
 
     async def search(
         self,
@@ -187,26 +277,88 @@ class KnowledgeStore:
         except Exception as error:  # noqa: BLE001
             raise RetrievalError("database_unavailable", type(error).__name__) from error
 
-        results = []
-        for row in rows:
-            score = 1.0 - float(row.distance)
-            if score < min_score:
-                continue
-            results.append(
-                SearchHit(
-                    chunk_id=row.id,
-                    document_id=row.document_id,
-                    source_id=row.source_id,
-                    source_name=row.source_name,
-                    title=row.title,
-                    uri=row.uri,
-                    ordinal=row.ordinal,
-                    content=row.content,
-                    metadata=dict(row.metadata or {}),
-                    score=round(score, 6),
-                )
-            )
-        return results
+        return self._dense_hits(rows, min_score)
+
+    async def hybrid_search(
+        self,
+        scope: AccessScope,
+        vector: list[float],
+        lexical_query: LexicalQuery | None,
+        *,
+        embedding_model: str,
+        k: int,
+        dense_candidates: int,
+        lexical_candidates: int,
+        rrf_k: int,
+        source_names: list[str] | None = None,
+        metadata_filter: dict[str, Any] | None = None,
+        min_score: float = 0.0,
+    ) -> HybridSearchResult:
+        """Fuse bounded dense and lexical rankings; lexical failure degrades to dense-only."""
+        metadata_filter = validate_metadata_filter(metadata_filter)
+        dense_started = time.perf_counter()
+        try:
+            async with self.db.sessionmaker() as session, session.begin():
+                allowed = await self.allowed_source_ids(session, scope, source_names)
+                if not allowed:
+                    return HybridSearchResult([], {"dense_ms": 0, "lexical_ms": 0, "lexical_reason": "no_sources"})
+                await self.apply_search_settings(session)
+                dense_rows = (
+                    await session.execute(
+                        self.search_statement(vector, embedding_model, allowed, dense_candidates, metadata_filter)
+                    )
+                ).all()
+            dense_ms = int((time.perf_counter() - dense_started) * 1000)
+            dense_hits = self._dense_hits(dense_rows, min_score)
+
+            lexical_started = time.perf_counter()
+            lexical_reason = "ok"
+            lexical_hits: list[SearchHit] = []
+            if lexical_query is None:
+                lexical_reason = "empty_query"
+            else:
+                try:
+                    async with self.db.sessionmaker() as session, session.begin():
+                        lexical_allowed = await self.allowed_source_ids(session, scope, source_names)
+                        if lexical_allowed:
+                            lexical_rows = (
+                                await session.execute(
+                                    self.lexical_search_statement(
+                                        lexical_query,
+                                        embedding_model,
+                                        lexical_allowed,
+                                        lexical_candidates,
+                                        metadata_filter,
+                                    )
+                                )
+                            ).all()
+                            lexical_hits = self._lexical_hits(lexical_rows)
+                        else:
+                            lexical_reason = "no_sources"
+                except Exception as error:  # noqa: BLE001 - optional leg must not abort dense retrieval
+                    lexical_reason = f"error:{type(error).__name__}"
+            lexical_ms = int((time.perf_counter() - lexical_started) * 1000)
+        except RetrievalError:
+            raise
+        except Exception as error:  # noqa: BLE001
+            raise RetrievalError("database_unavailable", type(error).__name__) from error
+
+        fused = reciprocal_rank_fusion(
+            (dense_hits, lexical_hits),
+            key=lambda hit: hit.chunk_id,
+            k=rrf_k,
+            limit=k,
+            candidates_per_ranking=max(dense_candidates, lexical_candidates),
+        )
+        dense_scores = {hit.chunk_id: hit.score for hit in dense_hits}
+        hits = [
+            replace(candidate.item, score=dense_scores.get(candidate.item.chunk_id, candidate.item.score))
+            for candidate in fused
+        ]
+        return HybridSearchResult(
+            hits,
+            {"dense_ms": dense_ms, "lexical_ms": lexical_ms, "lexical_reason": lexical_reason},
+        )
 
     # ------------------------------------------------------------ attached files
     # A turn reads only files attached to its conversation, owned by its student and ready. The

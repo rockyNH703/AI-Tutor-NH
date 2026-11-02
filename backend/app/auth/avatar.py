@@ -64,13 +64,22 @@ def process(data: bytes, declared_type: str, max_bytes: int) -> ProcessedAvatar:
     if not data:
         raise _reject("empty", "The file is empty.")
 
+    detected_format = None
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        detected_format = "PNG"
+    elif data.startswith(b"\xff\xd8\xff"):
+        detected_format = "JPEG"
+    elif len(data) >= 12 and data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        detected_format = "WEBP"
+    if detected_format is not None and detected_format != expected:
+        raise _reject("type_mismatch", "The file is not the kind of image it claims to be.")
+
     with warnings.catch_warnings():
         # Pillow warns (rather than refuses) between MAX_IMAGE_PIXELS and twice that. Refuse.
         warnings.simplefilter("error", Image.DecompressionBombWarning)
         try:
-            # Reads the header only. Every format plugin may identify the bytes (so a mismatch is
-            # reported as such), but only the declared format is ever decoded.
-            with Image.open(io.BytesIO(data)) as source:
+            # Restrict plugin probing and decoding to the media type already accepted at the HTTP boundary.
+            with Image.open(io.BytesIO(data), formats=(expected,)) as source:
                 if source.format != expected:
                     raise _reject("type_mismatch", "The file is not the kind of image it claims to be.")
                 width, height = source.size

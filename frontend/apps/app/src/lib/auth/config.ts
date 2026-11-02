@@ -97,6 +97,9 @@ export function readAuthEnv(env: Record<string, string | undefined> = process.en
   if (secret.length < 32) throw new Error("BETTER_AUTH_SECRET must be at least 32 characters");
   const internalToken = need("AUTH_INTERNAL_TOKEN");
   if (internalToken.length < 32) throw new Error("AUTH_INTERNAL_TOKEN must be at least 32 characters");
+  if (env.NODE_ENV === "production" && env.AUTH_RATE_LIMIT === "off") {
+    throw new Error("AUTH_RATE_LIMIT cannot be off in production");
+  }
   const clientId = env.GOOGLE_CLIENT_ID?.trim();
   const clientSecret = env.GOOGLE_CLIENT_SECRET?.trim();
   const siteKey = env.TURNSTILE_SITE_KEY?.trim();
@@ -427,15 +430,30 @@ export function createAuth(env: AuthEnv) {
               matcher: (context) => context.path === "/two-factor/verify-totp" || context.path === "/two-factor/disable",
               handler: createAuthMiddleware(async (ctx) => {
                 if (ctx.context.returned instanceof APIError) return;
-                const userId = ctx.context.newSession?.user.id;
-                if (!userId) return;
+                const current = ctx.context.newSession;
+                const userId = current?.user.id;
+                if (!userId || !current.session.token) return;
                 if (ctx.path === "/two-factor/disable") {
+                  const sessions = await ctx.context.internalAdapter.listSessions(userId);
+                  await Promise.all(
+                    sessions
+                      .filter((session) => session.expiresAt > new Date() && session.token !== current.session.token)
+                      .map((session) => ctx.context.internalAdapter.deleteSession(session.token)),
+                  );
                   postInternal(api, "events", { kind: "two_factor_off", userId: String(userId) });
                   return;
                 }
                 // Turning it on is a verify-totp from someone signed in; a sign-in carries a challenge.
                 const challenge = await ctx.getSignedCookie(ctx.context.createAuthCookie(TWO_FACTOR_COOKIE).name, ctx.context.secret);
-                if (!challenge) postInternal(api, "events", { kind: "two_factor_on", userId: String(userId) });
+                if (!challenge) {
+                  const sessions = await ctx.context.internalAdapter.listSessions(userId);
+                  await Promise.all(
+                    sessions
+                      .filter((session) => session.expiresAt > new Date() && session.token !== current.session.token)
+                      .map((session) => ctx.context.internalAdapter.deleteSession(session.token)),
+                  );
+                  postInternal(api, "events", { kind: "two_factor_on", userId: String(userId) });
+                }
               }),
             },
           ],

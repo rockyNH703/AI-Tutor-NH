@@ -315,7 +315,11 @@ and does nothing today.
 | Variable | Type / allowed | Default | What it does |
 |---|---|---|---|
 | `RAG_ENABLED` | true/false | `True` | Search the knowledge base (pgvector, or the NCERT service) on each turn; `false` skips it (reason `disabled`). Files attached to a chat are read either way. |
+| `RAG_HYBRID` | true/false | `False` | Opt in to PostgreSQL `simple` full-text search fused with dense pgvector results by reciprocal-rank fusion. Both legs use the same user/source/model/metadata filters; lexical failure degrades to dense-only. Leave off until the retrieval benchmark passes. NCERT is unaffected. |
 | `RAG_TOP_K` | integer | `5` | Passages retrieved per turn (the NCERT service is asked for three times as many for a student with a curriculum, then ranked). |
+| `RAG_DENSE_CANDIDATES` | integer (1..1000) | `20` | Dense candidates considered before hybrid fusion. Ignored when `RAG_HYBRID=false`. |
+| `RAG_LEXICAL_CANDIDATES` | integer (1..1000) | `20` | Lexical candidates considered before hybrid fusion. Ignored when `RAG_HYBRID=false`. |
+| `RAG_RRF_K` | integer (1..1000) | `60` | Reciprocal-rank-fusion damping constant. Ignored when `RAG_HYBRID=false`. |
 | `RAG_MIN_SCORE` | number | `0.3` | Cosine similarity floor (0..1). Uncalibrated default: tune with scripts/eval_retrieval.py. |
 | `RAG_MAX_CONTEXT_CHARS` | integer | `8000` | Most characters of retrieved passages put in the prompt (whole passages only). |
 | `RAG_RETRIEVAL_TIMEOUT_S` | number | `8.0` | Seconds the knowledge-base search may take before the turn goes on without it. |

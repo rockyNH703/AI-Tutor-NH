@@ -207,19 +207,54 @@ let uploadsInFlight = 0;
  * are read at once; the rest wait their turn rather than fail (a preview is worth the wait).
  */
 export const FILES_IN_FLIGHT_MAX = 3;
+export const FILE_WAITERS_MAX = 6;
 let filesInFlight = 0;
-const fileQueue: (() => void)[] = [];
+type FileWaiter = { grant: () => void };
+const fileQueue: FileWaiter[] = [];
 
-async function fileSlot(): Promise<() => void> {
-  if (filesInFlight < FILES_IN_FLIGHT_MAX) filesInFlight += 1;
-  else await new Promise<void>((resolve) => fileQueue.push(resolve));
-  // A freed slot is handed straight to the next in line, so the count never overshoots.
+function fileRelease(): () => void {
+  let released = false;
   return () => {
+    if (released) return;
+    released = true;
     const next = fileQueue.shift();
-    if (next) next();
+    if (next) next.grant();
     else filesInFlight -= 1;
   };
 }
+
+async function fileSlot(signal: AbortSignal): Promise<(() => void) | null> {
+  if (signal.aborted) return null;
+  if (filesInFlight < FILES_IN_FLIGHT_MAX) {
+    filesInFlight += 1;
+    return fileRelease();
+  }
+  if (fileQueue.length >= FILE_WAITERS_MAX) return null;
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const waiter: FileWaiter = {
+      grant: () => {
+        if (settled) return;
+        settled = true;
+        signal.removeEventListener("abort", abort);
+        resolve(fileRelease());
+      },
+    };
+    const abort = () => {
+      if (settled) return;
+      settled = true;
+      const index = fileQueue.indexOf(waiter);
+      if (index >= 0) fileQueue.splice(index, 1);
+      resolve(null);
+    };
+    fileQueue.push(waiter);
+    signal.addEventListener("abort", abort, { once: true });
+    if (signal.aborted) abort();
+  });
+}
+
+type ForwardAuth = { requestId: string; token: string | null; https: boolean };
 
 /**
  * Voice mode's requests at once in this process: a recording (up to 1 MiB) or a sentence's audio (up to 2 MB)
@@ -244,9 +279,16 @@ export async function proxyRequest(request: Request, segments: string[], deps: P
     }
   }
   if (spec?.file) {
-    const release = await fileSlot();
+    const requestId = deps.requestId?.() ?? crypto.randomUUID().replace(/-/g, "");
+    const https = publicProtocol(request.headers, request.url) === "https";
+    const token = await readSessionToken(request.headers.get("cookie"), https, deps.cookieSecret);
+    if (spec.auth && !token) {
+      return envelope(401, "unauthorized", requestId, { cookies: clearedSessionCookies(https) });
+    }
+    const release = await fileSlot(request.signal);
+    if (!release) return envelope(503, "busy", requestId);
     try {
-      return await forward(request, segments, deps);
+      return await forward(request, segments, deps, { requestId, token, https });
     } finally {
       release();
     }
@@ -264,11 +306,11 @@ export async function proxyRequest(request: Request, segments: string[], deps: P
   }
 }
 
-async function forward(request: Request, segments: string[], deps: ProxyDeps): Promise<Response> {
-  const requestId = deps.requestId?.() ?? crypto.randomUUID().replace(/-/g, "");
+async function forward(request: Request, segments: string[], deps: ProxyDeps, auth?: ForwardAuth): Promise<Response> {
+  const requestId = auth?.requestId ?? deps.requestId?.() ?? crypto.randomUUID().replace(/-/g, "");
   const method = request.method.toUpperCase();
   const path = `/v1/${segments.join("/")}`;
-  const https = publicProtocol(request.headers, request.url) === "https";
+  const https = auth?.https ?? publicProtocol(request.headers, request.url) === "https";
   const log = deps.log ?? ((line: string) => console.warn(line));
 
   const match = matchRoute(method, path);
@@ -280,7 +322,7 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps): P
     return envelope(403, "forbidden", requestId);
   }
 
-  const token = await readSessionToken(request.headers.get("cookie"), https, deps.cookieSecret);
+  const token = auth ? auth.token : await readSessionToken(request.headers.get("cookie"), https, deps.cookieSecret);
   if (spec.auth && !token) {
     return envelope(401, "unauthorized", requestId, { cookies: clearedSessionCookies(https) });
   }

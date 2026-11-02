@@ -9,8 +9,10 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import MemoryCommandReceipt, Message, User
+from app.db.models import Conversation, MemoryCommandReceipt, Message, User, UserSettings
 from app.errors import Conflict
+from app.memory.foundation import lock_memory_user
+from app.memory.preferences import MemoryPreferences
 from app.memory.service import MemoryService
 from app.settings import Settings
 
@@ -34,6 +36,10 @@ def parse_memory_command(text: str) -> ParsedMemoryCommand | None:
 
 def request_hash(command: ParsedMemoryCommand) -> str:
     return hashlib.sha256(f"{command.kind}\0{command.content}".encode()).hexdigest()
+
+
+def _utc(value: datetime) -> datetime:
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
 
 async def replay_receipt(
@@ -73,6 +79,7 @@ async def apply_memory_command(
     receipt = await session.get(MemoryCommandReceipt, receipt_id)
     if receipt is None or receipt.user_id != user_id or receipt.request_hash != digest:
         raise Conflict("That memory command is no longer available.")
+    started_at = receipt.created_at
     if receipt.status == "completed":
         existing = await session.get(Message, receipt.message_id)
         if existing is None:
@@ -98,13 +105,49 @@ async def apply_memory_command(
                 await session.commit()
                 return ""
             await session.rollback()
+            await lock_memory_user(session, user_id)
+            settings_row = await session.get(UserSettings, user_id, with_for_update=True)
+            current = MemoryPreferences.from_settings(settings_row)
             receipt = await session.get(MemoryCommandReceipt, receipt_id, with_for_update=True)
             assistant_message = await session.get(Message, assistant_message_id, with_for_update=True)
+            source_eligible = (
+                await session.scalar(
+                    select(Message.id)
+                    .join(Conversation, Conversation.id == Message.conversation_id)
+                    .where(
+                        Message.id == source_message_id,
+                        Message.role == "user",
+                        Message.status == "complete",
+                        Conversation.user_id == user_id,
+                    )
+                )
+            ) is not None
             if receipt is None or assistant_message is None:
-                raise Conflict("That memory command is no longer available.")
-            if await cancelled() or assistant_message.status != "streaming":
+                if assistant_message is not None and assistant_message.status == "streaming":
+                    assistant_message.status = "cancelled"
+                    await session.commit()
+                return ""
+            cleared_before = current.cleared_before
+            cleared_after_start = cleared_before is not None and _utc(cleared_before) >= _utc(started_at)
+            suppressed = await memory.suppressed(user_id, content_hash)
+            receipt_eligible = (
+                receipt.user_id == user_id
+                and receipt.request_hash == digest
+                and receipt.message_id == assistant_message_id
+                and receipt.status == "started"
+            )
+            if (
+                await cancelled()
+                or assistant_message.status != "streaming"
+                or not receipt_eligible
+                or not source_eligible
+                or cleared_after_start
+                or suppressed
+            ):
                 receipt.status = "failed"
                 receipt.completed_at = datetime.now(UTC)
+                if assistant_message.status == "streaming":
+                    assistant_message.status = "cancelled"
                 await session.commit()
                 return ""
             item = await memory.repo.create(

@@ -2,7 +2,14 @@ import { describe, expect, test } from "bun:test";
 import { serializeSignedCookie } from "better-call";
 
 import { PLAIN_COOKIE, SECURE_COOKIE } from "./cookies";
-import { MAX_BODY_BYTES, VOICE_IN_FLIGHT_MAX, proxyRequest, readBody } from "./proxy-core";
+import {
+  FILES_IN_FLIGHT_MAX,
+  FILE_WAITERS_MAX,
+  MAX_BODY_BYTES,
+  VOICE_IN_FLIGHT_MAX,
+  proxyRequest,
+  readBody,
+} from "./proxy-core";
 
 const SECRET = "a-test-secret-that-is-long-enough-for-better-auth";
 /** A session token as Better Auth makes them (32 letters and digits). */
@@ -420,6 +427,72 @@ describe("files", () => {
     request.headers.set("origin", "https://evil.example");
     expect((await run(request, "/v1/me/avatar", fetchImpl)).status).toBe(403);
     expect(calls.length).toBe(0);
+  });
+
+  test("file admission authenticates first, bounds waiters, removes an aborted waiter, preserves FIFO, and recovers slots", async () => {
+    const releases: (() => void)[] = [];
+    const { calls, fetchImpl } = upstream(
+      () =>
+        new Promise<Response>((resolve) => {
+          releases.push(() => resolve(new Response(PHOTO, { status: 200, headers: { "Content-Type": "image/webp" } })));
+        }),
+    );
+    const file = (signal?: AbortSignal, cookie?: string | null) =>
+      browser("GET", `/v1/me/avatar?v=${HASH}`, { signal, cookie });
+    const waitFor = async (condition: () => boolean) => {
+      const deadline = Date.now() + 2_000;
+      while (!condition()) {
+        if (Date.now() >= deadline) throw new Error("timed out waiting for file admission");
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
+    };
+
+    const active = Array.from({ length: FILES_IN_FLIGHT_MAX }, () => run(file(), "/v1/me/avatar", fetchImpl));
+    await waitFor(() => calls.length === FILES_IN_FLIGHT_MAX);
+    expect(calls.length).toBe(FILES_IN_FLIGHT_MAX);
+
+    const anonymous = await run(file(undefined, null), "/v1/me/avatar", fetchImpl);
+    expect(anonymous.status).toBe(401);
+    expect(calls.length).toBe(FILES_IN_FLIGHT_MAX);
+
+    const middle = new AbortController();
+    const waiters = Array.from({ length: FILE_WAITERS_MAX }, (_, index) =>
+      run(file(index === 1 ? middle.signal : undefined), "/v1/me/avatar", fetchImpl),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(calls.length).toBe(FILES_IN_FLIGHT_MAX);
+
+    const overflow = await run(file(), "/v1/me/avatar", fetchImpl);
+    expect(overflow.status).toBe(503);
+    expect(((await overflow.json()) as { error: { code: string } }).error.code).toBe("busy");
+
+    middle.abort();
+    expect((await waiters[1]!).status).toBe(503);
+    const replacement = run(file(), "/v1/me/avatar", fetchImpl);
+
+    releases.shift()?.();
+    expect((await active[0]!).status).toBe(200);
+    await waitFor(() => calls.length === FILES_IN_FLIGHT_MAX + 1);
+    expect(calls.length).toBe(FILES_IN_FLIGHT_MAX + 1);
+
+    while (releases.length || calls.length < FILES_IN_FLIGHT_MAX + FILE_WAITERS_MAX) {
+      releases.shift()?.();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    while (releases.length) releases.shift()?.();
+
+    const liveWaiters = waiters.filter((_, index) => index !== 1);
+    for (const response of await Promise.all([...active.slice(1), ...liveWaiters, replacement])) {
+      expect(response.status).toBe(200);
+    }
+    expect(calls.length).toBe(FILES_IN_FLIGHT_MAX + FILE_WAITERS_MAX);
+
+    const recovered = upstream(() => new Response(PHOTO, { status: 200, headers: { "Content-Type": "image/webp" } }));
+    const after = await Promise.all(
+      Array.from({ length: FILES_IN_FLIGHT_MAX }, () => run(file(), "/v1/me/avatar", recovered.fetchImpl)),
+    );
+    for (const response of after) expect(response.status).toBe(200);
+    expect(recovered.calls.length).toBe(FILES_IN_FLIGHT_MAX);
   });
 
   test("a photo is passed back as bytes with the API's private cache headers", async () => {

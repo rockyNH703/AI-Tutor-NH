@@ -55,7 +55,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB, UUID, ExcludeConstraint
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB, TSVECTOR, UUID, ExcludeConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -1006,6 +1006,11 @@ class DocumentChunk(Base):
             postgresql_ops={"embedding": "vector_cosine_ops"},
         ),
         Index(
+            "ix_document_chunks_content_tsv_gin",
+            "content_tsv",
+            postgresql_using="gin",
+        ),
+        Index(
             "ix_document_chunks_metadata_gin",
             "metadata",
             postgresql_using="gin",
@@ -1022,6 +1027,11 @@ class DocumentChunk(Base):
     )
     ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_tsv: Mapped[Any] = mapped_column(
+        TSVECTOR,
+        Computed("to_tsvector('simple'::regconfig, content)", persisted=True),
+        nullable=False,
+    )
     metadata_: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )

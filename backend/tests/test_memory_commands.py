@@ -1,5 +1,6 @@
 """Explicit remember/forget commands use one durable receipt and never call the tutor LLM."""
 
+import asyncio
 import uuid
 
 from sqlalchemy import select
@@ -45,6 +46,47 @@ async def test_remember_command_persists_once_and_replays(client, app, fake_llm)
             ("assistant", "complete"),
         ]
         assert memories[0].origin == "explicit_chat" and receipts[0].status == "completed"
+
+
+async def test_clear_wins_if_remember_embedding_is_in_flight(client, app):
+    account = await register(client, app)
+    headers = account["headers"]
+    started = asyncio.Event()
+    release = asyncio.Event()
+    original = app.state.embeddings.aembed_documents
+
+    async def blocked(texts):
+        started.set()
+        await release.wait()
+        return await original(texts)
+
+    app.state.embeddings.aembed_documents = blocked
+    try:
+        remember = asyncio.create_task(
+            client.post(
+                "/v1/chat/stream",
+                json={
+                    "message": "Remember that I use OSPF area 10 in the lab",
+                    "clientRequestId": str(uuid.uuid4()),
+                },
+                headers=headers,
+            )
+        )
+        await started.wait()
+        cleared = await client.delete("/v1/memories", headers=headers)
+        assert cleared.status_code == 204
+        release.set()
+        response = await remember
+    finally:
+        release.set()
+        app.state.embeddings.aembed_documents = original
+
+    assert response.status_code == 200
+    assert "I’ll remember that." not in response.text
+    user_id = uuid.UUID(account["user"]["id"])
+    async with app.state.db.sessionmaker() as db:
+        assert list(await db.scalars(select(MemoryItem).where(MemoryItem.user_id == user_id))) == []
+        assert list(await db.scalars(select(MemoryCommandReceipt).where(MemoryCommandReceipt.user_id == user_id))) == []
 
 
 async def test_forget_command_exact_match_and_no_resurrection(client, app, fake_llm):

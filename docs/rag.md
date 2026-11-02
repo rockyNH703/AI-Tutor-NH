@@ -40,16 +40,22 @@ LLM generation per turn (the provider fallback only switches before the first to
 Extension points (not implemented): query rewriting before `retrieve_context`, reranking after it,
 answer validation after `generate_answer` — each is a new node on an existing edge.
 
-## Schema (migration `0002_knowledge_base`)
+## Schema (migrations `0002_knowledge_base` and `0021_kb_hybrid_search`)
 
 | Table | Key columns |
 |---|---|
 | `knowledge_sources` | `name` (unique), `owner_user_id` (NULL = **global**, else **private** to that user) |
 | `documents` | `source_id`, `uri` (unique per source), `title`, `content_hash`, `ingest_signature`, `metadata` |
-| `document_chunks` | `document_id`, `source_id` (denormalised), `ordinal`, `content`, `metadata`, `embedding vector(1536)`, `embedding_model` |
+| `document_chunks` | `document_id`, `source_id` (denormalised), `ordinal`, `content`, generated `content_tsv`, `metadata`, `embedding vector(1536)`, `embedding_model` |
 
-Indexes on `document_chunks`: HNSW `embedding vector_cosine_ops`, btree `(source_id, embedding_model)`,
-GIN `metadata jsonb_path_ops`, unique `(document_id, ordinal)`.
+Indexes on `document_chunks`: HNSW `embedding vector_cosine_ops`, GIN `content_tsv` with PostgreSQL's
+`simple` configuration, btree `(source_id, embedding_model)`, GIN `metadata jsonb_path_ops`, and unique
+`(document_id, ordinal)`.
+
+`RAG_HYBRID=false` keeps the dense-only path. When explicitly enabled, the retriever runs bounded dense and
+lexical legs with identical access, source, model and metadata predicates, then fuses ranks with RRF. PostgreSQL
+values remain bound; malformed or failed lexical searches fall back to dense-only. The feature remains off until
+the representative quality/latency benchmark passes.
 
 ## Access model
 

@@ -13,6 +13,7 @@ function files(dir) {
   );
 }
 
+const rollback = read("deploy-netsec/rollback.sh");
 const all = files("deploy-netsec")
   .filter((file) => !file.endsWith("safety.sh") && !file.includes("tests"))
   .map((path) => [path, read(path)]);
@@ -63,12 +64,19 @@ describe("NetSec deployment namespace", () => {
     }
   });
 
-  test("API binds 4400 and deploy archives deploy-netsec", () => {
+  test("API binds 4400, deploy archives its verified checkout, and rollback materializes verified tooling", () => {
     const api = read("deploy-netsec/systemd/netsecai-api.service");
     expect(api).toContain("--host 127.0.0.1 --port 4400");
     const deploy = read("deploy-netsec/deploy.sh");
     expect(deploy).toContain("git archive --format=tar HEAD deploy-netsec");
     expect(deploy).not.toMatch(/git archive --format=tar HEAD deploy(?:\s|\|)/);
+    expect(rollback).toContain('TOOL_SHA=$(git ls-remote --exit-code "$SOURCE" refs/heads/main');
+    expect(rollback).toContain('TOOL_SHA=$(git -C "$SOURCE" rev-parse --verify main^{commit})');
+    expect(rollback).toContain('git -C "$TOOLING" fetch -q --no-tags "$SOURCE" "$TOOL_SHA"');
+    expect(rollback).toContain('git -C "$TOOLING" checkout -q --detach FETCH_HEAD');
+    expect(rollback).toContain('[ "$(git -C "$TOOLING" rev-parse HEAD)" = "$TOOL_SHA" ]');
+    expect(rollback).not.toContain("git archive --format=tar HEAD");
+    expect(rollback).not.toContain("exec bash deploy-netsec/deploy.sh");
   });
 
   test("web unit bypasses the package's protected port and binds 4300", () => {

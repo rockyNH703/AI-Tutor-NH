@@ -25,6 +25,8 @@ class ChatRequest(RequestModel):
     @field_validator("message")
     @classmethod
     def _not_blank(cls, v: str) -> str:
+        if "\x00" in v:
+            raise ValueError("message must not contain U+0000")
         if not v.strip():
             raise ValueError("message must not be blank")
         return v

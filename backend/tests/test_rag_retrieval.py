@@ -1,9 +1,9 @@
 """LangChain retriever over pgvector: ranking, thresholds, filters, access boundary, failures, index use."""
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 
-from app.db.models import User
+from app.db.models import DocumentChunk, User
 from app.db.session import Database
 from app.rag.embeddings import KeywordHashEmbeddings
 from app.rag.errors import RetrievalError
@@ -159,3 +159,125 @@ async def test_search_query_can_use_the_hnsw_index(app):
         )
         plan = (await session.execute(text("EXPLAIN " + str(sql)))).scalars().all()
     assert any("ix_document_chunks_embedding_hnsw" in line for line in plan), "\n".join(plan)
+
+
+async def test_hybrid_exact_identifier_and_dense_score(app):
+    await ingest_docs(
+        app,
+        {
+            "identifier.md": "# Interface\n\nTroubleshoot TenGigabitEthernet1/0/24 CRC counters.",
+            "generic.md": "# Interface\n\nTroubleshoot a generic ethernet interface counter.",
+        },
+    )
+    docs = await retriever(app, hybrid=True, k=2).ainvoke("TenGigabitEthernet1/0/24")
+    assert docs[0].metadata["uri"] == "identifier.md"
+    assert isinstance(docs[0].metadata["score"], float)
+
+
+async def test_hybrid_filters_and_model_isolate_both_legs(client, app):
+    alice = await register(client, app)
+    bob = await register(client, app)
+    alice_id, bob_id = await user_id(app, alice["email"]), await user_id(app, bob["email"])
+    phrase = "xe-0/0/7 bgp-flap"
+    await ingest_docs(
+        app,
+        {"private.md": f"# Private\n\n{phrase}"},
+        source="alice-private-hybrid",
+        owner_user_id=alice_id,
+        metadata={"vendor": "juniper"},
+    )
+    await ingest_docs(
+        app,
+        {"public.md": f"# Public\n\n{phrase}"},
+        source="public-hybrid",
+        metadata={"vendor": "juniper"},
+    )
+    await ingest_docs(
+        app,
+        {"other.md": f"# Other\n\n{phrase}"},
+        source="other-hybrid",
+        metadata={"vendor": "cisco"},
+        service=None,
+    )
+    alice_hits = await retriever(
+        app,
+        AccessScope(alice_id),
+        hybrid=True,
+        metadata_filter={"vendor": "juniper"},
+    ).ainvoke(phrase)
+    bob_hits = await retriever(
+        app,
+        AccessScope(bob_id),
+        hybrid=True,
+        source_names=["alice-private-hybrid"],
+    ).ainvoke(phrase)
+    assert {doc.metadata["uri"] for doc in alice_hits} == {"private.md", "public.md"}
+    assert bob_hits == []
+    other_model = PgVectorRetriever(
+        store=app.state.knowledge,
+        embeddings=KeywordHashEmbeddings(1536, model="other-model"),
+        scope=AccessScope(alice_id),
+        hybrid=True,
+    )
+    assert await other_model.ainvoke(phrase) == []
+
+
+async def test_hybrid_fusion_is_deterministic(app):
+    await ingest_docs(
+        app,
+        {
+            "a.md": "# A\n\nospf-neighbor stuck exstart mtu mismatch",
+            "b.md": "# B\n\nospf-neighbor stuck exstart mtu mismatch",
+        },
+    )
+    r = retriever(app, hybrid=True, k=2, dense_candidates=2, lexical_candidates=2, rrf_k=20)
+    first = [doc.metadata["chunk_id"] for doc in await r.ainvoke("ospf-neighbor exstart")]
+    second = [doc.metadata["chunk_id"] for doc in await r.ainvoke("ospf-neighbor exstart")]
+    assert first == second
+
+
+async def test_hybrid_lexical_failure_falls_back_without_aborting_dense(app, monkeypatch):
+    await ingest_docs(app, DOCS)
+    original = KnowledgeStore.lexical_search_statement
+
+    def broken(*args, **kwargs):
+        return original(*args, **kwargs).where(text("definitely_missing_column = 1"))
+
+    monkeypatch.setattr(KnowledgeStore, "lexical_search_statement", staticmethod(broken))
+    r = retriever(app, hybrid=True)
+    docs = await r.ainvoke("solar panels sunlight")
+    assert docs and docs[0].metadata["uri"] == "solar.md"
+    assert str(r.last_timings["lexical_reason"]).startswith("error:ProgrammingError")
+    assert "dense_ms" in r.last_timings and "lexical_ms" in r.last_timings
+
+
+async def test_lexical_statement_binds_malformed_query(app):
+    from app.rag.lexical import build_lexical_query
+
+    query = build_lexical_query("x') OR true; DROP TABLE document_chunks; -- xe-0/0/7")
+    assert query is not None
+    store: KnowledgeStore = app.state.knowledge
+    async with app.state.db.sessionmaker() as session:
+        allowed = await store.allowed_source_ids(session, GLOBAL)
+        statement = store.lexical_search_statement(query, "fake:text-embedding-3-small", allowed, 5)
+        compiled = statement.compile(dialect=session.bind.dialect)
+    assert "DROP TABLE" not in str(compiled)
+    assert any("drop table" in str(value) for value in compiled.params.values())
+
+
+async def test_lexical_query_can_use_gin_index(app):
+    from app.rag.lexical import build_lexical_query
+
+    await ingest_docs(app, DOCS)
+    query = build_lexical_query("solar photovoltaic")
+    assert query is not None
+    async with app.state.db.sessionmaker() as session, session.begin():
+        await session.execute(text("SET LOCAL enable_seqscan = off"))
+        statement = select(DocumentChunk.id).where(
+            DocumentChunk.content_tsv.op("@@")(func.websearch_to_tsquery("simple", query.text))
+        )
+        compiled = statement.compile(dialect=session.bind.dialect, compile_kwargs={"render_postcompile": True})
+        positional = tuple(compiled.params[name] for name in compiled.positiontup or ())
+        connection = await session.connection()
+        plan = (await connection.exec_driver_sql("EXPLAIN " + str(compiled), positional)).scalars().all()
+    assert any("ix_document_chunks_content_tsv_gin" in line for line in plan), "\n".join(plan)

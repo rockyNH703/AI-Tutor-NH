@@ -1,8 +1,8 @@
 """`python -m app.jobs`: one run of the jobs worker (app/jobs/runner.py), then exit.
 
-Exit status 0 when the run finished, was disabled or found another run holding the lock; 1 when
-it could not run at all (configuration, database). Failures inside a step are logged and do not
-change the exit status: the next run, a minute later, tries again.
+Exit status 0 when every requested step succeeded, the run was disabled, or another run held the
+lock. Exit status 1 when the run could not start or any requested step failed. Failed steps remain
+independent: later steps still run, and only their bounded names are added to the summary.
 """
 
 from __future__ import annotations
@@ -36,8 +36,9 @@ def main() -> int:
     except Exception as error:  # noqa: BLE001 - reported, then a non-zero exit for systemd
         log.exception("jobs run could not run", extra={"error_type": type(error).__name__})
         return 1
-    log.info("jobs run finished", extra={"report": report})
-    return 0
+    failed_steps = tuple(name for name, result in report.items() if result == "failed")
+    log.info("jobs run finished", extra={"report": report, "failed_steps": failed_steps})
+    return 1 if failed_steps else 0
 
 
 if __name__ == "__main__":

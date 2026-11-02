@@ -31,6 +31,7 @@ from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 from pydantic import ConfigDict, Field
 
+from app.llm.redact import mask_secrets
 from app.logging import get_logger
 from app.rag.errors import RagError
 
@@ -107,8 +108,9 @@ class NcertKnowledge:
         if time.monotonic() < self._paused_until:
             raise RagError("ncert_paused")
         wanted = {subject_id(name) for name in subjects}
+        searched, _ = mask_secrets(search_text(query))
         body: dict[str, Any] = {
-            "query": search_text(query),
+            "query": searched,
             "mode": "vector",
             # Over-fetched for a student with a curriculum, so their own books can rank first below.
             "top_k": max(1, min(k * 3 if classes or wanted else k, 50)),

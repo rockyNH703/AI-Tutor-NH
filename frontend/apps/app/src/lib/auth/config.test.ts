@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 
 import type { Pool } from "pg";
 
-import { createAuth, googleUser } from "./config";
+import { createAuth, googleUser, readAuthEnv } from "./config";
 import { USED_CODE, claimCode } from "./guard";
 
 const CLIENT_ID = "test-client.apps.googleusercontent.com";
@@ -17,9 +17,30 @@ const ENV = {
   rateLimit: true,
 };
 
+const RAW_ENV = {
+  AUTH_DATABASE_URL: ENV.databaseUrl,
+  BETTER_AUTH_SECRET: ENV.secret,
+  AUTH_INTERNAL_TOKEN: ENV.internalToken,
+  NEXT_PUBLIC_SITE_URL: ENV.siteUrl,
+  API_BASE_URL: ENV.apiBaseUrl,
+};
+
 const realFetch = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = realFetch;
+});
+
+describe("rate limiting configuration", () => {
+  test("production refuses to disable Better Auth's rate limiter", () => {
+    expect(() => readAuthEnv({ ...RAW_ENV, NODE_ENV: "production", AUTH_RATE_LIMIT: "off" })).toThrow(
+      "AUTH_RATE_LIMIT cannot be off in production",
+    );
+  });
+
+  test("development and tests may disable Better Auth's rate limiter", () => {
+    expect(readAuthEnv({ ...RAW_ENV, NODE_ENV: "development", AUTH_RATE_LIMIT: "off" }).rateLimit).toBe(false);
+    expect(readAuthEnv({ ...RAW_ENV, NODE_ENV: "test", AUTH_RATE_LIMIT: "off" }).rateLimit).toBe(false);
+  });
 });
 
 const b64url = (bytes: Uint8Array | string) =>
@@ -255,6 +276,81 @@ describe("an authenticator code works once", () => {
     const refused = first.status === "rejected" ? first.reason : second.status === "rejected" ? second.reason : null;
     expect(refused).toMatchObject({ body: { code: "CODE_ALREADY_USED" } });
     expect(db.committed).toHaveLength(2);
+  });
+});
+
+describe("two-factor session revocation", () => {
+  const afterHook = () => {
+    const { auth } = createAuth(ENV);
+    const plugin = auth.options.plugins?.find((candidate) => candidate.id === "padhai-two-factor-everywhere");
+    const hook = plugin?.hooks?.after?.find((candidate) => candidate.matcher({ path: "/two-factor/disable" } as never));
+    expect(hook).toBeDefined();
+    return hook!.handler as unknown as (ctx: object) => Promise<unknown>;
+  };
+
+  const context = (path: "/two-factor/verify-totp" | "/two-factor/disable", challenge: string | null) => {
+    const deleted: string[] = [];
+    const sessions = [
+      { token: "current", expiresAt: new Date(Date.now() + 60_000) },
+      { token: "other", expiresAt: new Date(Date.now() + 60_000) },
+      { token: "expired", expiresAt: new Date(Date.now() - 60_000) },
+    ];
+    return {
+      deleted,
+      ctx: {
+        path,
+        headers: new Headers(),
+        context: {
+          returned: { status: true },
+          newSession: { user: { id: "u1" }, session: { token: "current" } },
+          internalAdapter: {
+            listSessions: async (userId: string) => {
+              expect(userId).toBe("u1");
+              return sessions;
+            },
+            deleteSession: async (token: string) => {
+              deleted.push(token);
+            },
+          },
+          createAuthCookie: (name: string) => ({ name, attributes: {} }),
+          secret: ENV.secret,
+        },
+        getSignedCookie: async () => challenge,
+      },
+    };
+  };
+
+  test("successful enable revokes every other active session, preserves the renewed current session, and sends its notice", async () => {
+    const events: unknown[] = [];
+    globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+      events.push(JSON.parse(String(init?.body)));
+      return new Response(null, { status: 202 });
+    }) as unknown as typeof fetch;
+    const { ctx, deleted } = context("/two-factor/verify-totp", null);
+    await afterHook()(ctx);
+    expect(deleted).toEqual(["other"]);
+    expect(events).toEqual([{ kind: "two_factor_on", userId: "u1" }]);
+  });
+
+  test("successful disable revokes every other active session, preserves the renewed current session, and sends its notice", async () => {
+    const events: unknown[] = [];
+    globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+      events.push(JSON.parse(String(init?.body)));
+      return new Response(null, { status: 202 });
+    }) as unknown as typeof fetch;
+    const { ctx, deleted } = context("/two-factor/disable", null);
+    await afterHook()(ctx);
+    expect(deleted).toEqual(["other"]);
+    expect(events).toEqual([{ kind: "two_factor_off", userId: "u1" }]);
+  });
+
+  test("a sign-in TOTP challenge does not revoke sessions as though two-factor was just enabled", async () => {
+    globalThis.fetch = (async () => new Response(null, { status: 202 })) as unknown as typeof fetch;
+    const { ctx, deleted } = context("/two-factor/verify-totp", null);
+    const challenge = await signedCookie("challenge", ENV.secret);
+    (ctx as { headers: Headers }).headers = new Headers({ cookie: `two_factor=${challenge}` });
+    await afterHook()(ctx);
+    expect(deleted).toEqual([]);
   });
 });
 

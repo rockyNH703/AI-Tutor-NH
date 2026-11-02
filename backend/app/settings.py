@@ -6,6 +6,7 @@ refuses to start a production process with development secrets.
 
 from __future__ import annotations
 
+import os
 import zoneinfo
 from functools import lru_cache
 from typing import Literal
@@ -199,7 +200,11 @@ class Settings(BaseSettings):
 
     # ---- RAG (LangGraph + LangChain retriever over PostgreSQL/pgvector) ----
     rag_enabled: bool = True
+    rag_hybrid: bool = False
     rag_top_k: int = 5
+    rag_dense_candidates: int = Field(default=20, ge=1, le=1_000)
+    rag_lexical_candidates: int = Field(default=20, ge=1, le=1_000)
+    rag_rrf_k: int = Field(default=60, ge=1, le=1_000)
     # Cosine similarity floor (0..1). Uncalibrated default: tune with scripts/eval_retrieval.py.
     rag_min_score: float = 0.30
     rag_max_context_chars: int = 8_000
@@ -381,6 +386,21 @@ class Settings(BaseSettings):
             problems.append("NOTIFICATIONS_MODE=allowlist needs NOTIFICATIONS_ALLOWLIST")
         return problems
 
+    @staticmethod
+    def _provider_url_is_safe(value: str) -> bool:
+        try:
+            parts = urlsplit(value.strip())
+            _ = parts.port
+        except ValueError:
+            return False
+        loopback = parts.hostname in ("localhost", "127.0.0.1", "::1")
+        return (
+            bool(parts.hostname)
+            and not parts.username
+            and not parts.password
+            and (parts.scheme == "https" or (parts.scheme == "http" and loopback))
+        )
+
     def validate_for_env(self) -> None:
         if not self.is_production:
             return
@@ -393,6 +413,16 @@ class Settings(BaseSettings):
             problems.append("DATABASE_URL uses the development credentials")
         if self.llm_provider == "fake":
             problems.append("LLM_PROVIDER=fake is not allowed in production")
+        else:
+            if not self.llm_primary_api_key.get_secret_value():
+                problems.append("LLM primary provider needs LLM_PRIMARY_API_KEY")
+            if not self._provider_url_is_safe(self.llm_primary_base_url):
+                problems.append("LLM_PRIMARY_BASE_URL must be HTTPS or explicit loopback")
+            if self.llm_fallback_model:
+                if not self.llm_fallback_api_key.get_secret_value():
+                    problems.append("enabled LLM fallback needs LLM_FALLBACK_API_KEY")
+                if not self._provider_url_is_safe(self.llm_fallback_base_url):
+                    problems.append("LLM_FALLBACK_BASE_URL must be HTTPS or explicit loopback")
         if self.email_backend not in ("smtp", "ollastack"):
             problems.append("EMAIL_BACKEND must be smtp or ollastack in production")
         if self.email_backend == "ollastack" and not (
@@ -405,6 +435,11 @@ class Settings(BaseSettings):
             problems.append("PUBLIC_APP_URL must be a bare HTTPS origin")
         if self.rag_enabled and self.embedding_provider == "fake":
             problems.append("EMBEDDING_PROVIDER=fake is not allowed in production while RAG is enabled")
+        if self.embedding_provider == "openai_compatible" and (self.rag_enabled or self.memory_recall_enabled):
+            if not self.embedding_api_key.get_secret_value():
+                problems.append("enabled embeddings need EMBEDDING_API_KEY")
+            if not self._provider_url_is_safe(self.embedding_base_url):
+                problems.append("EMBEDDING_BASE_URL must be HTTPS or explicit loopback")
         if self.memory_recall_enabled and not self.memory_enabled:
             problems.append("MEMORY_RECALL_ENABLED requires MEMORY_ENABLED")
         if self.memory_automatic_proposals != "off" and not self.memory_enabled:
@@ -413,10 +448,12 @@ class Settings(BaseSettings):
             problems.append("MEMORY_WORKER_BACKOFF_MAX_S must be at least MEMORY_WORKER_BACKOFF_BASE_S")
         if self.memory_recall_enabled and self.embedding_provider == "fake":
             problems.append("EMBEDDING_PROVIDER=fake is not allowed in production while memory recall is enabled")
-        if self.ncert_kb_base_url and not self.ncert_kb_base_url.startswith(
-            ("https://", "http://127.0.0.1:", "http://localhost:")
-        ):
-            problems.append("NCERT_KB_BASE_URL must be https:// or loopback (the key travels with every call)")
+        if self.ncert_kb_base_url or self.ncert_kb_api_key.get_secret_value():
+            problems.append("NCERT_KB_* is PadhAI-only and must be unset in NetSec AI production")
+        if self.intent_router == "on":
+            problems.append("INTENT_ROUTER=on is not allowed in production; use off or shadow")
+        if self.study_scope != "off":
+            problems.append("STUDY_SCOPE must be off in production")
         if self.intent_router != "off" and not self.ollalink_api_key.get_secret_value():
             problems.append("INTENT_ROUTER needs OLLALINK_API_KEY")
         if self.study_scope != "off" and not self.ollalink_api_key.get_secret_value():
@@ -431,6 +468,9 @@ class Settings(BaseSettings):
             problems.append("VOICE_MODE=qa needs VOICE_QA_EMAILS")
         if not (self.ollalink_stt_url.startswith("https://") and self.ollalink_tts_url.startswith("https://")):
             problems.append("OLLALINK_STT_URL and OLLALINK_TTS_URL must be https:// (the key travels with every call)")
+        tracing_names = ("LANGCHAIN_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_TRACING")
+        if any(os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"} for name in tracing_names):
+            problems.append("LangChain/LangSmith tracing must be disabled in production")
         if problems:
             raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 

@@ -102,7 +102,8 @@ async def clean_tables(database):
     engine = create_async_engine(database)
     async with engine.begin() as conn:
         names = (await conn.execute(ALL_TABLES)).scalars().all()
-        await conn.execute(text("TRUNCATE " + ", ".join(f'"{name}"' for name in names) + " CASCADE"))
+        if names:
+            await conn.execute(text("TRUNCATE " + ", ".join(f'"{name}"' for name in names) + " CASCADE"))
     await engine.dispose()
 
 
