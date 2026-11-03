@@ -10,6 +10,7 @@ runs only inside that set. Name and metadata filters can narrow it, never widen 
 
 from __future__ import annotations
 
+import asyncio
 import re
 import time
 import uuid
@@ -179,8 +180,8 @@ class KnowledgeStore:
     ):
         """Rank plain lexical query text against generated tsvectors with bound values."""
         tsquery = func.websearch_to_tsquery(literal_column("'simple'::regconfig"), query.text)
-        rank = func.ts_rank_cd(DocumentChunk.content_tsv, tsquery).label("lexical_rank")
-        statement = (
+        rank = func.ts_rank(DocumentChunk.content_tsv, tsquery).label("lexical_rank")
+        hits = (
             select(
                 DocumentChunk.id,
                 DocumentChunk.document_id,
@@ -189,15 +190,7 @@ class KnowledgeStore:
                 DocumentChunk.content,
                 DocumentChunk.metadata_.label("metadata"),
                 rank,
-                Document.title,
-                Document.uri,
-                KnowledgeSource.name.label("source_name"),
             )
-            .join(
-                Document,
-                (Document.id == DocumentChunk.document_id) & (Document.source_id == DocumentChunk.source_id),
-            )
-            .join(KnowledgeSource, KnowledgeSource.id == DocumentChunk.source_id)
             .where(
                 DocumentChunk.content_tsv.op("@@")(tsquery),
                 DocumentChunk.embedding_model == embedding_model,
@@ -207,8 +200,14 @@ class KnowledgeStore:
             .limit(k)
         )
         if metadata_filter:
-            statement = statement.where(DocumentChunk.metadata_.contains(metadata_filter))
-        return statement
+            hits = hits.where(DocumentChunk.metadata_.contains(metadata_filter))
+        hits = hits.cte("lexical_hits")
+        return (
+            select(hits, Document.title, Document.uri, KnowledgeSource.name.label("source_name"))
+            .join(Document, (Document.id == hits.c.document_id) & (Document.source_id == hits.c.source_id))
+            .join(KnowledgeSource, KnowledgeSource.id == hits.c.source_id)
+            .order_by(hits.c.lexical_rank.desc(), hits.c.id)
+        )
 
     @staticmethod
     def _dense_hits(rows, min_score: float) -> list[SearchHit]:
@@ -296,48 +295,53 @@ class KnowledgeStore:
     ) -> HybridSearchResult:
         """Fuse bounded dense and lexical rankings; lexical failure degrades to dense-only."""
         metadata_filter = validate_metadata_filter(metadata_filter)
-        dense_started = time.perf_counter()
         try:
             async with self.db.sessionmaker() as session, session.begin():
                 allowed = await self.allowed_source_ids(session, scope, source_names)
-                if not allowed:
-                    return HybridSearchResult([], {"dense_ms": 0, "lexical_ms": 0, "lexical_reason": "no_sources"})
-                await self.apply_search_settings(session)
-                dense_rows = (
-                    await session.execute(
-                        self.search_statement(vector, embedding_model, allowed, dense_candidates, metadata_filter)
-                    )
-                ).all()
-            dense_ms = int((time.perf_counter() - dense_started) * 1000)
-            dense_hits = self._dense_hits(dense_rows, min_score)
+            if not allowed:
+                return HybridSearchResult([], {"dense_ms": 0, "lexical_ms": 0, "lexical_reason": "no_sources"})
 
-            lexical_started = time.perf_counter()
-            lexical_reason = "ok"
-            lexical_hits: list[SearchHit] = []
-            if lexical_query is None:
-                lexical_reason = "empty_query"
-            else:
+            async def run_dense() -> tuple[list[SearchHit], int]:
+                started = time.perf_counter()
+                async with self.db.sessionmaker() as session, session.begin():
+                    await self.apply_search_settings(session)
+                    rows = (
+                        await session.execute(
+                            self.search_statement(vector, embedding_model, allowed, dense_candidates, metadata_filter)
+                        )
+                    ).all()
+                return self._dense_hits(rows, min_score), int((time.perf_counter() - started) * 1000)
+
+            async def run_lexical() -> tuple[list[SearchHit], int, str]:
+                if lexical_query is None:
+                    return [], 0, "empty_query"
+                started = time.perf_counter()
                 try:
                     async with self.db.sessionmaker() as session, session.begin():
-                        lexical_allowed = await self.allowed_source_ids(session, scope, source_names)
-                        if lexical_allowed:
-                            lexical_rows = (
-                                await session.execute(
-                                    self.lexical_search_statement(
-                                        lexical_query,
-                                        embedding_model,
-                                        lexical_allowed,
-                                        lexical_candidates,
-                                        metadata_filter,
-                                    )
+                        rows = (
+                            await session.execute(
+                                self.lexical_search_statement(
+                                    lexical_query,
+                                    embedding_model,
+                                    allowed,
+                                    lexical_candidates,
+                                    metadata_filter,
                                 )
-                            ).all()
-                            lexical_hits = self._lexical_hits(lexical_rows)
-                        else:
-                            lexical_reason = "no_sources"
+                            )
+                        ).all()
+                    return self._lexical_hits(rows), int((time.perf_counter() - started) * 1000), "ok"
                 except Exception as error:  # noqa: BLE001 - optional leg must not abort dense retrieval
-                    lexical_reason = f"error:{type(error).__name__}"
-            lexical_ms = int((time.perf_counter() - lexical_started) * 1000)
+                    return [], int((time.perf_counter() - started) * 1000), f"error:{type(error).__name__}"
+
+            dense_task = asyncio.create_task(run_dense())
+            lexical_task = asyncio.create_task(run_lexical())
+            try:
+                dense_hits, dense_ms = await dense_task
+            except BaseException:
+                lexical_task.cancel()
+                await asyncio.gather(lexical_task, return_exceptions=True)
+                raise
+            lexical_hits, lexical_ms, lexical_reason = await lexical_task
         except RetrievalError:
             raise
         except Exception as error:  # noqa: BLE001

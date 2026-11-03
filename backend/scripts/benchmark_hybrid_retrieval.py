@@ -392,8 +392,8 @@ async def _quality_assertions(store: Any, seeded: Mapping[str, Any], run_tag: st
             build_lexical_query(text_value),
             embedding_model=BENCHMARK_MODEL,
             k=5,
-            dense_candidates=40,
-            lexical_candidates=40,
+            dense_candidates=20,
+            lexical_candidates=20,
             rrf_k=60,
             source_names=source_names,
         )
@@ -483,8 +483,8 @@ async def _one_search(store: Any, mode: str, case: BenchmarkCase, global_source:
         build_lexical_query(case.lexical_text),
         embedding_model=BENCHMARK_MODEL,
         k=5,
-        dense_candidates=40,
-        lexical_candidates=40,
+        dense_candidates=20,
+        lexical_candidates=20,
         rrf_k=60,
         source_names=[global_source],
     )
@@ -626,7 +626,7 @@ async def run_benchmark(database_url: str, args: BenchmarkArgs) -> tuple[dict[st
 
     engine = create_async_engine(
         database_url,
-        pool_size=max(CONCURRENCY_LEVELS) + 2,
+        pool_size=max(CONCURRENCY_LEVELS) * 2 + 2,
         max_overflow=0,
         pool_pre_ping=True,
         hide_parameters=True,
@@ -700,8 +700,8 @@ async def run_benchmark(database_url: str, args: BenchmarkArgs) -> tuple[dict[st
                 "warmup_batches": args.warmups,
                 "repetitions": args.repetitions,
                 "concurrency": list(CONCURRENCY_LEVELS),
-                "dense_candidates": 40,
-                "lexical_candidates": 40,
+                "dense_candidates": 20,
+                "lexical_candidates": 20,
                 "top_k": 5,
             },
             "results": results,

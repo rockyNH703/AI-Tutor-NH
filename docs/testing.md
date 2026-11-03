@@ -78,7 +78,8 @@ Sentinels cover an exact interface identifier, two private owners, and a second 
 deterministic 1,536-dimensional values, so reported latency is database search latency and excludes provider
 embedding latency.
 
-For dense and hybrid modes, the harness runs warmups and then recorded repetitions at concurrency 1, 4 and 8. Its
+For dense and hybrid modes, the harness uses the production-default candidate bounds (20 dense and 20 lexical),
+runs warmups and then recorded repetitions at concurrency 1, 4 and 8. Its
 bounded JSON report contains sample/failure counts, p50/p95/p99, exact-identifier retrieval and cross-user/model-isolation
 assertions, and compact `EXPLAIN (ANALYZE, BUFFERS)` evidence for the HNSW and GIN indexes. It exits nonzero unless
 all hybrid concurrency levels have zero failures and p95 is strictly below 300 ms. The JSON contains no document
