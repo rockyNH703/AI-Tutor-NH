@@ -79,6 +79,7 @@ function useHeading(pathname: string | null): { title: string; subtitle: string 
   if (pathname === "/help") return { title: "Help", subtitle: "Answers to common questions" };
   if (pathname === "/about") return { title: "About", subtitle: `What ${APP_NAME} is and how it uses your data` };
   if (pathname === "/library") return { title: "File Library", subtitle: "Files you've added for NetSec AI to read" };
+  if (pathname === "/knowledge") return { title: "Knowledge Library", subtitle: "Owner-reviewed sources and revisions" };
   if (pathname === "/study") return { title: "Lab Activity", subtitle: "Time spent practising in labs and study sessions" };
   if (pathname === "/learning") return { title: "Skills & Certifications", subtitle: "Your certification practice, topic mastery and progress" };
   const item = navItemFor(pathname);

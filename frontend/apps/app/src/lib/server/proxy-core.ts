@@ -175,19 +175,33 @@ function mediaType(value: string | null): string {
 }
 
 /** Pass an upstream stream through; cancelling ours aborts theirs. */
-function passThrough(upstream: ReadableStream<Uint8Array>, abort: () => void): ReadableStream<Uint8Array> {
+function passThrough(
+  upstream: ReadableStream<Uint8Array>,
+  abort: () => void,
+  complete: () => void = () => undefined,
+): ReadableStream<Uint8Array> {
   const reader = upstream.getReader();
+  let completed = false;
+  const finish = () => {
+    if (completed) return;
+    completed = true;
+    complete();
+  };
   return new ReadableStream<Uint8Array>({
     async pull(controller) {
       try {
         const { done, value } = await reader.read();
-        if (done) controller.close();
-        else controller.enqueue(value);
+        if (done) {
+          finish();
+          controller.close();
+        } else controller.enqueue(value);
       } catch (error) {
+        finish();
         controller.error(error);
       }
     },
     cancel(reason) {
+      finish();
       abort();
       reader.cancel(reason).catch(() => undefined);
     },
@@ -288,9 +302,15 @@ export async function proxyRequest(request: Request, segments: string[], deps: P
     const release = await fileSlot(request.signal);
     if (!release) return envelope(503, "busy", requestId);
     try {
-      return await forward(request, segments, deps, { requestId, token, https });
-    } finally {
+      const response = await forward(request, segments, deps, { requestId, token, https });
+      if (!response.body) {
+        release();
+        return response;
+      }
+      return new Response(passThrough(response.body, () => undefined, release), response);
+    } catch (error) {
       release();
+      throw error;
     }
   }
   const upload = spec?.upload;
@@ -367,6 +387,12 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps, au
   if (ip) headers.set("X-Forwarded-For", ip);
   const agent = request.headers.get("user-agent");
   if (agent) headers.set("User-Agent", agent);
+  if (spec.file) {
+    const range = request.headers.get("range");
+    if (range) headers.set("Range", range);
+    const ifRange = request.headers.get("if-range");
+    if (ifRange) headers.set("If-Range", ifRange);
+  }
 
   // One controller for everything that should end the upstream request: the
   // browser leaving, our stream being cancelled, or (JSON only) a timeout.
@@ -425,17 +451,13 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps, au
 
   if (spec.file && upstream.ok) {
     const type = mediaType(upstream.headers.get("content-type"));
-    let bytes: ArrayBuffer;
-    try {
-      if (!spec.file.types.includes(type)) throw new Error("unexpected content type");
-      bytes = await upstream.arrayBuffer();
-    } catch {
+    if (!spec.file.types.includes(type) || !upstream.body) {
       await upstream.body?.cancel().catch(() => undefined);
+      if (timer) clearTimeout(timer);
       log(`[bff] ${key} upstream file refused ${requestId}`);
       return envelope(502, "service_unavailable", requestId);
-    } finally {
-      if (timer) clearTimeout(timer);
     }
+    if (timer) clearTimeout(timer);
     const cache = upstream.headers.get("cache-control") ?? "";
     responseHeaders.set("Cache-Control", /^\s*private\b/i.test(cache) ? cache : "no-store");
     responseHeaders.set("Content-Type", type);
@@ -443,7 +465,15 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps, au
     responseHeaders.set("Content-Security-Policy", "default-src 'none'; sandbox");
     const etag = upstream.headers.get("etag");
     if (etag) responseHeaders.set("ETag", etag);
-    return new Response(bytes, { status: 200, headers: responseHeaders });
+    const contentLength = upstream.headers.get("content-length");
+    if (contentLength) responseHeaders.set("Content-Length", contentLength);
+    const contentRange = upstream.headers.get("content-range");
+    if (contentRange) responseHeaders.set("Content-Range", contentRange);
+    const acceptRanges = upstream.headers.get("accept-ranges");
+    if (acceptRanges) responseHeaders.set("Accept-Ranges", acceptRanges);
+    const disposition = upstream.headers.get("content-disposition");
+    if (disposition) responseHeaders.set("Content-Disposition", disposition);
+    return new Response(passThrough(upstream.body, abort), { status: upstream.status, headers: responseHeaders });
   }
 
   let text: string;

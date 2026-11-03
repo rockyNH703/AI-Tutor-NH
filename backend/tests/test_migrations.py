@@ -329,6 +329,7 @@ def test_migration_0019_empty_downgrade_and_forward_preserve_legacy_memory():
 ENGINEERING = "0020_engineering_profiles"
 HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
+KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -508,7 +509,7 @@ def test_migration_0021_adds_hybrid_search_without_rewriting_the_insert_contract
             "tsv"
         ] == ("'0':4 'area':3 'configure':1 'ospf':2")
         alembic("upgrade", "head")
-        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == PASSWORD_SESSION_REVOCATION
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_LIBRARY
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 

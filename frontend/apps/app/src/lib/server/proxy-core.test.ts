@@ -439,6 +439,11 @@ describe("files", () => {
     );
     const file = (signal?: AbortSignal, cookie?: string | null) =>
       browser("GET", `/v1/me/avatar?v=${HASH}`, { signal, cookie });
+    const consume = async (request: Request, implementation = fetchImpl) => {
+      const response = await run(request, "/v1/me/avatar", implementation);
+      await response.arrayBuffer();
+      return response;
+    };
     const waitFor = async (condition: () => boolean) => {
       const deadline = Date.now() + 2_000;
       while (!condition()) {
@@ -447,7 +452,7 @@ describe("files", () => {
       }
     };
 
-    const active = Array.from({ length: FILES_IN_FLIGHT_MAX }, () => run(file(), "/v1/me/avatar", fetchImpl));
+    const active = Array.from({ length: FILES_IN_FLIGHT_MAX }, () => consume(file()));
     await waitFor(() => calls.length === FILES_IN_FLIGHT_MAX);
     expect(calls.length).toBe(FILES_IN_FLIGHT_MAX);
 
@@ -457,7 +462,7 @@ describe("files", () => {
 
     const middle = new AbortController();
     const waiters = Array.from({ length: FILE_WAITERS_MAX }, (_, index) =>
-      run(file(index === 1 ? middle.signal : undefined), "/v1/me/avatar", fetchImpl),
+      consume(file(index === 1 ? middle.signal : undefined)),
     );
     await new Promise((resolve) => setTimeout(resolve, 20));
     expect(calls.length).toBe(FILES_IN_FLIGHT_MAX);
@@ -468,7 +473,7 @@ describe("files", () => {
 
     middle.abort();
     expect((await waiters[1]!).status).toBe(503);
-    const replacement = run(file(), "/v1/me/avatar", fetchImpl);
+    const replacement = consume(file());
 
     releases.shift()?.();
     expect((await active[0]!).status).toBe(200);
@@ -489,7 +494,7 @@ describe("files", () => {
 
     const recovered = upstream(() => new Response(PHOTO, { status: 200, headers: { "Content-Type": "image/webp" } }));
     const after = await Promise.all(
-      Array.from({ length: FILES_IN_FLIGHT_MAX }, () => run(file(), "/v1/me/avatar", recovered.fetchImpl)),
+      Array.from({ length: FILES_IN_FLIGHT_MAX }, () => consume(file(), recovered.fetchImpl)),
     );
     for (const response of after) expect(response.status).toBe(200);
     expect(recovered.calls.length).toBe(FILES_IN_FLIGHT_MAX);
@@ -511,6 +516,43 @@ describe("files", () => {
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(response.headers.get("content-security-policy")).toBe("default-src 'none'; sandbox");
     expect(new Uint8Array(await response.arrayBuffer())).toEqual(PHOTO);
+  });
+
+  test("a streamed file preserves safe range and disposition headers", async () => {
+    let pulled = false;
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled = true;
+        controller.enqueue(PHOTO);
+        controller.close();
+      },
+    });
+    const { calls, fetchImpl } = upstream(
+      () =>
+        new Response(body, {
+          status: 206,
+          headers: {
+            "Content-Type": "image/webp",
+            "Content-Length": String(PHOTO.byteLength),
+            "Content-Range": `bytes 0-${PHOTO.byteLength - 1}/${PHOTO.byteLength}`,
+            "Accept-Ranges": "bytes",
+            "Content-Disposition": "inline; filename=test.webp",
+          },
+        }),
+    );
+    const response = await run(
+      browser("GET", `/v1/me/avatar?v=${HASH}`, { headers: { Range: "bytes=0-3", "If-Range": `"${HASH}"` } }),
+      "/v1/me/avatar",
+      fetchImpl,
+    );
+    expect(new Headers(calls[0]?.init.headers).get("range")).toBe("bytes=0-3");
+    expect(new Headers(calls[0]?.init.headers).get("if-range")).toBe(`"${HASH}"`);
+    expect(response.status).toBe(206);
+    expect(response.headers.get("content-range")).toBe(`bytes 0-${PHOTO.byteLength - 1}/${PHOTO.byteLength}`);
+    expect(response.headers.get("accept-ranges")).toBe("bytes");
+    expect(response.headers.get("content-disposition")).toBe("inline; filename=test.webp");
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(PHOTO);
+    expect(pulled).toBe(true);
   });
 
   test("a shared-cacheable or unexpected file is never passed on as such", async () => {

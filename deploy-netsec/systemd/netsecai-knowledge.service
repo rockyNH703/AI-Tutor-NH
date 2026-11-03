@@ -1,0 +1,21 @@
+[Unit]
+Description=netsecai knowledge worker (one bounded revision)
+Requires=netsecai-postgres.service
+After=netsecai-postgres.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/netsecai/app/backend/app/knowledge/__main__.py
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/netsecai/app/backend
+EnvironmentFile=/etc/netsecai/api.env
+ExecStart=/opt/netsecai/app/backend/.venv/bin/python -m app.knowledge
+TimeoutStartSec=1800
+MemoryMax=2G
+MemorySwapMax=0
+CPUQuota=200%
+TasksMax=64
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes

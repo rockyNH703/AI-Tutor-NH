@@ -83,18 +83,28 @@ PUBLIC_ERRORS = {
 
 
 def public_citations(summary: dict | None) -> list[dict] | None:
-    """What a client may show for a reply's [1] and [F1] markers: titles only (never URIs or
-    scores), every id a string. None when the turn numbered nothing, so the key is left out."""
+    """Citation records safe for the citation view; never expose source URIs or ranking scores."""
     if not summary:
         return None
-    citations = [
-        {
+    citations = []
+    for number, source in enumerate(summary.get("sources") or [], start=1):
+        citation = {
             "ref": str(number),
             "kind": "source",
             "title": str(source.get("title") or source.get("source") or f"Source {number}"),
         }
-        for number, source in enumerate(summary.get("sources") or [], start=1)
-    ]
+        for key in (
+            "documentId",
+            "revisionId",
+            "stableChunkKey",
+            "sectionPath",
+            "physicalPage",
+            "printedPageLabel",
+            "excerpt",
+        ):
+            if source.get(key) is not None:
+                citation[key] = source[key]
+        citations.append(citation)
     citations += [
         {"ref": str(file["ref"]), "kind": "file", "title": str(file["filename"]), "fileId": str(file["fileId"])}
         for file in summary.get("fileSources") or []

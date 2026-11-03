@@ -39,6 +39,8 @@ from app.greetings.refresh import GreetingRefresh
 from app.greetings.router import router as greetings_router
 from app.health import router as health_router
 from app.intents.classifier import IntentClassifier
+from app.knowledge.router import UPLOAD_CHUNK_BYTES
+from app.knowledge.router import router as knowledge_router
 from app.learning.router import router as learning_router
 from app.llm.base import LLMProvider
 from app.llm.factory import build_llm
@@ -283,6 +285,12 @@ def create_app(
             ("POST", "/v1/files"): MAX_UPLOAD_BYTES,
             ("POST", "/v1/voice/transcriptions"): MAX_AUDIO_BYTES,
         },
+        body_pattern_limits={
+            (
+                "PUT",
+                r"/v1/knowledge/imports/files/[0-9a-fA-F-]{36}/content",
+            ): UPLOAD_CHUNK_BYTES,
+        },
     )
 
     app.include_router(health_router)
@@ -299,5 +307,6 @@ def create_app(
     app.include_router(appearance_router)
     app.include_router(greetings_router)
     app.include_router(files_router)
+    app.include_router(knowledge_router)
     app.include_router(study_router)
     return app

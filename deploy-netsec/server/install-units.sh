@@ -36,7 +36,7 @@ done
 if [ "$changed" = 1 ]; then systemctl daemon-reload; fi
 systemctl enable --quiet netsecai-postgres.service netsecai-pg-backup.timer
 # The app units start at boot once production has a checkout (a fresh host has none yet).
-if [ -d "$APP/.git" ]; then systemctl enable --quiet netsecai-api.service netsecai-web.service; fi
+if [ -d "$APP/.git" ]; then systemctl enable --quiet netsecai-api.service netsecai-web.service netsecai-knowledge.timer; fi
 
 install -d -m 755 "$SHARED/postgres"
 compose="$SHARED/postgres/docker-compose.yml"

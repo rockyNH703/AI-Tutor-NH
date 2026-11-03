@@ -76,6 +76,7 @@ else
   bad "api.env PUBLIC_APP_URL is $links but NEXT_PUBLIC_SITE_URL is ${public:-unset}: email links and logo go there (docs/deployment.md, \"Quick Tunnel address changed\")"
 fi
 jobs_timer=$(systemctl is-enabled netsecai-jobs.timer 2> /dev/null); info "jobs worker: netsecai-jobs.timer ${jobs_timer:-not installed}"
+knowledge_timer=$(systemctl is-enabled netsecai-knowledge.timer 2> /dev/null); info "knowledge worker: netsecai-knowledge.timer ${knowledge_timer:-not installed}"
 files=$(curl -fsS --max-time 5 "http://127.0.0.1:$API_PORT/health" 2> /dev/null | grep -o '"files":"[a-z]*"' | cut -d'"' -f4)
 info "files (File Library): ${files:-unknown}; extractor units running: $(systemctl list-units --no-legend 'netsecai-extract-*' 2> /dev/null | wc -l)"
 # No stale or old release serving traffic (the owner's production rule): the legacy Ayurveda API

@@ -4,8 +4,9 @@ This is the only module that queries the knowledge-base tables. It knows nothing
 about LangChain, LangGraph or HTTP.
 
 Access boundary: every search takes an `AccessScope`. Allowed sources are resolved
-first (global sources, plus the caller's own private sources) and the vector search
-runs only inside that set. Name and metadata filters can narrow it, never widen it.
+first (approved global sources, explicitly selected sources, plus the caller's own sources)
+and the vector search runs only inside that set. Name and metadata filters can narrow it,
+never widen it.
 """
 
 from __future__ import annotations
@@ -17,11 +18,18 @@ import uuid
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from sqlalchemy import delete, func, literal_column, or_, select, text
+from sqlalchemy import delete, exists, func, literal_column, or_, select, text
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Document, DocumentChunk, FileChunk, KnowledgeSource, UserFile
+from app.db.models import (
+    Document,
+    DocumentChunk,
+    FileChunk,
+    KnowledgeSource,
+    KnowledgeSourceUserGrant,
+    UserFile,
+)
 from app.db.session import Database
 from app.rag.errors import IngestionError, RetrievalError
 from app.rag.lexical import LexicalQuery, reciprocal_rank_fusion
@@ -90,10 +98,22 @@ class KnowledgeStore:
     # ------------------------------------------------------------------ search
     @staticmethod
     def _allowed_sources_query(scope: AccessScope, source_names: list[str] | None):
-        visible = KnowledgeSource.owner_user_id.is_(None)
-        if scope.user_id is not None:
-            visible = or_(visible, KnowledgeSource.owner_user_id == scope.user_id)
-        query = select(KnowledgeSource.id).where(visible)
+        if scope.user_id is None:
+            visible = (KnowledgeSource.visibility == "global") & (KnowledgeSource.rights_status == "approved")
+        else:
+            now = func.clock_timestamp()
+            selected = exists().where(
+                KnowledgeSourceUserGrant.source_id == KnowledgeSource.id,
+                KnowledgeSourceUserGrant.user_id == scope.user_id,
+                KnowledgeSourceUserGrant.revoked_at.is_(None),
+                or_(KnowledgeSourceUserGrant.expires_at.is_(None), KnowledgeSourceUserGrant.expires_at > now),
+            )
+            visible = or_(
+                KnowledgeSource.owner_user_id == scope.user_id,
+                (KnowledgeSource.visibility == "global") & (KnowledgeSource.rights_status == "approved"),
+                (KnowledgeSource.visibility == "selected") & (KnowledgeSource.rights_status == "approved") & selected,
+            )
+        query = select(KnowledgeSource.id).where(KnowledgeSource.rights_revoked_at.is_(None), visible)
         if source_names:
             query = query.where(KnowledgeSource.name.in_(source_names))
         return query
@@ -462,7 +482,14 @@ class KnowledgeStore:
         async with self.db.sessionmaker() as session, session.begin():
             await session.execute(
                 pg_insert(KnowledgeSource)
-                .values(name=name, owner_user_id=owner_user_id, description=description)
+                .values(
+                    name=name,
+                    owner_user_id=owner_user_id,
+                    description=description,
+                    visibility="global" if owner_user_id is None else "owner_only",
+                    rights_status="approved" if owner_user_id is None else "unverified",
+                    rights_basis="legacy shared ingestion" if owner_user_id is None else None,
+                )
                 .on_conflict_do_nothing(index_elements=["name"])
             )
             source = await session.scalar(select(KnowledgeSource).where(KnowledgeSource.name == name))

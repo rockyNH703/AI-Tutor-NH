@@ -65,6 +65,7 @@ export const FILE_CONTENT = {
   ],
 } as const;
 
+export const KNOWLEDGE_PDF = { types: ["application/pdf"] } as const;
 /** Voice mode: one utterance, as the browser's own recorder made it (the API's `x-max-bytes`). */
 export const VOICE_UPLOAD = { types: ["audio/webm", "audio/mp4", "audio/wav"], maxBytes: 1024 * 1024 } as const;
 /** One sentence of a reply read aloud: Ogg Opus, AAC or MP3, as the browser asked (WAV only from the e2e stack's fake provider). */
@@ -157,6 +158,9 @@ export const ROUTES = {
   "GET /v1/files/{file_id}/content": { auth: true, file: FILE_CONTENT },
   "POST /v1/files/{file_id}/retry": { auth: true },
   "DELETE /v1/files/{file_id}": { auth: true },
+  "GET /v1/knowledge/admin": { auth: true },
+  "POST /v1/knowledge/imports": { auth: true, body: "CreateImportBatch" },
+  "GET /v1/knowledge/files/{file_id}/content": { auth: true, file: KNOWLEDGE_PDF },
 
   "GET /v1/voice": { auth: true },
   "POST /v1/voice/transcriptions": { auth: true, query: ["seconds"], upload: VOICE_UPLOAD, voice: true },

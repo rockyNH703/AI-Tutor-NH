@@ -92,14 +92,21 @@ class AssembledPrompt:
 
 def source_entry(document: Document) -> dict:
     meta = document.metadata
+    attributes = meta.get("attributes") if isinstance(meta.get("attributes"), dict) else {}
     return {
         "chunkId": meta.get("chunk_id"),
         "documentId": meta.get("document_id"),
+        "revisionId": attributes.get("revision_id"),
+        "stableChunkKey": attributes.get("stable_chunk_key"),
         "sourceId": meta.get("source_id"),
         "source": meta.get("source"),
         "title": meta.get("title"),
         "uri": meta.get("uri"),
         "ordinal": meta.get("ordinal"),
+        "sectionPath": attributes.get("section_path"),
+        "physicalPage": attributes.get("physical_page"),
+        "printedPageLabel": attributes.get("printed_page_label"),
+        "excerpt": document.page_content[:500],
         "score": meta.get("score"),
     }
 

@@ -127,7 +127,10 @@ def install_error_handlers(app: FastAPI) -> None:
         extra: dict = {"fields": error.fields} if error.fields else {}
         if getattr(error, "current", None) is not None:
             extra["current"] = error.current
-        return _response(error.status_code, error.code, error.message, **extra)
+        response = _response(error.status_code, error.code, error.message, **extra)
+        for name, value in getattr(error, "headers", {}).items():
+            response.headers[name] = value
+        return response
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, error: RequestValidationError) -> JSONResponse:

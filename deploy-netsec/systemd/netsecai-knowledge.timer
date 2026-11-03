@@ -1,0 +1,12 @@
+[Unit]
+Description=run the netsecai knowledge worker periodically
+
+[Timer]
+OnBootSec=5min
+OnUnitInactiveSec=1min
+AccuracySec=10s
+Persistent=true
+Unit=netsecai-knowledge.service
+
+[Install]
+WantedBy=timers.target

@@ -6,6 +6,7 @@ import pytest
 from app.auth.emails import MemoryEmailSender
 from app.llm.fake import FakeProvider
 from app.main import create_app
+from app.middleware import RequestContextMiddleware
 from tests.conftest import make_settings, register
 
 
@@ -19,6 +20,19 @@ async def test_health_ready_and_request_id(client):
     # a malformed incoming id is replaced, never reflected
     r = await client.get("/health", headers={"X-Request-ID": "bad id\r\nx"})
     assert r.headers["x-request-id"] != "bad id\r\nx"
+
+
+async def test_knowledge_chunk_route_uses_one_megabyte_body_limit(app):
+    middleware = RequestContextMiddleware(
+        app,
+        max_body_bytes=64 * 1024,
+        body_pattern_limits={("PUT", r"/v1/knowledge/imports/files/[0-9a-fA-F-]{36}/content"): 1024 * 1024},
+    )
+    file_id = "00000000-0000-0000-0000-000000000001"
+
+    assert middleware._body_limit("PUT", f"/v1/knowledge/imports/files/{file_id}/content") == 1024 * 1024
+    assert middleware._body_limit("POST", f"/v1/knowledge/imports/files/{file_id}/content") == 64 * 1024
+    assert middleware._body_limit("PUT", f"/v1/knowledge/imports/files/{file_id}") == 64 * 1024
 
 
 async def test_oversized_body_is_413(client, app):

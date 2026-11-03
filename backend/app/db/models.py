@@ -13,7 +13,14 @@ User ─┬─ UserSettings
 EmailCode and AuthAttempt support sign-up, reset and throttling.
 
 Knowledge base (RAG):
-KnowledgeSource (global, or private to owner_user_id) ── Document ── DocumentChunk (pgvector embedding)
+KnowledgeSource (global, selected-user, or private to owner_user_id)
+    ── Document ── DocumentChunk (live pgvector projection)
+KnowledgeSource ── KnowledgeSourceUserGrant
+User ── KnowledgeAdminGrant
+KnowledgeImportBatch ── DocumentFile ── DocumentFileBlob
+Document ── DocumentRevision ── DocumentRevisionChunk
+DocumentFile ── DocumentRevision
+DocumentFile ── KnowledgeDuplicateReview
 
 User files (app/files): UserFile ─┬─ UserFileBlob   the original bytes, in 1 MiB rows
                                   └─ FileChunk      extracted text with its embedding (derived data)
@@ -75,6 +82,43 @@ MEMORY_EXTRACTION_JOB_STATUSES = ("queued", "running", "retryable", "completed",
 MEMORY_RECEIPT_STATUSES = ("started", "completed", "failed")
 MEMORY_MAX_CONTENT_CHARS = 2000
 CODE_PURPOSES = ("verify_email", "reset_password", "change_email")
+KNOWLEDGE_VISIBILITIES = ("owner_only", "selected", "global")
+KNOWLEDGE_RIGHTS_STATUSES = ("unverified", "approved", "revoked")
+KNOWLEDGE_IMPORT_STATUSES = ("open", "completed", "revoked", "expired")
+DOCUMENT_FILE_STATUSES = ("uploading", "ready", "rejected", "deleted")
+DOCUMENT_REVISION_STATUSES = (
+    "queued",
+    "extracting",
+    "needs_review",
+    "chunking",
+    "embedding",
+    "verifying",
+    "ready_to_publish",
+    "published",
+    "retryable",
+    "failed",
+    "cancelled",
+    "retired",
+)
+DOCUMENT_REVISION_TERMINAL_STATUSES = (
+    "needs_review",
+    "ready_to_publish",
+    "published",
+    "failed",
+    "cancelled",
+    "retired",
+)
+KNOWLEDGE_DUPLICATE_CLASSIFICATIONS = (
+    "exact",
+    "confirmed_content",
+    "probable",
+    "same_edition_representation",
+    "different_edition",
+    "related",
+    "inconclusive",
+)
+KNOWLEDGE_DUPLICATE_DECISIONS = ("pending", "reuse", "keep_separate", "reject", "quarantine_approved")
+KNOWLEDGE_BLOB_BYTES = 1024 * 1024
 
 # What a student can tell the tutor (app/learning). Every preference has a neutral "auto"
 # that adds no instruction, so a student who sets nothing gets the tutor everyone gets.
@@ -950,11 +994,44 @@ class UsageEvent(Base):
     created_at: Mapped[datetime] = _created()
 
 
+class KnowledgeAdminGrant(Base):
+    """Database-backed capability for Knowledge Library operators."""
+
+    __tablename__ = "knowledge_admin_grants"
+    __table_args__ = (Index("ix_knowledge_admin_grants_active", "user_id", "revoked_at", "expires_at"),)
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    granted_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+    granted_by_operator: Mapped[str | None] = mapped_column(String(200))
+    reason: Mapped[str] = mapped_column(String(280), nullable=False)
+    granted_at: Mapped[datetime] = _created()
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+    revoke_reason: Mapped[str | None] = mapped_column(String(280))
+
+
 class KnowledgeSource(Base):
-    """A named collection of documents. owner_user_id NULL = global (every signed-in user)."""
+    """A source-level access boundary for one or more logical document editions."""
 
     __tablename__ = "knowledge_sources"
-    __table_args__ = (Index("ix_knowledge_sources_owner_user_id", "owner_user_id"),)
+    __table_args__ = (
+        CheckConstraint(f"visibility IN {KNOWLEDGE_VISIBILITIES}", name="visibility"),
+        CheckConstraint(f"rights_status IN {KNOWLEDGE_RIGHTS_STATUSES}", name="rights_status"),
+        CheckConstraint("visibility = 'global' OR owner_user_id IS NOT NULL", name="published_owner"),
+        CheckConstraint(
+            "visibility = 'owner_only' OR rights_status = 'approved'",
+            name="distribution_rights_approved",
+        ),
+        Index("ix_knowledge_sources_owner_user_id", "owner_user_id"),
+        Index("ix_knowledge_sources_visibility", "visibility", "rights_status"),
+    )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     name: Mapped[str] = mapped_column(String(120), nullable=False, unique=True)
@@ -962,11 +1039,72 @@ class KnowledgeSource(Base):
     owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")
     )
+    visibility: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'owner_only'"))
+    rights_status: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'unverified'"))
+    rights_basis: Mapped[str | None] = mapped_column(String(500))
+    rights_approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    rights_approved_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+    rights_revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     metadata_: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _created()
+
+
+class KnowledgeSourceUserGrant(Base):
+    __tablename__ = "knowledge_source_user_grants"
+    __table_args__ = (Index("ix_knowledge_source_user_grants_user", "user_id", "revoked_at"),)
+
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    granted_by_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    granted_at: Mapped[datetime] = _created()
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+
+
+class KnowledgeImportBatch(Base):
+    """Short-lived authorization and progress root for a Windows folder import."""
+
+    __tablename__ = "knowledge_import_batches"
+    __table_args__ = (
+        UniqueConstraint("secret_hash", name="uq_knowledge_import_batches_secret_hash"),
+        CheckConstraint(f"status IN {KNOWLEDGE_IMPORT_STATUSES}", name="status"),
+        Index("ix_knowledge_import_batches_owner", "owner_user_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    issued_by_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), nullable=False
+    )
+    secret_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'open'"))
+    expected_file_count: Mapped[int | None] = mapped_column(Integer)
+    expected_total_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    received_file_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    received_total_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default=text("0"))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = _created()
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Document(Base):
@@ -1037,6 +1175,164 @@ class DocumentChunk(Base):
     )
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=False)
     embedding_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class DocumentFile(Base):
+    """Immutable original PDF bytes, stored in bounded rows."""
+
+    __tablename__ = "document_files"
+    __table_args__ = (
+        UniqueConstraint("source_id", "sha256", name="uq_document_files_source_sha256"),
+        CheckConstraint(f"status IN {DOCUMENT_FILE_STATUSES}", name="status"),
+        CheckConstraint("size_bytes > 0", name="size_bytes"),
+        CheckConstraint("received_bytes >= 0 AND received_bytes <= size_bytes", name="received_bytes"),
+        Index("ix_document_files_source_created", "source_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), nullable=False
+    )
+    import_batch_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_import_batches.id", ondelete="SET NULL")
+    )
+    filename: Mapped[str] = mapped_column(String(255), nullable=False)
+    media_type: Mapped[str] = mapped_column(String(100), nullable=False, server_default=text("'application/pdf'"))
+    size_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    received_bytes: Mapped[int] = mapped_column(BigInteger, nullable=False, server_default=text("0"))
+    sha256: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'uploading'"))
+    page_count: Mapped[int | None] = mapped_column(Integer)
+    created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    created_at: Mapped[datetime] = _created()
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DocumentFileBlob(Base):
+    __tablename__ = "document_file_blobs"
+    __table_args__ = (CheckConstraint(f"octet_length(data) BETWEEN 1 AND {KNOWLEDGE_BLOB_BYTES}", name="data_size"),)
+
+    file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_files.id", ondelete="CASCADE"), primary_key=True
+    )
+    ordinal: Mapped[int] = mapped_column(Integer, primary_key=True)
+    data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
+
+
+class DocumentRevision(Base):
+    """One immutable extraction/chunk/embedding attempt and its durable lease state."""
+
+    __tablename__ = "document_revisions"
+    __table_args__ = (
+        UniqueConstraint("document_id", "revision_number", name="uq_document_revisions_number"),
+        UniqueConstraint("document_id", "processing_signature", name="uq_document_revisions_signature"),
+        UniqueConstraint("id", "document_id", "source_id", name="uq_document_revisions_identity"),
+        CheckConstraint(f"status IN {DOCUMENT_REVISION_STATUSES}", name="status"),
+        Index("ix_document_revisions_pending", "status", "next_attempt_at", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), nullable=False
+    )
+    file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_files.id", ondelete="RESTRICT"), nullable=False
+    )
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, server_default=text("'queued'"))
+    processing_signature: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    parser_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    parser_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    parser_config_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    output_digest: Mapped[str | None] = mapped_column(CHAR(64))
+    chunking_config_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    embedding_dimensions: Mapped[int] = mapped_column(Integer, nullable=False)
+    attempts: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    next_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    quality_report: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+    published_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    retired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DocumentRevisionChunk(Base):
+    __tablename__ = "document_revision_chunks"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["revision_id", "document_id", "source_id"],
+            ["document_revisions.id", "document_revisions.document_id", "document_revisions.source_id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("revision_id", "stable_chunk_key", name="uq_document_revision_chunks_key"),
+        UniqueConstraint("revision_id", "ordinal", name="uq_document_revision_chunks_ordinal"),
+        Index("ix_document_revision_chunks_page", "revision_id", "physical_page_start"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    revision_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    document_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    source_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    stable_chunk_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_sha256: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    section_path: Mapped[list[str]] = mapped_column(ARRAY(String(300)), nullable=False, server_default=text("'{}'"))
+    physical_page_start: Mapped[int] = mapped_column(Integer, nullable=False)
+    physical_page_end: Mapped[int] = mapped_column(Integer, nullable=False)
+    printed_page_label: Mapped[str | None] = mapped_column(String(40))
+    metadata_: Mapped[dict[str, Any]] = mapped_column(
+        "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
+    embedding_model: Mapped[str | None] = mapped_column(String(200))
+    created_at: Mapped[datetime] = _created()
+
+
+class KnowledgeDuplicateReview(Base):
+    __tablename__ = "knowledge_duplicate_reviews"
+    __table_args__ = (
+        UniqueConstraint("file_id", "candidate_file_id", name="uq_knowledge_duplicate_reviews_pair"),
+        CheckConstraint(f"classification IN {KNOWLEDGE_DUPLICATE_CLASSIFICATIONS}", name="classification"),
+        CheckConstraint(f"decision IN {KNOWLEDGE_DUPLICATE_DECISIONS}", name="decision"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_files.id", ondelete="CASCADE"), nullable=False
+    )
+    candidate_file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_files.id", ondelete="CASCADE"), nullable=False
+    )
+    classification: Mapped[str] = mapped_column(String(40), nullable=False)
+    confidence: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    signals: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    decision: Mapped[str] = mapped_column(String(30), nullable=False, server_default=text("'pending'"))
+    reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+    )
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    quarantine_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = _created()
 
 

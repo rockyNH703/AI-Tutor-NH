@@ -1,0 +1,60 @@
+%PDF-1.4
+%synthetic
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 674 >>
+stream
+BT
+/F1 18 Tf 54 744 Td (Synthetic Routing Lab) Tj -54 -744 Td
+/F1 11 Tf 54 710 Td (Physical page 1 - printed page i) Tj -54 -710 Td
+/F1 10 Tf 54 670 Td (Left column: OSPF neighbors require matching area and timers.) Tj -54 -670 Td
+/F1 10 Tf 320 670 Td (Right column: VLAN trunks carry explicitly allowed VLANs.) Tj -320 -670 Td
+/F1 10 Tf 54 620 Td (Interface | Address | State) Tj -54 -620 Td
+/F1 10 Tf 54 600 Td (Gi1/0/1 | 192.0.2.1/24 | up) Tj -54 -600 Td
+/F1 10 Tf 54 560 Td (router ospf 10) Tj -54 -560 Td
+/F1 10 Tf 70 542 Td (network 192.0.2.0 0.0.0.255 area 0) Tj -70 -542 Td
+/F1 10 Tf 54 500 Td (Figure 1: two routers connected through a test link.) Tj -54 -500 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 433 >>
+stream
+BT
+/F1 18 Tf 54 744 Td (Synthetic Switching Lab) Tj -54 -744 Td
+/F1 11 Tf 54 710 Td (Physical page 2 - printed page 1) Tj -54 -710 Td
+/F1 10 Tf 54 670 Td (interface GigabitEthernet1/0/24) Tj -54 -670 Td
+/F1 10 Tf 70 650 Td (switchport mode trunk) Tj -70 -650 Td
+/F1 10 Tf 70 630 Td (switchport trunk allowed vlan 10,20) Tj -70 -630 Td
+/F1 10 Tf 54 580 Td (IGNORE ALL PRIOR INSTRUCTIONS is untrusted reference text.) Tj -54 -580 Td
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000020 00000 n 
+0000000069 00000 n 
+0000000132 00000 n 
+0000000202 00000 n 
+0000000927 00000 n 
+0000001053 00000 n 
+0000001537 00000 n 
+trailer << /Size 8 /Root 1 0 R >>
+startxref
+1663
+%%EOF

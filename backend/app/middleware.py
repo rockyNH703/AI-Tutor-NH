@@ -26,13 +26,29 @@ class _BodyTooLarge(Exception):
 
 class RequestContextMiddleware:
     def __init__(
-        self, app: ASGIApp, max_body_bytes: int, body_limits: dict[tuple[str, str], int] | None = None
+        self,
+        app: ASGIApp,
+        max_body_bytes: int,
+        body_limits: dict[tuple[str, str], int] | None = None,
+        body_pattern_limits: dict[tuple[str, str], int] | None = None,
     ) -> None:
         self.app = app
         self.max_body_bytes = max_body_bytes
-        # (method, path) -> a larger limit for the few routes that take files. Everything else
-        # keeps max_body_bytes.
         self.body_limits = body_limits or {}
+        self.body_pattern_limits = body_pattern_limits or {}
+
+    def _body_limit(self, method: str, path: str) -> int:
+        exact = self.body_limits.get((method, path))
+        if exact is not None:
+            return exact
+        return next(
+            (
+                limit
+                for (candidate_method, pattern), limit in self.body_pattern_limits.items()
+                if candidate_method == method and re.fullmatch(pattern, path)
+            ),
+            self.max_body_bytes,
+        )
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -54,7 +70,7 @@ class RequestContextMiddleware:
                 message["headers"] = [*message["headers"], (b"x-request-id", request_id.encode())]
             await send(message)
 
-        limit = self.body_limits.get((scope.get("method", ""), scope.get("path", "")), self.max_body_bytes)
+        limit = self._body_limit(scope.get("method", ""), scope.get("path", ""))
         try:
             declared = headers.get("content-length")
             if declared and declared.isdigit() and int(declared) > limit:

@@ -1,0 +1,26 @@
+{
+  "fixtures": {
+    "digital-structure.pdf": {
+      "kind": "digital",
+      "pages": 2,
+      "sha256": "e08dad5d6ad8631830b550d81e164b76fcdcb98d5e0be6d9a4c05dbdf705c040"
+    },
+    "edition-a.pdf": {
+      "kind": "digital",
+      "pages": 1,
+      "sha256": "d8b6bb13b4cca493da1c1a262d6f13583c53f3f84d03e180294af594f64219d5"
+    },
+    "edition-b.pdf": {
+      "kind": "digital",
+      "pages": 1,
+      "sha256": "e80d087a97f0ffddc960229325e29576201de76575c15a1e8b6113be6a9fe622"
+    },
+    "scanned-ocr.pdf": {
+      "kind": "scanned",
+      "pages": 1,
+      "sha256": "e94a14897fcbc6bea79c61cdf34193dcb1d8406f8c19e77a3cc862903a949ca0"
+    }
+  },
+  "generated": true,
+  "license": "CC0-1.0"
+}

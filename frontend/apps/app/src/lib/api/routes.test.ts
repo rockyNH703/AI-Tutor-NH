@@ -68,6 +68,10 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
   ],
   EmailChangeRequest: [{ newEmail: "a@b.c", password: "x" }],
   EmailConfirmRequest: [{ newEmail: "a@b.c", code: "123456" }],
+  CreateImportBatch: [
+    { sourceId: "11111111-1111-4111-8111-111111111111" },
+    { sourceId: "11111111-1111-4111-8111-111111111111", expectedFileCount: 12, expectedTotalBytes: 1048576 },
+  ],
   UpdateLearnerProfileRequest: [
     { version: 0 },
     { version: 1, set: { grade: "class_10", board: "state", boardState: "kerala", weakTopics: ["Optics"] } },

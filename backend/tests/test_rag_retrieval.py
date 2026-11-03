@@ -3,7 +3,8 @@
 import pytest
 from sqlalchemy import func, select, text
 
-from app.db.models import DocumentChunk, User
+from app.auth.service import utcnow
+from app.db.models import DocumentChunk, KnowledgeSource, KnowledgeSourceUserGrant, User
 from app.db.session import Database
 from app.rag.embeddings import KeywordHashEmbeddings
 from app.rag.errors import RetrievalError
@@ -94,6 +95,29 @@ async def test_private_sources_never_leak_across_users(client, app):
     assert as_bob == {"public.md"} and as_global == {"public.md"}
     # naming the private source explicitly cannot widen Bob's access
     assert await retriever(app, AccessScope(bob_id), source_names=["alice-notes"]).ainvoke(query) == []
+
+
+async def test_selected_source_requires_explicit_active_grant(client, app):
+    alice = await register(client, app)
+    bob = await register(client, app)
+    alice_id, bob_id = await user_id(app, alice["email"]), await user_id(app, bob["email"])
+    await ingest_docs(
+        app,
+        {"selected.md": "# Selected notes\n\nospf adjacency authentication"},
+        source="selected-notes",
+        owner_user_id=alice_id,
+    )
+    async with app.state.db.sessionmaker() as session, session.begin():
+        source = await session.scalar(select(KnowledgeSource).where(KnowledgeSource.name == "selected-notes"))
+        source.visibility = "selected"
+        source.rights_status = "approved"
+        session.add(KnowledgeSourceUserGrant(source_id=source.id, user_id=bob_id, granted_by_user_id=alice_id))
+    query = "ospf adjacency authentication"
+    assert {d.metadata["uri"] for d in await retriever(app, AccessScope(bob_id)).ainvoke(query)} == {"selected.md"}
+    async with app.state.db.sessionmaker() as session, session.begin():
+        grant = await session.get(KnowledgeSourceUserGrant, (source.id, bob_id))
+        grant.revoked_at = utcnow()
+    assert await retriever(app, AccessScope(bob_id)).ainvoke(query) == []
 
 
 async def test_other_embedding_model_is_invisible(app):
