@@ -47,7 +47,13 @@ from app.jobs.memory import enqueue_memory_extraction
 from app.learning.context import StudentContext, read_student_context
 from app.llm.base import ChatMessage, GenerationOptions, LLMError
 from app.logging import get_logger, request_id_var
-from app.memory.commands import apply_memory_command, parse_memory_command, replay_receipt, request_hash
+from app.memory.commands import (
+    apply_memory_command,
+    command_refusal,
+    parse_memory_command,
+    replay_receipt,
+    request_hash,
+)
 from app.memory.recall import MemoryRecall
 from app.progress.activity import record_question
 from app.progress.learning import is_meaningful, now, record_learning, tutor_progress
@@ -620,28 +626,59 @@ class ChatService:
                         assistant.status = "cancelled"
                         receipt.status = "failed"
                         receipt.completed_at = now()
-                        await session.commit()
+                        await self._close_command_usage(session, turn.assistant_id, "cancelled")
                     return
-                async with self.db.sessionmaker() as session:
-                    conversation = await session.get(Conversation, turn.conversation.id)
-                    source = await session.get(Message, turn.user_message.id)
-                    assistant = await session.get(Message, turn.assistant_id)
-                    user = await session.get(User, turn.user.id)
-                    text = await apply_memory_command(
-                        session,
-                        self.settings,
-                        self.memory.embeddings if self.memory is not None else self.rag_graph.embeddings,
-                        user,
-                        source,
-                        assistant,
-                        turn.command,
-                        turn.command_receipt_id,
-                        cancelled=lambda: self._command_cancelled(generation),
+                try:
+                    async with self.db.sessionmaker() as session:
+                        conversation = await session.get(Conversation, turn.conversation.id)
+                        source = await session.get(Message, turn.user_message.id)
+                        assistant = await session.get(Message, turn.assistant_id)
+                        user = await session.get(User, turn.user.id)
+                        text = await apply_memory_command(
+                            session,
+                            self.settings,
+                            self.memory.embeddings if self.memory is not None else self.rag_graph.embeddings,
+                            user,
+                            source,
+                            assistant,
+                            turn.command,
+                            turn.command_receipt_id,
+                            cancelled=lambda: self._command_cancelled(generation),
+                        )
+                        await self._close_command_usage(session, turn.assistant_id, "complete" if text else "cancelled")
+                        if not text:
+                            return
+                        message = await session.get(Message, turn.assistant_id)
+                        conversation = await session.get(Conversation, turn.conversation.id)
+                except (ValidationFailed, Conflict, IntegrityError) as error:
+                    # The memory policy, a length limit, a duplicate or a race refused it: the turn still ends, as a
+                    # complete reply giving the memory layer's fixed reason (never the user's text). An outage
+                    # (ServiceUnavailable, the database) is not a refusal: it ends with an error event below.
+                    log.info(
+                        "memory command refused",
+                        extra={"error_type": type(error).__name__, "message_id": str(turn.assistant_id)},
                     )
-                    if not text:
+                    text = command_refusal(turn.command.kind, error)
+                    try:
+                        ended = await self._end_command(turn, text)
+                    except Exception as end_error:  # noqa: BLE001 - the database failed too: still end the stream
+                        self._log_unended_command(turn, end_error)
+                        await self._command_error(generation, turn)
                         return
-                    message = await session.get(Message, turn.assistant_id)
-                    conversation = await session.get(Conversation, turn.conversation.id)
+                    if ended is None:
+                        return
+                    message, conversation = ended
+                except Exception as error:  # noqa: BLE001 - embeddings or the database failed: end with an error event
+                    log.warning(
+                        "memory command failed",
+                        extra={"error_type": type(error).__name__, "message_id": str(turn.assistant_id)},
+                    )
+                    try:
+                        await self._end_command(turn, None)
+                    except Exception as end_error:  # noqa: BLE001 - the stale sweep ends the row later
+                        self._log_unended_command(turn, end_error)
+                    await self._command_error(generation, turn)
+                    return
                 await generation.queue.put(ChatEvent("token", {"text": text}))
                 await generation.queue.put(
                     ChatEvent(
@@ -657,6 +694,51 @@ class ChatService:
         finally:
             await generation.queue.put(None)  # end of stream, always
             self.generations.remove(turn.assistant_id)
+
+    @staticmethod
+    async def _command_error(generation: Generation, turn: PreparedTurn) -> None:
+        event = ChatEvent("error", {**public_error("service_unavailable"), "messageId": str(turn.assistant_id)})
+        event.data["requestId"] = request_id_var.get()
+        await generation.queue.put(event)
+
+    @staticmethod
+    def _log_unended_command(turn: PreparedTurn, error: Exception) -> None:
+        log.warning(
+            "memory command could not be ended",
+            extra={"error_type": type(error).__name__, "message_id": str(turn.assistant_id)},
+        )
+
+    @staticmethod
+    async def _close_command_usage(session: AsyncSession, message_id: uuid.UUID, outcome: str) -> None:
+        """A memory command never calls the model: its usage row (opened by prepare) ends with the turn."""
+        await session.execute(
+            update(UsageEvent)
+            .where(UsageEvent.message_id == message_id, UsageEvent.outcome == "streaming")
+            .values(outcome=outcome)
+        )
+        await session.commit()
+
+    async def _end_command(self, turn: PreparedTurn, refusal: str | None) -> tuple[Message, Conversation] | None:
+        """Finish a memory command the memory layer refused (`refusal`, a complete reply) or that failed (None,
+        an error). None when the conversation was deleted meanwhile."""
+        async with self.db.sessionmaker() as session:
+            message = await session.get(Message, turn.assistant_id, with_for_update=True)
+            if message is None:
+                return None
+            receipt = await session.get(MemoryCommandReceipt, turn.command_receipt_id, with_for_update=True)
+            if refusal is not None:
+                message.content = refusal
+                message.status = "complete"
+                message.metadata_ = {"memoryCommand": {"kind": turn.command.kind, "refused": True}}
+            else:
+                message.status = "error"
+                message.metadata_ = {**(message.metadata_ or {}), "errorCode": "service_unavailable"}
+            if receipt is not None:
+                receipt.status = "completed" if refusal is not None else "failed"
+                receipt.completed_at = now()
+            await self._close_command_usage(session, turn.assistant_id, "complete" if refusal is not None else "error")
+            conversation = await session.get(Conversation, turn.conversation.id)
+            return message, conversation
 
     def _classifies(self, turn: PreparedTurn) -> bool:
         """Whether _route will wait for the classifier on this turn (INTENT_ROUTER=on, a new message that

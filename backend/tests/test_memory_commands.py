@@ -3,10 +3,13 @@
 import asyncio
 import uuid
 
+import pytest
 from sqlalchemy import select
 
-from app.db.models import MemoryCommandReceipt, MemoryItem, Message
-from tests.conftest import register, stream_chat
+from app.db.models import MemoryCommandReceipt, MemoryItem, Message, UsageEvent
+from app.memory.commands import parse_memory_command
+from app.rag.errors import EmbeddingError
+from tests.conftest import parse_sse, register, stream_chat
 
 
 async def test_remember_command_persists_once_and_replays(client, app, fake_llm):
@@ -99,7 +102,7 @@ async def test_forget_command_exact_match_and_no_resurrection(client, app, fake_
         headers=headers,
     )
     before = len(fake_llm.calls)
-    forgotten, events = await stream_chat(client, headers, f"Forget {statement}")
+    forgotten, events = await stream_chat(client, headers, f"Forget that {statement}")
     assert forgotten.status_code == 200 and any("I forgot" in str(data) for _, data in events)
     assert len(fake_llm.calls) == before
 
@@ -154,3 +157,147 @@ async def test_with_memory_off_a_remember_command_is_an_ordinary_message(client,
     async with app.state.db.sessionmaker() as db:
         assert list(await db.scalars(select(MemoryItem))) == []
         assert list(await db.scalars(select(MemoryCommandReceipt))) == []
+
+
+# Only the explicit one-line forms are commands: questions, pastes and "forget about ..." reach the assistant.
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Remember how BGP picks a path?",
+        "Remember when we covered OSPF areas? Explain stub areas again",
+        "Forget about NAT, explain PAT",
+        "Forget about OSPF, how do I configure BGP?",
+        "Remember\nrouter ospf 1\n network 10.0.0.0 0.0.0.255 area 0",
+        "Remember that this config is ours:\ninterface Gi0/1\n shutdown",
+        "Remember the 7 OSI layers",
+        "Forget my last question",
+    ],
+)
+def test_questions_and_pastes_are_not_memory_commands(text):
+    assert parse_memory_command(text) is None
+
+
+@pytest.mark.parametrize(
+    ("text", "kind", "content"),
+    [
+        ("Remember that I run Junos 23.4 on the core.", "remember", "I run Junos 23.4 on the core"),
+        ("  remember that our lab uses OSPF area 10!  ", "remember", "our lab uses OSPF area 10"),
+        ("Forget that I run Junos 23.4 on the core", "forget", "I run Junos 23.4 on the core"),
+    ],
+)
+def test_explicit_one_line_forms_are_memory_commands(text, kind, content):
+    command = parse_memory_command(text)
+    assert command is not None and (command.kind, command.content) == (kind, content)
+
+
+async def _command(client, headers, message: str):
+    response = await client.post(
+        "/v1/chat/stream", json={"message": message, "clientRequestId": str(uuid.uuid4())}, headers=headers
+    )
+    return response, parse_sse(response.text)
+
+
+async def _usage_outcomes(app, user_id: uuid.UUID) -> list[str]:
+    async with app.state.db.sessionmaker() as db:
+        return list(await db.scalars(select(UsageEvent.outcome).where(UsageEvent.user_id == user_id)))
+
+
+async def test_a_refused_remember_ends_the_turn_and_frees_the_chat(client, app, fake_llm):
+    account = await register(client, app)
+    headers, user_id = account["headers"], uuid.UUID(account["user"]["id"])
+
+    response, events = await _command(client, headers, "Remember that my enable password is cisco123")
+
+    assert response.status_code == 200 and events[-1][0] == "done"
+    reply = events[-1][1]["message"]
+    assert reply["status"] == "complete"
+    assert reply["content"] == "I can’t save that: Secrets and credentials cannot be stored in memory."
+    async with app.state.db.sessionmaker() as db:
+        assert list(await db.scalars(select(MemoryItem).where(MemoryItem.user_id == user_id))) == []
+        receipt = await db.scalar(select(MemoryCommandReceipt).where(MemoryCommandReceipt.user_id == user_id))
+        assert receipt.status == "completed"
+    assert await _usage_outcomes(app, user_id) == ["complete"]
+    follow_up, follow_events = await stream_chat(
+        client, headers, "Explain OSPF area types", events[0][1]["conversationId"]
+    )
+    assert follow_up.status_code == 200 and follow_events[-1][0] == "done"  # the chat is not locked for 300 s
+
+
+async def test_remembering_the_same_fact_twice_gets_a_reply(client, app):
+    account = await register(client, app)
+    headers, user_id = account["headers"], uuid.UUID(account["user"]["id"])
+
+    first, _ = await _command(client, headers, "Remember that our lab uses OSPF area 10")
+    second, events = await _command(client, headers, "Remember that our lab uses OSPF area 10")
+
+    assert first.status_code == second.status_code == 200
+    assert events[-1][0] == "done"
+    assert events[-1][1]["message"]["content"] == "That is already in your memory."
+    async with app.state.db.sessionmaker() as db:
+        assert len(list(await db.scalars(select(MemoryItem).where(MemoryItem.user_id == user_id)))) == 1
+
+
+async def test_a_failed_memory_embedding_ends_with_an_error_and_frees_the_chat(client, app, monkeypatch):
+    account = await register(client, app)
+    headers, user_id = account["headers"], uuid.UUID(account["user"]["id"])
+
+    async def failing(texts):
+        raise EmbeddingError("embedding_failed", "provider down")
+
+    monkeypatch.setattr(app.state.embeddings, "aembed_documents", failing)
+    response, events = await _command(client, headers, "Remember that our core runs Junos 23.4")
+    monkeypatch.undo()
+
+    assert response.status_code == 200 and events[-1][0] == "error"
+    assert events[-1][1]["code"] == "service_unavailable"
+    async with app.state.db.sessionmaker() as db:
+        receipt = await db.scalar(select(MemoryCommandReceipt).where(MemoryCommandReceipt.user_id == user_id))
+        assert receipt.status == "failed"
+        statuses = list(
+            await db.scalars(
+                select(Message.status).where(Message.conversation_id == uuid.UUID(events[0][1]["conversationId"]))
+            )
+        )
+        assert "streaming" not in statuses
+    assert await _usage_outcomes(app, user_id) == ["error"]
+    follow_up, follow_events = await stream_chat(
+        client, headers, "Explain OSPF area types", events[0][1]["conversationId"]
+    )
+    assert follow_up.status_code == 200 and follow_events[-1][0] == "done"
+
+
+async def test_a_command_still_ends_its_stream_when_the_database_fails_while_ending_it(client, app, monkeypatch):
+    account = await register(client, app)
+
+    async def database_down(turn, refusal):
+        raise RuntimeError("database unavailable")
+
+    monkeypatch.setattr(app.state.chat, "_end_command", database_down)
+    response, events = await _command(client, account["headers"], "Remember that my enable password is cisco123")
+
+    assert response.status_code == 200 and events[-1][0] == "error"
+    assert events[-1][1]["code"] == "service_unavailable"
+
+
+async def test_a_question_starting_with_remember_is_answered_not_stored(client, app, fake_llm):
+    account = await register(client, app)
+    user_id = uuid.UUID(account["user"]["id"])
+    before = len(fake_llm.calls)
+
+    response, events = await _command(client, account["headers"], "Remember how BGP picks a path?")
+
+    assert response.status_code == 200 and events[-1][0] == "done"
+    assert len(fake_llm.calls) == before + 1
+    async with app.state.db.sessionmaker() as db:
+        assert list(await db.scalars(select(MemoryItem).where(MemoryItem.user_id == user_id))) == []
+        assert list(await db.scalars(select(MemoryCommandReceipt).where(MemoryCommandReceipt.user_id == user_id))) == []
+
+
+async def test_a_memory_command_closes_its_usage_row(client, app):
+    account = await register(client, app)
+    user_id = uuid.UUID(account["user"]["id"])
+
+    response, events = await _command(client, account["headers"], "Remember that our lab uses OSPF area 10")
+
+    assert response.status_code == 200 and events[-1][0] == "done"
+    assert await _usage_outcomes(app, user_id) == ["complete"]

@@ -39,12 +39,12 @@ No real vendor book, certification guide, or `F:\CCNA` file is included.
 
 | Invariant | Reproducible check | Current result |
 |---|---|---|
-| Strict extraction rejects unknown versions/keys, bad sequence/page/digest and truncation | `backend/tests/knowledge_protocol_unit.py` | PASS on Windows Python 3.12 |
-| Citation metadata retains immutable revision/page identity without URI/score leakage | `backend/tests/knowledge_citations_unittest.py` | PASS on Windows Python 3.12 |
-| Range parser accepts one bounded range and rejects multiple/invalid ranges with 416 metadata | `backend/tests/knowledge_range_unittest.py` | PASS on Windows Python 3.12 |
-| Synthetic fixtures regenerate with matching manifest digests | `backend/tests/knowledge_fixtures_unittest.py` | PASS on Windows Python 3.12 |
-| Windows importer inventory, containment, resume/finalize and secret-safe errors | ackend/tests/import_windows_folder_unittest.py | PASS on Windows Python 3.12 |
-| Worker claim, stale recovery, retry and fencing state transitions | ackend/tests/test_knowledge_worker.py | Static checks PASS; PostgreSQL execution pending restoration of local WSL service |
+| Strict extraction rejects unknown versions/keys, bad sequence/page/digest and truncation | `backend/tests/test_knowledge_protocol.py` | PASS on Windows Python 3.12 |
+| Citation metadata retains immutable revision/page identity without URI/score leakage | `backend/tests/test_knowledge_citations.py` | PASS on Windows Python 3.12 |
+| Range parser accepts one bounded range and rejects multiple/invalid ranges with 416 metadata | `backend/tests/test_knowledge_range.py` | PASS on Windows Python 3.12 |
+| Synthetic fixtures regenerate with matching manifest digests | `backend/tests/test_knowledge_fixtures.py` | PASS on Windows Python 3.12 |
+| Windows importer inventory, containment, resume/finalize and secret-safe errors | `backend/tests/test_import_windows_folder.py` | PASS on Windows Python 3.12 |
+| Worker claim, stale recovery, retry and fencing state transitions | `backend/tests/test_knowledge_worker.py` | Static checks PASS; PostgreSQL execution pending restoration of local WSL service |
 | BFF streams file responses and forwards Range/If-Range while filtering response headers | `frontend/apps/app/src/lib/server/proxy-core.test.ts` | PASS, 43 tests |
 | Models, migration, access controls, import API, worker and retrieval work on PostgreSQL/pgvector | focused backend pytest | PASS: 44 tests in WSL PostgreSQL/pgvector after WSL recovery |
 | Migration upgrade/downgrade and model parity | `test_migrations.py`, `test_foundation.py` | PASS in prior fresh WSL PostgreSQL run |

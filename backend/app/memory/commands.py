@@ -7,17 +7,20 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Conversation, MemoryCommandReceipt, Message, User, UserSettings
-from app.errors import Conflict
+from app.errors import AppError, Conflict
 from app.memory.foundation import lock_memory_user
 from app.memory.preferences import MemoryPreferences
 from app.memory.service import MemoryService
 from app.settings import Settings
 
-_REMEMBER = re.compile(r"^\s*remember(?:\s+that)?\s+(.+?)\s*[.!]?\s*$", re.IGNORECASE | re.DOTALL)
-_FORGET = re.compile(r"^\s*forget(?:\s+that|\s+about)?\s+(.+?)\s*[.!]?\s*$", re.IGNORECASE | re.DOTALL)
+# Only the explicit forms are commands, on one line and without a question mark. "Remember how BGP picks a
+# path?", "Forget about NAT, explain PAT" or a pasted config that starts with "remember" go to the assistant.
+_REMEMBER = re.compile(r"remember\s+that\s+(.+?)\s*[.!]?", re.IGNORECASE)
+_FORGET = re.compile(r"forget\s+that\s+(.+?)\s*[.!]?", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -27,11 +30,24 @@ class ParsedMemoryCommand:
 
 
 def parse_memory_command(text: str) -> ParsedMemoryCommand | None:
-    if match := _REMEMBER.fullmatch(text):
+    candidate = text.strip()
+    if "\n" in candidate or "\r" in candidate or "?" in candidate:
+        return None
+    if match := _REMEMBER.fullmatch(candidate):
         return ParsedMemoryCommand("remember", match.group(1).strip())
-    if match := _FORGET.fullmatch(text):
+    if match := _FORGET.fullmatch(candidate):
         return ParsedMemoryCommand("forget", match.group(1).strip())
     return None
+
+
+def command_refusal(kind: str, error: Exception) -> str:
+    """The reply to a command the memory layer refused: its fixed public reason, never the user's own text."""
+    if isinstance(error, IntegrityError):
+        if kind == "remember":
+            return "That is already in your memory."
+        return "I couldn’t forget that right now. Please check Settings → Memory."
+    reason = error.message if isinstance(error, AppError) else AppError.message
+    return f"I can’t save that: {reason}" if kind == "remember" else f"I can’t do that: {reason}"
 
 
 def request_hash(command: ParsedMemoryCommand) -> str:

@@ -226,6 +226,8 @@ These take precedence over the 2026-09-29 rules where they conflict.
 - **Nothing is deleted without the owner's approval:** adapt PadhAI features to NetSec instead of removing them.
 - **No production mutation without explicit authorization** (deploys, rollbacks, host changes, switches, data).
 - **Plans use the code graph:** `bun run graph`, then `graphify affected` on what will change.
+- **Work live, in the foreground (2026-11-04):** no subagents and no background jobs unless the owner asks for them;
+  run independent checks as parallel foreground commands, using the whole machine.
 - **Follow [docs/security/secure-development.md](docs/security/secure-development.md).**
 
 ## Security-first workflow
