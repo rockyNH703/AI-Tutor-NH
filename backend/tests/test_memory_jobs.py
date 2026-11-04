@@ -272,3 +272,109 @@ async def test_strict_json_max_three_and_bounded_collector():
             max_chars=100,
             timeout_s=0.001,
         )
+
+
+# ------------------------------------------------------------------ K-25b/c/d, K-06h, K-25f, K-48b, K-05c
+def test_one_refused_proposal_is_dropped_and_the_others_are_kept():
+    secret = proposal("My enable secret 5 is $1$abcd$EFGHijklmnop on the core switch.")
+    kept = parse_extraction_output(extraction_reply([secret, proposal()]), max_item_chars=2000)
+    assert [item.content for item in kept] == [proposal()["content"]]
+
+
+def test_the_memory_policy_refuses_what_provider_masking_would_mask():
+    from app.errors import ValidationFailed
+    from app.memory.policy import validate_memory_policy
+
+    for sample in ("snmp-server community Lab0nly RO", "crypto isakmp key Lab0nlyKey address 0.0.0.0"):
+        with pytest.raises(ValidationFailed):
+            validate_memory_policy(sample)
+    validate_memory_policy("We run OSPF area 0 on Cisco Catalyst 9300 switches.")
+
+
+def test_a_memory_is_never_longer_than_what_recall_can_use():
+    from app.memory.extraction import recallable_chars
+
+    settings = make_settings()
+    assert recallable_chars(settings) == min(settings.memory_max_item_chars, settings.memory_max_context_chars)
+    too_long = proposal("I prefer Junos examples. " * 60)  # about 1,500 characters
+    assert parse_extraction_output(extraction_reply([too_long]), max_item_chars=recallable_chars(settings)) == ()
+
+
+async def _job_with(app, client, account, settings, content):
+    app.state.chat.settings = settings
+    await stream_chat(client, account["headers"], "Please use diagrams for circuit explanations.")
+    return FakeProvider(reply=lambda messages: extraction_reply([proposal(content)]))
+
+
+async def test_the_worker_never_proposes_text_the_user_already_rejected_or_saved(client, app):
+    account = await register(client, app)
+    await enable_automatic_proposals(app, account)
+    settings = make_settings(memory_automatic_proposals="on")
+    llm = await _job_with(app, client, account, settings, proposal()["content"])
+    await process_memory_jobs(app.state.db, settings, llm)
+    [first] = await rows(app, MemoryProposal)
+    rejected = await client.post(
+        f"/v1/memories/proposals/{first.id}/reject", json={"expectedVersion": first.version}, headers=account["headers"]
+    )
+    assert rejected.status_code in (200, 204), rejected.text
+
+    llm = await _job_with(app, client, account, settings, proposal()["content"])
+    report = await process_memory_jobs(app.state.db, settings, llm)
+
+    assert report["completed"] == 1 and report["proposals"] == 0
+    assert [p.status for p in await rows(app, MemoryProposal)] == ["rejected"]
+
+
+async def test_withdrawing_consent_closes_pending_suggestions(client, app):
+    account = await register(client, app)
+    await enable_automatic_proposals(app, account)
+    settings = make_settings(memory_automatic_proposals="on")
+    llm = await _job_with(app, client, account, settings, proposal()["content"])
+    await process_memory_jobs(app.state.db, settings, llm)
+    current = (await client.get("/v1/memories/preferences", headers=account["headers"])).json()
+
+    withdrawn = await client.put(
+        "/v1/memories/preferences",
+        json={"automaticProposals": False, "expectedVersion": current["version"]},
+        headers=account["headers"],
+    )
+
+    assert withdrawn.status_code == 200, withdrawn.text
+    assert [p.status for p in await rows(app, MemoryProposal)] == ["invalidated"]
+    listed = await client.get("/v1/memories/proposals", headers=account["headers"])
+    assert listed.json()["items"] == []
+
+
+async def test_an_account_keeps_a_bounded_number_of_memories(client, app, monkeypatch):
+    monkeypatch.setattr("app.memory.service.MAX_ACTIVE_MEMORIES", 2)
+    account = await register(client, app)
+    for n in range(2):
+        made = await client.post(
+            "/v1/memories",
+            json={"kind": "study_context", "content": f"Lab {n} runs EVE-NG."},
+            headers=account["headers"],
+        )
+        assert made.status_code == 201, made.text
+
+    third = await client.post(
+        "/v1/memories", json={"kind": "study_context", "content": "Lab 3 runs GNS3."}, headers=account["headers"]
+    )
+
+    assert third.status_code == 409
+    assert third.json()["error"]["code"] == "memory_limit_reached"
+
+
+async def test_recall_sends_nothing_to_the_provider_for_a_user_with_no_memories(app):
+    from app.memory.recall import MemoryRecall
+
+    class Counting:
+        model = "keyword-hash"
+        calls = 0
+
+        async def aembed_query(self, text):
+            Counting.calls += 1
+            return [0.0] * 1536
+
+    recall = MemoryRecall(app.state.db, make_settings(memory_recall_enabled=True), Counting())
+    assert await recall.recall(uuid.uuid4(), "What is BGP?") == ()
+    assert Counting.calls == 0

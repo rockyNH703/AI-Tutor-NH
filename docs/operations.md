@@ -35,10 +35,10 @@ The units, ports, paths and limits are in [INFRASTRUCTURE.md](../INFRASTRUCTURE.
 
 | Check | What it tells you |
 |---|---|
-| `NETSEC_DEPLOY_HOST=root@10.1.50.94 bun run status:netsec` | GitHub `main` against production, the commit each part runs, both units, `/ready`, `/login`, sign-in settings present, the tunnel address against `NEXT_PUBLIC_SITE_URL` and `PUBLIC_APP_URL`, the jobs timer, files, no legacy port listening. Must end `Status: MATCH` |
+| `NETSEC_DEPLOY_HOST=root@10.1.50.94 bun run status:netsec` | GitHub `main` against production, the commit each part runs, both units, `/ready`, `/login`, sign-in settings present, the tunnel address against `NEXT_PUBLIC_SITE_URL` and `PUBLIC_APP_URL`, the public `/login` (200), a backup from the last 26 hours and its timer, the jobs timer, files, no legacy port listening. Must end `Status: MATCH` |
 | `bun run smoke:netsec` | Today the same read-only checks as `status:netsec` (`deploy-netsec/smoke.sh`) |
 | API `GET /health` | `{"status": "ok", "release", "files"}`: up, the commit it started from, whether files work |
-| API `GET /ready` | The database is reachable (503 when not) |
+| API `GET /ready` | The database is reachable and its schema is not behind this release's migrations (503 when either fails) |
 | Web `GET /api/health` | The web server is up; for a local caller also the release and whether sign-in reaches its database |
 | `deploy-netsec/infra-check.sh` (on the host) | Status, plus: every port bound to loopback only, API docs hidden, the dedicated Compose project/volume/network, no unexpected schema, a backup in the last 2 days, free disk (uploads stop under 5 GB), Tesseract `eng`+`hin`, files available |
 

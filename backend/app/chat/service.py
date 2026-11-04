@@ -179,6 +179,10 @@ class PreparedTurn:
         )
 
 
+# Provider finish reasons that mean the reply stopped before it was finished (the web app says so).
+CUT_OFF = ("length", "content_filter")
+
+
 class ChatService:
     def __init__(
         self,
@@ -201,22 +205,36 @@ class ChatService:
         self.voice_budget = voice_budget
 
     # ------------------------------------------------------------------ prepare
-    async def _sweep_stale(self, session: AsyncSession, conversation_id: uuid.UUID | None = None) -> None:
-        """Mark `streaming` rows that can no longer be alive as interrupted."""
-        cutoff = func.clock_timestamp() - timedelta(seconds=self.settings.stream_stale_after_s)
-        query = update(Message).where(Message.status == "streaming", Message.created_at < cutoff)
+    async def _sweep_stale(
+        self, session: AsyncSession, conversation_id: uuid.UUID | None = None, *, everything: bool = False
+    ) -> None:
+        """Mark `streaming` rows that can no longer be alive as interrupted, and end their usage rows."""
+        query = update(Message).where(Message.status == "streaming")
+        if not everything:
+            cutoff = func.clock_timestamp() - timedelta(seconds=self.settings.stream_stale_after_s)
+            query = query.where(Message.created_at < cutoff)
         if conversation_id is not None:
             query = query.where(Message.conversation_id == conversation_id)
-        await session.execute(
-            query.values(
-                status="error",
-                metadata_=Message.metadata_.op("||")(func.jsonb_build_object("errorCode", "interrupted")),
+        swept = list(
+            await session.scalars(
+                query.values(
+                    status="error",
+                    metadata_=Message.metadata_.op("||")(func.jsonb_build_object("errorCode", "interrupted")),
+                ).returning(Message.id)
             )
         )
+        if swept:
+            await session.execute(
+                update(UsageEvent)
+                .where(UsageEvent.message_id.in_(swept), UsageEvent.outcome == "streaming")
+                .values(outcome="error")
+            )
 
-    async def sweep_all_stale(self) -> None:
+    async def sweep_all_stale(self, *, at_startup: bool = False) -> None:
+        """At startup every `streaming` row is dead: the API is one process (netsecai-api.service), so a
+        chat is not refused for STREAM_STALE_AFTER_S after a crash or restart."""
         async with self.db.sessionmaker() as session:
-            await self._sweep_stale(session)
+            await self._sweep_stale(session, everything=at_startup)
             await session.commit()
 
     async def _check_turn_allowed(self, session: AsyncSession, user_id: uuid.UUID, conversation_id: uuid.UUID) -> None:
@@ -1136,6 +1154,11 @@ class ChatService:
                     "message_id": str(turn.assistant_id),
                 },
             )
+        if finish_reason in CUT_OFF:  # shown to the user (finishReason); counted here
+            log.warning(
+                "reply cut off",
+                extra={"finish_reason": finish_reason, "provider": provider, "message_id": str(turn.assistant_id)},
+            )
         try:
             message, conversation, learning = await self._finalize(
                 turn, content, status, metadata, latency_ms, ttft_ms, usage
@@ -1268,15 +1291,25 @@ class ChatService:
             bank = None
             if status == "complete":
                 if self.settings.question_bank_tests:  # the test's questions come from the bank
-                    content, bank = await chat_tests.fill(
+                    filled = await self._side_effect(
                         session,
-                        content,
-                        str(turn.assistant_id),
-                        turn.user.id,
-                        turn.conversation.id,
-                        adaptive=self.settings.adaptive_chat_tests,
+                        "practice_test",
+                        turn,
+                        lambda: chat_tests.fill(
+                            session,
+                            content,
+                            str(turn.assistant_id),
+                            turn.user.id,
+                            turn.conversation.id,
+                            adaptive=self.settings.adaptive_chat_tests,
+                        ),
                     )
-                metadata = await self._with_test(session, turn, content, metadata, bank)
+                    if filled is not None:
+                        content, bank = filled
+                tested = await self._side_effect(
+                    session, "practice_record", turn, lambda: self._with_test(session, turn, content, metadata, bank)
+                )
+                metadata = tested if tested is not None else metadata
             # A cancel written by the cancel endpoint wins over "complete".
             final_status = await session.scalar(
                 update(Message)
@@ -1300,7 +1333,9 @@ class ChatService:
                 and is_meaningful(turn.user_message.content)
                 and not turned_away
             ):
-                learning = await record_learning(session, turn.user.id, now(), turn.asked_at)
+                learning = await self._side_effect(
+                    session, "learning_day", turn, lambda: record_learning(session, turn.user.id, now(), turn.asked_at)
+                )
             if final_status == "complete" and turn.conversation.title == DEFAULT_TITLE and not turned_away:
                 await self._name_conversation(session, turn, content)
             await session.execute(
@@ -1313,23 +1348,42 @@ class ChatService:
                     output_tokens=usage.output_tokens if usage else None,
                     latency_ms=latency_ms,
                     ttft_ms=ttft_ms,
-                    outcome=status,
+                    outcome=final_status or status,  # a cancel that won is recorded as cancelled
                 )
             )
             if final_status == "complete" and turn.user_message is not None:
-                await enqueue_memory_extraction(
+                await self._side_effect(
                     session,
-                    self.settings,
-                    user_id=turn.user.id,
-                    conversation_id=turn.conversation.id,
-                    source_message=turn.user_message,
-                    assistant_message_id=turn.assistant_id,
+                    "memory_job",
+                    turn,
+                    lambda: enqueue_memory_extraction(
+                        session,
+                        self.settings,
+                        user_id=turn.user.id,
+                        conversation_id=turn.conversation.id,
+                        source_message=turn.user_message,
+                        assistant_message_id=turn.assistant_id,
+                    ),
                 )
             await ConversationRepository(session).touch(turn.conversation.id)
             await session.commit()
             message = await session.get(Message, turn.assistant_id)
             conversation = await session.get(Conversation, turn.conversation.id)
             return message, conversation, learning
+
+    @staticmethod
+    async def _side_effect(session: AsyncSession, name: str, turn: PreparedTurn, operation):
+        """One side effect of a saved reply, in its own SAVEPOINT (K-15a): if it fails, it is logged (ids only)
+        and undone, and the reply the user has already read is still saved. Returns None on failure."""
+        try:
+            async with session.begin_nested():
+                return await operation()
+        except Exception as error:  # noqa: BLE001 - the reply outlives a failed practice test, streak or memory job
+            log.error(
+                "reply side effect failed",
+                extra={"side_effect": name, "error_type": type(error).__name__, "message_id": str(turn.assistant_id)},
+            )
+            return None
 
     async def _name_conversation(self, session: AsyncSession, turn: PreparedTurn, reply: str) -> None:
         """Name a "New chat" after its first answered, meaningful question (app/chat/titles.py).

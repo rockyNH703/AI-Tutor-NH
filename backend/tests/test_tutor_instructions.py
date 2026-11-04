@@ -174,14 +174,10 @@ async def test_a_user_whose_settings_are_all_neutral_gets_the_legacy_assistant(c
     _, first = await stream_chat(client, headers, "What is photosynthesis?")
     await stream_chat(client, headers, "Explain the second step.", first[0][1]["conversationId"])
     sent = [[{"role": m.role, "content": m.content} for m in call] for call in fake_llm.calls]
-    # Nothing set and nothing practised: the legacy assistant. From the second turn, how they are doing.
+    # Nothing set and nothing practised (chatting is not practice): the legacy assistant on every turn.
     assert sent[0] == LEGACY_MESSAGES[0]
-    assert sent[1][1:] == LEGACY_MESSAGES[1][1:]
-    activity_line = (
-        "- Activity: a 1-day practice streak; today 1 question; "
-        "today already counts toward the streak, and the practice day ends in 12h 30m (India time)"
-    )
-    assert sent[1][0]["content"] == f"{SYSTEM_PROMPT}\n\n{PRACTICE_HEADING}\n{activity_line}"
+    assert sent[1] == LEGACY_MESSAGES[1]
+    assert sent[1][0]["content"] == SYSTEM_PROMPT
 
 
 # ------------------------------------------------------------------ exact content
@@ -261,9 +257,9 @@ def test_the_practice_section_says_how_the_user_is_doing():
     )
     assert teaching == f"{TEACHING_HEADING}\n- {TEACHING_TEXT['answer_mode']['direct']}"
 
-    # Zero parts are left out; nothing practised yet says nothing.
-    only_questions = build_tutor_instructions(build_context({}, [], {}, TutorProgress(today_questions=2)))
-    assert only_questions == f"{PRACTICE_HEADING}\n- Activity: today 2 questions"
+    # Zero parts are left out; nothing practised yet says nothing, however much the user has chatted.
+    only_questions = TutorProgress(streak_days=3, today_minutes=40, today_questions=2, day_left="2h 00m")
+    assert build_tutor_instructions(build_context({}, [], {}, only_questions)) == ""
     not_yet = TutorProgress(streak_days=1, day_left="1h 00m", today_counts=False, practice=PracticeProgress(mastered=1))
     assert build_tutor_instructions(build_context({}, [], {}, not_yet)) == "\n".join(
         [

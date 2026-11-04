@@ -110,6 +110,7 @@ async def apply_memory_command(
 
     if command.kind == "remember":
         normalized, content_hash = memory._normalize(command.content)
+        await memory.check_capacity(user.id)  # the chat command keeps the same per-account cap (K-48b)
         if await memory.suppressed(user.id, content_hash):
             acknowledgement = "I won’t restore that deleted memory unless you add it again in Settings → Memory."
         else:

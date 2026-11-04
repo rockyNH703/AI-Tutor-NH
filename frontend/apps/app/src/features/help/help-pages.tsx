@@ -95,6 +95,17 @@ export const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
           </>
         ),
       },
+      {
+        question: "How does voice mode work?",
+        answer: (
+          <>
+            In voice mode you speak and the answer is read aloud. Unlike dictation, your recording is sent to our speech
+            provider to turn it into text, and the answer is sent to it to be spoken; {APP_NAME} never stores the
+            recording. Voice mode is in English, and where it's available its button is in the chat. Use dictation if
+            you'd rather your voice stay with your browser.
+          </>
+        ),
+      },
     ],
   },
   {
@@ -227,8 +238,9 @@ export function AboutPage() {
         <p>
           {APP_NAME} is an assistant for network, security and infrastructure engineers. You ask in a chat and it helps
           with configuration, troubleshooting, logs and packet analysis, security and cloud networking, step by step when
-          you want. It can draw on reference material we've added and on files you attach, and it adapts to the profile
-          and preferences you set. It also helps you prepare for certifications with practice tests in the chat.
+          you want. It answers from what its AI model knows and from files you attach, and it adapts to the profile and
+          preferences you set; where reference material has been added, it can draw on that too and shows the source.
+          It can also help you prepare for certifications.
         </p>
         <p>
           It's an aid, not a replacement for your own judgement: check its answers against your platform's documentation
@@ -244,6 +256,11 @@ export function AboutPage() {
             passed to our AI provider to write the answer.
           </li>
           <li>Remove passwords, keys and other secrets before you paste a config or log, or attach a file.</li>
+          <li>
+            Memories you save are kept with your account and given to {APP_NAME} when they help an answer. You can see,
+            correct or delete them in {inline("/settings/memory", "Memory")}.
+          </li>
+          <li>In voice mode, your recording and the answer go to our speech provider; the recording is never stored.</li>
           <li>Active time comes only from how you use the app, and it's never compared with anyone else's.</li>
           <li>
             You can delete your account, and everything with it, at any time in{" "}

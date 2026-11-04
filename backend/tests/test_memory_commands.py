@@ -301,3 +301,19 @@ async def test_a_memory_command_closes_its_usage_row(client, app):
 
     assert response.status_code == 200 and events[-1][0] == "done"
     assert await _usage_outcomes(app, user_id) == ["complete"]
+
+
+async def test_the_remember_command_keeps_the_memory_cap(client, app, monkeypatch):
+    monkeypatch.setattr("app.memory.service.MAX_ACTIVE_MEMORIES", 1)
+    account = await register(client, app)
+    made = await client.post(
+        "/v1/memories", json={"kind": "study_context", "content": "Our lab runs EVE-NG."}, headers=account["headers"]
+    )
+    assert made.status_code == 201, made.text
+
+    _, events = await stream_chat(client, account["headers"], "Remember that our lab uses OSPF area 10")
+
+    done = events[-1]
+    assert done[0] == "done" and "the most you can keep" in done[1]["message"]["content"]
+    listed = (await client.get("/v1/memories", headers=account["headers"])).json()["items"]
+    assert [item["content"] for item in listed] == ["Our lab runs EVE-NG."]

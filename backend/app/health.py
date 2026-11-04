@@ -1,7 +1,9 @@
+from functools import cache
 from pathlib import Path
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 router = APIRouter(tags=["health"])
 
@@ -32,10 +34,45 @@ async def health(request: Request) -> dict:
     return {"status": "ok", "release": RELEASE, "files": files}
 
 
-@router.get("/ready", summary="Readiness: the database is reachable")
+@cache
+def code_migrations() -> tuple[str, frozenset[str]]:
+    """This code's migration head and every revision it knows, read once from backend/alembic."""
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    backend = Path(__file__).resolve().parents[1]
+    config = Config(str(backend / "alembic.ini"))
+    config.set_main_option("script_location", str(backend / "alembic"))
+    script = ScriptDirectory.from_config(config)
+    (head,) = script.get_heads()
+    return head, frozenset(revision.revision for revision in script.walk_revisions())
+
+
+def schema_state(revision: str | None) -> str:
+    """current: at this code's head. behind: an older revision this code still has to apply (not ready).
+    ahead: a revision this code does not know, from a newer release (a rollback; compatible by rule)."""
+    head, known = code_migrations()
+    if revision == head:
+        return "current"
+    return "behind" if revision is None or revision in known else "ahead"
+
+
+async def database_revision(request: Request) -> str | None:
+    async with request.app.state.db.engine.connect() as connection:
+        return await connection.scalar(text("SELECT version_num FROM alembic_version LIMIT 1"))
+
+
+@router.get("/ready", summary="Readiness: the database is reachable and its schema is not behind this code")
 async def ready(request: Request) -> JSONResponse:
     database_ok = await request.app.state.db.ping()
+    schema = "unknown"
+    if database_ok:
+        try:
+            schema = schema_state(await database_revision(request))
+        except Exception:  # noqa: BLE001 - readiness reports, never raises (no alembic_version: not migrated)
+            schema = "behind"
+    ok = database_ok and schema != "behind"
     return JSONResponse(
-        status_code=200 if database_ok else 503,
-        content={"status": "ok" if database_ok else "unavailable", "database": database_ok},
+        status_code=200 if ok else 503,
+        content={"status": "ok" if ok else "unavailable", "database": database_ok, "schema": schema},
     )

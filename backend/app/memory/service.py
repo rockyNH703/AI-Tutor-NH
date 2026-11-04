@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import MemoryItem
 from app.errors import Conflict, NotFound, ServiceUnavailable, ValidationFailed, VersionConflict
+from app.memory.extraction import recallable_chars
 from app.memory.foundation import lock_memory_user
 from app.memory.policy import normalize_content, validate_memory_policy
 from app.memory.preferences import MemoryPreferencesService
@@ -20,6 +21,8 @@ from app.memory.repository import MemoryRepository
 from app.rag.embeddings import embedding_model_id, is_configured
 from app.settings import Settings
 
+MAX_ACTIVE_MEMORIES = 200  # per account (K-48b): far above real use, a bound on embeddings and recall
+
 
 @dataclass(frozen=True)
 class RecalledMemory:
@@ -27,6 +30,13 @@ class RecalledMemory:
     kind: str
     content: str
     score: float
+
+
+def content_hmac(settings: Settings, user_id: uuid.UUID, content_hash: str) -> str:
+    """The deletion marker's key for one text: deleted memories leave this, never the text."""
+    key = settings.secret_key.get_secret_value().encode()
+    payload = f"memory:{user_id}:{settings.memory_deletion_policy_version}:{content_hash}".encode()
+    return hmac.new(key, payload, hashlib.sha256).hexdigest()
 
 
 def rank_candidates(candidates: list[tuple[MemoryItem, float]], settings: Settings) -> list[RecalledMemory]:
@@ -82,9 +92,15 @@ class MemoryService:
         }
 
     def _content_hmac(self, user_id: uuid.UUID, content_hash: str) -> str:
-        key = self.settings.secret_key.get_secret_value().encode()
-        payload = f"memory:{user_id}:{self.settings.memory_deletion_policy_version}:{content_hash}".encode()
-        return hmac.new(key, payload, hashlib.sha256).hexdigest()
+        return content_hmac(self.settings, user_id, content_hash)
+
+    async def check_capacity(self, user_id: uuid.UUID) -> None:
+        """Every new memory is an embedding call and recall candidate: an account keeps a bounded number."""
+        if await self.repo.count_active(user_id) >= MAX_ACTIVE_MEMORIES:
+            raise Conflict(
+                f"You have {MAX_ACTIVE_MEMORIES} memories, the most you can keep. Delete some in Settings → Memory.",
+                code="memory_limit_reached",
+            )
 
     async def suppressed(self, user_id: uuid.UUID, content_hash: str) -> bool:
         return await self.repo.deletion_marker_exists(
@@ -94,7 +110,7 @@ class MemoryService:
         )
 
     def _normalize(self, content: str) -> tuple[str, str]:
-        normalized = normalize_content(content, max_chars=self.settings.memory_max_item_chars)
+        normalized = normalize_content(content, max_chars=recallable_chars(self.settings))
         validate_memory_policy(normalized)
         return normalized, hashlib.sha256(normalized.encode()).hexdigest()
 
@@ -124,6 +140,7 @@ class MemoryService:
         self._validate_expiry(expires_at)
         if source_message_id is not None and not await self.repo.source_message_owned(user_id, source_message_id):
             raise NotFound("Source message not found.")
+        await self.check_capacity(user_id)
         try:
             await self.db.rollback()  # release the read transaction before the provider call
             embedding = await self._embed(normalized)
@@ -305,12 +322,14 @@ class MemoryService:
             valid_from=valid_from,
             valid_to=valid_to,
             fields_set=fields_set,
-            max_chars=self.settings.memory_max_item_chars,
+            max_chars=recallable_chars(self.settings),
         )
         self._validate_expiry(approved_expiry)
         content_hash = hashlib.sha256(normalized.encode()).hexdigest()
         if await self.suppressed(user_id, content_hash):
             raise Conflict("That memory was previously deleted or rejected.")
+        if proposal.operation == "add":
+            await self.check_capacity(user_id)
         await self.db.rollback()
         embedding = await self._embed(normalized)
 

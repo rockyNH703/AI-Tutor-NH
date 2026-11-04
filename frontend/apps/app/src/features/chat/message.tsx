@@ -11,6 +11,7 @@ import type { TestState } from "@/features/markdown/context";
 import { MessageContent, needsFullWidth } from "@/features/markdown/lazy-message-content";
 import type { ChatMessage } from "./chat-store";
 import { useChatEntry, useChatMessage, useStores } from "./chat-context";
+import { CONTINUE_PROMPT, cutOffNote } from "./cut-off";
 import { ErrorMessage } from "./error-message";
 import { MessageActions } from "./message-actions";
 import { useSmoothText } from "./smooth-text";
@@ -171,6 +172,7 @@ function AssistantMessage({
   const arrival = useArrival(message.id, revealing ? "live" : null);
   // Streaming on the server, but not from this tab: another tab is writing it.
   const elsewhere = streaming && !live;
+  const cutOff = cutOffNote(message.metadata?.finishReason);
   const retry =
     canRegenerate && message.conversationId ? () => void chat.regenerate(message.conversationId) : undefined;
 
@@ -202,6 +204,22 @@ function AssistantMessage({
 
             {phase === "stopping" && <p className="mt-1 text-2xs text-text-secondary">Stopping…</p>}
             {message.status === "cancelled" && <p className="mt-1 text-2xs font-medium text-text-secondary">Stopped</p>}
+            {message.status === "complete" && cutOff && (
+              <div className="mt-1 flex items-center gap-2 text-2xs font-medium text-text-secondary">
+                <span>{cutOff}</span>
+                {canRegenerate && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-2xs"
+                    onClick={() => void chat.send(chatKey, CONTINUE_PROMPT)}
+                  >
+                    Continue
+                  </Button>
+                )}
+              </div>
+            )}
             {elsewhere && (
               <div className="mt-1 flex items-center gap-2 text-2xs text-text-secondary">
                 <span>Still being written in another tab.</span>

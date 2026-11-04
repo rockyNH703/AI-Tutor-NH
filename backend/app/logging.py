@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sys
 from contextvars import ContextVar
 from datetime import UTC, datetime
@@ -36,9 +37,21 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(payload, default=str, ensure_ascii=False)
 
 
+# syslog priorities by level: journald reads a leading "<N>" (SyslogLevelPrefix=, on by default) as the
+# line's priority and strips it.
+_PRIORITY = {logging.CRITICAL: 2, logging.ERROR: 3, logging.WARNING: 4, logging.INFO: 6, logging.DEBUG: 7}
+
+
+class JournaldJsonFormatter(JsonFormatter):
+    def format(self, record: logging.LogRecord) -> str:
+        priority = next((p for level, p in sorted(_PRIORITY.items(), reverse=True) if record.levelno >= level), 7)
+        return f"<{priority}>{super().format(record)}"
+
+
 def configure_logging(level: str = "INFO") -> None:
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(JsonFormatter())
+    # JOURNAL_STREAM is set by systemd when stdout goes to the journal (netsecai-api, -jobs, -knowledge).
+    handler.setFormatter(JournaldJsonFormatter() if os.environ.get("JOURNAL_STREAM") else JsonFormatter())
     root = logging.getLogger()
     root.handlers[:] = [handler]
     root.setLevel(level.upper())

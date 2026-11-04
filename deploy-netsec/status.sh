@@ -26,6 +26,8 @@ echo
 print_summary "$MAIN" "$(printf '%s\n' "$OUT" | grep '^@@STATUS ' | tail -1)"
 CHECKOUT=$(printf '%s\n' "$OUT" | sed -n 's/^@@STATUS checkout=\([0-9a-f]*\).*/\1/p' | tail -1)
 if [ -n "$CHECKOUT" ] && [ "${DEPLOY_REHEARSAL:-0}" != 1 ]; then
-  echo "GitHub CI (advisory): $(timeout 20 bun deploy-netsec/ci-gate.mjs --report "$CHECKOUT" 2> /dev/null || echo unavailable)"
+  # GitHub Actions do not run for this repository (no credit): the release gate is `bun run security`,
+  # whose PASS receipt deploy-netsec/deploy.sh requires.
+  echo "GitHub CI: not run (Actions disabled); release gate: bun run security receipt"
 fi
 [ "$RC" = 0 ] && [ "$SUMMARY_MATCH" = 1 ]

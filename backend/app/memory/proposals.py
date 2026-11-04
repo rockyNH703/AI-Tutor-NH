@@ -83,6 +83,18 @@ class ProposalRepository:
             )
         )
 
+    async def invalidate_pending(self, user_id: uuid.UUID) -> None:
+        """Suggestions made under a consent that was withdrawn: closed, since they can never be approved."""
+        await self.db.execute(
+            update(MemoryProposal)
+            .where(MemoryProposal.user_id == user_id, MemoryProposal.status == "pending")
+            .values(
+                status="invalidated",
+                version=MemoryProposal.version + 1,
+                updated_at=func.clock_timestamp(),
+            )
+        )
+
     async def delete_user_derived(self, user_id: uuid.UUID) -> None:
         await self.db.execute(delete(MemoryExtractionJob).where(MemoryExtractionJob.user_id == user_id))
         await self.db.execute(delete(MemoryProposal).where(MemoryProposal.user_id == user_id))

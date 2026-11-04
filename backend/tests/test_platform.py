@@ -159,3 +159,63 @@ def test_release_is_read_from_the_release_root(tmp_path):
     assert read_release(tmp_path / "missing") == "development"
     release.write_text("prepared=2026-09-24T00:00:00Z\n")
     assert read_release(release) == "development"
+
+
+# ------------------------------------------------------------------ REQ-database-4, K-43a, K-10d
+async def _set_revision(app, revision: str) -> str:
+    from sqlalchemy import text
+
+    async with app.state.db.engine.begin() as connection:
+        before = await connection.scalar(text("SELECT version_num FROM alembic_version"))
+        await connection.execute(text("UPDATE alembic_version SET version_num = :v"), {"v": revision})
+    return before
+
+
+async def test_ready_refuses_a_schema_behind_this_code_and_accepts_a_newer_one(client, app):
+    from app.health import code_migrations
+
+    head, _ = code_migrations()
+    current = await client.get("/ready")
+    assert current.status_code == 200 and current.json()["schema"] == "current"
+    original = await _set_revision(app, "0023_knowledge_library")  # an older dump restored, not migrated
+    try:
+        behind = await client.get("/ready")
+        assert behind.status_code == 503 and behind.json()["schema"] == "behind"
+        await _set_revision(app, "9999_from_a_newer_release")  # a rollback to this code: compatible by rule
+        ahead = await client.get("/ready")
+        assert ahead.status_code == 200 and ahead.json()["schema"] == "ahead"
+    finally:
+        await _set_revision(app, original)
+    assert original == head
+
+
+def test_migrations_wait_a_bounded_time_for_a_lock():
+    from pathlib import Path
+
+    env = (Path(__file__).resolve().parents[1] / "alembic" / "env.py").read_text(encoding="utf-8")
+    run = env[env.index("def _run(") :]
+    assert run.index("SET LOCAL lock_timeout") < run.index("context.run_migrations()")
+
+
+def test_log_lines_under_systemd_carry_their_journald_priority(monkeypatch):
+    import logging
+
+    from app.logging import JournaldJsonFormatter, JsonFormatter, configure_logging
+
+    def line(level):
+        return JournaldJsonFormatter().format(logging.LogRecord("app", level, "", 0, "x", (), None))
+
+    assert line(logging.ERROR).startswith("<3>{") and line(logging.WARNING).startswith("<4>{")
+    assert line(logging.INFO).startswith("<6>{")
+    root = logging.getLogger()
+    saved = root.handlers[:], root.level
+    try:
+        monkeypatch.setenv("JOURNAL_STREAM", "8:12345")
+        configure_logging()
+        assert isinstance(root.handlers[0].formatter, JournaldJsonFormatter)
+        monkeypatch.delenv("JOURNAL_STREAM")
+        configure_logging()
+        assert type(root.handlers[0].formatter) is JsonFormatter
+    finally:
+        root.handlers[:] = saved[0]
+        root.setLevel(saved[1])

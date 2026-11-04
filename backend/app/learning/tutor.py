@@ -176,6 +176,10 @@ def _practice(progress: TutorProgress | None) -> str:
 
 
 def _practice_lines(user: StudentContext) -> list[tuple[str, str]]:
+    # Only for a user who practises (the question bank's record): chatting alone tells the model no streak
+    # and no counts, so an engineer who just asks questions gets exactly SYSTEM_PROMPT.
+    if user.progress is None or user.progress.practice is None:
+        return []
     lines = [("progress", _progress(user.progress)), ("practice", _practice(user.progress))]
     return [(key, line) for key, line in lines if line]
 

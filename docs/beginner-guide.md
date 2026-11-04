@@ -318,7 +318,7 @@ question>` appears word by word, and the chat shows up in the sidebar.
 | Address | Expected answer |
 |---|---|
 | http://127.0.0.1:4000/health | `{"status": "ok", "release": "development", "files": "available"}`. `files` turns `available` shortly after the start, once the file reader's self-test has passed |
-| http://127.0.0.1:4000/ready | `{"status": "ok", "database": true}` (HTTP 503 with `"database": false` when the database can't be reached) |
+| http://127.0.0.1:4000/ready | `{"status": "ok", "database": true, "schema": "current"}` (HTTP 503 when the database can't be reached, or `"schema": "behind"` when it needs migrating) |
 | http://localhost:3000/api/health | The web server is up. Asked from your own computer, it also gives the release and whether sign-in reaches its database |
 | http://127.0.0.1:4000/docs | The API's interactive documentation (only outside production) |
 

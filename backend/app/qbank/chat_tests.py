@@ -78,6 +78,9 @@ EXERCISE_KEYS = {"title", "text", "explanation"}
 _CARD_START = re.compile(r"^[ \t]*:{3,}[ \t]*[\w-]+(?:\[(?P<title>[^\]\n]*)\])?")
 _CARD_END = re.compile(r"^[ \t]*:{3,}[ \t]*$")
 _BOLD_BLANK = re.compile(r"\*\*(\[\[[^\]\n]+\]\])\*\*")
+# A blank to fill in: [[answer]] or [[answer|alternative]], with no space just inside the brackets. A shell
+# test such as [[ -f "$file" ]] always has one (bash needs it), so a command never becomes an exercise (K-04a).
+_BLANK = re.compile(r"\[\[(?=\S)[^\[\]\n]*\S\]\]")
 # Or as a leaf directive, the ::file{ref=F1} form: ::fill-blank{text="... [[answer]] ..." explanation="..."}.
 _DIRECTIVE = re.compile(r"^[ \t]*::[\w-]*(?:fill|blank)[\w-]*\{(?P<attrs>.*?\")\s*\}[ \t]*$", re.I | re.M | re.S)
 _ATTRIBUTE = re.compile(r"(\w+)\s*=\s*\"((?:[^\"\\]|\\.)*)\"")
@@ -422,7 +425,7 @@ def _exercise(value: Any) -> bool:
     return (
         isinstance(value, dict)
         and isinstance(value.get("text"), str)
-        and "[[" in value["text"]
+        and _BLANK.search(value["text"]) is not None
         and set(value) <= EXERCISE_KEYS
     )
 
@@ -437,7 +440,7 @@ def _card_exercises(text: str) -> str:
         opened = _CARD_START.match(lines[index])
         end = next((at for at in range(index + 1, len(lines)) if _CARD_END.match(lines[at])), None) if opened else None
         body = "\n".join(lines[index + 1 : end]).strip() if opened and end is not None else ""
-        if "[[" not in body or "```" in body or _BARE_EXERCISE.search(body):
+        if not _BLANK.search(body) or "```" in body or _BARE_EXERCISE.search(body):
             out.append(lines[index])
             index += 1
             continue

@@ -6804,7 +6804,7 @@
             "description": "Successful Response"
           }
         },
-        "summary": "Readiness: the database is reachable",
+        "summary": "Readiness: the database is reachable and its schema is not behind this code",
         "tags": [
           "health"
         ]

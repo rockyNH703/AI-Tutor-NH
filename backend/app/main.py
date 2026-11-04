@@ -195,7 +195,7 @@ def create_app(
         else:
             await app.state.file_worker.start()
         try:
-            await app.state.chat.sweep_all_stale()
+            await app.state.chat.sweep_all_stale(at_startup=True)
             ignored = await app.state.knowledge.count_other_model_chunks(embedding_model_id(app.state.embeddings))
             if ignored:
                 log.warning(

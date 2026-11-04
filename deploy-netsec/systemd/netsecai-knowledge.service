@@ -4,6 +4,9 @@ Requires=netsecai-postgres.service
 After=netsecai-postgres.service network-online.target
 Wants=network-online.target
 ConditionPathExists=/opt/netsecai/app/backend/app/knowledge/__main__.py
+# Not while a deploy changes the checkout and the schema (deploy-netsec/server/update.sh writes the
+# marker for its whole run): the next timer tick runs the new release against the migrated schema.
+ConditionPathExists=!/run/netsecai-deploying
 
 [Service]
 Type=oneshot

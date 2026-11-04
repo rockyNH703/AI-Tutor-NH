@@ -484,7 +484,7 @@ and nothing is sent to OllaLink.
 
 ## Health
 
-`GET /health` → `{"status":"ok"}` · `GET /ready` → `{"status","database"}` (503 when the database is down).
+`GET /health` → `{"status":"ok"}` · `GET /ready` → `{"status","database","schema"}` (503 when the database is down, or its schema is `behind` this code's migrations; `ahead`, after a rollback, is ready).
 Interactive docs at `/docs` exist only when `APP_ENV=development`.
 
 ## Compatibility and versioning

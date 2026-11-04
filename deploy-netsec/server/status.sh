@@ -6,7 +6,8 @@
 #
 # Checks the production checkout /opt/netsecai/app against production Git, that the backend and
 # the frontend run the checkout's code (content keys, lib.sh), both units and their health, and
-# web.env's API_BASE_URL. The public URL is shown, never required. Exits 1 on any failure; its
+# web.env's API_BASE_URL, that the public URL answers and a backup from the last 26 hours exists
+# (K-10b: an outage or a stopped backup is a failure, not a note). Exits 1 on any failure; its
 # last line ("@@STATUS ...") is read by deploy-netsec/status.sh.
 set -uo pipefail
 declare -F tree_key > /dev/null || . "$(dirname "$(readlink -f "$0")")/lib.sh"
@@ -51,7 +52,13 @@ web_auth_ok "$WEB_PORT" && ok "web sign-in database reachable (/api/health)" || 
 grep -qE '^GOOGLE_CLIENT_ID=.+' "$SECRETS/web.env" 2> /dev/null && info "Google sign-in: configured" || info "Google sign-in: not configured (the button is hidden)"
 grep -qE '^TURNSTILE_SECRET_KEY=.+' "$SECRETS/web.env" 2> /dev/null && info "CAPTCHA (Turnstile): configured" || info "CAPTCHA (Turnstile): not configured (adaptive CAPTCHA off)"
 public=$(sed -n 's/^NEXT_PUBLIC_SITE_URL=//p' "$SECRETS/web.env" 2> /dev/null)
-if [ -n "$public" ]; then info "public $public/login -> $(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$public/login" || true) (information: Cloudflare/DNS)"; fi
+if [ -n "$public" ]; then
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$public/login" || true)
+  [ "$code" = 200 ] && ok "public $public/login -> 200" \
+    || bad "public $public/login -> ${code:-no answer}: users cannot reach the site (Cloudflare, DNS or netsecai-cloudflared)"
+else
+  bad "web.env NEXT_PUBLIC_SITE_URL is not set: there is no public address"
+fi
 # The Quick Tunnel's address is Cloudflare's and changes whenever cloudflared restarts. Sign-in
 # trusts only NEXT_PUBLIC_SITE_URL (Better Auth's origin check) and Google's redirect URI is
 # registered for it, so a new address breaks every sign-in until web.env (and Google) follow.
@@ -75,6 +82,13 @@ elif [ "${links%/}" = "${public%/}" ]; then
 else
   bad "api.env PUBLIC_APP_URL is $links but NEXT_PUBLIC_SITE_URL is ${public:-unset}: email links and logo go there (docs/deployment.md, \"Quick Tunnel address changed\")"
 fi
+# Backups (deploy-netsec/backup.sh, nightly at 03:15): the timer is on and the newest dump is recent.
+BACKUPS=/var/backups/netsecai
+[ "$(systemctl is-enabled netsecai-pg-backup.timer 2> /dev/null)" = enabled ] && ok "netsecai-pg-backup.timer enabled" \
+  || bad "netsecai-pg-backup.timer is not enabled: no nightly backup"
+recent=$(find "$BACKUPS" -maxdepth 1 -name 'netsecai-*.dump' -type f -mmin -1560 2> /dev/null | wc -l)
+[ "${recent:-0}" -gt 0 ] && ok "a backup from the last 26 hours ($BACKUPS)" \
+  || bad "no backup in $BACKUPS from the last 26 hours (journalctl -u netsecai-pg-backup)"
 jobs_timer=$(systemctl is-enabled netsecai-jobs.timer 2> /dev/null); info "jobs worker: netsecai-jobs.timer ${jobs_timer:-not installed}"
 knowledge_timer=$(systemctl is-enabled netsecai-knowledge.timer 2> /dev/null); info "knowledge worker: netsecai-knowledge.timer ${knowledge_timer:-not installed}"
 files=$(curl -fsS --max-time 5 "http://127.0.0.1:$API_PORT/health" 2> /dev/null | grep -o '"files":"[a-z]*"' | cut -d'"' -f4)

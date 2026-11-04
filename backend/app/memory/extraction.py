@@ -11,6 +11,12 @@ from app.memory.foundation import MEMORY_PROMPT_VERSION, MEMORY_SCHEMA_VERSION
 from app.memory.policy import normalize_content, validate_memory_policy
 from app.settings import Settings
 
+
+def recallable_chars(settings: Settings) -> int:
+    """The longest memory that can reach the assistant: a longer one would be stored but never recalled."""
+    return min(settings.memory_max_item_chars, settings.memory_max_context_chars)
+
+
 MAX_PROPOSALS = 3
 
 _SYSTEM_PROMPT = f"""You extract optional personal memories from one user message to NetSec AI, an assistant for
@@ -120,8 +126,8 @@ def parse_extraction_output(raw: str, *, max_item_chars: int) -> tuple[Extracted
         try:
             content = normalize_content(item["content"], max_chars=max_item_chars)
             validate_memory_policy(content)
-        except ValidationFailed as error:
-            raise ExtractionOutputError("A proposal violated memory policy.") from error
+        except ValidationFailed:
+            continue  # a secret, a config excerpt or a profile fact: never proposed, and the rest still are
         parsed.append(
             ExtractedProposal(
                 operation="add",
@@ -149,5 +155,5 @@ async def extract_user_memories(provider: LLMProvider, settings: Settings, user_
         timeout_s=settings.memory_worker_timeout_s,
     )
     return ExtractionResult(
-        parse_extraction_output(raw, max_item_chars=settings.memory_max_item_chars), provider_name, model
+        parse_extraction_output(raw, max_item_chars=recallable_chars(settings)), provider_name, model
     )

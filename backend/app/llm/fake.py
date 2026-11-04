@@ -25,7 +25,8 @@ class FakeProvider:
     """Streams a scripted reply word by word.
 
     `reply` builds the text from the prompt; `fail_before_first` / `fail_after`
-    raise an LLMError at that point, to exercise error and fallback paths.
+    raise an LLMError at that point, to exercise error and fallback paths; `finish_reason`
+    is what the provider says ended the reply ("length" for a cut-off one).
     """
 
     def __init__(
@@ -36,12 +37,14 @@ class FakeProvider:
         token_delay_s: float = 0.0,
         fail_before_first: LLMError | None = None,
         fail_after: tuple[int, LLMError] | None = None,
+        finish_reason: str = "stop",
     ) -> None:
         self.name = name
         self.reply = reply
         self.token_delay_s = token_delay_s
         self.fail_before_first = fail_before_first
         self.fail_after = fail_after
+        self.finish_reason = finish_reason
         self.calls: list[list[ChatMessage]] = []
         # Observability for tests: pieces produced so far, and streams that were closed.
         self.emitted = 0
@@ -74,7 +77,7 @@ class FakeProvider:
                 yield StreamPart(text=piece)
             prompt_chars = sum(len(m.content) for m in messages)
             yield StreamPart(
-                usage=Usage(input_tokens=prompt_chars // 4, output_tokens=len(pieces)), finish_reason="stop"
+                usage=Usage(input_tokens=prompt_chars // 4, output_tokens=len(pieces)), finish_reason=self.finish_reason
             )
         finally:
             self.closed_streams += 1

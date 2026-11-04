@@ -108,6 +108,8 @@ class MemoryPreferencesService:
         else:
             row.preferences = values
             row.updated_at = now
+        if current.automatic_proposals and not automatic_proposals:
+            await ProposalRepository(self.db).invalidate_pending(user_id)
         await self.db.commit()
         return MemoryPreferences.from_settings(row)
 

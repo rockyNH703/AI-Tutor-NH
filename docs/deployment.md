@@ -43,7 +43,7 @@ commit ─► bun run security (PASS receipt) ─► git push origin main ─►
 6. You run `status:netsec` and check what changed through the public URL.
 
 There are no pull requests, and GitHub Actions do not run (the account is out of credit): `status:netsec` prints
-the CI line as `unavailable` (its helper `deploy-netsec/ci-gate.mjs` does not exist).
+the CI line as `not run (Actions disabled)`: the release gate is the `bun run security` receipt.
 
 ## Deploy
 
@@ -104,8 +104,10 @@ NETSEC_DEPLOY_HOST=root@10.1.50.94 bun run smoke:netsec    # today: deploy-netse
 
 `status:netsec` runs `deploy-netsec/server/status.sh` on the host: the checkout against production Git, what each
 part runs, both units, `/ready`, `/login`, `API_BASE_URL`, the sign-in settings (names only, never values), the
-tunnel address against `NEXT_PUBLIC_SITE_URL`, `PUBLIC_APP_URL` against it, the jobs timer, files, and that no
-legacy port (4000/3210/3211/6791) listens.
+tunnel address against `NEXT_PUBLIC_SITE_URL`, `PUBLIC_APP_URL` against it, that the public `/login` answers 200, that the
+backup timer is on and a dump from the last 26 hours exists (each of these fails the status, K-10b), the jobs timer, files,
+and that no legacy port (4000/3210/3211/6791) listens. While a deploy runs, the jobs and knowledge workers skip their
+timer ticks (`ConditionPathExists=!/run/netsecai-deploying`).
 
 On the server:
 

@@ -30,14 +30,14 @@ class MemoryRecall:
         started = time.monotonic()
         try:
             async with asyncio.timeout(self.settings.memory_recall_timeout_s):
+                model, version = embedding_model_id(self.embeddings), self.settings.memory_embedding_version
+                async with self.db.sessionmaker() as session:
+                    if not await MemoryRepository(session).has_recallable(user_id, model, version):
+                        return ()  # nothing to find: the message is not sent to the embeddings provider
                 embedding = await self.embeddings.aembed_query(query)
                 async with self.db.sessionmaker() as session:
                     candidates = await MemoryRepository(session).recall_candidates(
-                        user_id,
-                        embedding,
-                        embedding_model_id(self.embeddings),
-                        self.settings.memory_embedding_version,
-                        limit=self.settings.memory_recall_candidates,
+                        user_id, embedding, model, version, limit=self.settings.memory_recall_candidates
                     )
             recalled = rank_candidates(candidates, self.settings)
         except Exception as error:  # noqa: BLE001 - optional recall must never fail tutoring

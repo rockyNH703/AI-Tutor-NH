@@ -5,6 +5,7 @@ from typing import Literal
 
 from app.db.models import MEMORY_KINDS, MEMORY_MAX_CONTENT_CHARS
 from app.errors import ValidationFailed
+from app.llm.redact import mask_secrets
 
 MemoryKind = Literal["learning_context", "study_context"]
 
@@ -71,7 +72,9 @@ def normalize_content(content: str, *, max_chars: int = MEMORY_MAX_CONTENT_CHARS
 
 
 def validate_memory_policy(content: str) -> None:
-    if any(pattern.search(content) for pattern in _SECRET_PATTERNS):
+    # The provider masking's patterns too (enable secret 5, snmp-server community, crypto isakmp key, ...):
+    # what is never sent to a provider is never kept as a memory either.
+    if any(pattern.search(content) for pattern in _SECRET_PATTERNS) or mask_secrets(content)[1]:
         raise ValidationFailed("Secrets and credentials cannot be stored in memory.")
     if len(_CONFIG_STATEMENT.findall(content)) >= 2:
         raise ValidationFailed("Configuration excerpts cannot be stored in memory: describe the setup in a sentence.")

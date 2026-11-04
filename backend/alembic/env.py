@@ -33,9 +33,15 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+# The longest a migration waits for a lock before it fails and rolls back, rather than holding every
+# query on that table behind it (a revision may set its own, shorter, SET LOCAL).
+LOCK_TIMEOUT = "15s"
+
+
 def _run(connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
     with context.begin_transaction():
+        context.execute(f"SET LOCAL lock_timeout = '{LOCK_TIMEOUT}'")
         context.run_migrations()
 
 

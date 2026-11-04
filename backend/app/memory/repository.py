@@ -41,6 +41,31 @@ class MemoryRepository:
             query = query.with_for_update()
         return await self.db.scalar(query)
 
+    async def count_active(self, user_id: uuid.UUID) -> int:
+        return int(
+            await self.db.scalar(
+                select(func.count())
+                .select_from(MemoryItem)
+                .where(MemoryItem.user_id == user_id, MemoryItem.status == "active")
+            )
+            or 0
+        )
+
+    async def has_recallable(self, user_id: uuid.UUID, embedding_model: str, embedding_version: str) -> bool:
+        """Whether recall could find anything: checked before the query is embedded (an indexed EXISTS)."""
+        found = await self.db.scalar(
+            select(MemoryItem.id)
+            .where(
+                MemoryItem.user_id == user_id,
+                MemoryItem.status == "active",
+                *self._currently_valid(),
+                MemoryItem.embedding_model == embedding_model,
+                MemoryItem.embedding_version == embedding_version,
+            )
+            .limit(1)
+        )
+        return found is not None
+
     async def get_by_content_hash(
         self, user_id: uuid.UUID, content_hash: str, *, lock: bool = False
     ) -> list[MemoryItem]:

@@ -8,7 +8,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import case, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
-from app.db.models import MemoryExtractionJob, MemoryProposal, Message, UserSettings
+from app.db.models import MemoryExtractionJob, MemoryItem, MemoryProposal, Message, UserSettings
 from app.db.session import Database
 from app.errors import ValidationFailed
 from app.llm.base import LLMError, LLMProvider
@@ -17,6 +17,8 @@ from app.memory.extraction import ExtractedProposal, ExtractionOutputError, extr
 from app.memory.foundation import MEMORY_PROMPT_VERSION, MEMORY_SCHEMA_VERSION, lock_memory_user
 from app.memory.policy import normalize_content
 from app.memory.preferences import MemoryPreferences
+from app.memory.repository import MemoryRepository
+from app.memory.service import content_hmac
 from app.settings import Settings
 
 log = get_logger("app.jobs.memory")
@@ -271,14 +273,38 @@ async def _process_one(
         inserted = 0
         if settings.memory_automatic_proposals == "on":
             for candidate in result.proposals:
-                inserted += await _insert_proposal(session, job, candidate, result.provider, result.model)
+                inserted += await _insert_proposal(session, settings, job, candidate, result.provider, result.model)
         await _finish(session, job, "completed", now, proposal_count=inserted)
         await session.commit()
         return "completed", inserted
 
 
+async def _settled(session, settings: Settings, user_id: uuid.UUID, content_hash: str) -> bool:
+    """The user already decided about this text: it is a memory, it was rejected, or it was deleted."""
+    active = await session.scalar(
+        select(MemoryItem.id)
+        .where(MemoryItem.user_id == user_id, MemoryItem.content_hash == content_hash, MemoryItem.status == "active")
+        .limit(1)
+    )
+    rejected = await session.scalar(
+        select(MemoryProposal.id)
+        .where(
+            MemoryProposal.user_id == user_id,
+            MemoryProposal.content_hash == content_hash,
+            MemoryProposal.status == "rejected",
+        )
+        .limit(1)
+    )
+    if active is not None or rejected is not None:
+        return True
+    return await MemoryRepository(session).deletion_marker_exists(
+        user_id, content_hmac(settings, user_id, content_hash), settings.memory_deletion_policy_version
+    )
+
+
 async def _insert_proposal(
     session,
+    settings: Settings,
     job: MemoryExtractionJob,
     candidate: ExtractedProposal,
     provider: str,
@@ -286,6 +312,8 @@ async def _insert_proposal(
 ) -> int:
     normalized = normalize_content(candidate.content)
     content_hash = _digest(normalized)
+    if await _settled(session, settings, job.user_id, content_hash):
+        return 0
     key = _digest(job.idempotency_key, candidate.operation, candidate.kind, content_hash)
     statement = (
         insert(MemoryProposal)

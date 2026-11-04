@@ -1,4 +1,7 @@
 import asyncio
+import logging
+import uuid
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import func, select
@@ -568,3 +571,98 @@ async def test_logs_never_contain_the_question_or_document_text(client, app, cap
         if secret in blob
     ]
     assert leaks == []  # ...without query or document content (shows the offending record if not)
+
+
+# ------------------------------------------------------------------ lifecycle: sweeps, usage rows, cut-off replies
+async def _orphan(app, account, *, age_s: int) -> tuple[uuid.UUID, uuid.UUID]:
+    """A reply left `streaming` by a process that died, with its usage row, created `age_s` ago."""
+    from app.db.models import Conversation, User
+
+    async with app.state.db.sessionmaker() as s, s.begin():
+        user = await s.scalar(select(User).where(User.email == account["email"]))
+        conversation = Conversation(user_id=user.id, title="New chat")
+        s.add(conversation)
+        await s.flush()
+        created = datetime.now(UTC) - timedelta(seconds=age_s)
+        reply = Message(conversation_id=conversation.id, role="assistant", status="streaming", created_at=created)
+        s.add(reply)
+        await s.flush()
+        s.add(UsageEvent(user_id=user.id, conversation_id=conversation.id, message_id=reply.id, outcome="streaming"))
+        return conversation.id, reply.id
+
+
+async def _states(app, reply_id) -> tuple[str, str, str | None]:
+    async with app.state.db.sessionmaker() as s:
+        reply = await s.get(Message, reply_id)
+        outcome = await s.scalar(select(UsageEvent.outcome).where(UsageEvent.message_id == reply_id))
+    return reply.status, outcome, (reply.metadata_ or {}).get("errorCode")
+
+
+async def test_startup_ends_every_streaming_reply_at_once(client, app):
+    account = await register(client, app)
+    _, recent = await _orphan(app, account, age_s=5)  # far younger than STREAM_STALE_AFTER_S
+
+    await app.state.chat.sweep_all_stale(at_startup=True)
+
+    assert await _states(app, recent) == ("error", "error", "interrupted")
+
+
+async def test_the_chat_sweep_leaves_a_young_reply_and_ends_a_stale_one_with_its_usage_row(client, app):
+    account = await register(client, app)
+    _, young = await _orphan(app, account, age_s=5)
+    conversation_id, stale = await _orphan(app, account, age_s=600)
+
+    _, events = await stream_chat(client, account["headers"], "What is OSPF?", str(conversation_id))
+
+    assert events[-1][0] == "done"
+    assert await _states(app, stale) == ("error", "error", "interrupted")
+    assert (await _states(app, young))[:2] == ("streaming", "streaming")
+
+
+async def test_a_cut_off_reply_is_kept_marked_and_counted(caplog):
+    from app.auth.emails import MemoryEmailSender
+    from app.main import create_app
+
+    application = create_app(
+        make_settings(), llm=FakeProvider(finish_reason="length"), email_sender=MemoryEmailSender()
+    )
+    logging.getLogger().addHandler(caplog.handler)  # create_app's configure_logging replaced the root handlers
+    try:
+        async with application.router.lifespan_context(application):
+            import httpx
+
+            transport = httpx.ASGITransport(app=application)
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as http:
+                account = await register(http, application)
+                caplog.set_level(logging.WARNING, logger="app.chat")
+                _, events = await stream_chat(http, account["headers"], "Write the full BGP config")
+    finally:
+        logging.getLogger().removeHandler(caplog.handler)
+
+    done = events[-1]
+    assert done[0] == "done" and done[1]["message"]["status"] == "complete"
+    assert done[1]["message"]["metadata"]["finishReason"] == "length"
+    assert [r.finish_reason for r in caplog.records if r.getMessage() == "reply cut off"] == ["length"]
+
+
+@pytest.mark.parametrize("side_effect", ["record_learning", "enqueue_memory_extraction"])
+async def test_a_failed_side_effect_never_loses_the_reply(client, app, caplog, monkeypatch, side_effect):
+    async def broken(*args, **kwargs):
+        raise RuntimeError("side effect down")
+
+    monkeypatch.setattr(f"app.chat.service.{side_effect}", broken)
+    caplog.set_level(logging.ERROR, logger="app.chat")
+    account = await register(client, app)
+
+    _, events = await stream_chat(client, account["headers"], "What is OSPF and how does it elect a DR?")
+
+    done = events[-1]
+    assert done[0] == "done" and done[1]["message"]["status"] == "complete" and done[1]["message"]["content"]
+    async with app.state.db.sessionmaker() as s:
+        reply = await s.get(Message, uuid.UUID(done[1]["message"]["id"]))
+        outcome = await s.scalar(select(UsageEvent.outcome).where(UsageEvent.message_id == reply.id))
+    assert (reply.status, outcome) == ("complete", "complete")
+    assert [r.side_effect for r in caplog.records if r.getMessage() == "reply side effect failed"] in (
+        ["learning_day"],
+        ["memory_job"],
+    )

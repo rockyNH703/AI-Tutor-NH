@@ -283,7 +283,7 @@ Shapes and rules: [api-contract.md, Support](api-contract.md#support).
 | Method | Path | Answer | Source |
 |---|---|---|---|
 | GET | `/health` | `{"status": "ok", "release": "<commit or development>", "files": "available" or "unavailable"}`: liveness | `backend/app/health.py` |
-| GET | `/ready` | `{"status", "database"}`, 503 when the database is unreachable: readiness | `backend/app/health.py` |
+| GET | `/ready` | `{"status", "database", "schema"}`, 503 when the database is unreachable or its schema is `behind` this code (`current`, `ahead` and `unknown` otherwise): readiness | `backend/app/health.py` |
 
 Interactive API docs (`/docs`, `/openapi.json`) exist only when `APP_ENV` is not `production`.
 
