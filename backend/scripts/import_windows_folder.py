@@ -5,18 +5,27 @@ short-lived batch token created by an authorised Knowledge Library administrator
 only PDFs contained by that resolved root, uploads them sequentially in resumable 1 MiB chunks,
 and prints one JSON result per file without printing credentials or API responses.
 
-Examples (PowerShell):
+The upload routes are not proxied by the web app (only the batch is created there, by a signed-in
+administrator), so they are reached through an SSH port-forward to the API's loopback port. In one
+PowerShell window, left open while the import runs:
+
+    ssh -N -L 4400:127.0.0.1:4400 root@10.1.50.94
+
+Then, in another (PowerShell):
 
     $env:NETSEC_KNOWLEDGE_IMPORT_TOKEN = '<batch token>'
     .\backend\.venv\Scripts\python.exe backend\scripts\import_windows_folder.py `
-      --root 'D:\\staged-books' --api-base-url 'https://example.trycloudflare.com' `
+      --root 'D:\\staged-books' --api-base-url 'http://127.0.0.1:4400' `
       --token-env NETSEC_KNOWLEDGE_IMPORT_TOKEN
 
-For a token file, restrict its ACL and delete it after the import:
+For a token file, keep it outside the books folder, restrict its ACL and delete it after the import:
 
     .\backend\.venv\Scripts\python.exe backend\scripts\import_windows_folder.py `
-      --root 'D:\\staged-books' --api-base-url 'https://example.trycloudflare.com' `
-      --token-file 'D:\\staged-books\\import-token.txt'
+      --root 'D:\\staged-books' --api-base-url 'http://127.0.0.1:4400' `
+      --token-file 'D:\\import-token.txt'
+
+The worker then extracts and embeds each book. Nothing is searchable until an administrator publishes
+it with backend/scripts/knowledge_admin.py on the host.
 """
 
 from __future__ import annotations

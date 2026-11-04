@@ -88,7 +88,10 @@ NETSEC_DEPLOY_HOST=root@10.1.50.94 bun run rollback:netsec [-- <commit>]
   pass-rate gates; run on the host after any change to what the model is told), `ingest_documents.py`
   (`--global` or `--owner-email` is mandatory), `eval_retrieval.py`, `eval_intents.py`, `eval_scope.py`,
   `memory_eval.py`, `migration_status.py`, `sandbox_probe.py` (the file sandbox, on the host), `smoke_chat.py`
-  (never against production), `import_questions.py` / `qbank_coverage.py` (the question bank).
+  (never against production), `import_questions.py` / `qbank_coverage.py` (the question bank),
+  `knowledge_admin.py` (Knowledge Library on the host: admins, sources, import batches, review and publish) and
+  `import_windows_folder.py` (uploads PDFs through an SSH forward); procedure in
+  [docs/knowledge-library-readiness.md](docs/knowledge-library-readiness.md).
 
 ## How the halves connect
 

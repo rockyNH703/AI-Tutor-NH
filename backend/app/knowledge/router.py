@@ -18,7 +18,8 @@ from app.auth.dependencies import Principal
 from app.db.models import DocumentFile, DocumentFileBlob, KnowledgeImportBatch, KnowledgeSource
 from app.db.session import get_session
 from app.errors import Conflict, NotFound, PayloadTooLarge, Unauthorized, ValidationFailed
-from app.knowledge.access import require_knowledge_admin
+from app.files.service import check_capacity
+from app.knowledge.access import accessible_source_ids, require_knowledge_admin
 from app.knowledge.content import parse_single_range, stream_file_range
 from app.schemas import ApiModel, RequestModel
 
@@ -126,11 +127,16 @@ def _file_out(file: DocumentFile, *, duplicate: uuid.UUID | None = None) -> Impo
 async def knowledge_file_content(
     file_id: uuid.UUID,
     request: Request,
-    _principal: Principal = Depends(require_knowledge_admin),
+    principal: Principal = Depends(require_knowledge_admin),
     db: AsyncSession = Depends(get_session),
 ):
     file = await db.get(DocumentFile, file_id)
-    if file is None or file.status != "ready":
+    # An administrator reads only the books of sources they can see (owned, global or granted), like search.
+    if (
+        file is None
+        or file.status != "ready"
+        or file.source_id not in await accessible_source_ids(db, principal.user.id)
+    ):
         raise NotFound()
     source = await db.get(KnowledgeSource, file.source_id)
     if source is None:
@@ -268,6 +274,8 @@ async def create_import_file(
     )
     if pending_bytes + body.size_bytes > byte_limit:
         raise PayloadTooLarge("This import would exceed its total byte limit.", code="batch_byte_limit")
+    # Books are stored in the database like students' files: the same ceiling keeps the shared disk and its dumps safe.
+    await check_capacity(db)
     file = DocumentFile(
         source_id=batch.source_id,
         import_batch_id=batch.id,

@@ -14,8 +14,9 @@ from app.db.models import DocumentChunk, DocumentRevision, DocumentRevisionChunk
 from app.errors import Conflict, NotFound
 from app.knowledge.protocol import ExtractedDocument
 
-MAX_CHUNK_CHARS = 2_400
-CHUNK_OVERLAP_CHARS = 240
+# Five passages (RAG_TOP_K) with their headings fit RAG_MAX_CONTEXT_CHARS (8,000): about 1,550 characters each.
+MAX_CHUNK_CHARS = 1_400
+CHUNK_OVERLAP_CHARS = 200
 
 
 @dataclass(frozen=True)

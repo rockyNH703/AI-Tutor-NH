@@ -8,6 +8,7 @@ import hashlib
 import io
 import json
 import os
+import random
 import sys
 import uuid
 from collections.abc import AsyncIterator
@@ -19,16 +20,25 @@ from sqlalchemy import func, select
 
 from app.db.models import Document, DocumentFile, DocumentFileBlob, DocumentRevision, DocumentRevisionChunk
 from app.db.session import Database
-from app.files.processing import BACKEND_DIR, SANDBOX_PROPERTIES, _systemctl
+from app.files.processing import BACKEND_DIR, EMBED_RETRY_DELAYS_S, SANDBOX_PROPERTIES, _systemctl
 from app.knowledge.protocol import MAX_STDOUT_BYTES, ExtractedDocument, parse_ndjson
-from app.knowledge.publication import build_chunks, stage_chunks
+from app.knowledge.publication import CHUNK_OVERLAP_CHARS, MAX_CHUNK_CHARS, build_chunks, stage_chunks
 from app.knowledge.worker import RevisionClaim
+from app.logging import get_logger
 from app.rag.embeddings import embedding_model_id
+from app.rag.errors import EmbeddingError
 from app.settings import Settings
 
 EXTRACT_TIMEOUT_S = 1_200
 MAX_STDERR = 4_096
 UNIT_PREFIX = "netsecai-knowledge-extract"
+# The File Library's sandbox, with a runtime that fits a book: OCR is the slow path (about 1-5 s per scanned
+# page on one CPU). Memory and CPU stay as they are (a 400-page digital PDF: 2 s, 46 MB). The later -p wins.
+KNOWLEDGE_SANDBOX_OVERRIDES = (f"RuntimeMaxSec={EXTRACT_TIMEOUT_S}",)
+# A revision still being worked on: a new one for the same file waits until it ends.
+ACTIVE_STATUSES = ("queued", "extracting", "chunking", "embedding", "verifying", "retryable")
+
+log = get_logger("app.knowledge")
 
 
 async def _blobs(db: Database, file_id: uuid.UUID) -> AsyncIterator[bytes]:
@@ -50,7 +60,7 @@ async def _blobs(db: Database, file_id: uuid.UUID) -> AsyncIterator[bytes]:
 def _extractor_command(runner: str, unit: str) -> tuple[list[str], dict[str, str] | None]:
     module = [sys.executable, "-m", "app.knowledge.extract"]
     if runner == "systemd":
-        properties = [arg for prop in SANDBOX_PROPERTIES for arg in ("-p", prop)]
+        properties = [arg for prop in (*SANDBOX_PROPERTIES, *KNOWLEDGE_SANDBOX_OVERRIDES) for arg in ("-p", prop)]
         return ["systemd-run", "--quiet", "--pipe", "--wait", "--collect", f"--unit={unit}", *properties, *module], None
     env = {"PATH": os.environ.get("PATH", ""), "PYTHONDONTWRITEBYTECODE": "1", "OMP_THREAD_LIMIT": "1"}
     if os.name == "nt":
@@ -125,6 +135,34 @@ async def extract_revision(
     return extracted
 
 
+async def _embed_batch(
+    db: Database, claim: RevisionClaim, embeddings: Embeddings, texts: list[str]
+) -> list[list[float]]:
+    """The File Library's retry contract: a provider hiccup is retried with jitter, without extracting again.
+
+    The claim is checked before every attempt, so text never leaves for a revision this worker no longer holds.
+    """
+    for attempt, delay in enumerate((*EMBED_RETRY_DELAYS_S, None)):
+        async with db.sessionmaker() as session:
+            held = await session.scalar(
+                select(DocumentRevision.id).where(
+                    DocumentRevision.id == claim.id,
+                    DocumentRevision.attempts == claim.attempt,
+                    DocumentRevision.status == "embedding",
+                )
+            )
+        if held is None:
+            raise RuntimeError("knowledge_revision_claim_lost")
+        try:
+            return await embeddings.aembed_documents(texts)
+        except EmbeddingError as error:
+            if delay is None or error.code not in ("embedding_failed", "embedding_timeout"):
+                raise
+            log.warning("knowledge embedding retry", extra={"attempt": attempt + 1, "reason": error.code})
+            await asyncio.sleep(delay + random.random())  # noqa: S311 - jitter, not security
+    raise EmbeddingError("embedding_failed", "retries exhausted")
+
+
 async def process_revision(
     db: Database,
     settings: Settings,
@@ -171,7 +209,7 @@ async def process_revision(
     vectors: list[list[float]] = []
     for start in range(0, len(chunks), settings.embedding_batch_size):
         batch = chunks[start : start + settings.embedding_batch_size]
-        vectors.extend(await embeddings.aembed_documents([chunk.content for chunk in batch]))
+        vectors.extend(await _embed_batch(db, claim, embeddings, [chunk.content for chunk in batch]))
     if len(vectors) != len(chunks):
         raise RuntimeError("knowledge_embedding_count_mismatch")
 
@@ -218,7 +256,7 @@ def processing_signature(file_sha256: str, settings: Settings, model: str) -> st
     payload = {
         "file": file_sha256,
         "parser": "netsec-knowledge-pdfium-tesseract-v2",
-        "chunk": [settings.rag_chunk_size, settings.rag_chunk_overlap],
+        "chunk": [MAX_CHUNK_CHARS, CHUNK_OVERLAP_CHARS],
         "embedding": [model, settings.embedding_dimensions],
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
@@ -237,7 +275,15 @@ async def queue_ready_files(db: Database, settings: Settings, embeddings: Embedd
             )
         )
         for file in files:
-            existing = await session.scalar(select(DocumentRevision.id).where(DocumentRevision.file_id == file.id))
+            # One revision per file and processing signature: a new embedding model (or chunking) queues the
+            # file again, so its published chunks are not stranded under a model the retriever no longer reads.
+            signature = processing_signature(file.sha256, settings, model)
+            existing = await session.scalar(
+                select(DocumentRevision.id).where(
+                    DocumentRevision.file_id == file.id,
+                    (DocumentRevision.processing_signature == signature) | DocumentRevision.status.in_(ACTIVE_STATUSES),
+                )
+            )
             if existing is not None:
                 continue
             document = await session.scalar(
@@ -270,7 +316,6 @@ async def queue_ready_files(db: Database, settings: Settings, embeddings: Embedd
                 )
                 + 1
             )
-            signature = processing_signature(file.sha256, settings, model)
             session.add(
                 DocumentRevision(
                     document_id=document.id,
@@ -283,7 +328,7 @@ async def queue_ready_files(db: Database, settings: Settings, embeddings: Embedd
                     parser_version="v2",
                     parser_config_hash=hashlib.sha256(b"netsec-knowledge-pdfium-tesseract-v2").hexdigest(),
                     chunking_config_hash=hashlib.sha256(
-                        f"{settings.rag_chunk_size}:{settings.rag_chunk_overlap}".encode()
+                        f"{MAX_CHUNK_CHARS}:{CHUNK_OVERLAP_CHARS}".encode()
                     ).hexdigest(),
                     embedding_model=model,
                     embedding_dimensions=settings.embedding_dimensions,

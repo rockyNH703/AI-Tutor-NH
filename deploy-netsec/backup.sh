@@ -3,9 +3,20 @@
 # Nightly logical backup of the isolated NetSec AI PostgreSQL database.
 # Fails closed if an unexpected non-system schema appears.
 #
-#   pg_dump custom format, compressed; restore with:
-#   docker compose --env-file /etc/netsecai/postgres.env -f /opt/netsecai/shared/postgres/docker-compose.yml \
-#     exec -T postgres pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists < <file>.dump
+#   pg_dump custom format, compressed. Restore into an EMPTY schema, never over the live one: a dump
+#   taken before a migration does not have that migration's tables, and `pg_restore --clean` cannot
+#   drop what it does not know (their foreign keys then block the drops and the restore half-applies).
+#   Rehearse first with deploy-netsec/restore-drill.sh on a *_test copy; then, on the host:
+#     1. systemctl stop netsecai-web netsecai-api netsecai-jobs.timer netsecai-knowledge.timer
+#     2. take a fresh dump of the current database (it is the way back): systemctl start netsecai-pg-backup
+#     3. COMPOSE="docker compose --env-file /etc/netsecai/postgres.env -f /opt/netsecai/shared/postgres/docker-compose.yml"
+#        $COMPOSE exec -T postgres psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+#          -c 'DROP SCHEMA public CASCADE' -c 'CREATE SCHEMA public'
+#     4. $COMPOSE exec -T postgres pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+#          --exit-on-error --single-transaction < <file>.dump
+#     5. bash /opt/netsecai/shared/database-grants.sh, then deploy the release whose migrations match the
+#        dump (deploy:netsec runs any pending migration after its own backup)
+#     6. re-queue the files (below), start the units, and check status:netsec
 #
 # file_chunks (the text and embeddings of students' files) is derived data and is not dumped:
 # the files themselves are. After a restore, have every ready file read again (the API does it):

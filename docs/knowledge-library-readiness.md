@@ -1,83 +1,103 @@
 # Knowledge Library readiness ledger
 
-This ledger is the acceptance record for the CCNA-first PDF Knowledge Library. It documents what the repository
-proves, what remains gated, and which trust boundary each control protects. It does **not** authorize scanning
-`F:\CCNA`, moving local books, sending book text to a provider, enabling a production worker, or deploying.
+This ledger is the acceptance record for the CCNA-first PDF Knowledge Library: what the repository proves, what
+is still open, and which trust boundary each control protects. It does **not** authorize scanning `F:\CCNA`,
+moving local books, sending book text to a provider, or deploying. Last verified: 2026-11-04 (release after
+`8bfe95b`).
 
-## Current decision record
+## State in production (2026-11-04)
 
-| Area | Decision | Evidence / status |
+- The schema is live: migrations 0023 (`0023_knowledge_library`) and 0024 (`0024_knowledge_lifecycle`) are
+  applied. 0024 lets accounts that touched the library be deleted (actor columns `ON DELETE SET NULL`) and keeps the
+  pre-0023 `ingest_documents.py --global` insert working.
+- **No book has been imported:** 0 sources, 0 files, 0 revisions.
+- `netsecai-knowledge.timer` is **enabled**: `deploy-netsec/server/install-units.sh` enables it on every deploy.
+  With nothing queued, a run claims nothing.
+- Hybrid retrieval (`RAG_HYBRID`) is off.
+
+## Operator procedure
+
+1. **Grant** a verified account the administrator capability, on the host:
+   `systemd-run --pipe --wait --collect -p EnvironmentFile=/etc/netsecai/api.env -p WorkingDirectory=/opt/netsecai/app/backend /opt/netsecai/app/backend/.venv/bin/python scripts/knowledge_admin.py grant <email> --reason "<why>"`.
+2. **Create a batch** as that administrator in the web app (`POST /v1/knowledge/imports`). The batch token is
+   shown once.
+3. **Import** from Windows through an SSH port-forward to the API's loopback port. The upload routes are not
+   proxied by the web app. Run `ssh -N -L 4400:127.0.0.1:4400 root@10.1.50.94`, then
+   `import_windows_folder.py --root <folder> --api-base-url http://127.0.0.1:4400 --token-env …` (usage is in
+   the script's docstring).
+4. **Processing:** the worker extracts each PDF in the sandbox, chunks and embeds it, and stops at
+   `ready_to_publish`, or at `needs_review` when the extractor warned (for example, OCR was used).
+5. **Review and publish** with the same `systemd-run` prefix:
+   - `scripts/knowledge_admin.py revisions [--status needs_review]` lists ids, page and chunk counts and
+     warnings, never text;
+   - `approve <revision-id> --as <admin email>` accepts a revision that needs review;
+   - `publish <revision-id> --as <admin email>` copies it into `document_chunks` in one transaction, and the
+     previous published revision becomes `retired`;
+   - `reject <revision-id> --as <admin email> --reason …` cancels it.
+
+## Decision record
+
+| Area | Decision | Status |
 |---|---|---|
-| Operator access | PostgreSQL-backed `knowledge_admin_grants`; guarded grant/revoke command | Implemented; focused WSL PostgreSQL integration passed before final import regressions; final rerun is currently blocked by the stopped local WSL service |
-| Source visibility | `owner_only`, `selected`, `global`; selected/global require approved distribution rights | Implemented in schema and retrieval source resolution |
-| Original storage | PostgreSQL 1 MiB `document_file_blobs` rows | Implemented; local 50 MiB spike passed first-response target; production WAL/vacuum/backup evidence pending |
-| Import | Short-lived hashed batch token, sequential offsets, declared SHA-256, finalize verification | Implemented API and Windows importer; client inventory/containment/resume/secret-safety tests pass |
-| Processing identity | source ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ document edition ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ immutable file ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ revision ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ stable revision chunk | Implemented additive schema; migration execution pending WSL test database |
-| Extraction contract | NDJSON v2, 64 MiB aggregate, 1 MiB line, 256 KiB content, page provenance, strict keys/digests | Implemented and database-free tests pass |
-| Parser | PDFium/Tesseract is the active bounded parser; Docling remains an optional gated enhancement | Digital and scanned synthetic PDFs pass locally (scanned fixture: 1 OCR page, 115 characters); production install and sandbox checks already provision Tesseract eng+hin |
-| Publication | Revision staging copied atomically into live `document_chunks` | Implemented staging/publication foundation; deterministic unit tests pass; production activation remains gated |
-| PDF viewing | Admin-only PDF stream; single/open/suffix ranges and safe headers; BFF response streams | Implemented foundation; backend integration test pending |
-| Citations | Historical revision/stable chunk/page/section/excerpt fields survive message metadata | Implemented projection and database-free test passes |
-| Rights and egress | Possession is not distribution permission; processing reuses the application File Library embedding provider | Existing `build_embeddings`/redaction/model-dimension controls are reused; operator authorization in this session approves this provider for the owner-only CCNA import |
-| Recovery | 24-hour RPO plus backup after completed batches; 8-hour RTO target | Worker stale-requeue foundation implemented; post-batch production backup, encrypted off-host destination/key, and measured 8-hour restore remain BLOCKED external operations |
-| Production | Dedicated knowledge worker lane, concurrency one | Implemented with durable claim/lease/retry/stale-recovery logic and installed-but-disabled systemd timer; enabling requires explicit production authorization |
+| Operator access | `knowledge_admin_grants`, granted only by the host CLI; a grant needs a verified address | Implemented, tested |
+| Source visibility | `owner_only`, `selected`, `global`; selected and global need approved distribution rights | Implemented in schema (CHECK) and in retrieval SQL |
+| Original storage | PDFs in PostgreSQL as 1 MiB `document_file_blobs` rows, so they are in every nightly dump | Implemented. Uploads stop at the File Library's ceiling (3 GiB of this app's tables, or under 5 GB free disk). Measured 2026-11-04: the production disk is 48 GB with 11 GB free, **shared with PadhAI**, and the database is 13 MB. With 7 days of dumps, a practical library is about 1-2 GB of PDFs. The backup refuses to dump when free space is under 2× the database size. Production WAL and vacuum impact: NOT MEASURED |
+| Import | Short-lived batch token stored as SHA-256 hash; sequential offsets; declared SHA-256; finalize verification; the token is checked before the request body | Implemented, tested |
+| Extraction sandbox | The File Library's systemd sandbox (no network, 512 MB, one CPU) with `RuntimeMaxSec=1200` for a book | Implemented. A 400-page digital PDF took 2.0 s at 46 MB in WSL. OCR-heavy books: NOT MEASURED (Tesseract is not installed in WSL) |
+| Extraction structure | PDFium text, Tesseract OCR (`eng`) for image-only pages | **Open:** one paragraph per page; no section path, printed page label or bbox. Docling is not installed or approved |
+| Chunking | 1,400 characters, 200 overlap: five passages with their headings fit `RAG_MAX_CONTEXT_CHARS` (8,000) | Implemented, tested. The processing signature records this chunker, not `RAG_CHUNK_SIZE` |
+| Embedding | The application's `build_embeddings` provider (masking applies). A provider hiccup (`embedding_failed`, `embedding_timeout`) is retried after 1, 2 and 4 s plus jitter, without extracting again. The claim is re-checked before each attempt | Implemented, tested |
+| Model change | A new embedding model or chunker queues each file again: one revision per file and signature, never while another revision of the file is in progress | Implemented, tested. The new revision still needs publishing; until then the old chunks are not searched, because they are under the old model |
+| Publication | Staged chunks copied atomically into `document_chunks` by the operator CLI | Implemented, tested |
+| PDF viewing | Administrators only, and only books of sources they can see (owned, global or granted); one Range; safe headers | Implemented, tested |
+| Citations | Revision, stable chunk, page and a 500-character excerpt kept in message metadata | **Open:** the excerpt outlives a rights revocation; it needs the owner's decision (F12.10) |
+| Recovery | Nightly dump; restore into an empty schema (runbook in `deploy-netsec/backup.sh`) | Runbook corrected and rehearsed (see the evidence table). Off-host encrypted copy: BLOCKED (no destination or key) |
 
 ## Synthetic fixture coverage
 
 The generator at `backend/tests/fixtures/knowledge/generate.py` creates original CC0 test PDFs and a SHA-256
-manifest. It covers:
-
-- digital text, two columns, tables, figures/captions and IOS-like configuration;
+manifest. They cover:
+- digital text, two columns, tables, figures and captions, and IOS-like configuration;
 - physical versus printed page labels;
 - an untrusted prompt-injection string inside reference content;
-- scanned/image-only OCR input;
-- same-subject, different-edition inputs with different byte hashes.
+- scanned (image-only) OCR input;
+- same-subject, different-edition inputs.
 
-No real vendor book, certification guide, or `F:\CCNA` file is included.
+No real vendor book, certification guide or `F:\CCNA` file is included.
 
 ## Acceptance evidence
 
-| Invariant | Reproducible check | Current result |
+| Invariant | Check | Result |
 |---|---|---|
-| Strict extraction rejects unknown versions/keys, bad sequence/page/digest and truncation | `backend/tests/test_knowledge_protocol.py` | PASS on Windows Python 3.12 |
-| Citation metadata retains immutable revision/page identity without URI/score leakage | `backend/tests/test_knowledge_citations.py` | PASS on Windows Python 3.12 |
-| Range parser accepts one bounded range and rejects multiple/invalid ranges with 416 metadata | `backend/tests/test_knowledge_range.py` | PASS on Windows Python 3.12 |
-| Synthetic fixtures regenerate with matching manifest digests | `backend/tests/test_knowledge_fixtures.py` | PASS on Windows Python 3.12 |
-| Windows importer inventory, containment, resume/finalize and secret-safe errors | `backend/tests/test_import_windows_folder.py` | PASS on Windows Python 3.12 |
-| Worker claim, stale recovery, retry and fencing state transitions | `backend/tests/test_knowledge_worker.py` | Static checks PASS; PostgreSQL execution pending restoration of local WSL service |
-| BFF streams file responses and forwards Range/If-Range while filtering response headers | `frontend/apps/app/src/lib/server/proxy-core.test.ts` | PASS, 43 tests |
-| Models, migration, access controls, import API, worker and retrieval work on PostgreSQL/pgvector | focused backend pytest | PASS: 44 tests in WSL PostgreSQL/pgvector after WSL recovery |
-| Migration upgrade/downgrade and model parity | `test_migrations.py`, `test_foundation.py` | PASS in prior fresh WSL PostgreSQL run |
-| PostgreSQL blob first-response p95 ÃƒÂ¢Ã¢â‚¬Â°Ã‚Â¤500 ms at concurrency 1/3 | `benchmark_knowledge_storage.py`, local WSL PostgreSQL 16, 50 MiB synthetic file | PASS: 32.21 ms / 66.07 ms; write 18.72 MiB/s. Production WAL/vacuum/backup impact remains PENDING |
-| Current parser baseline on synthetic PDFs | `evaluate_knowledge_parser.py` | PASS: digital 2/1/1 pages (538/57/95 chars); scanned OCR 1 page, 115 chars, 1 OCR page |
-| Docling version/model hashes/licenses/RSS/CPU/scratch/sandbox compatibility acceptable | parser gate | BLOCKED; Docling not installed or approved |
-| Real-book embedding provider approval | owner authorization and existing application embedding configuration | APPROVED for this owner-only CCNA import; the worker reuses the same `build_embeddings` provider as chat File Library and never reads a root credential file |
-| Off-host encrypted backup and restore within 8 hours | recovery drill | BLOCKED on destination/key and authorized evidence |
+| Strict NDJSON v2: unknown versions and keys, bad sequence, page or digest, and truncation are refused | `tests/test_knowledge_protocol.py` | PASS (collected since `7263cf3`; before that the file never ran) |
+| Citations keep revision and page identity without URI or score | `tests/test_knowledge_citations.py` | PASS |
+| One bounded Range; multiple or invalid ranges get 416 | `tests/test_knowledge_range.py` | PASS |
+| Fixtures regenerate with matching digests | `tests/test_knowledge_fixtures.py` | PASS |
+| Importer inventory, containment, resume and finalize, secret-safe errors | `tests/test_import_windows_folder.py` | PASS |
+| Worker claim, stale recovery, retry and fencing | `tests/test_knowledge_worker.py` | PASS (WSL PostgreSQL 16) |
+| Import API: scoped tokens, resumable chunks, limits, duplicates, auth before body | `tests/test_knowledge_import.py`, `tests/test_route_auth.py` | PASS (WSL PostgreSQL 16) |
+| Sandbox runtime, embedding retries, re-queue, CLI publication, capacity, PDF access | `tests/test_knowledge_lifecycle.py` | PASS (WSL PostgreSQL 16) |
+| Account deletion with library rows; 0024 upgrade, downgrade and legacy global insert | `tests/test_account_deletion.py`, `tests/test_migrations.py` | PASS (WSL PostgreSQL 16) |
+| BFF streams PDF responses and filters headers | `frontend/apps/app/src/lib/server/proxy-core.test.ts` | PASS |
+| Blob first response p95 ≤ 500 ms at concurrency 1/3 | `benchmark_knowledge_storage.py`, WSL, 50 MiB synthetic file | PASS: 32.21 ms / 66.07 ms (Codex's run; not on production) |
+| Restore of an older dump after a deploy | WSL PostgreSQL 16, 2026-11-04: dumps made with `backup.sh`'s flags, the database then migrated to 0024 | PASS with the new runbook: a 0023 dump restored into an emptied schema in one transaction, then migrated to 0024 with every row. `restore-drill.sh` PASS on the same dump. The old `--clean --if-exists` command, given a 0022 dump: 14 errors, version 0022 recorded over 0023/0024 tables (a half-restore). Not run on a production dump or the host |
+| Docling version, licences and sandbox fit | parser gate | BLOCKED: not installed or approved |
+| A real CCNA book end to end (import → publish → cited answer) | live | NOT RUN: no book imported |
 
 ## Trust boundaries and failure policy
 
-- **Browser/BFF/API:** the BFF allowlist remains narrow; only safe file response headers cross back to the browser.
-- **Importer/API:** batch secrets are random, stored only as SHA-256, scoped to one source and expire after 12 hours.
-- **User/source:** retrieval resolves visibility and grants in PostgreSQL; caller-provided source names only narrow.
-- **PDF/parser:** extraction output is untrusted and must pass the strict NDJSON parser before persistence.
-- **Knowledge/model provider:** content egress is separate from secret masking and remains blocked without approval.
-- **Revision/live index:** incomplete revisions never enter `document_chunks`; publication must be one transaction.
-- **Citation/current revision:** a stored citation must never be silently rebound to a newer revision.
+- **Browser/BFF/API:** the BFF allowlist stays narrow; only safe file response headers reach the browser.
+- **Importer/API:** batch secrets are random, stored only as SHA-256, scoped to one source, and expire after 12
+  hours. The upload routes are reachable only on the host's loopback.
+- **User/source:** retrieval resolves visibility and grants in PostgreSQL; caller-provided source names only
+  narrow it.
+- **PDF/parser:** extraction output is untrusted and must pass the strict NDJSON parser before it is stored.
+- **Knowledge/model provider:** book text leaves only through `build_embeddings`, and only for a claim the worker
+  still holds.
+- **Revision/live index:** incomplete revisions never enter `document_chunks`; publication is one transaction.
+- **Citation/current revision:** a stored citation is never silently rebound to a newer revision.
 - **Backup/restore:** an archive is not recovery evidence until a restore drill succeeds.
 
 Any failed digest, protocol, rights, source grant, quality, storage, backup or provider-policy gate fails closed and
-requires operator review. Similarity or visual duplicate signals never authorize deletion; quarantine and later purge
-remain separate owner-approved operations.
-
-## Final local validation status
-
-- Backend Ruff, format and compile checks: **PASS**.
-- Database-free Knowledge Library tests: **PASS** (16 tests).
-- Import protocol regressions were added for exact non-final chunk sizing, same-batch resume, active-batch conflict, expired replacement, ready-file reuse, idempotent finalize and cumulative batch limits.
-- Frontend typecheck, lint, unit tests and production build: **PASS**; focused BFF streaming/Range/concurrency tests: **PASS** (43 tests).
-- Contract generation/tests: **PASS** (216 tests).
-- Deploy namespace/safety tests and Graphify tests passed before the local WSL service failure (58 and 6 tests respectively). A later rerun timed out only because WSL commands were no longer starting.
-- Final independent code review: **PASS**, no significant unresolved issue after fixes.
-- Final PostgreSQL-focused regressions: **PASS** (44 tests) after safely restarting WSL; migration/model parity/import/worker/retrieval all passed.
-- Final security gate on the dirty worktree: **PASS check-only**. Semgrep 0 findings, released-history/tree gitleaks 0 findings, pip-audit 0 vulnerabilities, Bun audit and zizmor PASS. A clean committed tree still needs a second run to write the deploy receipt.
-- Commit/push/deploy: **NOT PERFORMED**. Production mutation was not authorized.
+needs an operator. Similarity or visual duplicate signals never authorize deletion; quarantine and later purge are
+separate owner-approved operations.
