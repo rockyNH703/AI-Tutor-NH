@@ -1004,7 +1004,7 @@ class KnowledgeAdminGrant(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
     granted_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     granted_by_operator: Mapped[str | None] = mapped_column(String(200))
     reason: Mapped[str] = mapped_column(String(280), nullable=False)
@@ -1012,7 +1012,7 @@ class KnowledgeAdminGrant(Base):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     revoke_reason: Mapped[str | None] = mapped_column(String(280))
 
@@ -1044,7 +1044,7 @@ class KnowledgeSource(Base):
     rights_basis: Mapped[str | None] = mapped_column(String(500))
     rights_approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     rights_approved_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     rights_revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     metadata_: Mapped[dict[str, Any]] = mapped_column(
@@ -1064,14 +1064,14 @@ class KnowledgeSourceUserGrant(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
-    granted_by_user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    granted_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     granted_at: Mapped[datetime] = _created()
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     revoked_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
 
 
@@ -1089,8 +1089,8 @@ class KnowledgeImportBatch(Base):
     owner_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    issued_by_user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    issued_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     source_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), nullable=False
@@ -1204,8 +1204,8 @@ class DocumentFile(Base):
     sha256: Mapped[str] = mapped_column(CHAR(64), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'uploading'"))
     page_count: Mapped[int | None] = mapped_column(Integer)
-    created_by_user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     created_at: Mapped[datetime] = _created()
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -1260,14 +1260,14 @@ class DocumentRevision(Base):
     next_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     error_code: Mapped[str | None] = mapped_column(String(80))
     quality_report: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
-    created_by_user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     published_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _created()
@@ -1329,7 +1329,7 @@ class KnowledgeDuplicateReview(Base):
     signals: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     decision: Mapped[str] = mapped_column(String(30), nullable=False, server_default=text("'pending'"))
     reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT")
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     quarantine_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

@@ -55,6 +55,47 @@ async def _rows_referencing(database: str, user_id: str, email: str) -> dict[str
         await engine.dispose()
 
 
+async def _knowledge_library_rows(app, user: uuid.UUID) -> None:
+    """The user as every Knowledge Library actor: admin, owner, grantee, uploader, issuer, reviewer, publisher."""
+    statements = [
+        "INSERT INTO knowledge_admin_grants (user_id, granted_by_user_id, reason, revoked_by_user_id) "
+        "VALUES (:u, :u, 'test', :u)",
+        "INSERT INTO knowledge_sources (id, name, owner_user_id, rights_approved_by_user_id) "
+        "VALUES (:s, :name, :u, :u)",
+        "INSERT INTO knowledge_source_user_grants (source_id, user_id, granted_by_user_id, revoked_by_user_id) "
+        "VALUES (:s, :u, :u, :u)",
+        "INSERT INTO knowledge_import_batches (owner_user_id, issued_by_user_id, source_id, secret_hash, expires_at) "
+        "VALUES (:u, :u, :s, :hash, now() + interval '1 hour')",
+        "INSERT INTO document_files (id, source_id, filename, size_bytes, received_bytes, sha256, status, "
+        "created_by_user_id) VALUES (:f1, :s, 'a.pdf', 1, 1, :sha1, 'ready', :u)",
+        "INSERT INTO document_files (id, source_id, filename, size_bytes, received_bytes, sha256, status, "
+        "created_by_user_id) VALUES (:f2, :s, 'b.pdf', 1, 1, :sha2, 'ready', :u)",
+        "INSERT INTO documents (id, source_id, uri, title, content_hash, ingest_signature) "
+        "VALUES (:d, :s, 'knowledge-file:a', 'A', :sha1, :sha1)",
+        "INSERT INTO document_revisions (document_id, source_id, file_id, revision_number, processing_signature, "
+        "parser_name, parser_version, parser_config_hash, chunking_config_hash, embedding_model, "
+        "embedding_dimensions, created_by_user_id, reviewed_by_user_id, published_by_user_id) "
+        "VALUES (:d, :s, :f1, 1, :sha1, 'p', 'v', :sha1, :sha1, 'm', 1536, :u, :u, :u)",
+        "INSERT INTO knowledge_duplicate_reviews (file_id, candidate_file_id, classification, confidence, "
+        "reviewed_by_user_id) VALUES (:f1, :f2, 'exact', 100, :u)",
+    ]
+    values = {
+        "u": user,
+        "s": uuid.uuid4(),
+        "name": f"knowledge-{uuid.uuid4().hex[:8]}",
+        "hash": uuid.uuid4().hex * 2,
+        "f1": uuid.uuid4(),
+        "f2": uuid.uuid4(),
+        "sha1": "a" * 64,
+        "sha2": "b" * 64,
+        "d": uuid.uuid4(),
+    }
+    async with app.state.db.sessionmaker() as db:
+        for statement in statements:
+            await db.execute(text(statement), values)
+        await db.commit()
+
+
 async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app, database):
     account = await register(client, app)
     headers = account["headers"]
@@ -234,6 +275,8 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
     beat = {"beatId": str(uuid.uuid4()), "clientId": tab, "wasActive": False, "nowActive": True}
     beat = await client.post("/v1/study/beat", json={**beat, "studyView": True, "visible": True}, headers=headers)
     assert beat.status_code == 200, beat.text
+
+    await _knowledge_library_rows(app, uuid.UUID(user_id))
 
     before = await _rows_referencing(database, user_id, account["email"])
     missing = [name for name, count in before.items() if name != "users" and count == 0]

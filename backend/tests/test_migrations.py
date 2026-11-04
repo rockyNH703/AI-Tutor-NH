@@ -330,6 +330,8 @@ ENGINEERING = "0020_engineering_profiles"
 HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 KNOWLEDGE_LIBRARY = "0023_knowledge_library"
+KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
+HEAD = KNOWLEDGE_LIFECYCLE
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -509,7 +511,7 @@ def test_migration_0021_adds_hybrid_search_without_rewriting_the_insert_contract
             "tsv"
         ] == ("'0':4 'area':3 'configure':1 'ospf':2")
         alembic("upgrade", "head")
-        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_LIBRARY
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == HEAD
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 
@@ -654,6 +656,84 @@ def test_migration_0022_revokes_only_sessions_that_predate_a_real_password_chang
         assert run(_query("SELECT count(*) AS n FROM auth_sessions WHERE user_id = $1", credential_user))[0]["n"] == 1
         alembic("upgrade", PASSWORD_SESSION_REVOCATION)
         assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == PASSWORD_SESSION_REVOCATION
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+LEGACY_GLOBAL_SOURCE = "INSERT INTO knowledge_sources (name) VALUES ($1) RETURNING id"  # the 0022 CLI, --global
+
+
+async def _legacy_global_insert_refused(name: str) -> bool:
+    try:
+        await _query(LEGACY_GLOBAL_SOURCE, name)
+    except asyncpg.CheckViolationError:
+        return True
+    return False
+
+
+def test_migration_0024_frees_knowledge_actors_and_accepts_the_old_global_insert():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", KNOWLEDGE_LIBRARY)
+        # On 0023 the release before it cannot create a global source (what this revision fixes).
+        assert run(_legacy_global_insert_refused("legacy-0023"))
+        uploader = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Uploader') RETURNING id",
+                "uploader-0024@example.com",
+            )
+        )[0]["id"]
+        source = run(
+            _query(
+                "INSERT INTO knowledge_sources (name, visibility, rights_status) "
+                "VALUES ('kept-0024', 'global', 'approved') RETURNING id"
+            )
+        )[0]["id"]
+        run(
+            _query(
+                "INSERT INTO document_files (source_id, filename, size_bytes, received_bytes, sha256, status, "
+                "created_by_user_id) VALUES ($1, 'kept.pdf', 1, 1, $2, 'ready', $3)",
+                source,
+                "c" * 64,
+                uploader,
+            )
+        )
+
+        alembic("upgrade", KNOWLEDGE_LIFECYCLE)
+        legacy = run(_query(LEGACY_GLOBAL_SOURCE, "legacy-0024"))[0]["id"]
+        row = run(_query("SELECT visibility, rights_status FROM knowledge_sources WHERE id = $1", legacy))[0]
+        assert (row["visibility"], row["rights_status"]) == ("global", "approved")
+        owned = run(
+            _query(
+                "INSERT INTO knowledge_sources (name, owner_user_id) VALUES ('owned-0024', $1) RETURNING visibility",
+                uploader,
+            )
+        )[0]
+        assert owned["visibility"] == "owner_only"  # an owned source is untouched by the trigger
+
+        # Deleting the uploader keeps the global source's file and clears its actor.
+        run(_query("DELETE FROM users WHERE id = $1", uploader))
+        file = run(_query("SELECT created_by_user_id FROM document_files WHERE source_id = $1", source))[0]
+        assert file["created_by_user_id"] is None
+
+        process = subprocess.run(
+            [sys.executable, "-m", "alembic", "-x", f"url={URL}", "downgrade", KNOWLEDGE_LIBRARY],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode != 0 and "0024 downgrade refused" in process.stderr
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_LIFECYCLE
+
+        run(_query("DELETE FROM document_files WHERE created_by_user_id IS NULL"))
+        alembic("downgrade", KNOWLEDGE_LIBRARY)
+        assert run(_query("SELECT to_regprocedure('knowledge_sources_global_without_owner()') AS f"))[0]["f"] is None
+        assert run(_legacy_global_insert_refused("legacy-again"))
+        alembic("upgrade", KNOWLEDGE_LIFECYCLE)
+        alembic("upgrade", "head")  # repeated: a no-op
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_LIFECYCLE
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 
