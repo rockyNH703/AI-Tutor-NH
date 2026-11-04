@@ -92,6 +92,20 @@ async def _batch_from_token(db: AsyncSession, authorization: str | None, *, lock
     return batch
 
 
+async def import_batch(
+    authorization: str | None = Header(None), db: AsyncSession = Depends(get_session)
+) -> KnowledgeImportBatch:
+    """The caller's open batch, locked for this request. A dependency, so a request without a valid token is a
+    401 before its body is parsed or validated."""
+    return await _batch_from_token(db, authorization, lock=True)
+
+
+async def import_batch_read(
+    authorization: str | None = Header(None), db: AsyncSession = Depends(get_session)
+) -> KnowledgeImportBatch:
+    return await _batch_from_token(db, authorization)
+
+
 def _file_out(file: DocumentFile, *, duplicate: uuid.UUID | None = None) -> ImportFileOut:
     return ImportFileOut(
         id=file.id,
@@ -187,7 +201,7 @@ async def create_import_batch(
 async def create_import_file(
     body: CreateImportFile,
     response: Response,
-    authorization: str | None = Header(None),
+    batch: KnowledgeImportBatch = Depends(import_batch),
     db: AsyncSession = Depends(get_session),
 ) -> ImportFileOut:
     if not 1 <= body.size_bytes <= MAX_IMPORT_FILE_BYTES:
@@ -195,7 +209,6 @@ async def create_import_file(
     if len(body.sha256) != 64 or any(char not in "0123456789abcdef" for char in body.sha256):
         raise ValidationFailed(fields=[{"field": "sha256", "reason": "pattern"}])
     name = _filename(body.filename)
-    batch = await _batch_from_token(db, authorization, lock=True)
     now = datetime.now(UTC)
     existing = await db.scalar(
         select(DocumentFile)
@@ -286,10 +299,9 @@ async def create_import_file(
 @router.get("/imports/files/{file_id}", response_model=ImportFileOut)
 async def get_import_file(
     file_id: uuid.UUID,
-    authorization: str | None = Header(None),
+    batch: KnowledgeImportBatch = Depends(import_batch_read),
     db: AsyncSession = Depends(get_session),
 ) -> ImportFileOut:
-    batch = await _batch_from_token(db, authorization)
     file = await db.scalar(
         select(DocumentFile).where(DocumentFile.id == file_id, DocumentFile.import_batch_id == batch.id)
     )
@@ -303,10 +315,9 @@ async def upload_import_file_chunk(
     file_id: uuid.UUID,
     request: Request,
     offset: int = Query(..., ge=0),
-    authorization: str | None = Header(None),
+    batch: KnowledgeImportBatch = Depends(import_batch),
     db: AsyncSession = Depends(get_session),
 ) -> ImportFileOut:
-    batch = await _batch_from_token(db, authorization, lock=True)
     file = await db.scalar(
         select(DocumentFile)
         .where(DocumentFile.id == file_id, DocumentFile.import_batch_id == batch.id)
@@ -344,10 +355,9 @@ async def upload_import_file_chunk(
 @router.post("/imports/files/{file_id}/finalize", response_model=ImportFileOut)
 async def finalize_import_file(
     file_id: uuid.UUID,
-    authorization: str | None = Header(None),
+    batch: KnowledgeImportBatch = Depends(import_batch),
     db: AsyncSession = Depends(get_session),
 ) -> ImportFileOut:
-    batch = await _batch_from_token(db, authorization, lock=True)
     file = await db.scalar(
         select(DocumentFile)
         .where(DocumentFile.id == file_id, DocumentFile.import_batch_id == batch.id)
