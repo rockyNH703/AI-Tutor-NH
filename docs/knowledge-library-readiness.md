@@ -22,8 +22,22 @@ moving local books, sending book text to a provider, or deploying. Last verified
 
 Every host command below uses the prefix
 `systemd-run --pipe --wait --collect -p EnvironmentFile=/etc/netsecai/api.env -p WorkingDirectory=/opt/netsecai/app/backend /opt/netsecai/app/backend/.venv/bin/python scripts/knowledge_admin.py`
-(written `knowledge_admin.py` below). Each prints ids and counts, never book text. Each acts only for an active
-administrator (`--as <admin email>`), on sources that administrator owns.
+(written `knowledge_admin.py` below). Each prints ids and counts, never book text. Each acts as one of two
+principals:
+- **The shared library (CCNA, CCNP and every book all users read):** `--operator`, the host operator (root on
+  this host, recorded by name like administrator grants). Its sources are global, belong to no user, and carry
+  their distribution-rights basis.
+  - Shared-library commands, in order: `course ccna --name "CCNA 200-301" --level 1 --operator`;
+    `course ccnp --name "CCNP Enterprise" --level 2 --builds-on ccna --operator`;
+    `source "<name>" --operator --course ccna --reason "<rights basis>"`;
+    `egress <source-id> --kind embed --reason "<basis>" --operator`;
+    `import <source-id> --operator --pdf /path/a.pdf --pdf /path/b.pdf` (PDFs copied to the host; the import API's
+    checks; one stored copy per source);
+    then the worker processes them, and `approve`/`publish <revision-id> --operator`.
+  - The operator never reaches a user's private source.
+- **A user's private library:** `--as <admin email>`, an active administrator, on the owner-only sources that
+  administrator owns, imported through a batch token and `import_windows_folder.py` (steps 1–5 below). An
+  administrator never reaches the shared library.
 
 0. **Scan the folders first, read-only, on the Windows PC (needs the owner's authorization):**
    `python scripts/scan_knowledge_folder.py --root ccna=F:\CCNA --root ccnp=F:\CCNP --out C:\scan\books.json`.

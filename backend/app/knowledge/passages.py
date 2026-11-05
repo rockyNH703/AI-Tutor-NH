@@ -325,7 +325,7 @@ async def blocking_reviews(session: AsyncSession, file_id: uuid.UUID) -> int:
 
 
 # ----------------------------------------------------------------------------- publication
-async def publish(session: AsyncSession, revision_id: uuid.UUID, actor_id: uuid.UUID) -> int:
+async def publish(session: AsyncSession, revision_id: uuid.UUID, actor_id: uuid.UUID | None) -> int:
     """Make a ready revision's passages live in its source; returns how many distinct passages it carries.
 
     0 means held, not published: another copy reached the library meanwhile, so the revision is back in

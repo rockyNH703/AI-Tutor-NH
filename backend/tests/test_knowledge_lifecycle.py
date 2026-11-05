@@ -152,9 +152,9 @@ async def test_an_unverified_account_cannot_be_made_a_knowledge_administrator(ap
 
 
 async def _cli(app, action, target, actor, reason=None) -> int:
-    args = argparse.Namespace(
-        action=action, target=str(target), actor=actor, status=None, reason=reason, files=None, bytes=None
-    )
+    # Every option the real parser defines (--operator, --pdf, ...), then this call's own.
+    defaults = vars(knowledge_admin._parser().parse_args([action]))
+    args = argparse.Namespace(**{**defaults, "target": str(target), "actor": actor, "reason": reason})
     run = knowledge_admin._imports if action in knowledge_admin.IMPORT_ACTIONS else knowledge_admin._revision
     async with app.state.db.sessionmaker() as db:
         return await run(db, args)
