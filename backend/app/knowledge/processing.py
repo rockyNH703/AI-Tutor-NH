@@ -23,7 +23,7 @@ from app.db.session import Database
 from app.files.processing import BACKEND_DIR, EMBED_RETRY_DELAYS_S, SANDBOX_PROPERTIES, _systemctl
 from app.knowledge import concepts, passages
 from app.knowledge.protocol import MAX_STDOUT_BYTES, ExtractedDocument, parse_ndjson
-from app.knowledge.publication import CHUNK_OVERLAP_CHARS, MAX_CHUNK_CHARS, build_chunks
+from app.knowledge.publication import CHUNK_OVERLAP_CHARS, CHUNKING, MAX_CHUNK_CHARS, build_chunks
 from app.knowledge.worker import RevisionClaim
 from app.logging import get_logger
 from app.rag.embeddings import embedding_model_id
@@ -35,7 +35,7 @@ MAX_STDERR = 4_096
 UNIT_PREFIX = "netsecai-knowledge-extract"
 KNOWLEDGE_SLICE = "netsecai-knowledge.slice"  # deploy-netsec/systemd: low weights, a hard memory ceiling
 HEARTBEAT_S = 60  # well inside the worker's 20-minute lease: a long book is never taken for a dead claim
-PARSER_NAME, PARSER_VERSION = "netsec-knowledge-pdfium-tesseract", "v3"
+PARSER_NAME, PARSER_VERSION = "netsec-knowledge-pdfium-tesseract", "v4"
 # The File Library's sandbox, with what a book needs: a runtime for OCR (about 1-5 s per scanned page per CPU),
 # and CPU and memory for its OCR processes (each ~150 MB). The later -p wins.
 KNOWLEDGE_SANDBOX_OVERRIDES = (f"RuntimeMaxSec={EXTRACT_TIMEOUT_S}",)
@@ -333,7 +333,7 @@ def processing_signature(file_sha256: str, settings: Settings, model: str) -> st
     payload = {
         "file": file_sha256,
         "parser": f"{PARSER_NAME}-{PARSER_VERSION}",
-        "chunk": [MAX_CHUNK_CHARS, CHUNK_OVERLAP_CHARS],
+        "chunk": [MAX_CHUNK_CHARS, CHUNK_OVERLAP_CHARS, CHUNKING],
         "embedding": [model, settings.embedding_dimensions],
     }
     return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
@@ -411,7 +411,7 @@ async def queue_ready_files(db: Database, settings: Settings, embeddings: Embedd
                     parser_version=PARSER_VERSION,
                     parser_config_hash=hashlib.sha256(f"{PARSER_NAME}-{PARSER_VERSION}".encode()).hexdigest(),
                     chunking_config_hash=hashlib.sha256(
-                        f"{MAX_CHUNK_CHARS}:{CHUNK_OVERLAP_CHARS}".encode()
+                        f"{MAX_CHUNK_CHARS}:{CHUNK_OVERLAP_CHARS}:{CHUNKING}".encode()
                     ).hexdigest(),
                     embedding_model=model,
                     embedding_dimensions=settings.embedding_dimensions,

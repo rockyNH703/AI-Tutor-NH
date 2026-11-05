@@ -4,7 +4,8 @@ Priority (highest first), all measured in characters (a token proxy):
   1. the system prompt                       always
   2. the latest user message                 always
   3. retrieved context, whole chunks in rank order, until RAG_MAX_CONTEXT_CHARS
-     (a chunk that does not fit ends the context; chunks are never cut)
+     (a chunk that does not fit ends the context; chunks are never cut; the passages of one book page share
+     one block and one source)
   4. earlier conversation, newest to oldest, whole messages, until LLM_MAX_INPUT_CHARS
 
 Files the user attached (app/files: configurations, logs, captures, documents) come before 3: their
@@ -169,10 +170,25 @@ def _label(meta: dict) -> str:
     return "; ".join(parts)
 
 
-def _block(number: int, document: Document) -> str:
-    meta = document.metadata
+PASSAGE_JOIN = "\n\n"
+
+
+def _block(number: int, documents: list[Document]) -> str:
+    """One numbered block: a source's label, then its passages (several only for one page of a book)."""
+    meta = documents[0].metadata
     label = meta.get("title") or meta.get("uri") or "document"
-    return f"[{number}] {_neutral_reference(str(label))} ({_label(meta)})\n{_neutral_reference(document.page_content)}"
+    text = PASSAGE_JOIN.join(_neutral_reference(document.page_content) for document in documents)
+    return f"[{number}] {_neutral_reference(str(label))} ({_label(meta)})\n{text}"
+
+
+def _book_page(document: Document) -> tuple[str, int] | None:
+    """A Knowledge Library passage's book and physical page: the passages of one page share a block and a source,
+    so a reply never lists one page twice. Other documents (ingested chunks) are each their own block."""
+    attributes = document.metadata.get("attributes")
+    if not isinstance(attributes, dict) or attributes.get("passage_id") is None:
+        return None
+    page = attributes.get("physical_page")
+    return (str(document.metadata.get("document_id")), page) if isinstance(page, int) else None
 
 
 def _neutral(text: str) -> str:
@@ -256,17 +272,28 @@ def build_llm_messages(
         if files_text:
             used += len(files_text) + 2
 
-    blocks: list[str] = []
-    sources: list[dict] = []
+    groups: list[list[Document]] = []
+    by_page: dict[tuple[str, int], list[Document]] = {}
     wrapper_chars = len(REFERENCE_OPEN) + len(REFERENCE_CLOSE) + 4
     context_chars = wrapper_chars + len(CONTEXT_HEADER)
-    for document in documents:
-        block = _block(len(blocks) + 1, document)
-        if context_chars + len(block) > max_context_chars or used + context_chars + len(block) + 2 > max_input_chars:
+    for document in documents:  # rank order: a passage joins its page's block, else opens the next block
+        page = _book_page(document)
+        group = by_page.get(page) if page is not None else None
+        if group is None:
+            size = len(_block(len(groups) + 1, [document]))
+        else:
+            size = len(PASSAGE_JOIN) + len(_neutral_reference(document.page_content))
+        if context_chars + size > max_context_chars or used + context_chars + size + 2 > max_input_chars:
             break
-        blocks.append(block)
-        sources.append(source_entry(document))
-        context_chars += len(block)
+        if group is None:
+            groups.append([document])
+            if page is not None:
+                by_page[page] = groups[-1]
+        else:
+            group.append(document)
+        context_chars += size
+    blocks = [_block(number, group) for number, group in enumerate(groups, start=1)]
+    sources = [source_entry(group[0]) for group in groups]
     context_message = "\n\n".join([CONTEXT_HEADER, *blocks]) if blocks else ""
     reference_text = "\n\n".join((REFERENCE_OPEN, context_message, REFERENCE_CLOSE)) if context_message else ""
     if latest:

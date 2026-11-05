@@ -30,7 +30,7 @@ from app.db.models import (
     KnowledgeRelation,
 )
 
-EXTRACTOR_VERSION = "concepts-v1"
+EXTRACTOR_VERSION = "concepts-v2"
 
 # key, name, kind, aliases. Short all-capital aliases (AD, DR, AS) match case-sensitively, everything else not.
 VOCABULARY: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
@@ -175,9 +175,10 @@ VOCABULARY: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
     ("capwap", "CAPWAP", "protocol", ("CAPWAP",)),
     ("ssid", "Service set identifier", "concept", ("SSID",)),
     ("sd_wan", "SD-WAN", "technology", ("SD-WAN", "SDWAN", "Viptela")),
-    ("vmanage", "vManage", "device", ("vManage",)),
-    ("vsmart", "vSmart controller", "device", ("vSmart",)),
-    ("vbond", "vBond orchestrator", "device", ("vBond",)),
+    # Catalyst SD-WAN renamed them: the product names (capitalized, _PRODUCT_NAMES) are the same devices.
+    ("vmanage", "vManage", "device", ("vManage", "SD-WAN Manager")),
+    ("vsmart", "vSmart controller", "device", ("vSmart", "SD-WAN Controller")),
+    ("vbond", "vBond orchestrator", "device", ("vBond", "SD-WAN Validator")),
     ("vedge", "vEdge router", "device", ("vEdge", "cEdge", "WAN Edge")),
     ("omp", "Overlay Management Protocol", "protocol", ("OMP",)),
     ("sd_access", "SD-Access", "technology", ("SD-Access", "SDA")),
@@ -198,6 +199,14 @@ VOCABULARY: tuple[tuple[str, str, str, tuple[str, ...]], ...] = (
 )  # fmt: skip
 
 _CASE_SENSITIVE = re.compile(r"^[A-Z0-9]{1,3}$")
+# Product names that are ordinary words in lowercase: "an SD-WAN controller" is any of the controllers.
+_PRODUCT_NAMES = frozenset({"SD-WAN Controller", "SD-WAN Validator", "SD-WAN Manager"})
+
+
+def _strict(alias: str) -> bool:
+    return bool(_CASE_SENSITIVE.match(alias)) or alias in _PRODUCT_NAMES
+
+
 _SENTENCE = re.compile(r"(?:[^.!?\n]|[.!?](?=\S))+[.!?]?")  # a dot before a non-space (802.1D, 224.0.0.5) stays in
 _STOPWORDS = {"of", "and", "the", "to", "for", "a", "an", "in", "on", "with"}
 
@@ -210,13 +219,13 @@ def _alias_pattern(aliases: Iterable[str], flags: int) -> re.Pattern[str] | None
 
 
 def _key(alias: str) -> str:
-    return alias if _CASE_SENSITIVE.match(alias) else alias.casefold()
+    return alias if _strict(alias) else alias.casefold()
 
 
 ALIASES: dict[str, str] = {_key(alias): key for key, _, _, aliases in VOCABULARY for alias in aliases}
 ALIASES.update({name.casefold(): key for key, name, _, _ in VOCABULARY})
-_STRICT = _alias_pattern((alias for alias in ALIASES if _CASE_SENSITIVE.match(alias)), 0)
-_LOOSE = _alias_pattern((alias for alias in ALIASES if not _CASE_SENSITIVE.match(alias)), re.IGNORECASE)
+_STRICT = _alias_pattern((alias for alias in ALIASES if _strict(alias)), 0)
+_LOOSE = _alias_pattern((alias for alias in ALIASES if not _strict(alias)), re.IGNORECASE)
 KIND = {key: kind for key, _, kind, _ in VOCABULARY}
 
 

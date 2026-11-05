@@ -40,6 +40,17 @@ def test_short_acronyms_match_only_in_capitals_and_the_longest_mention_wins():
     assert concepts.query_concepts("Which router runs OSPF over TCP?") == ("ospf",)  # generic words left out
 
 
+def test_the_renamed_sd_wan_controllers_are_the_same_concepts():
+    text = "The SD-WAN Controller runs OMP, the SD-WAN Validator onboards edges and the SD-WAN Manager holds policy."
+
+    assert [m.concept for m in concepts.mentions(text)] == ["vsmart", "omp", "vbond", "vmanage"]
+    assert "vsmart" in concepts.query_concepts("What does the vSmart controller do?")
+    assert concepts.mentions("SD-WAN controllers use OMP")[0].concept == "sd_wan"  # the plural is the whole family
+    generic = "vBond is an SD-WAN controller that orchestrates onboarding"  # lowercase: the role, not the product
+    assert [m.concept for m in concepts.mentions(generic)] == ["vbond", "sd_wan"]
+    assert not [f for f in concepts.facts(generic) if f.object == "vsmart"]
+
+
 def test_a_book_defined_acronym_is_read_only_when_its_letters_fit():
     for sentence in (
         "routers run the Shortest Path First algorithm (SPFA) on every change",

@@ -68,7 +68,6 @@ FAILURE_CODES = frozenset(
 
 _CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _BLANK_LINES = re.compile(r"\n{3,}")
-_TRAILING_SPACE = re.compile(r"[ \t]+\n")
 _W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 _M = "{http://schemas.openxmlformats.org/officeDocument/2006/math}"
 
@@ -88,7 +87,8 @@ class EnvironmentProblem(Exception):
 def normalize(text: str) -> str:
     text = unicodedata.normalize("NFC", text.replace("\r\n", "\n").replace("\r", "\n"))
     text = _CONTROL.sub("", text)
-    text = _TRAILING_SPACE.sub("\n", text)
+    # Per line, not a regex: "[ \t]+\n" backtracks quadratically on a long run of spaces that ends in no newline.
+    text = "\n".join(line.rstrip(" \t") for line in text.split("\n"))
     return _BLANK_LINES.sub("\n\n", text).strip()
 
 

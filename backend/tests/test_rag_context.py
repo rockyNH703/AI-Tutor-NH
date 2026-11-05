@@ -198,3 +198,51 @@ def test_a_source_with_vendor_platform_and_version_names_them_in_its_label():
     assert f"[2] T2 (source: kb; vendor: {'v' * 39}…)\nchunk2" in context
     assert "[3] T3 (source: kb)\nchunk3" in context  # no attributes: the label as it always was
     assert "audience" not in context
+
+
+def book(n, page, passage=True):
+    """A Knowledge Library passage of one book (passage_id), on a physical page."""
+    attributes = {"physical_page": page, "printed_page_label": str(page)}
+    if passage:
+        attributes["passage_id"] = f"p{n}"
+    return Document(
+        page_content=f"passage{n} " + "y" * 40,
+        metadata={
+            "chunk_id": f"p{n}",
+            "document_id": "book-1",
+            "source_id": "s",
+            "source": "kb",
+            "title": "Book",
+            "uri": "knowledge-file:1",
+            "ordinal": n,
+            "score": 0.9,
+            "attributes": attributes,
+        },
+    )
+
+
+def test_passages_of_one_book_page_share_one_numbered_block_and_one_source():
+    documents = [book(1, 10), book(2, 11), book(3, 10), book(4, 10, passage=False)]
+
+    out = build_llm_messages(SYSTEM, convo("q"), documents, max_input_chars=100_000, max_context_chars=50_000)
+
+    context = out.messages[-1].content
+    assert [source["chunkId"] for source in out.sources] == ["p1", "p2", "p4"]  # an ingested chunk stays its own
+    assert re.findall(r"(?m)^\[(\d+)\] ", context) == ["1", "2", "3"]
+    first = context.split("[1] ")[1].split("[2] ")[0]
+    assert "passage1" in first and "passage3" in first  # the page's second passage is kept, in its page's block
+
+
+def test_a_page_mate_that_does_not_fit_ends_the_context_like_any_passage():
+    alone = build_llm_messages(SYSTEM, convo("q"), [book(1, 10)], max_input_chars=100_000, max_context_chars=50_000)
+
+    out = build_llm_messages(
+        SYSTEM,
+        convo("q"),
+        [book(1, 10), book(2, 10)],
+        max_input_chars=100_000,
+        max_context_chars=alone.context_chars + 10,
+    )
+
+    assert "passage2" not in out.messages[-1].content
+    assert len(out.sources) == 1

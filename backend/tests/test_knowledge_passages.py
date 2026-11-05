@@ -53,14 +53,16 @@ def _vector(n: int) -> list[float]:
     return vector
 
 
-def _pages(*texts: str) -> ExtractedDocument:
+def _pages(*texts: str, pages: list[int] | None = None) -> ExtractedDocument:
+    """One element per text, each on its own page unless `pages` says which page holds it."""
+    on_page = pages or [index + 1 for index in range(len(texts))]
     elements = tuple(
         {
             "sequence": index,
             "element_type": "paragraph",
             "content": content,
-            "physical_page": index + 1,
-            "printed_page_label": str(index + 1),
+            "physical_page": on_page[index],
+            "printed_page_label": str(on_page[index]),
             "section_path": ["Chapter 1 Routing"],
             "metadata": {},
         }
@@ -159,9 +161,15 @@ async def _book(
         return revision
 
 
-async def _stage(app, revision: DocumentRevision, *texts: str, vectors: dict[str, list[float]] | None = None) -> None:
+async def _stage(
+    app,
+    revision: DocumentRevision,
+    *texts: str,
+    vectors: dict[str, list[float]] | None = None,
+    pages: list[int] | None = None,
+) -> None:
     """Stage, fingerprint and embed a synthetic book the way the worker does (vectors per text, default by order)."""
-    extracted = _pages(*texts)
+    extracted = _pages(*texts, pages=pages)
     async with app.state.db.sessionmaker() as db, db.begin():
         await passages.stage_passages(db, revision, build_chunks(extracted))
         await passages.fingerprint_file(db, revision.file_id, passages.pages_of(extracted.elements))
@@ -260,6 +268,32 @@ async def test_a_renamed_copy_in_another_source_waits_for_review_before_publicat
         held.status = "ready_to_publish"  # what `approve` does
     assert await _publish(app, copy) == 5  # the decision stands when the evidence is refreshed
     assert await _count(app, select(func.count()).select_from(KnowledgePassage)) == 5  # still once each
+
+
+async def test_refreshing_a_reviews_evidence_keeps_who_decided_it(app):
+    owner = await _owner(app)
+    original = await _book(app, await _source(app, owner))
+    await _stage(app, original, *_book_pages(5))
+    await _publish(app, original)
+    copy = await _book(app, await _source(app, owner))
+    await _stage(app, copy, *_book_pages(5))
+    assert await _publish(app, copy) == 0
+    async with app.state.db.sessionmaker() as db, db.begin():
+        review = await db.scalar(
+            select(KnowledgeDuplicateReview).where(KnowledgeDuplicateReview.file_id == copy.file_id)
+        )
+        review.decision = "keep_separate"
+        review.signals = {**review.signals, "decidedBy": "operator root"}  # what `decide --operator` records
+        (await db.get(DocumentRevision, copy.id)).status = "ready_to_publish"
+
+    assert await _publish(app, copy) == 5  # publication re-classifies the copy under its lock
+
+    async with app.state.db.sessionmaker() as db:
+        review = await db.scalar(
+            select(KnowledgeDuplicateReview).where(KnowledgeDuplicateReview.file_id == copy.file_id)
+        )
+    assert review.signals["decidedBy"] == "operator root"
+    assert review.signals["sharedPages"] == 5  # the evidence itself is refreshed
 
 
 def test_pages_classify_volumes_editions_and_copies_without_deleting_anything():
@@ -409,6 +443,37 @@ async def test_search_returns_a_live_passage_with_its_book_page_and_section_only
         )
     assert await store.search(scope, _vector(1), embedding_model="test", k=5) == []
     assert not await store.has_chunks(scope, "test")
+
+
+async def test_hybrid_search_keeps_every_relevant_passage_of_a_page(app):
+    """Two passages of one printed page both come back (the prompt then gives the page one block and one source)."""
+    reader = await _owner(app)
+    book = await _book(app, await _source(app, reader))
+    first = " ".join([OSPF] + ["Hello packets carry the router priority on the segment."] * 15)
+    second = " ".join([OSPF] + ["The designated router listens on the AllDRouters address."] * 15)
+    await _stage(
+        app,
+        book,
+        first,
+        second,
+        EIGRP,
+        pages=[1, 1, 2],
+        vectors={first: _vector(1), second: _vector(1), EIGRP: _vector(1)},
+    )
+    await _publish(app, book)
+
+    result = await KnowledgeStore(app.state.db).hybrid_search(
+        AccessScope(user_id=reader),
+        _vector(1),
+        LexicalQuery(("designated", "router")),
+        embedding_model="test",
+        k=5,
+        dense_candidates=5,
+        lexical_candidates=5,
+        rrf_k=60,
+    )
+
+    assert sorted(hit.metadata["physical_page"] for hit in result.hits) == [1, 1, 2]
 
 
 async def test_a_staged_book_is_not_searchable_until_it_is_published(app):

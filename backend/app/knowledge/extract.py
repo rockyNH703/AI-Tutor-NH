@@ -3,8 +3,10 @@
 A book is read the way a reader finds their way in it: the PDF outline gives each page its chapter and section
 (split where the heading appears on the page), the printed page labels are kept (iv, 17, A-3), running heads and
 page numbers are removed, and every scanned page is read with OCR (in KNOWLEDGE_OCR_WORKERS processes) with its
-confidence. Without an outline, numbered heading lines ("Chapter 5 ...", "5.2 ...") stand in for it. The header
-carries what the book says about itself (PDF info, ISBN, edition, exam codes) for edition identity.
+confidence. Without an outline, the chapter a running head names ("Chapter 22: ... 573"), chapter lines and dotted
+topic numbers ("1.0 ...", "1.1 ...") stand in for it. Contents and back-index pages only point into the book and
+are not emitted (warning navigation_pages:N). The header carries what the book says about itself (PDF info, ISBN,
+edition, exam codes) for edition identity.
 
 Runs only inside the systemd sandbox (no network, no secrets): stdin is the PDF, stdout is NDJSON v3.
 """
@@ -36,9 +38,31 @@ RUNNING_LINE_SHARE = 0.3  # a first or last line repeated on this share of pages
 METADATA_PAGES = 12  # where a book states its ISBN and edition
 
 _PAGE_NUMBER = re.compile(r"^(?:page\s+)?(?:[ivxlcdm]+|\d{1,4})$", re.IGNORECASE)
-_NUMBERED_HEADING = re.compile(
-    r"^(?:chapter\s+\d{1,3}\b.*|appendix\s+[a-z]\b.*|\d{1,2}(?:\.\d{1,2}){0,2}\s+[A-Z].{2,90})$"
-)
+_ROMAN = re.compile(r"[ivxlcdm]+", re.IGNORECASE)
+# Without an outline a book's chapters come from its running heads, a "Chapter N: Title" first line or a chapter
+# opener ("CHAPTER 23" alone on a page's first or last line); its sections from dotted topic numbers (1.0, 1.1, 1.1.2).
+_CHAPTER = re.compile(r"(?:chapter\s+(\d{1,3})|appendix\s+([a-z]))(?:\s*[:.–—-])?\s+(\S.*)", re.IGNORECASE)
+_BARE_CHAPTER = re.compile(r"(?:chapter\s+(\d{1,3})|appendix\s+([a-z]))", re.IGNORECASE)
+TITLE_CASE_SHARE = 0.6  # "Implementing Basic OSPF Features" is a title; "This new chapter contains ..." is a sentence
+MAX_TITLE_WORDS = 10
+_TOPIC = re.compile(r"(\d{1,2}(?:\.\d{1,2}){1,2})\s+([A-Z].{2,90})")
+_WEIGHT = re.compile(r"^\d{1,3}\s?%\s+|\s+\d{1,3}\s?%$")  # an exam domain's weight: "25% 1.0 ...", "1.0 ... 20%"
+_MEASURE = re.compile(r"(?:[kMGT]?Hz|[kKMGT]?bps|[kKMGT]?B|ms|dBm?|mW|W)\b")  # 2.4 GHz is not a heading
+_WORD = re.compile(r"[A-Za-z]{3,}")
+MAX_HEADING_CHARS = 100
+MAX_HEAD_CHARS = 120  # a running head is short; a longer first or last line is text (and meets no regex)
+_SUBTOPIC = re.compile(r"\s*\d{1,2}(?:\.\d{1,2}){1,2}\.?[a-z]\b")  # "1.13.a MAC learning": a list goes on
+# Navigation pages (a book's contents and back index): their lines end in page numbers.
+_INDEX_ENTRY = re.compile(r",\s+(\d{1,4})(?:\s*[-–]\s*\d{1,4})?\s*$")  # "DR election, 456" / "areas, 551-553"
+_CONTENTS_ENTRY = re.compile(r"(?:(?<=[A-Za-z?):'’])\s+|\s*\.{2,}\s*|(?:\s\.){2,}\s*)(\d{1,4})\s*$")  # "WANs 62"
+MAX_ENTRY_CHARS = 200
+NAVIGATION_MIN_LINES = 8
+INDEX_ENTRY_SHARE = 0.3  # measured on the CCNA/CCNP books: index pages 0.42-0.90, every other page below 0.2
+INDEX_MIN_LINES = 40  # two-column index pages: 49-80 lines; a shorter page counts only right after an index page
+BACK_MATTER_SHARE = 0.5  # the index is in the back half (from 64% of the pages in the partial CCNA sample)
+CONTENTS_ENTRY_SHARE = 0.5  # contents pages 0.59-1.00, other pages at most 0.37 ...
+CONTENTS_RISING_SHARE = 0.9  # ... and contents page numbers rise down the page (config listings do not)
+FRONT_MATTER_SHARE = 0.15  # contents pages are front matter: a roman page label, or the first pages of the PDF
 _ISBN = re.compile(r"ISBN(?:-1[03])?:?\s*((?:97[89][-\s]?)?(?:\d[-\s]?){9}[\dX])", re.IGNORECASE)
 _EDITION = re.compile(
     r"\b(first|second|third|fourth|fifth|sixth|seventh|\d{1,2}(?:st|nd|rd|th))\s+edition\b", re.IGNORECASE
@@ -134,13 +158,103 @@ def _running_lines(texts: list[str]) -> set[str]:
     return {line for line, count in counts.items() if count >= RUNNING_LINE_SHARE * pages and len(line) < 120}
 
 
-def _clean(text: str, running: set[str]) -> str:
+def _title_case(text: str) -> bool:
+    """Most of its longer words capitalized: a heading or a book's title, not a sentence."""
+    words = [word for word in re.findall(r"[A-Za-z][\w-]*", text) if len(word) >= 4]
+    return bool(words) and sum(word[0].isupper() for word in words) >= TITLE_CASE_SHARE * len(words)
+
+
+def _running_head(line: str, label: str | None) -> str | None:
+    """The title of a running head or foot that carries the page's printed number at either end
+    (568 CCNA 200-301 Official Cert Guide, Chapter 22: Implementing Basic OSPF Features 573), else None. A line of
+    text that happens to end in the page number ("... on TCP port 443" on page 443) is not one: no title case."""
+    line = line.strip()
+    if not label or len(line) > MAX_HEAD_CHARS:
+        return None
+    number = re.escape(label.strip())
+    match = re.fullmatch(rf"{number}\W+(.+)|(.+?)\W+{number}", line, re.IGNORECASE)
+    if match is None:
+        return None
+    title = (match.group(1) or match.group(2)).strip()
+    if len(re.findall(r"[A-Za-z]{2,}", title)) < 2 or not _title_case(title):  # "CHAPTER 1" opens a chapter
+        return None
+    return title
+
+
+def _strip_page(text: str, running: set[str], label: str | None) -> tuple[str, str | None]:
+    """The page text without page numbers, running lines and the head or foot that carries the page number, and
+    the chapter that head names, if it names one."""
     lines = [
         line
         for line in normalize(text).splitlines()
         if not _PAGE_NUMBER.fullmatch(line.strip()) and line.strip().casefold() not in running
     ]
-    return "\n".join(lines).strip()
+    filled = [index for index, line in enumerate(lines) if line.strip()]
+    heads: set[int] = set()
+    chapter = None
+    for index in dict.fromkeys(filled[:1] + filled[-1:]):
+        title = _running_head(lines[index], label)
+        if title is not None:
+            heads.add(index)
+            if chapter is None and (named := _chapter_title(title, strict=False)):
+                chapter = _one_line(named, MAX_HEADING_CHARS)
+    return "\n".join(line for index, line in enumerate(lines) if index not in heads).strip(), chapter
+
+
+def _clean(text: str, running: set[str], label: str | None = None) -> str:
+    return _strip_page(text, running, label)[0]
+
+
+def _page_numbers(lines: list[str], pattern: re.Pattern[str], last: int) -> list[int]:
+    """The page numbers that end these lines (entries longer than MAX_ENTRY_CHARS are text), at most `last`."""
+    found = (pattern.search(line) for line in lines if len(line) <= MAX_ENTRY_CHARS)
+    return [number for match in found if match and (number := int(match.group(1))) <= last]
+
+
+def _navigation(texts: list[str], labels: list[str | None]) -> set[int]:
+    """Pages that only point into the book: its contents (front matter, page numbers rising down the page) and its
+    back index ("DR election, 456"). A reply would cite a list of page numbers, so they are not searched. Tables of
+    ports, distances or dates in the body stay: they are neither front matter nor index-shaped back matter, and
+    numbers above the book's last printed page (2020, 1812) are no page references."""
+    last = max((int(label) for label in labels if label and label.isdigit()), default=len(texts))
+    pages: set[int] = set()
+    for index, text in enumerate(texts):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        if len(lines) < NAVIGATION_MIN_LINES:
+            continue
+        index_shaped = len(lines) >= INDEX_MIN_LINES or index - 1 in pages
+        if index >= BACK_MATTER_SHARE * len(texts) and index_shaped:
+            if len(_page_numbers(lines, _INDEX_ENTRY, last)) >= INDEX_ENTRY_SHARE * len(lines):
+                pages.add(index)
+                continue
+        label = labels[index]
+        if not (label and _ROMAN.fullmatch(label)) and index >= FRONT_MATTER_SHARE * len(texts):
+            continue
+        numbers = _page_numbers(lines, _CONTENTS_ENTRY, last)
+        rising = sum(later >= earlier for earlier, later in zip(numbers, numbers[1:], strict=False))
+        if len(numbers) >= CONTENTS_ENTRY_SHARE * len(lines) and rising >= CONTENTS_RISING_SHARE * (len(numbers) - 1):
+            pages.add(index)
+    return pages
+
+
+def _ranges(pages: set[int]) -> str:
+    """Physical page numbers as ranges, "11-33 79-123", for the operator (bounded: the protocol's warning limit)."""
+    runs: list[list[int]] = []
+    for page in sorted(pages):
+        if runs and page == runs[-1][1] + 1:
+            runs[-1][1] = page
+        else:
+            runs.append([page, page])
+    text = " ".join(f"{start + 1}-{end + 1}" if end > start else f"{start + 1}" for start, end in runs)
+    return text if len(text) <= 150 else text[:149] + "…"
+
+
+def _pages(texts: list[str], labels: list[str | None]) -> tuple[list[str], list[str | None], set[int]]:
+    """Each page's clean text, the chapter its running head names, and the navigation pages."""
+    running = _running_lines(texts)
+    stripped = [_strip_page(text, running, label) for text, label in zip(texts, labels, strict=True)]
+    cleaned = [text for text, _ in stripped]
+    return cleaned, [chapter for _, chapter in stripped], _navigation(cleaned, labels)
 
 
 def _split_at_heading(text: str, title: str) -> tuple[str, str] | None:
@@ -155,15 +269,98 @@ def _split_at_heading(text: str, title: str) -> tuple[str, str] | None:
     return text[: match.start()].strip(), text[match.start() :].strip()
 
 
-def _segments_without_outline(texts: list[str]):
+def _chapter_title(line: str, strict: bool = True) -> str | None:
+    """ "Chapter 22: Implementing Basic OSPF Features" (or an appendix), without a trailing page number. Strict for a
+    line of the page itself: a title (title case, at most MAX_TITLE_WORDS words), not a sentence or a list item
+    ("Chapter 28: This new chapter contains ..."). A running head is a title by where it stands."""
+    line = line.strip()
+    if len(line) > MAX_HEAD_CHARS:
+        return None
+    match = _CHAPTER.fullmatch(_CONTENTS_ENTRY.sub("", line))
+    if match is None:
+        return None
+    title = match.group(3)
+    if strict and (title.startswith("(") or len(title.split()) > MAX_TITLE_WORDS or not _title_case(title)):
+        return None
+    return f"Chapter {match.group(1)}: {title}" if match.group(1) else f"Appendix {match.group(2).upper()}: {title}"
+
+
+def _order(chapter: str) -> tuple[int, int]:
+    """Where a chapter stands in a book: chapters by number, then appendices by letter."""
+    match = _BARE_CHAPTER.match(chapter)
+    if match is None:
+        return (-1, 0)
+    return (0, int(match.group(1))) if match.group(1) else (1, ord(match.group(2).lower()) - ord("a") + 1)
+
+
+def _page_chapter(lines: list[str], hint: str | None, current: str | None) -> str | None:
+    """The chapter a page names, if any: its running head's, a "Chapter N: Title" first line, or a chapter opener,
+    "CHAPTER 23" alone on its first or last line (titled by the next line), later in the book than the current
+    chapter. A label in a figure or an answer key's "Chapter 2" inside an appendix moves nothing."""
+    if hint:
+        return hint
+    filled = [line.strip() for line in lines if line.strip()]
+    if not filled:
+        return None
+    if titled := _chapter_title(filled[0]):
+        return titled
+    for position in dict.fromkeys((0, len(filled) - 1)):
+        bare = _BARE_CHAPTER.fullmatch(filled[position])
+        if bare is None or (current is not None and _order(filled[position]) <= _order(current)):
+            continue
+        following = filled[position + 1] if position == 0 and len(filled) > 1 else ""
+        named = _chapter_title(f"{filled[position]}: {following}") if following else None
+        return named or (f"Chapter {bare.group(1)}" if bare.group(1) else f"Appendix {bare.group(2).upper()}")
+    return None
+
+
+def _topic(line: str) -> tuple[tuple[str, ...], str] | None:
+    """(number, title) of a dotted topic heading: "25% 1.0 Network Infrastructure and Connectivity" (an exam
+    domain), "1.1 Explain ...", "3.2 Configuring OSPF". Answer keys (1 B 2 A), lines ending in a page number and
+    measurements (2.4 GHz ...) are body text."""
+    line = line.strip()
+    if len(line) > MAX_HEADING_CHARS:
+        return None
+    match = _TOPIC.fullmatch(_WEIGHT.sub("", line))
+    if match is None or _MEASURE.match(match.group(2)) or _CONTENTS_ENTRY.search(line):
+        return None
+    if not _WORD.search(match.group(2)):
+        return None
+    return tuple(match.group(1).split(".")), f"{match.group(1)} {match.group(2)}"
+
+
+def _nest(topics: tuple[str, ...], number: tuple[str, ...]) -> tuple[str, ...]:
+    """The open topics a new topic number sits under: its parent (1.0 or 1 for 1.1, 1.1 for 1.1.2) and the parent's
+    own. A domain (1.0) or a topic whose parent never appeared starts again at the top."""
+    if number[-1] == "0":
+        return ()
+    parents = {number[:-1], (*number[:-1], "0")}
+    for cut in range(len(topics), 0, -1):
+        found = _topic(topics[cut - 1])
+        if found is not None and found[0] in parents:
+            return topics[:cut]
+    return ()
+
+
+def _segments_without_outline(texts: list[str], chapters: list[str | None]):
+    chapter: tuple[str, ...] = ()
     current: tuple[str, ...] = ()
     for index, text in enumerate(texts):
+        lines = text.splitlines()
+        topics = [_topic(line) for line in lines]
+        named = _page_chapter(lines, chapters[index], chapter[0] if chapter else None)
+        if named and chapter != (named,):
+            chapter = current = (named,)
+        elif not any(topics) and not any(_SUBTOPIC.match(line) for line in lines):
+            # A topic number runs on only while its numbered list does: the exam topics a chapter opener or an
+            # introduction lists are not the section of the pages after them. (A numbered section of a book with no
+            # outline therefore labels its own page only: a missing label over a wrong one.)
+            current = chapter
         parts: list[tuple[tuple[str, ...], list[str]]] = [(current, [])]
-        for line in text.splitlines():
-            stripped = line.strip()
-            if len(stripped) <= 100 and _NUMBERED_HEADING.fullmatch(stripped):
-                chapter = stripped.lower().startswith(("chapter", "appendix"))
-                current = (stripped,) if chapter else (*current[:1], stripped)
+        for line, topic in zip(lines, topics, strict=True):
+            if topic is not None:
+                number, title = topic
+                current = (*chapter, *_nest(current[len(chapter) :], number), title)[:MAX_SECTION_DEPTH]
                 parts.append((current, []))
             parts[-1][1].append(line)
         for path, lines in parts:
@@ -172,10 +369,10 @@ def _segments_without_outline(texts: list[str]):
                 yield index, path, body
 
 
-def _segments(texts: list[str], outline: list[tuple[int, tuple[str, ...]]]):
+def _segments(texts: list[str], outline: list[tuple[int, tuple[str, ...]]], chapters: list[str | None] | None = None):
     """(page index, section path, text) in reading order."""
     if not outline:
-        yield from _segments_without_outline(texts)
+        yield from _segments_without_outline(texts, chapters or [None] * len(texts))
         return
     by_page: dict[int, list[tuple[str, ...]]] = {}
     for index, path in outline:
@@ -293,20 +490,31 @@ def read_book(data: bytes) -> tuple[list[dict[str, Any]], int, dict[str, Any], l
             if low_confidence:
                 warnings.append(f"ocr_low_confidence:{low_confidence}")
         outline = _outline(pdf, count)
-        if not outline:
-            warnings.append("no_outline")
         labels = _labels(pdf, count)
-        running = _running_lines(texts)
-        cleaned = [_clean(text, running) for text in texts]
+        elements, cleaned, notes = _book_elements(texts, labels, outline)
+        warnings.extend(notes)
         metadata = _document_metadata(pdf, cleaned)
         metadata["ocr_pages"] = len(scanned)
-        elements = [
-            {"page": index, "section": path, "label": labels[index], "text": body}
-            for index, path, body in _segments(cleaned, outline)
-        ]
         return elements, count, metadata, warnings
     finally:
         pdf.close()
+
+
+def _book_elements(
+    texts: list[str], labels: list[str | None], outline: list[tuple[int, tuple[str, ...]]]
+) -> tuple[list[dict[str, Any]], list[str], list[str]]:
+    """The book's elements (page, section, label, text), its clean page texts (what it says about itself is read
+    from them) and the warnings its structure raises. Navigation pages are named in the warning by page."""
+    cleaned, chapters, navigation = _pages(texts, labels)
+    warnings = [] if outline else ["no_outline"]
+    if navigation:
+        warnings.append(f"navigation_pages:{len(navigation)} ({_ranges(navigation)})")
+    searched = ["" if index in navigation else text for index, text in enumerate(cleaned)]
+    elements = [
+        {"page": index, "section": path, "label": labels[index], "text": body}
+        for index, path, body in _segments(searched, outline, chapters)
+    ]
+    return elements, cleaned, warnings
 
 
 def records(data: bytes) -> list[dict[str, Any]]:
@@ -319,7 +527,7 @@ def records(data: bytes) -> list[dict[str, Any]]:
             "version": VERSION,
             "document_sha256": document_sha,
             "page_count": page_count,
-            "parser": "pdfium+tesseract/v3",
+            "parser": "pdfium+tesseract/v4",
             "document_metadata": metadata,
         }
     ]

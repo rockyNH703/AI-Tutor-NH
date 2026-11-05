@@ -291,18 +291,22 @@ async def classify_file(session: AsyncSession, file: DocumentFile) -> list[tuple
         if classification == DuplicateClass.INCONCLUSIVE:
             continue
         signals = {**signals, "candidateSource": str(candidate.source_id)}
+        upsert = pg_insert(KnowledgeDuplicateReview).values(
+            file_id=file.id,
+            candidate_file_id=candidate_id,
+            classification=str(classification),
+            confidence=confidence,
+            signals=signals,
+        )
         await session.execute(
-            pg_insert(KnowledgeDuplicateReview)
-            .values(
-                file_id=file.id,
-                candidate_file_id=candidate_id,
-                classification=str(classification),
-                confidence=confidence,
-                signals=signals,
-            )
-            .on_conflict_do_update(
+            upsert.on_conflict_do_update(
                 constraint="uq_knowledge_duplicate_reviews_pair",
-                set_={"classification": str(classification), "confidence": confidence, "signals": signals},
+                set_={
+                    "classification": upsert.excluded.classification,
+                    "confidence": upsert.excluded.confidence,
+                    # Fresh evidence over the stored signals (jsonb ||): who decided (decidedBy) is kept.
+                    "signals": KnowledgeDuplicateReview.signals.op("||")(upsert.excluded.signals),
+                },
             )
         )
         found.append((candidate_id, str(classification)))

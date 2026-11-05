@@ -45,7 +45,7 @@ def test_the_extractor_gets_a_book_sized_runtime_after_the_shared_sandbox():
 
 def test_five_full_passages_fit_the_context_budget(settings):
     meta = {"title": "CCNA 200-301 Official Cert Guide, Volume 1", "source": "kb", "attributes": {"vendor": "cisco"}}
-    blocks = [_block(n, LCDocument(page_content="x" * MAX_CHUNK_CHARS, metadata=meta)) for n in range(1, 6)]
+    blocks = [_block(n, [LCDocument(page_content="x" * MAX_CHUNK_CHARS, metadata=meta)]) for n in range(1, 6)]
     assert sum(len(block) for block in blocks) <= settings.rag_max_context_chars
 
 
