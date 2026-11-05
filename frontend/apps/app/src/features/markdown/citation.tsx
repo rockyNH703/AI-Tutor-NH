@@ -24,10 +24,17 @@ export function citedRefs(content: string): string[] {
  * know it; otherwise exactly the text the model wrote (a reply from before citations, a reply
  * still streaming, or a number that is not a citation at all).
  */
+/** The page a book citation points at ("p. 35"): the printed label, else the PDF page; none for a file. */
+function pageOf(citation: Citation): string {
+  const page = citation.printedPageLabel ?? citation.physicalPage;
+  return citation.kind === "source" && page != null && page !== "" ? `, p. ${page}` : "";
+}
+
 export function CitationMark({ cite }: { cite: string }) {
   const citation = useContext(CitationsContext)?.find((item) => item.ref === cite);
   if (!citation) return <>[{cite}]</>;
-  const label = citation.kind === "file" ? `Your file: ${citation.title}` : `Source: ${citation.title}`;
+  const label =
+    citation.kind === "file" ? `Your file: ${citation.title}` : `Source: ${citation.title}${pageOf(citation)}`;
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -62,6 +69,7 @@ export function Sources({ citations, content }: { citations: Citation[]; content
               <span className="min-w-0 break-words">
                 {citation.kind === "file" ? "Your file: " : ""}
                 {citation.title}
+                {pageOf(citation)}
               </span>
             </li>
           );

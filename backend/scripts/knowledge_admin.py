@@ -5,9 +5,9 @@
     python scripts/knowledge_admin.py source <name> --operator --reason <rights basis> [--course <slug>] [--yes]
     python scripts/knowledge_admin.py batch <source-id> --as <admin email> [--files N] [--bytes N] [--yes]
     python scripts/knowledge_admin.py import <source-id> --operator --pdf <path> [--pdf <path> ...] [--yes]
-    python scripts/knowledge_admin.py revisions [--status needs_review|ready_to_publish|...]
+    python scripts/knowledge_admin.py revisions --as <admin email>|--operator [--status needs_review|...]
     python scripts/knowledge_admin.py approve|publish|reject <revision-id> --as <admin>|--operator [--reason ...]
-    python scripts/knowledge_admin.py course <slug> --name <name> [--level N] [--builds-on <slug>] --as <a>|--operator
+    python scripts/knowledge_admin.py course <slug> --name <name> [--level N] [--builds-on <slug>] --operator
     python scripts/knowledge_admin.py assign <source-id> --course <slug|none> --as <admin email>|--operator [--yes]
     python scripts/knowledge_admin.py egress <source-id> --kind embed|extract --reason <basis> [--withdraw] --as|--op
     python scripts/knowledge_admin.py duplicates [--status pending|all] --as <admin email>|--operator
@@ -40,7 +40,9 @@ import argparse
 import asyncio
 import getpass
 import hashlib
+import os
 import secrets
+import stat
 import sys
 import uuid
 from dataclasses import dataclass
@@ -99,9 +101,31 @@ class Actor:
     def id(self) -> uuid.UUID | None:
         return self.user.id if self.user is not None else None
 
+    @property
+    def by(self) -> str:
+        return f"user {self.user.id}" if self.user is not None else f"operator {self.operator}"
+
     def note(self, text: str) -> str:
         """An audit basis, with the operator's name when the operator acted (no user id records it)."""
         return text if self.user is not None else f"{text} (operator {self.operator})"
+
+    def recorded(self, report: dict | None, action: str, reason: str | None = None) -> dict:
+        """The revision's report with this decision appended: who (by name for the operator), what, when, why."""
+        entry = {"action": action, "by": self.by, "at": datetime.now(UTC).isoformat()}
+        if reason:
+            entry["reason"] = reason.strip()[:300]
+        report = dict(report or {})
+        return {**report, "operatorActions": [*report.get("operatorActions", []), entry]}
+
+
+def _operator_name() -> str:
+    """The host account running the command, from the OS (not from USER/LOGNAME, which a caller can set)."""
+    try:
+        import pwd
+
+        return pwd.getpwuid(os.geteuid()).pw_name[:200]
+    except (ImportError, KeyError, AttributeError):  # not a POSIX host (a developer's Windows PC)
+        return getpass.getuser()[:200]
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -113,6 +137,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--as", dest="actor", help="the administrator's email (all but grant/revoke/show)")
     parser.add_argument("--operator", action="store_true", help="act as the host operator on the shared library")
     parser.add_argument("--pdf", action="append", help="a PDF on this host to import (import; repeatable)")
+    parser.add_argument("--sha256", action="append", help="the expected SHA-256 of each --pdf, in order (import)")
     parser.add_argument("--files", type=int, help="expected number of PDFs in the batch (batch)")
     parser.add_argument("--bytes", type=int, help="expected total size of the batch in bytes (batch)")
     parser.add_argument("--status", help="only revisions in this status (revisions); pending|all (duplicates)")
@@ -152,7 +177,7 @@ async def _grants(db, args: argparse.Namespace) -> int:
     if not args.reason or not args.reason.strip():
         print("--reason is required for mutations.", file=sys.stderr)
         return 2
-    actor_email = getpass.getuser()[:200]
+    actor_email = _operator_name()
     if args.action == "grant":
         if grant is None:
             db.add(
@@ -190,7 +215,7 @@ async def _admin(db, args: argparse.Namespace) -> Actor | None:
                 "Act either as an administrator (--as) or as the host operator (--operator), not both.", file=sys.stderr
             )
             return None
-        return Actor(None, getpass.getuser()[:200])
+        return Actor(None, _operator_name())
     actor = await _user(db, args.actor or "")
     if actor is None or not await is_knowledge_admin(db, actor.id):
         print("--as must name an active Knowledge Library administrator (or use --operator).", file=sys.stderr)
@@ -295,13 +320,21 @@ async def _imports(db, args: argparse.Namespace) -> int:
 
 
 async def _list_revisions(db, args: argparse.Namespace) -> int:
-    statement = select(DocumentRevision).order_by(DocumentRevision.created_at)
+    """The revisions of the sources the acting principal administers (theirs, or the shared library)."""
+    actor = await _admin(db, args)
+    if actor is None:
+        return 2
+    statement = (
+        select(DocumentRevision)
+        .where(DocumentRevision.source_id.in_(await _owned_ids(db, actor)))
+        .order_by(DocumentRevision.created_at)
+    )
     if args.status:
         statement = statement.where(DocumentRevision.status == args.status)
     for revision in await db.scalars(statement):
         report = revision.quality_report or {}
         print(
-            f"{revision.id} {revision.status} document={revision.document_id} "
+            f"{revision.id} {revision.status} source={revision.source_id} document={revision.document_id} "
             f"pages={report.get('pageCount')} chunks={report.get('chunks')} passages={report.get('passages')} "
             f"warnings={','.join(report.get('warnings') or []) or '-'} error={revision.error_code or '-'}"
         )
@@ -317,12 +350,14 @@ async def _revision(db, args: argparse.Namespace) -> int:
     actor = await _admin(db, args)
     if actor is None:
         return 2
-    if actor.user is None:  # the operator publishes only the shared library's books
-        source_id = await db.scalar(select(DocumentRevision.source_id).where(DocumentRevision.id == revision_id))
-        source = await db.get(KnowledgeSource, source_id) if source_id is not None else None
-        if source is None or not _shared(source):
-            print("No such revision in the shared library.", file=sys.stderr)
-            return 2
+    # Each principal acts only on its own books: an administrator on the sources they own, the operator on the
+    # shared library. A revision anywhere else is indistinguishable from one that does not exist.
+    source_id = await db.scalar(select(DocumentRevision.source_id).where(DocumentRevision.id == revision_id))
+    source = await db.get(KnowledgeSource, source_id) if source_id is not None else None
+    if source is None or not _reaches(actor, source):
+        where = "in the shared library" if actor.user is None else "in a source that administrator owns"
+        print(f"No such revision {where}.", file=sys.stderr)
+        return 2
     if args.action == "publish":
         try:
             chunks = await publish(db, revision_id, actor.id)
@@ -330,6 +365,9 @@ async def _revision(db, args: argparse.Namespace) -> int:
             await db.rollback()
             print(f"Not published: {error.code}.", file=sys.stderr)
             return 1
+        if chunks:
+            published = await db.get(DocumentRevision, revision_id)
+            published.quality_report = actor.recorded(published.quality_report, "publish")
         await db.commit()
         if chunks == 0:
             print(
@@ -359,6 +397,7 @@ async def _revision(db, args: argparse.Namespace) -> int:
         revision.error_code = "rejected_by_operator"
     revision.reviewed_by_user_id = actor.id
     revision.reviewed_at = revision.updated_at = now
+    revision.quality_report = actor.recorded(revision.quality_report, args.action, args.reason)
     await db.commit()
     print(f"{PAST[args.action]} revision {revision_id}: {revision.status}")
     return 0
@@ -386,6 +425,9 @@ async def _owned_source(db, args: argparse.Namespace, actor: Actor) -> Knowledge
 
 
 async def _course(db, args: argparse.Namespace, actor: Actor) -> int:
+    if actor.user is not None:  # courses scope every user's retrieval: they belong to the shared library
+        print("Courses are the shared library's boundaries: only the host operator (--operator) sets them.")
+        return 2
     slug = (args.target or "").strip().lower()
     if not args.name or not args.name.strip() or not 1 <= args.level <= 9:
         print("--name and a --level of 1-9 are required.", file=sys.stderr)
@@ -476,6 +518,7 @@ async def _decide(db, args: argparse.Namespace, actor: Actor) -> int:
         print("--decision reuse|keep_separate|reject is required.", file=sys.stderr)
         return 2
     review.decision, review.reviewed_by_user_id, review.reviewed_at = args.decision, actor.id, datetime.now(UTC)
+    review.signals = {**(review.signals or {}), "decidedBy": actor.by}
     await db.commit()
     print(f"review {review.id}: {args.decision}")
     return 0
@@ -500,18 +543,32 @@ async def _delete_source(db, args: argparse.Namespace, actor: Actor) -> int:
 
 
 def _read_pdf(path: Path) -> tuple[str, bytes] | str:
-    """(safe name, bytes) of a PDF on this host, or why it is refused: the import API's own rules."""
+    """(safe name, bytes) of a PDF on this host, or why it is refused: the import API's own rules, read once
+    from one open file whose size must not change while it is read (a copy still being written is refused)."""
     try:
         name = _filename(path.name)
     except AppError as error:
         return error.code
     try:
-        if not path.is_file() or not 1 <= path.stat().st_size <= MAX_IMPORT_FILE_BYTES:
-            return "not_a_file_or_too_large"
-        data = path.read_bytes()
+        with path.open("rb") as handle:
+            details = os.fstat(handle.fileno())
+            if not stat.S_ISREG(details.st_mode) or not 1 <= details.st_size <= MAX_IMPORT_FILE_BYTES:
+                return "not_a_file_or_too_large"
+            data = handle.read(MAX_IMPORT_FILE_BYTES + 1)
     except OSError:
         return "unreadable"
+    if len(data) != details.st_size:
+        return "changed_while_reading"
     return (name, data) if data.startswith(b"%PDF-") else "not_a_pdf"
+
+
+async def _last_status(db, file_id: uuid.UUID) -> str | None:
+    return await db.scalar(
+        select(DocumentRevision.status)
+        .where(DocumentRevision.file_id == file_id)
+        .order_by(DocumentRevision.created_at.desc())
+        .limit(1)
+    )
 
 
 async def _import(db, args: argparse.Namespace, actor: Actor) -> int:
@@ -525,8 +582,13 @@ async def _import(db, args: argparse.Namespace, actor: Actor) -> int:
     if not args.pdf:
         print("--pdf <path> is required (repeatable).", file=sys.stderr)
         return 2
+    expected = [value.strip().lower() for value in args.sha256 or []]
+    if expected and len(expected) != len(args.pdf):
+        print("Give one --sha256 per --pdf, in the same order (or none).", file=sys.stderr)
+        return 2
+    source_id = source.id  # a rollback below expires the ORM objects
     refused = 0
-    for raw in args.pdf:
+    for index, raw in enumerate(args.pdf):
         read = _read_pdf(Path(raw))
         if isinstance(read, str):
             print(f"refused {Path(raw).name}: {read}", file=sys.stderr)
@@ -534,11 +596,20 @@ async def _import(db, args: argparse.Namespace, actor: Actor) -> int:
             continue
         name, data = read
         digest = hashlib.sha256(data).hexdigest()
+        if expected and digest != expected[index]:
+            print(f"refused {name}: sha256_mismatch (read {digest})", file=sys.stderr)
+            refused += 1
+            continue
         existing = await db.scalar(
-            select(DocumentFile).where(DocumentFile.source_id == source.id, DocumentFile.sha256 == digest)
+            select(DocumentFile).where(DocumentFile.source_id == source_id, DocumentFile.sha256 == digest)
         )
         if existing is not None:
-            print(f"duplicate {name}: the same bytes are already file {existing.id} ({existing.filename})")
+            last = await _last_status(db, existing.id)
+            if last in ("failed", "cancelled"):
+                print(f"refused {name}: already file {existing.id}, whose last revision is {last}", file=sys.stderr)
+                refused += 1
+            else:
+                print(f"duplicate {name}: the same bytes are already file {existing.id} ({existing.filename})")
             continue
         try:
             await check_capacity(db)
@@ -547,7 +618,7 @@ async def _import(db, args: argparse.Namespace, actor: Actor) -> int:
             refused += 1
             continue
         file = DocumentFile(
-            source_id=source.id,
+            source_id=source_id,
             filename=name,
             size_bytes=len(data),
             received_bytes=len(data),
@@ -555,11 +626,17 @@ async def _import(db, args: argparse.Namespace, actor: Actor) -> int:
             status="ready",
             completed_at=datetime.now(UTC),
         )
-        db.add(file)
-        await db.flush()
-        for ordinal, start in enumerate(range(0, len(data), KNOWLEDGE_BLOB_BYTES)):
-            db.add(DocumentFileBlob(file_id=file.id, ordinal=ordinal, data=data[start : start + KNOWLEDGE_BLOB_BYTES]))
-        await db.commit()
+        try:
+            db.add(file)
+            await db.flush()
+            for ordinal, start in enumerate(range(0, len(data), KNOWLEDGE_BLOB_BYTES)):
+                chunk = data[start : start + KNOWLEDGE_BLOB_BYTES]
+                db.add(DocumentFileBlob(file_id=file.id, ordinal=ordinal, data=chunk))
+            await db.commit()
+        except IntegrityError:  # another run stored the same bytes meanwhile: one copy per source holds
+            await db.rollback()
+            print(f"duplicate {name}: the same bytes were imported meanwhile")
+            continue
         print(f"imported {file.id} {name} {len(data)} bytes sha256={digest}")
     return 1 if refused else 0
 

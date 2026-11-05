@@ -16,6 +16,7 @@ from app.db.models import (
     DocumentRevision,
     KnowledgeAdminGrant,
     KnowledgePassageSource,
+    KnowledgeSource,
     User,
 )
 from app.files.processing import SANDBOX_PROPERTIES
@@ -139,6 +140,15 @@ async def _admin(app, *, active=True) -> str:
     return email
 
 
+async def _owner_admin(app, revision) -> str:
+    """The administrator who owns the revision's source (an administrator acts only on their own sources)."""
+    async with app.state.db.sessionmaker() as db, db.begin():
+        source = await db.get(KnowledgeSource, revision.source_id)
+        user = await db.get(User, source.owner_user_id)
+        db.add(KnowledgeAdminGrant(user_id=user.id, granted_by_operator="test", reason="focused regression test"))
+        return user.email
+
+
 async def test_an_unverified_account_cannot_be_made_a_knowledge_administrator(app):
     email = f"unverified-{uuid.uuid4().hex}@example.com"
     async with app.state.db.sessionmaker() as db, db.begin():
@@ -183,7 +193,7 @@ async def _stage(app, revision, settings):
 async def test_an_administrator_publishes_a_ready_revision_into_the_index(app, settings):
     revision = await _revision(app, status="ready_to_publish")
     await _stage(app, revision, settings)
-    admin = await _admin(app)
+    admin = await _owner_admin(app, revision)
 
     assert await _cli(app, "publish", revision.id, admin) == 0
 
@@ -204,13 +214,17 @@ async def test_only_an_active_administrator_can_publish(app, settings):
 
     assert await _cli(app, "publish", revision.id, await _admin(app, active=False)) == 2
     assert await _cli(app, "publish", revision.id, "nobody@example.com") == 2
+    other = await _admin(app)  # an active administrator, of other sources
+    assert await _cli(app, "publish", revision.id, other) == 2
+    assert await _cli(app, "approve", revision.id, other) == 2
+    assert await _cli(app, "reject", revision.id, other, reason="not theirs") == 2
     assert (await _stored(app, revision.id)).status == "ready_to_publish"
 
 
 async def test_a_revision_that_needs_review_is_approved_before_it_can_be_published(app, settings):
     revision = await _revision(app, status="needs_review")
     await _stage(app, revision, settings)
-    admin = await _admin(app)
+    admin = await _owner_admin(app, revision)
 
     assert await _cli(app, "publish", revision.id, admin) == 1
     assert await _cli(app, "approve", revision.id, admin) == 0
@@ -220,7 +234,7 @@ async def test_a_revision_that_needs_review_is_approved_before_it_can_be_publish
 
 async def test_rejecting_needs_a_reason_and_cancels(app):
     revision = await _revision(app, status="needs_review")
-    admin = await _admin(app)
+    admin = await _owner_admin(app, revision)
 
     assert await _cli(app, "reject", revision.id, admin) == 2
     assert await _cli(app, "reject", revision.id, admin, reason="scanned copy is unreadable") == 0

@@ -141,3 +141,109 @@ async def test_only_the_operator_imports_from_host_paths(app, tmp_path):
 
     assert await _cli(app, "import", str(source.id), "--pdf", str(pdf), "--as", email) == 2
     assert await _cli(app, "assign", str(source.id), "--course", "none", "--as", email) == 2  # not theirs either
+
+
+async def _library_admin(app) -> str:
+    email = f"library-admin-{uuid.uuid4().hex}@example.com"
+    async with app.state.db.sessionmaker() as db, db.begin():
+        user = User(email=email, email_verified=True)
+        db.add(user)
+        await db.flush()
+        db.add(KnowledgeAdminGrant(user_id=user.id, granted_by_operator="test", reason="focused regression test"))
+    return email
+
+
+async def test_an_administrator_cannot_review_or_publish_the_shared_library(app):
+    source = await _shared(app)
+    book = await _book(app, source.id, status="needs_review")
+    await _stage(app, book, OSPF, vectors={OSPF: _vector(1)})
+    admin = await _library_admin(app)
+
+    assert await _cli(app, "approve", str(book.id), "--as", admin) == 2
+    assert await _cli(app, "reject", str(book.id), "--as", admin, "--reason", "x") == 2
+    assert await _cli(app, "publish", str(book.id), "--as", admin) == 2
+    assert await _cli(app, "course", "ccna", "--name", "CCNA", "--builds-on", "ccnp", "--as", admin) == 2
+    async with app.state.db.sessionmaker() as db:
+        assert (await db.get(DocumentRevision, book.id)).status == "needs_review"
+
+
+async def test_operator_decisions_are_recorded_with_the_operator_and_the_reason(app, capsys):
+    source = await _shared(app)
+    book = await _book(app, source.id, status="needs_review")
+    await _stage(app, book, OSPF, vectors={OSPF: _vector(1)})
+    rejected = await _book(app, source.id, status="needs_review")
+
+    assert await _cli(app, "approve", str(book.id), "--operator") == 0
+    assert await _cli(app, "publish", str(book.id), "--operator") == 0
+    assert await _cli(app, "reject", str(rejected.id), "--operator", "--reason", "unreadable scan") == 0
+    async with app.state.db.sessionmaker() as db:
+        published = await db.get(DocumentRevision, book.id)
+        cancelled = await db.get(DocumentRevision, rejected.id)
+    actions = [entry["action"] for entry in published.quality_report["operatorActions"]]
+    assert actions == ["approve", "publish"]
+    assert all(entry["by"].startswith("operator ") for entry in published.quality_report["operatorActions"])
+    [entry] = cancelled.quality_report["operatorActions"]
+    assert (entry["action"], entry["reason"]) == ("reject", "unreadable scan")
+
+
+async def test_revisions_are_listed_only_for_the_acting_principal(app, capsys):
+    shared = await _shared(app)
+    mine = await _book(app, shared.id)
+    private = await _book(app, await _source(app, await _owner(app)))
+    capsys.readouterr()
+
+    assert await _cli(app, "revisions", "--operator") == 0
+    listing = capsys.readouterr().out
+    assert str(mine.id) in listing and str(private.id) not in listing
+    assert await _cli(app, "revisions") == 2  # no principal, no listing
+
+
+async def test_the_operator_import_checks_the_expected_digest_and_the_bytes_it_read(app, tmp_path):
+    source = await _shared(app, course=None)
+    pdf = tmp_path / "Volume 1.pdf"
+    data = _pdf(pdf, "Synthetic Volume 1")
+    good = hashlib.sha256(data).hexdigest()
+
+    assert await _cli(app, "import", str(source.id), "--pdf", str(pdf), "--sha256", "0" * 64, "--operator") == 1
+    assert (
+        await _cli(app, "import", str(source.id), "--pdf", str(pdf), "--operator", "--sha256", good, "--sha256", good)
+        == 2
+    )
+    async with app.state.db.sessionmaker() as db:
+        assert (
+            await db.scalar(select(func.count()).select_from(DocumentFile).where(DocumentFile.source_id == source.id))
+            == 0
+        )
+    assert await _cli(app, "import", str(source.id), "--pdf", str(pdf), "--sha256", good.upper(), "--operator") == 0
+
+
+async def test_two_imports_of_the_same_book_at_once_store_it_once_and_neither_crashes(app, tmp_path):
+    import asyncio
+
+    source = await _shared(app, course=None)
+    pdf = tmp_path / "Volume 2.pdf"
+    _pdf(pdf, "Synthetic Volume 2")
+
+    results = await asyncio.gather(
+        *(_cli(app, "import", str(source.id), "--pdf", str(pdf), "--operator") for _ in range(4))
+    )
+
+    assert results == [0, 0, 0, 0]
+    async with app.state.db.sessionmaker() as db:
+        assert (
+            await db.scalar(select(func.count()).select_from(DocumentFile).where(DocumentFile.source_id == source.id))
+            == 1
+        )
+
+
+async def test_importing_again_a_book_whose_revision_failed_is_refused_not_reported_done(app, tmp_path):
+    source = await _shared(app, course=None)
+    pdf = tmp_path / "Volume 3.pdf"
+    _pdf(pdf, "Synthetic Volume 3")
+    assert await _cli(app, "import", str(source.id), "--pdf", str(pdf), "--operator") == 0
+    async with app.state.db.sessionmaker() as db:
+        file = await db.scalar(select(DocumentFile).where(DocumentFile.source_id == source.id))
+    failed = await _book(app, source.id, status="failed", file_id=file.id)
+    assert failed.status == "failed"
+
+    assert await _cli(app, "import", str(source.id), "--pdf", str(pdf), "--operator") == 1

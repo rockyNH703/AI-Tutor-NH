@@ -676,7 +676,15 @@ export type MessageRole = "user" | "assistant" | "system";
  * What a reply's `[1]` (a knowledge source) or `[F1]` (a file the student attached) points at:
  * titles only. `fileId` for files, to preview their own copy.
  */
-export type Citation = { ref: string; kind: "source" | "file"; title: string; fileId?: Uuid };
+export type Citation = {
+  ref: string;
+  kind: "source" | "file";
+  title: string;
+  fileId?: Uuid;
+  /** A book passage's page: the label printed on it, else its position in the PDF (API `public_citations`). */
+  printedPageLabel?: string | null;
+  physicalPage?: number | null;
+};
 
 export type MessageMetadata = {
   model?: string;

@@ -48,7 +48,8 @@ principals:
      the books and prints no book text.
 1. **Grant** a verified account the administrator capability: `knowledge_admin.py grant <email> --reason "<why>"`.
 2. **Courses and sources (the CCNA/CCNP boundary):**
-   - `course ccna --name CCNA --level 1`, then `course ccnp --name CCNP --level 2 --builds-on ccna`;
+   - `course ccna --name CCNA --level 1 --operator`, then `course ccnp --name CCNP --level 2 --builds-on ccna
+     --operator` (courses scope every user's retrieval, so only the operator sets them);
    - `source <name>` makes an owner-only source; `assign <source-id> --course ccna|ccnp|none`.
    - A turn searches only its course (from the Engineering Profile goal, or a course the question names) plus
      general sources.
@@ -79,7 +80,8 @@ principals:
    - A pending review blocks publication; `reuse` and `reject` keep the copy unpublished; nothing is ever deleted
      automatically.
 8. **Review and publish:**
-   - `revisions [--status needs_review]` lists ids, pages, chunk and passage counts and warnings;
+   - `revisions --as <admin>|--operator [--status needs_review]` lists that principal's revisions only: ids, source,
+     pages, chunk and passage counts and warnings;
    - `approve <revision-id>` accepts a revision that needs review;
    - `publish <revision-id>` makes its passages live in its source in one transaction, under a lock that serializes
      publications. It re-checks rights, vectors and duplicates against everything committed, and retires the

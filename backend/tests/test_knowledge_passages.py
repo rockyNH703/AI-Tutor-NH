@@ -449,11 +449,11 @@ async def test_courses_and_egress_are_set_by_an_administrator_on_their_own_sourc
     _, intruder = await _admin(app)
     source = await _source(app, admin_id, egress=False)
 
-    assert await _cli(app, "course", "ccna", "--name", "CCNA", "--level", "1", "--as", admin) == 0
-    assert (
-        await _cli(app, "course", "ccnp", "--name", "CCNP", "--level", "2", "--builds-on", "ccna", "--as", admin) == 0
-    )
-    assert await _cli(app, "course", "ccie", "--name", "x", "--builds-on", "ccie", "--as", admin) == 1  # not itself
+    # Courses are the shared library's boundaries for every user: only the host operator sets them.
+    assert await _cli(app, "course", "ccna", "--name", "CCNA", "--builds-on", "ccnp", "--as", admin) == 2
+    assert await _cli(app, "course", "ccna", "--name", "CCNA", "--level", "1", "--operator") == 0
+    assert await _cli(app, "course", "ccnp", "--name", "CCNP", "--level", "2", "--builds-on", "ccna", "--operator") == 0
+    assert await _cli(app, "course", "ccie", "--name", "x", "--builds-on", "ccie", "--operator") == 1  # not itself
     assert await _cli(app, "assign", str(source), "--course", "nope", "--as", admin) == 2
     assert await _cli(app, "assign", str(source), "--course", "ccnp", "--as", intruder) == 2
     assert await _cli(app, "assign", str(source), "--course", "ccnp", "--as", admin) == 0
