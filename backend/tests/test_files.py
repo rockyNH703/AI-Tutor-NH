@@ -82,6 +82,20 @@ async def test_an_upload_is_read_becomes_ready_and_counts_toward_storage(client,
     assert await app.state.file_worker.run_once() is False  # nothing left to do
 
 
+async def test_a_private_key_longer_than_a_chunk_never_reaches_a_chunk(client, app):
+    # A PEM key (~1,900 characters here) is longer than RAG_CHUNK_SIZE (1,000). Split first, its middle chunks
+    # had no BEGIN/END marker left, so masking missed them and the key body went to the embeddings provider
+    # (REQ-llm-2). The page text is now masked before it is split. Markers built from parts (gitleaks).
+    begin, end = "-----BEGIN " + "RSA PRIVATE KEY-----", "-----END " + "RSA PRIVATE KEY-----"
+    body = "\n".join("MIIE" + "Q" * 60 for _ in range(30))
+    text = "Router notes before the key. " * 20 + f"\n{begin}\n{body}\n{end}\n" + "Notes after the key. " * 20
+    headers = (await register(client, app))["headers"]
+    file = await ready_file(app, client, headers, "router-keys.txt", text.encode())
+    stored = await chunks_of(app, file["id"])
+    assert stored and any("Router notes" in chunk.content for chunk in stored)
+    assert not any("Q" * 60 in chunk.content for chunk in stored)
+
+
 async def test_pages_slides_and_sheets_are_kept_with_the_text(client, app):
     import docx
     import openpyxl

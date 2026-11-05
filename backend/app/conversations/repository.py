@@ -13,7 +13,7 @@ from datetime import datetime
 from sqlalchemy import and_, delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Conversation, Message, MessageAttachment
+from app.db.models import Conversation, Document, KnowledgeSource, Message, MessageAttachment
 from app.errors import ValidationFailed
 
 DEFAULT_TITLE = "New chat"
@@ -95,6 +95,26 @@ class ConversationRepository:
         page = rows[:limit]
         page.reverse()  # oldest first, for display
         return page, older
+
+    async def withdrawn_documents(self, document_ids: set[str]) -> frozenset[str]:
+        """Of the knowledge documents these replies cite, those deleted since or whose source's rights were revoked:
+        their excerpts are no longer shown (the stored reply is left as it is)."""
+        ids = set()
+        for value in document_ids:
+            try:
+                ids.add(uuid.UUID(str(value)))
+            except ValueError:
+                continue
+        if not ids:
+            return frozenset()
+        live = set(
+            await self.db.scalars(
+                select(Document.id)
+                .join(KnowledgeSource, KnowledgeSource.id == Document.source_id)
+                .where(Document.id.in_(ids), KnowledgeSource.rights_revoked_at.is_(None))
+            )
+        )
+        return frozenset(str(value) for value in ids - live)
 
     async def attachments(self, message_ids: list[uuid.UUID]) -> dict[uuid.UUID, list[MessageAttachment]]:
         """Files attached to these messages (already scoped by the caller's conversation), in order."""

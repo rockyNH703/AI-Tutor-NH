@@ -60,8 +60,10 @@ async def _knowledge_library_rows(app, user: uuid.UUID) -> None:
     statements = [
         "INSERT INTO knowledge_admin_grants (user_id, granted_by_user_id, reason, revoked_by_user_id) "
         "VALUES (:u, :u, 'test', :u)",
-        "INSERT INTO knowledge_sources (id, name, owner_user_id, rights_approved_by_user_id) "
-        "VALUES (:s, :name, :u, :u)",
+        "INSERT INTO knowledge_sources (id, name, owner_user_id, rights_approved_by_user_id, "
+        "embed_egress_approved_at, embed_egress_basis, embed_egress_approved_by_user_id, "
+        "extract_egress_approved_at, extract_egress_basis, extract_egress_approved_by_user_id) "
+        "VALUES (:s, :name, :u, :u, clock_timestamp(), 'test', :u, clock_timestamp(), 'test', :u)",
         "INSERT INTO knowledge_source_user_grants (source_id, user_id, granted_by_user_id, revoked_by_user_id) "
         "VALUES (:s, :u, :u, :u)",
         "INSERT INTO knowledge_import_batches (owner_user_id, issued_by_user_id, source_id, secret_hash, expires_at) "

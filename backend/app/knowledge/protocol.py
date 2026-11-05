@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, BinaryIO
 
 PROTOCOL = "netsec-knowledge-extract"
-VERSION = 2
+VERSION = 3  # v3 (book reader): the header adds document_metadata; v2 outputs are still read
+SUPPORTED_VERSIONS = (2, 3)
+MAX_DOCUMENT_METADATA_BYTES = 16 * 1024
 MAX_STDOUT_BYTES = 64 * 1024 * 1024
 MAX_LINE_BYTES = 1024 * 1024
 MAX_CONTENT_BYTES = 256 * 1024
@@ -17,7 +19,7 @@ MAX_ELEMENTS = 200_000
 MAX_SECTION_DEPTH = 16
 ALLOWED_KINDS = {"header", "element", "footer"}
 ELEMENT_TYPES = {"heading", "paragraph", "list_item", "table", "figure", "code", "page_label"}
-HEADER_KEYS = {"kind", "protocol", "version", "document_sha256", "page_count", "parser"}
+HEADER_KEYS = {"kind", "protocol", "version", "document_sha256", "page_count", "parser", "document_metadata"}
 ELEMENT_KEYS = {
     "kind",
     "sequence",
@@ -46,6 +48,7 @@ class ExtractedDocument:
     elements: tuple[dict[str, Any], ...]
     warnings: tuple[str, ...]
     content_sha256: str
+    document_metadata: dict[str, Any] = field(default_factory=dict)  # v3: what the book says about itself
 
 
 def _fail(code: str) -> None:
@@ -103,8 +106,16 @@ def parse_ndjson(stream: BinaryIO) -> ExtractedDocument:
     elements = records[1:-1]
     if any(record.get("kind") != "element" for record in elements):
         _fail("record_order")
-    if header.get("protocol") != PROTOCOL or header.get("version") != VERSION:
+    if header.get("protocol") != PROTOCOL or header.get("version") not in SUPPORTED_VERSIONS:
         _fail("unsupported_version")
+    document_metadata = header.get("document_metadata", {})
+    if (
+        ("document_metadata" in header and header.get("version") < 3)
+        or not isinstance(document_metadata, dict)
+        or not _bounded_strings(document_metadata)
+        or len(json.dumps(document_metadata).encode("utf-8")) > MAX_DOCUMENT_METADATA_BYTES
+    ):
+        _fail("invalid_document_metadata")
     if not _sha(header.get("document_sha256")):
         _fail("invalid_document_digest")
     page_count = header.get("page_count")
@@ -166,4 +177,5 @@ def parse_ndjson(stream: BinaryIO) -> ExtractedDocument:
         elements=tuple(elements),
         warnings=tuple(warnings),
         content_sha256=footer_digest,
+        document_metadata=dict(document_metadata),
     )

@@ -37,7 +37,7 @@ from app.conversations.repository import DEFAULT_TITLE, ConversationRepository
 from app.conversations.router import conversation_out, message_out
 from app.db.models import Conversation, MemoryCommandReceipt, Message, MessageAttachment, UsageEvent, User
 from app.db.session import Database
-from app.errors import Conflict, NotFound, RateLimited, ValidationFailed
+from app.errors import Conflict, NotFound, RateLimited, ServiceUnavailable, ValidationFailed
 from app.files import service as files
 from app.intents.classifier import HINT_ONLY, IntentClassifier, Routed, explicit_hint_only
 from app.intents.scope import ALLOW_STUDY, INSTRUCTIONS, NOT_LEARNING, REDIRECT, Scope, redirect_copy, settled
@@ -45,7 +45,7 @@ from app.intents.scope import stored as stored_scope
 from app.intents.taxonomy import BANK_INTENTS, INTENTS
 from app.jobs.memory import enqueue_memory_extraction
 from app.learning.context import StudentContext, read_student_context
-from app.llm.base import ChatMessage, GenerationOptions, LLMError
+from app.llm.base import LLM_REQUEST_AT, ChatMessage, GenerationOptions, LLMError
 from app.logging import get_logger, request_id_var
 from app.memory.commands import (
     apply_memory_command,
@@ -86,6 +86,13 @@ PUBLIC_ERRORS = {
     "service_unavailable": ("The service is temporarily unavailable. Please try again.", True),
     "internal_error": ("Something went wrong while generating the reply.", True),
 }
+
+
+def _pre_llm(received_at: float | None, sent_at: float | None) -> dict | None:
+    """The pre-LLM interval in milliseconds, when both ends are known (no model call: no interval)."""
+    if received_at is None or sent_at is None:
+        return None
+    return {"preLlmMs": max(0, int((sent_at - received_at) * 1000))}
 
 
 def public_citations(summary: dict | None) -> list[dict] | None:
@@ -161,6 +168,9 @@ class PreparedTurn:
     # Voice turns: the server speaks the reply's first words itself (VOICE_SERVER_SPEECH), in the browser's format.
     server_speech: bool = False
     speech_format: str = "mp3"
+    # When the question reached the app (wall clock, seconds): the BFF's stamp, else the API's (app/chat/router.py).
+    received_at: float | None = None
+    usage_id: uuid.UUID | None = None  # the turn's usage_events row (closed even if its chat is deleted)
 
     def meta_event(self) -> ChatEvent:
         return ChatEvent(
@@ -235,9 +245,19 @@ class ChatService:
         chat is not refused for STREAM_STALE_AFTER_S after a crash or restart."""
         async with self.db.sessionmaker() as session:
             await self._sweep_stale(session, everything=at_startup)
+            if at_startup:  # a usage row whose reply was deleted with its chat (message_id SET NULL) is not live
+                await session.execute(
+                    update(UsageEvent)
+                    .where(UsageEvent.outcome == "streaming", UsageEvent.message_id.is_(None))
+                    .values(outcome="cancelled")
+                )
             await session.commit()
 
     async def _check_turn_allowed(self, session: AsyncSession, user_id: uuid.UUID, conversation_id: uuid.UUID) -> None:
+        if not self.settings.chat_enabled:  # K-11a: the operator's switch
+            raise ServiceUnavailable("Chat is switched off for now. Please try again later.")
+        if len(self.generations) >= self.settings.chat_live_generations_max:  # K-07b: this process's share
+            raise ServiceUnavailable("The assistant is very busy right now. Please try again in a moment.")
         # Conversation rows serialize one chat; this user-scoped lock also serializes quota
         # check + reservation across different conversations for the same account.
         await session.execute(
@@ -252,6 +272,15 @@ class ChatService:
         )
         if live:
             raise Conflict("A reply is already being generated in this conversation.")
+        alive_since = func.clock_timestamp() - timedelta(seconds=self.settings.stream_stale_after_s)
+        mine = await session.scalar(  # K-07b: replies this account has generating in all its chats
+            select(func.count())
+            .select_from(Message)
+            .join(Conversation, Conversation.id == Message.conversation_id)
+            .where(Conversation.user_id == user_id, Message.status == "streaming", Message.created_at > alive_since)
+        )
+        if mine >= self.settings.chat_live_generations_per_user:
+            raise RateLimited("Too many replies are being written at once. Wait for one to finish.")
         now = func.clock_timestamp()
         counts = (
             await session.execute(
@@ -266,16 +295,27 @@ class ChatService:
             or counts[1] >= self.settings.chat_generations_per_day
         ):
             raise RateLimited("You have reached the message limit. Please try again later.")
+        if self.settings.chat_generations_global_per_day:  # K-11a: every account together
+            total = await session.scalar(
+                select(func.count()).select_from(UsageEvent).where(UsageEvent.created_at > now - timedelta(days=1))
+            )
+            if total >= self.settings.chat_generations_global_per_day:
+                raise RateLimited("The assistant has reached today's limit. Please try again later.")
 
-    async def _add_placeholder(self, session: AsyncSession, user_id: uuid.UUID, conversation_id: uuid.UUID) -> Message:
+    async def _add_placeholder(
+        self, session: AsyncSession, user_id: uuid.UUID, conversation_id: uuid.UUID
+    ) -> tuple[Message, UsageEvent]:
         assistant = Message(conversation_id=conversation_id, role="assistant", content="", status="streaming")
         session.add(assistant)
         await session.flush()
-        # Recorded now, not at the end, so concurrent requests count toward the quota.
-        session.add(
-            UsageEvent(user_id=user_id, conversation_id=conversation_id, message_id=assistant.id, outcome="streaming")
+        # Recorded now, not at the end, so concurrent requests count toward the quota. Its own id travels with the
+        # turn: if the chat is deleted mid-reply the row loses its message (SET NULL) but is still closed.
+        usage = UsageEvent(
+            user_id=user_id, conversation_id=conversation_id, message_id=assistant.id, outcome="streaming"
         )
-        return assistant
+        session.add(usage)
+        await session.flush()
+        return assistant, usage
 
     async def _student(self, session: AsyncSession, user: User, asked_at: datetime | None = None) -> StudentContext:
         """What the assistant is told about this user: their settings and how they are doing, as
@@ -397,7 +437,7 @@ class ChatService:
         await session.flush()
         await files.add_attachments(session, user_message.id, attached)
         await record_question(session, user.id, user.timezone, self.settings.default_timezone)
-        assistant = await self._add_placeholder(session, user.id, conversation.id)
+        assistant, usage = await self._add_placeholder(session, user.id, conversation.id)
         command_receipt_id = None
         if command is not None and request_id is not None:
             receipt = MemoryCommandReceipt(
@@ -441,6 +481,7 @@ class ChatService:
             voice=voice,
             server_speech=server_speech,
             speech_format=speech_format or "mp3",
+            usage_id=usage.id,
         )
 
     async def prepare_regenerate(self, session: AsyncSession, user: User, conversation_id: uuid.UUID) -> PreparedTurn:
@@ -457,9 +498,13 @@ class ChatService:
         )
         if last is None or last.role != "assistant":
             raise Conflict("There is no reply to regenerate.")
-        last.status = "superseded"
-        await session.flush()  # the reply row first, then its set: the order an answer locks them in
-        await chat_tests.close_for_message(session, user.id, last.id)  # its test can't be answered any more
+        acknowledgement = await session.scalar(
+            select(MemoryCommandReceipt.id).where(MemoryCommandReceipt.message_id == last.id).limit(1)
+        )
+        if acknowledgement is not None:  # MISS-chat-6: the memory layer's answer, not the model's
+            raise Conflict("The reply to a memory command cannot be regenerated.")
+        # K-47d: the reply stays as it is until its replacement is complete (_finalize supersedes it then), so a
+        # regeneration that fails or is stopped leaves the answer the user already had.
         # The question this answer is for: left out of today's count, as when it was first sent.
         asked_at = await session.scalar(
             select(Message.created_at)
@@ -488,7 +533,7 @@ class ChatService:
         bank = await self._bank(session, question, student, conversation.id, asked=applied in BANK_INTENTS or None)
         if intent is not None:
             intent["bankMenu"] = _bank_menu(bank, question, applied)
-        assistant = await self._add_placeholder(session, user.id, conversation.id)
+        assistant, usage = await self._add_placeholder(session, user.id, conversation.id)
         await repo.touch(conversation.id)
         await session.commit()
         await session.refresh(conversation)
@@ -514,6 +559,7 @@ class ChatService:
             bank=bank,
             intent=intent,
             scope=scope,
+            usage_id=usage.id,
         )
 
     def _reused_intent(self, last: Message, question: str) -> dict | None:
@@ -558,27 +604,23 @@ class ChatService:
                 .where(
                     Message.conversation_id == conversation_id,
                     Message.role.in_(("user", "assistant")),
-                    Message.status.in_(("complete", "cancelled")),
+                    Message.status.in_(("complete", "cancelled", "error")),
                 )
                 .order_by(Message.created_at.desc(), Message.id.desc())
                 .limit(self.settings.chat_history_max_messages)
             )
         )
-        # A reply's own fill-in-the-blanks answers stay out of the model's view (assessments.for_model).
-        return [
-            ChatMessage(
-                role=row.role, content=assessments.for_model(row.content) if row.role == "assistant" else row.content
-            )
-            for row in reversed(rows)
-            if row.content
-        ]
+        return _history(list(reversed(rows)))
 
     async def _cancel_requested(self, message_id: uuid.UUID) -> bool:
+        """Stopped elsewhere, or gone with its deleted chat (MISS-chat-3). Bounded (MISS-chat-2): a database that
+        does not answer must not hang the reply; that poll counts as "not cancelled" and the next one asks again."""
         try:
-            async with self.db.sessionmaker() as session:
-                status = await session.scalar(select(Message.status).where(Message.id == message_id))
-            return status == "cancelled"
-        except Exception:  # noqa: BLE001 - a failed poll must not stop a healthy stream
+            async with asyncio.timeout(max(1.0, self.settings.stream_cancel_poll_s * 5)):
+                async with self.db.sessionmaker() as session:
+                    status = await session.scalar(select(Message.status).where(Message.id == message_id))
+            return status is None or status == "cancelled"
+        except Exception:  # noqa: BLE001 - a failed or slow poll must not stop a healthy stream
             return False
 
     async def _command_cancelled(self, generation: Generation) -> bool:
@@ -932,6 +974,8 @@ class ChatService:
 
     async def _run(self, turn: PreparedTurn, generation: Generation) -> None:
         started = time.monotonic()
+        request_sent: dict = {"at": None}  # the provider marks its first request (app/llm/base.py)
+        LLM_REQUEST_AT.set(request_sent)
         pieces: list[str] = []
         ttft_ms: int | None = None
         usage = None
@@ -959,6 +1003,9 @@ class ChatService:
         try:
             async with self.db.sessionmaker() as session:
                 conversation = await self._conversation(session, turn.conversation.id)
+            if turn.replaces_message_id is not None:  # the replies being regenerated stay until it completes (K-47d)
+                while conversation and conversation[-1].role == "assistant":
+                    conversation.pop()  # but the model answers the question afresh, without them
             if not query:
                 query = next((message.content for message in reversed(conversation) if message.role == "user"), "")
             memories = await self._memories(turn.user.id, query)
@@ -1079,6 +1126,11 @@ class ChatService:
         except Exception:  # noqa: BLE001
             status, error_code = "error", "internal_error"
             log.exception("generation crashed")
+        if status == "complete" and not "".join(pieces).strip():  # MISS-chat-1: no text is no answer
+            status, error_code = "error", "llm_unavailable"
+            log.warning(
+                "llm returned an empty reply", extra={"provider": provider, "message_id": str(turn.assistant_id)}
+            )
         for task in (reading, ahead):  # a redirect, a stop or a failure left them running
             if task is not None and not task.done():
                 task.cancel()
@@ -1126,6 +1178,8 @@ class ChatService:
             "intent": intent,
             # Internal: the study scope's decision (app/intents/scope.py) and whether this turn used it.
             "scope": scope,
+            # Internal: question received -> first model request sent (the 1-second budget; scripts/pre_llm_report.py).
+            "timing": _pre_llm(turn.received_at, request_sent["at"]),
         }
         metadata = {k: v for k, v in metadata.items() if v is not None}
         log.info(
@@ -1136,6 +1190,7 @@ class ChatService:
                 "model": model,
                 "latency_ms": latency_ms,
                 "ttft_ms": ttft_ms,
+                "pre_llm_ms": (metadata.get("timing") or {}).get("preLlmMs"),
                 "output_tokens": metadata.get("outputTokens"),
                 "retrieval_status": (retrieval_summary or {}).get("status"),
                 "intent": (intent or {}).get("id"),
@@ -1163,6 +1218,9 @@ class ChatService:
             message, conversation, learning = await self._finalize(
                 turn, content, status, metadata, latency_ms, ttft_ms, usage
             )
+            if message is None:  # MISS-chat-3: the chat was deleted while its reply streamed; nothing to show
+                log.info("reply discarded: its chat was deleted", extra={"message_id": str(turn.assistant_id)})
+                return
             if message.status == "error":
                 event = ChatEvent(
                     "error", {**public_error(error_code or "internal_error"), "messageId": str(message.id)}
@@ -1321,6 +1379,17 @@ class ChatService:
                 )
                 .returning(Message.status)
             )
+            usage_row = (
+                UsageEvent.id == turn.usage_id
+                if turn.usage_id is not None
+                else UsageEvent.message_id == turn.assistant_id
+            )
+            if final_status is None:  # MISS-chat-3: the reply's chat was deleted while it streamed
+                await session.execute(update(UsageEvent).where(usage_row).values(outcome="cancelled"))
+                await session.commit()
+                return None, None, None
+            if final_status == "complete" and turn.replaces_message_id is not None:
+                await self._supersede_replaced(session, turn)  # K-47d: only now that the new reply is complete
             if bank is not None and final_status != "complete":  # the cancel won: its test can't be answered
                 await chat_tests.close(session, turn.user.id, bank.set_id)
             # A fully answered, meaningful question makes its day a learning day (app/progress/learning.py);
@@ -1340,7 +1409,7 @@ class ChatService:
                 await self._name_conversation(session, turn, content)
             await session.execute(
                 update(UsageEvent)
-                .where(UsageEvent.message_id == turn.assistant_id)
+                .where(usage_row)
                 .values(
                     provider=metadata.get("provider"),
                     model=metadata.get("model"),
@@ -1370,6 +1439,30 @@ class ChatService:
             message = await session.get(Message, turn.assistant_id)
             conversation = await session.get(Conversation, turn.conversation.id)
             return message, conversation, learning
+
+    @staticmethod
+    async def _supersede_replaced(session: AsyncSession, turn: PreparedTurn) -> None:
+        """The earlier replies to this reply's question become superseded, and their tests can't be answered."""
+        asked_at = await session.scalar(
+            select(func.max(Message.created_at)).where(
+                Message.conversation_id == turn.conversation.id, Message.role == "user"
+            )
+        )
+        query = select(Message.id).where(
+            Message.conversation_id == turn.conversation.id,
+            Message.role == "assistant",
+            Message.id != turn.assistant_id,
+            Message.status.in_(("complete", "cancelled", "error")),
+        )
+        if asked_at is not None:
+            query = query.where(Message.created_at > asked_at)
+        replaced = list(await session.scalars(query))
+        if not replaced:
+            return
+        # The reply rows first, then their sets: the order an answer locks them in.
+        await session.execute(update(Message).where(Message.id.in_(replaced)).values(status="superseded"))
+        for message_id in replaced:
+            await chat_tests.close_for_message(session, turn.user.id, message_id)
 
     @staticmethod
     async def _side_effect(session: AsyncSession, name: str, turn: PreparedTurn, operation):
@@ -1441,6 +1534,38 @@ class ChatService:
             self.generations.cancel(message_id)
             return "cancelled"
         return message.status
+
+
+STOPPED_MARK = "\n\n[This reply was stopped before it was finished.]"
+NO_REPLY = "[No reply was given to this message.]"
+
+
+def _history(rows: list[Message]) -> list[ChatMessage]:
+    """What the model is shown of the earlier turns, oldest first (MISS-chat-5): a stopped reply says it was
+    stopped, a failed one leaves no two questions in a row, and of several replies to one question (a
+    regeneration) the latest complete one stays. A reply's own fill-in-the-blanks answers stay out of the
+    model's view (assessments.for_model)."""
+    history: list[ChatMessage] = []
+    last_complete = False  # whether the trailing assistant entry came from a complete reply
+    for row in rows:
+        if row.role == "user":
+            if not row.content:
+                continue
+            if history and history[-1].role == "user":
+                history.append(ChatMessage("assistant", NO_REPLY))
+            history.append(ChatMessage("user", row.content))
+            continue
+        if row.status == "error" or not row.content:
+            continue
+        content = assessments.for_model(row.content) + (STOPPED_MARK if row.status == "cancelled" else "")
+        if history and history[-1].role == "assistant":
+            if row.status == "complete" or not last_complete:
+                history[-1] = ChatMessage("assistant", content)
+                last_complete = row.status == "complete"
+            continue
+        history.append(ChatMessage("assistant", content))
+        last_complete = row.status == "complete"
+    return history
 
 
 def _decision(scope: dict | None) -> str | None:

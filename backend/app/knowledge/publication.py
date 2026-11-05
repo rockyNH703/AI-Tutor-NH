@@ -1,17 +1,11 @@
-"""Deterministic structure-aware chunks and atomic revision publication."""
+"""Deterministic structure-aware chunks (publication itself is app.knowledge.passages.publish)."""
 
 from __future__ import annotations
 
 import hashlib
-import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import delete, insert, select, update
-
-from app.db.models import DocumentChunk, DocumentRevision, DocumentRevisionChunk, KnowledgeSource
-from app.errors import Conflict, NotFound
 from app.knowledge.protocol import ExtractedDocument
 
 # Five passages (RAG_TOP_K) with their headings fit RAG_MAX_CONTEXT_CHARS (8,000): about 1,550 characters each.
@@ -80,89 +74,3 @@ def build_chunks(extracted: ExtractedDocument) -> list[StagedChunk]:
                 )
             )
     return staged
-
-
-async def stage_chunks(session, revision: DocumentRevision, chunks: list[StagedChunk]) -> None:
-    await session.execute(delete(DocumentRevisionChunk).where(DocumentRevisionChunk.revision_id == revision.id))
-    if chunks:
-        await session.execute(
-            insert(DocumentRevisionChunk),
-            [
-                {
-                    "revision_id": revision.id,
-                    "document_id": revision.document_id,
-                    "source_id": revision.source_id,
-                    "stable_chunk_key": chunk.stable_key,
-                    "ordinal": chunk.ordinal,
-                    "content": chunk.content,
-                    "content_sha256": chunk.content_sha256,
-                    "section_path": list(chunk.section_path),
-                    "physical_page_start": chunk.physical_page_start,
-                    "physical_page_end": chunk.physical_page_end,
-                    "printed_page_label": chunk.printed_page_label,
-                    "metadata": chunk.metadata,
-                }
-                for chunk in chunks
-            ],
-        )
-
-
-async def publish_revision(session, revision_id: uuid.UUID, actor_id: uuid.UUID) -> int:
-    revision = await session.scalar(
-        select(DocumentRevision).where(DocumentRevision.id == revision_id).with_for_update()
-    )
-    if revision is None:
-        raise NotFound()
-    if revision.status != "ready_to_publish":
-        raise Conflict("This revision is not ready to publish.", code="revision_not_publishable")
-    source = await session.get(KnowledgeSource, revision.source_id)
-    if source is None or source.rights_revoked_at is not None:
-        raise Conflict("The source rights are not active.", code="rights_not_active")
-    staged = list(
-        await session.scalars(
-            select(DocumentRevisionChunk)
-            .where(DocumentRevisionChunk.revision_id == revision.id)
-            .order_by(DocumentRevisionChunk.ordinal)
-        )
-    )
-    if not staged or any(
-        chunk.embedding is None or chunk.embedding_model != revision.embedding_model for chunk in staged
-    ):
-        raise Conflict("The staged chunks are incomplete.", code="revision_incomplete")
-    await session.execute(delete(DocumentChunk).where(DocumentChunk.document_id == revision.document_id))
-    await session.execute(
-        insert(DocumentChunk),
-        [
-            {
-                "document_id": revision.document_id,
-                "source_id": revision.source_id,
-                "ordinal": chunk.ordinal,
-                "content": chunk.content,
-                "metadata": {
-                    **chunk.metadata_,
-                    "revision_id": str(revision.id),
-                    "stable_chunk_key": chunk.stable_chunk_key,
-                    "section_path": chunk.section_path,
-                    "physical_page": chunk.physical_page_start,
-                    "physical_page_end": chunk.physical_page_end,
-                    "printed_page_label": chunk.printed_page_label,
-                },
-                "embedding": chunk.embedding,
-                "embedding_model": chunk.embedding_model,
-            }
-            for chunk in staged
-        ],
-    )
-    await session.execute(
-        update(DocumentRevision)
-        .where(
-            DocumentRevision.document_id == revision.document_id,
-            DocumentRevision.status == "published",
-            DocumentRevision.id != revision.id,
-        )
-        .values(status="retired")
-    )
-    revision.status = "published"
-    revision.published_by_user_id = actor_id
-    revision.published_at = revision.updated_at = datetime.now(UTC)
-    return len(staged)

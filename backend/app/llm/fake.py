@@ -5,7 +5,16 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator, Callable
 
-from app.llm.base import ChatMessage, GenerationOptions, LLMError, LLMStream, ProviderInfo, StreamPart, Usage
+from app.llm.base import (
+    ChatMessage,
+    GenerationOptions,
+    LLMError,
+    LLMStream,
+    ProviderInfo,
+    StreamPart,
+    Usage,
+    mark_request_sent,
+)
 
 # Asked this, the fake answers with what the user's settings and practice record added to its system
 # prompt, so an end-to-end test can see on screen what the model was really told.
@@ -52,6 +61,7 @@ class FakeProvider:
 
     async def stream(self, messages: list[ChatMessage], options: GenerationOptions) -> LLMStream:
         self.calls.append(list(messages))
+        mark_request_sent()
         if self.fail_before_first is not None:
             raise self.fail_before_first
         text = self.reply(messages)

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import time
 import uuid
+from dataclasses import replace
 
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -42,8 +44,29 @@ def get_chat_service(request: Request) -> ChatService:
     return request.app.state.chat
 
 
-def _stream(chat: ChatService, turn: PreparedTurn, request: Request) -> StreamingResponse:
-    generation = chat.start(turn)
+RECEIVED_HEADER = "x-netsec-received-at"  # epoch milliseconds, set by the web app's BFF once it has the body
+RECEIVED_SKEW_S = 30.0
+
+
+def received_at(request: Request) -> float:
+    """When the question reached the app: the BFF's stamp when it is plausible (the API listens on loopback only,
+    behind the BFF), else now. It only times the turn; nothing is decided by it."""
+    now = time.time()
+    raw = request.headers.get(RECEIVED_HEADER, "")
+    if raw.isdigit() and len(raw) <= 16:
+        stamped = int(raw) / 1000
+        if now - RECEIVED_SKEW_S <= stamped <= now + 1:
+            return stamped
+    return now
+
+
+async def _stream(
+    chat: ChatService, turn: PreparedTurn, request: Request, db: AsyncSession, arrived: float
+) -> StreamingResponse:
+    # The request's session would otherwise stay checked out (idle in a transaction opened by prepare's
+    # reads) for the whole reply: with 5+5 pooled connections, a few long replies starve everyone (K-07a).
+    await db.close()
+    generation = chat.start(replace(turn, received_at=arrived))
     keepalive = request.app.state.settings.stream_keepalive_s
     return StreamingResponse(
         sse_body(turn.meta_event(), generation, keepalive), media_type="text/event-stream", headers=SSE_HEADERS
@@ -58,6 +81,7 @@ async def chat_stream(
     db: AsyncSession = Depends(get_session),
     chat: ChatService = Depends(get_chat_service),
 ):
+    arrived = received_at(request)
     turn = await chat.prepare_message(
         db,
         principal.user,
@@ -68,7 +92,7 @@ async def chat_stream(
         voice=body.mode == "voice",
         speech_format=body.speech_format,
     )
-    return _stream(chat, turn, request)
+    return await _stream(chat, turn, request, db, arrived)
 
 
 @router.post("/chat", response_model=ChatResponse, summary="Send a message and wait for the whole reply")
@@ -88,6 +112,7 @@ async def chat_complete(
         voice=body.mode == "voice",
         speech_format=body.speech_format,
     )
+    await db.close()  # not held while the whole reply is generated (K-07a)
     generation = chat.start(turn)
     final, _ = await collect(generation)
     if final.type == "error":
@@ -114,8 +139,9 @@ async def regenerate_stream(
     db: AsyncSession = Depends(get_session),
     chat: ChatService = Depends(get_chat_service),
 ):
+    arrived = received_at(request)
     turn = await chat.prepare_regenerate(db, principal.user, conversation_id)
-    return _stream(chat, turn, request)
+    return await _stream(chat, turn, request, db, arrived)
 
 
 @router.post("/messages/{message_id}/cancel", response_model=CancelOut, summary="Stop a reply being generated")

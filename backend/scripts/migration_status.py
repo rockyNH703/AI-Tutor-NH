@@ -35,7 +35,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 
 
 async def database_revision(url: str) -> str | None:
-    engine = create_async_engine(url)
+    engine = create_async_engine(url, hide_parameters=True)
     try:
         async with engine.connect() as conn:
             if not await conn.scalar(text("select to_regclass('public.alembic_version') is not null")):

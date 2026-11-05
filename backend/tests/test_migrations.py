@@ -331,7 +331,7 @@ HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
-HEAD = KNOWLEDGE_LIFECYCLE
+HEAD = "0025_knowledge_canonical"
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -732,8 +732,65 @@ def test_migration_0024_frees_knowledge_actors_and_accepts_the_old_global_insert
         assert run(_query("SELECT to_regprocedure('knowledge_sources_global_without_owner()') AS f"))[0]["f"] is None
         assert run(_legacy_global_insert_refused("legacy-again"))
         alembic("upgrade", KNOWLEDGE_LIFECYCLE)
-        alembic("upgrade", "head")  # repeated: a no-op
         assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_LIFECYCLE
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+KNOWLEDGE_CANONICAL = "0025_knowledge_canonical"
+CANONICAL_TABLES = (
+    "knowledge_courses",
+    "knowledge_editions",
+    "knowledge_passages",
+    "knowledge_passage_embeddings",
+    "knowledge_passage_occurrences",
+    "knowledge_passage_sources",
+    "knowledge_passage_links",
+    "knowledge_page_fingerprints",
+    "knowledge_concepts",
+    "knowledge_concept_aliases",
+    "knowledge_passage_concepts",
+    "knowledge_relations",
+)
+
+
+def test_migration_0025_adds_the_canonical_knowledge_tables_and_refuses_to_drop_operator_decisions():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", KNOWLEDGE_LIFECYCLE)
+        owner = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Owner') RETURNING id",
+                "owner-0025@example.com",
+            )
+        )[0]["id"]
+        run(_query("INSERT INTO knowledge_sources (name, owner_user_id) VALUES ('kept-0025', $1)", owner))
+        before = run(_snapshot(CANONICAL_TABLES))
+
+        alembic("upgrade", KNOWLEDGE_CANONICAL)
+        # The 0024 release's own insert still works on the new schema (every new column is nullable).
+        run(_query("INSERT INTO knowledge_sources (name, owner_user_id) VALUES ('old-release-0025', $1)", owner))
+        run(_query("INSERT INTO knowledge_courses (slug, name, level) VALUES ('ccna', 'CCNA', 1)"))
+        run(_query("UPDATE knowledge_sources SET course = 'ccna' WHERE name = 'kept-0025'"))
+        process = subprocess.run(
+            [sys.executable, "-m", "alembic", "-x", f"url={URL}", "downgrade", KNOWLEDGE_LIFECYCLE],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode != 0 and "0025 downgrade refused" in process.stderr
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_CANONICAL
+
+        run(_query("UPDATE knowledge_sources SET course = NULL"))
+        run(_query("DELETE FROM knowledge_courses"))
+        run(_query("DELETE FROM knowledge_sources WHERE name = 'old-release-0025'"))
+        alembic("downgrade", KNOWLEDGE_LIFECYCLE)
+        assert run(_snapshot(CANONICAL_TABLES)) == before  # nothing outside the new tables changed
+        alembic("upgrade", KNOWLEDGE_CANONICAL)
+        alembic("upgrade", "head")  # repeated: a no-op
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_CANONICAL
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 

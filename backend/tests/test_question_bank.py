@@ -517,7 +517,7 @@ async def test_choosing_and_answering_are_fast_on_a_full_chapter(sessions, tmp_p
             text("EXPLAIN (ANALYZE, TIMING OFF, FORMAT JSON) " + selection.ADAPTIVE_PICK.text), params
         )
     plan = json.loads(plan) if isinstance(plan, str) else plan
-    # Keep the database-plan gate strict. The second assertion includes Python scheduling,
-    # two session checkouts and four database round trips, which are noisier on Windows.
+    # The plan gate, and the median of a whole choose-and-answer round trip (two session checkouts and four
+    # database round trips). Backend tests run in WSL (docs/testing.md); 0.4 s on Windows was a loosened gate.
     assert plan[0]["Execution Time"] < 25
-    assert sorted(timings)[len(timings) // 2] < 0.4
+    assert sorted(timings)[len(timings) // 2] < 0.25

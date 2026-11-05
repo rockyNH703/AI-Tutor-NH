@@ -114,7 +114,7 @@ def source_entry(document: Document) -> dict:
 # Knowledge-base attributes shown in a context block's label, in this order (Document.metadata
 # "attributes", app/rag/retriever.py), so the model knows which vendor, platform and software version
 # a passage is about. Each value on one line, at most ATTRIBUTE_MAX characters.
-LABEL_ATTRIBUTES = ("vendor", "platform", "version")
+LABEL_ATTRIBUTES = ("vendor", "platform", "version", "course", "course_role")  # course_role: foundation
 ATTRIBUTE_MAX = 40
 
 
@@ -136,13 +136,25 @@ _REFERENCE_REPLACEMENTS = {
 }
 
 
+# Zero-width and bidirectional controls can hide or reorder what a reader sees; ZWJ and ZWNJ (U+200D, U+200C)
+# stay, Devanagari and emoji need them.
+_INVISIBLE = re.compile("[​‎‏‪-‮⁠-⁤⁦-⁩﻿؜᠎]")
+# A line of untrusted text that reads like the start of another numbered block ([2] …, [F1] …).
+_FORGED_MARKER = re.compile(r"(?m)^(\s*)\[(F?\d{1,4})\]")
+
+
+def _scrub(text: str) -> str:
+    """Untrusted text, without invisible controls, and with no line that can pass for another block's marker."""
+    return _FORGED_MARKER.sub(r"\1(\2)", _INVISIBLE.sub("", text))
+
+
 def _neutral_reference(text: str) -> str:
-    """Neutralize known model-facing delimiters in untrusted KB metadata and content."""
+    """Neutralize known model-facing delimiters, forged block markers and invisible controls in KB text."""
 
     def replace(match: re.Match[str]) -> str:
         return f"({_REFERENCE_REPLACEMENTS[match.group(2).lower()]})"
 
-    return _REFERENCE_DELIMITER.sub(replace, text)
+    return _scrub(_REFERENCE_DELIMITER.sub(replace, text))
 
 
 def _label(meta: dict) -> str:
@@ -164,7 +176,7 @@ def _block(number: int, document: Document) -> str:
 
 
 def _neutral(text: str) -> str:
-    return _DELIMITER.sub("(attached files)", text)
+    return _scrub(_DELIMITER.sub("(attached files)", text))
 
 
 def _location(meta: dict) -> str:

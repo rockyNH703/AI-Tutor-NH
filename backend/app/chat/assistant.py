@@ -210,7 +210,19 @@ def retrieval_for(student: StudentContext | None) -> RetrievalOptions:
     return RetrievalOptions(
         classes=(int(grade.group(1)),) if grade else (),
         subjects=tuple(subject.name for subject in student.subjects),
+        courses=course_for_goal(student.certification_goal),
     )
+
+
+def course_for_goal(goal: str | None) -> tuple[str, ...]:
+    """The Knowledge Library course a certification goal (its catalog display name) studies: CCNA -> ccna,
+    any CCNP or CCIE track -> ccnp (CCIE builds on CCNP). Any other goal, or none: every course."""
+    name = (goal or "").upper()
+    if name.startswith("CCNA"):
+        return ("ccna",)
+    if name.startswith(("CCNP", "CCIE")):
+        return ("ccnp",)
+    return ()
 
 
 def resolve_assistant_config(

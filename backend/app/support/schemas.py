@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 import uuid
 from datetime import datetime
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic import Field, field_validator
 
@@ -41,6 +41,8 @@ def clean_message(value: object) -> object:
 
 
 class SupportRequestIn(RequestModel):
+    nul_cleaned_fields: ClassVar[frozenset[str]] = frozenset({"subject", "message"})  # their cleaners drop U+0000
+
     request_id: uuid.UUID = Field(description="Chosen by the client; sending the same request again returns it.")
     kind: SupportKind
     subject: str = Field(min_length=1, max_length=SUBJECT_MAX)

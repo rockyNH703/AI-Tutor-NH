@@ -24,7 +24,8 @@ SRC=${1:?usage: install-units.sh <directory with deploy-netsec/>}
 
 SUFFIX=${BACKUP_SUFFIX:-.before-$(date -u +%Y%m%d%H%M%S)}  # replaced units are kept as <unit>$SUFFIX
 changed=0
-for unit in "$SRC"/deploy-netsec/systemd/netsecai-*.service "$SRC"/deploy-netsec/systemd/netsecai-*.timer; do
+for unit in "$SRC"/deploy-netsec/systemd/netsecai-*.service "$SRC"/deploy-netsec/systemd/netsecai-*.timer \
+  "$SRC"/deploy-netsec/systemd/netsecai-*.slice; do
   target="/etc/systemd/system/$(basename "$unit")"
   if ! cmp -s "$unit" "$target"; then
     [ -f "$target" ] && cp -p "$target" "$target$SUFFIX"
@@ -36,7 +37,12 @@ done
 if [ "$changed" = 1 ]; then systemctl daemon-reload; fi
 systemctl enable --quiet netsecai-postgres.service netsecai-pg-backup.timer
 # The app units start at boot once production has a checkout (a fresh host has none yet).
-if [ -d "$APP/.git" ]; then systemctl enable --quiet netsecai-api.service netsecai-web.service netsecai-knowledge.timer; fi
+if [ -d "$APP/.git" ]; then
+  systemctl enable --quiet netsecai-api.service netsecai-web.service
+  # The owner's lasting off switch for the Knowledge Library worker (docs/operations.md): while the file exists,
+  # every deploy keeps the timer disabled and stopped instead of enabling it again.
+  if [ -e "$SECRETS/knowledge.disabled" ]; then systemctl disable --now --quiet netsecai-knowledge.timer; else systemctl enable --quiet netsecai-knowledge.timer; fi
+fi
 
 install -d -m 755 "$SHARED/postgres"
 compose="$SHARED/postgres/docker-compose.yml"

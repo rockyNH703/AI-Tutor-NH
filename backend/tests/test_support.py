@@ -107,6 +107,13 @@ async def test_malformed_requests_are_refused(client, app):
         assert (await client.post("/v1/support/requests", json=body, headers=headers)).status_code == 422, body
 
 
+async def test_a_nul_outside_the_cleaned_text_is_a_422_not_a_database_error(client, app):
+    # The subject and the message lose control characters (test above); every other field refuses U+0000.
+    headers = (await register(client, app))["headers"]
+    response = await client.post("/v1/support/requests", json=request(page="/settings\x00/help"), headers=headers)
+    assert response.status_code == 422, response.text
+
+
 async def test_requests_are_limited_per_hour_and_by_open_count(client, app, database):
     account = await register(client, app)
     headers = account["headers"]

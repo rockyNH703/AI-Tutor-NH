@@ -286,7 +286,8 @@ async def test_lexical_statement_binds_malformed_query(app):
         statement = store.lexical_search_statement(query, "fake:text-embedding-3-small", allowed, 5)
         compiled = statement.compile(dialect=session.bind.dialect)
     assert "DROP TABLE" not in str(compiled)
-    assert any("drop table" in str(value) for value in compiled.params.values())
+    # Each informative word is its own bound plainto_tsquery parameter (OR of words); none reaches the SQL text.
+    assert {"drop", "table", "xe-0/0/7"} <= {str(value) for value in compiled.params.values()}
 
 
 async def test_lexical_query_can_use_gin_index(app):

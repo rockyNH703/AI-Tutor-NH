@@ -12,7 +12,7 @@ from functools import lru_cache
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.db.models import MEMORY_MAX_CONTENT_CHARS
@@ -114,11 +114,12 @@ class Settings(BaseSettings):
     llm_fallback_api_key: SecretStr = SecretStr("")
     llm_fallback_model: str = ""  # empty = no fallback provider
     llm_fallback_stream_usage: bool = True
-    llm_temperature: float = 0.7
-    llm_max_output_tokens: int = 4096
-    llm_connect_timeout_s: float = 10.0
-    llm_first_token_timeout_s: float = 60.0
-    llm_total_timeout_s: float = 180.0
+    # Bounds (K-28d): a value outside them is a configuration mistake that would break every reply.
+    llm_temperature: float = Field(default=0.7, ge=0, le=2)
+    llm_max_output_tokens: int = Field(default=4096, ge=1, le=65_536)
+    llm_connect_timeout_s: float = Field(default=10.0, gt=0, le=120)
+    llm_first_token_timeout_s: float = Field(default=60.0, gt=0, le=600)  # at most llm_total_timeout_s
+    llm_total_timeout_s: float = Field(default=180.0, gt=0, le=3600)
     llm_fake_token_delay_s: float = 0.0
     # Total characters sent to the model per turn (system prompt + retrieved context +
     # history + new message). Characters approximate tokens (~4 chars/token for English;
@@ -128,8 +129,16 @@ class Settings(BaseSettings):
     # ---- chat ----
     chat_max_message_chars: int = 16_000
     chat_history_max_messages: int = 50
-    chat_generations_per_minute: int = 20
-    chat_generations_per_day: int = 500
+    # 0 refuses every chat (an operator's switch); negative is a mistake.
+    chat_generations_per_minute: int = Field(default=20, ge=0, le=10_000)
+    chat_generations_per_day: int = Field(default=500, ge=0, le=1_000_000)
+    # K-11a: chat off without a deploy (CHAT_ENABLED=false, then restart), and a daily cap for every account
+    # together (0 = no cap): the operator's bound on what a leaked account or a burst can spend.
+    chat_enabled: bool = True
+    chat_generations_global_per_day: int = Field(default=0, ge=0, le=10_000_000)
+    # K-07b: replies one account may have generating at once (across its chats), and in this API process.
+    chat_live_generations_per_user: int = Field(default=3, ge=1, le=100)
+    chat_live_generations_max: int = Field(default=64, ge=1, le=10_000)
     stream_keepalive_s: float = 15.0
     stream_stale_after_s: int = 300
     stream_cancel_poll_s: float = 1.0
@@ -201,23 +210,23 @@ class Settings(BaseSettings):
     # ---- RAG (LangGraph + LangChain retriever over PostgreSQL/pgvector) ----
     rag_enabled: bool = True
     rag_hybrid: bool = False
-    rag_top_k: int = 5
+    rag_top_k: int = Field(default=5, ge=1, le=1_000)
     rag_dense_candidates: int = Field(default=20, ge=1, le=1_000)
     rag_lexical_candidates: int = Field(default=20, ge=1, le=1_000)
     rag_rrf_k: int = Field(default=60, ge=1, le=1_000)
     # Cosine similarity floor (0..1). Uncalibrated default: tune with scripts/eval_retrieval.py.
-    rag_min_score: float = 0.30
-    rag_max_context_chars: int = 8_000
-    rag_retrieval_timeout_s: float = 8.0
-    rag_hnsw_ef_search: int = 100
+    rag_min_score: float = Field(default=0.30, ge=-1, le=1)
+    rag_max_context_chars: int = Field(default=8_000, ge=0, le=1_000_000)
+    rag_retrieval_timeout_s: float = Field(default=8.0, gt=0, le=60)
+    rag_hnsw_ef_search: int = Field(default=100, ge=1, le=1_000)
     # The NCERT Knowledge Service (app/rag/ncert.py): with a URL and a key, the tutor's knowledge
     # source; empty = the pgvector knowledge base. The key is the service's client key (a secret).
     # The timeout is the whole call: live searches took ~1.7 s, p95 2.8 s, at most 3.9 s (2026-10-15..19).
     ncert_kb_base_url: str = ""
     ncert_kb_api_key: SecretStr = SecretStr("")
     ncert_kb_timeout_s: float = Field(default=6.0, gt=0, le=10)
-    rag_chunk_size: int = 1_000
-    rag_chunk_overlap: int = 150
+    rag_chunk_size: int = Field(default=1_000, ge=50, le=100_000)
+    rag_chunk_overlap: int = Field(default=150, ge=0)  # below rag_chunk_size (checked below)
     rag_max_document_bytes: int = 5 * 1024 * 1024
 
     # ---- embeddings ----
@@ -298,6 +307,15 @@ class Settings(BaseSettings):
         except (zoneinfo.ZoneInfoNotFoundError, ValueError) as error:
             raise ValueError("DEFAULT_TIMEZONE must be an IANA time zone name, e.g. Asia/Kolkata") from error
         return value
+
+    @model_validator(mode="after")
+    def _consistent_numbers(self) -> Settings:
+        """Pairs that only work together (K-28d, K-28e)."""
+        if self.llm_first_token_timeout_s > self.llm_total_timeout_s:
+            raise ValueError("LLM_FIRST_TOKEN_TIMEOUT_S must not exceed LLM_TOTAL_TIMEOUT_S")
+        if self.rag_chunk_overlap >= self.rag_chunk_size:
+            raise ValueError("RAG_CHUNK_OVERLAP must be smaller than RAG_CHUNK_SIZE")
+        return self
 
     @property
     def cors_origins(self) -> list[str]:

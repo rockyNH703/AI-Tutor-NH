@@ -96,6 +96,7 @@ def build_rag(
             dense_candidates=settings.rag_dense_candidates,
             lexical_candidates=settings.rag_lexical_candidates,
             rrf_k=settings.rag_rrf_k,
+            courses=list(options.courses) or None,
         )
 
     async def has_knowledge(scope: AccessScope) -> bool:

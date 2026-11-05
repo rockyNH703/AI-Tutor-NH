@@ -16,25 +16,36 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from langchain_core.embeddings import Embeddings
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 
-from app.db.models import Document, DocumentFile, DocumentFileBlob, DocumentRevision, DocumentRevisionChunk
+from app.db.models import Document, DocumentFile, DocumentFileBlob, DocumentRevision, KnowledgeSource
 from app.db.session import Database
 from app.files.processing import BACKEND_DIR, EMBED_RETRY_DELAYS_S, SANDBOX_PROPERTIES, _systemctl
+from app.knowledge import concepts, passages
 from app.knowledge.protocol import MAX_STDOUT_BYTES, ExtractedDocument, parse_ndjson
-from app.knowledge.publication import CHUNK_OVERLAP_CHARS, MAX_CHUNK_CHARS, build_chunks, stage_chunks
+from app.knowledge.publication import CHUNK_OVERLAP_CHARS, MAX_CHUNK_CHARS, build_chunks
 from app.knowledge.worker import RevisionClaim
 from app.logging import get_logger
 from app.rag.embeddings import embedding_model_id
 from app.rag.errors import EmbeddingError
 from app.settings import Settings
 
-EXTRACT_TIMEOUT_S = 1_200
+EXTRACT_TIMEOUT_S = 3_600
 MAX_STDERR = 4_096
 UNIT_PREFIX = "netsecai-knowledge-extract"
-# The File Library's sandbox, with a runtime that fits a book: OCR is the slow path (about 1-5 s per scanned
-# page on one CPU). Memory and CPU stay as they are (a 400-page digital PDF: 2 s, 46 MB). The later -p wins.
+KNOWLEDGE_SLICE = "netsecai-knowledge.slice"  # deploy-netsec/systemd: low weights, a hard memory ceiling
+HEARTBEAT_S = 60  # well inside the worker's 20-minute lease: a long book is never taken for a dead claim
+PARSER_NAME, PARSER_VERSION = "netsec-knowledge-pdfium-tesseract", "v3"
+# The File Library's sandbox, with what a book needs: a runtime for OCR (about 1-5 s per scanned page per CPU),
+# and CPU and memory for its OCR processes (each ~150 MB). The later -p wins.
 KNOWLEDGE_SANDBOX_OVERRIDES = (f"RuntimeMaxSec={EXTRACT_TIMEOUT_S}",)
+
+
+def sandbox_overrides(ocr_workers: int) -> tuple[str, ...]:
+    workers = max(1, ocr_workers)
+    return (*KNOWLEDGE_SANDBOX_OVERRIDES, f"CPUQuota={100 * workers}%", f"MemoryMax={384 + 256 * workers}M")
+
+
 # A revision still being worked on: a new one for the same file waits until it ends.
 ACTIVE_STATUSES = ("queued", "extracting", "chunking", "embedding", "verifying", "retryable")
 
@@ -57,12 +68,31 @@ async def _blobs(db: Database, file_id: uuid.UUID) -> AsyncIterator[bytes]:
             ordinal += 1
 
 
-def _extractor_command(runner: str, unit: str) -> tuple[list[str], dict[str, str] | None]:
+def _extractor_command(
+    runner: str, unit: str, ocr_workers: int = 1, slice_name: str | None = None
+) -> tuple[list[str], dict[str, str] | None]:
     module = [sys.executable, "-m", "app.knowledge.extract"]
     if runner == "systemd":
-        properties = [arg for prop in (*SANDBOX_PROPERTIES, *KNOWLEDGE_SANDBOX_OVERRIDES) for arg in ("-p", prop)]
-        return ["systemd-run", "--quiet", "--pipe", "--wait", "--collect", f"--unit={unit}", *properties, *module], None
-    env = {"PATH": os.environ.get("PATH", ""), "PYTHONDONTWRITEBYTECODE": "1", "OMP_THREAD_LIMIT": "1"}
+        properties = [arg for prop in (*SANDBOX_PROPERTIES, *sandbox_overrides(ocr_workers)) for arg in ("-p", prop)]
+        placement = [f"--slice={slice_name}"] if slice_name else []
+        return [
+            "systemd-run",
+            "--quiet",
+            "--pipe",
+            "--wait",
+            "--collect",
+            f"--unit={unit}",
+            *placement,
+            f"--setenv=KNOWLEDGE_OCR_WORKERS={max(1, ocr_workers)}",
+            *properties,
+            *module,
+        ], None
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_THREAD_LIMIT": "1",
+        "KNOWLEDGE_OCR_WORKERS": str(max(1, ocr_workers)),
+    }
     if os.name == "nt":
         env.update({key: os.environ[key] for key in ("SYSTEMROOT", "TEMP", "TMP") if key in os.environ})
     return module, env
@@ -85,9 +115,10 @@ async def extract_revision(
     claim: RevisionClaim,
     file_id: uuid.UUID,
     expected_sha256: str,
+    ocr_workers: int = 1,
 ) -> ExtractedDocument:
     unit = f"{UNIT_PREFIX}-{claim.id}-{claim.attempt}.service"
-    argv, env = _extractor_command(runner, unit)
+    argv, env = _extractor_command(runner, unit, ocr_workers, KNOWLEDGE_SLICE)
     process = await asyncio.create_subprocess_exec(
         *argv,
         stdin=asyncio.subprocess.PIPE,
@@ -144,15 +175,21 @@ async def _embed_batch(
     """
     for attempt, delay in enumerate((*EMBED_RETRY_DELAYS_S, None)):
         async with db.sessionmaker() as session:
-            held = await session.scalar(
-                select(DocumentRevision.id).where(
-                    DocumentRevision.id == claim.id,
-                    DocumentRevision.attempts == claim.attempt,
-                    DocumentRevision.status == "embedding",
+            held = (
+                await session.execute(
+                    select(DocumentRevision.id, KnowledgeSource.embed_egress_approved_at)
+                    .join(KnowledgeSource, KnowledgeSource.id == DocumentRevision.source_id)
+                    .where(
+                        DocumentRevision.id == claim.id,
+                        DocumentRevision.attempts == claim.attempt,
+                        DocumentRevision.status == "embedding",
+                    )
                 )
-            )
+            ).first()
         if held is None:
             raise RuntimeError("knowledge_revision_claim_lost")
+        if held.embed_egress_approved_at is None:  # withdrawn meanwhile: no more of this book leaves
+            raise RuntimeError("knowledge_embed_egress_not_approved")
         try:
             return await embeddings.aembed_documents(texts)
         except EmbeddingError as error:
@@ -163,11 +200,41 @@ async def _embed_batch(
     raise EmbeddingError("embedding_failed", "retries exhausted")
 
 
+async def _heartbeat(db: Database, claim: RevisionClaim) -> None:
+    """Keep this worker's lease fresh while it holds the claim (fenced by the attempt): recover_stale only ever
+    takes a revision whose worker really stopped, however long its book takes."""
+    while True:
+        await asyncio.sleep(HEARTBEAT_S)
+        async with db.sessionmaker() as session, session.begin():
+            await session.execute(
+                update(DocumentRevision)
+                .where(
+                    DocumentRevision.id == claim.id,
+                    DocumentRevision.attempts == claim.attempt,
+                    DocumentRevision.status.in_(("extracting", "embedding")),
+                )
+                .values(claimed_at=datetime.now(UTC))
+            )
+
+
 async def process_revision(
+    db: Database, settings: Settings, embeddings: Embeddings, claim: RevisionClaim, ocr_workers: int = 1
+) -> str:
+    beat = asyncio.create_task(_heartbeat(db, claim))
+    try:
+        return await _process_revision(db, settings, embeddings, claim, ocr_workers)
+    finally:
+        beat.cancel()
+        with contextlib.suppress(asyncio.CancelledError, Exception):
+            await beat
+
+
+async def _process_revision(
     db: Database,
     settings: Settings,
     embeddings: Embeddings,
     claim: RevisionClaim,
+    ocr_workers: int = 1,
 ) -> str:
     model = embedding_model_id(embeddings)
     async with db.sessionmaker() as session:
@@ -179,7 +246,7 @@ async def process_revision(
             raise RuntimeError("knowledge_file_not_ready")
         revision_id, file_id, file_sha256 = revision.id, file.id, file.sha256
 
-    extracted = await extract_revision(db, settings.files_runner, claim, file_id, file_sha256)
+    extracted = await extract_revision(db, settings.files_runner, claim, file_id, file_sha256, ocr_workers)
     chunks = build_chunks(extracted)
     if not chunks:
         raise RuntimeError("knowledge_no_chunks")
@@ -198,20 +265,34 @@ async def process_revision(
             raise RuntimeError("knowledge_revision_claim_lost")
         revision.status = "embedding"
         revision.output_digest = extracted.content_sha256
+        distinct = await passages.stage_passages(session, revision, chunks)
+        await concepts.index_revision(session, revision.id)  # local patterns: no text leaves for this
+        await passages.fingerprint_file(session, file_id, passages.pages_of(extracted.elements))
+        document = await session.get(Document, revision.document_id)
+        await passages.record_edition(
+            session, revision, document.title if document else "", extracted.document_metadata
+        )
+        missing = await passages.missing_embeddings(session, revision.id, model)
         revision.quality_report = {
             "pageCount": extracted.page_count,
             "elements": len(extracted.elements),
             "chunks": len(chunks),
+            "passages": distinct,
+            "reusedVectors": distinct - len(missing),
             "warnings": list(extracted.warnings),
         }
-        await stage_chunks(session, revision, chunks)
 
-    vectors: list[list[float]] = []
-    for start in range(0, len(chunks), settings.embedding_batch_size):
-        batch = chunks[start : start + settings.embedding_batch_size]
-        vectors.extend(await _embed_batch(db, claim, embeddings, [chunk.content for chunk in batch]))
-    if len(vectors) != len(chunks):
-        raise RuntimeError("knowledge_embedding_count_mismatch")
+    # Only text the library has no vector for (this model) leaves; each batch is stored as it comes back, so a
+    # retry after a provider failure resumes where it stopped instead of embedding the book again.
+    for start in range(0, len(missing), settings.embedding_batch_size):
+        batch = missing[start : start + settings.embedding_batch_size]
+        vectors = await _embed_batch(db, claim, embeddings, [content for _, content in batch])
+        if len(vectors) != len(batch):
+            raise RuntimeError("knowledge_embedding_count_mismatch")
+        async with db.sessionmaker() as session, session.begin():
+            await passages.store_embeddings(
+                session, [(pid, vec) for (pid, _), vec in zip(batch, vectors, strict=True)], model
+            )
 
     async with db.sessionmaker() as session, session.begin():
         revision = await session.scalar(
@@ -226,21 +307,17 @@ async def process_revision(
         )
         if revision is None:
             raise RuntimeError("knowledge_revision_claim_lost")
-        staged = list(
-            await session.scalars(
-                select(DocumentRevisionChunk)
-                .where(DocumentRevisionChunk.revision_id == revision.id)
-                .order_by(DocumentRevisionChunk.ordinal)
-            )
-        )
-        if len(staged) != len(vectors):
+        if await passages.missing_embeddings(session, revision.id, model):
             raise RuntimeError("knowledge_staging_changed")
-        for chunk, vector in zip(staged, vectors, strict=True):
-            chunk.embedding = vector
-            chunk.embedding_model = model
+        warnings = list(extracted.warnings)
         file = await session.get(DocumentFile, revision.file_id)
         if file is not None:
             file.page_count = extracted.page_count
+            # Every other copy, edition or volume in the library, whatever its source, course or batch.
+            await passages.classify_file(session, file)
+            if await passages.blocking_reviews(session, file.id):
+                warnings.append("duplicate_review_pending")
+        revision.quality_report = {**revision.quality_report, "warnings": warnings}
         document = await session.get(Document, revision.document_id)
         if document is not None:
             document.content_hash = extracted.content_sha256
@@ -249,13 +326,13 @@ async def process_revision(
         revision.embedding_model = model
         revision.embedding_dimensions = settings.embedding_dimensions
         revision.updated_at = datetime.now(UTC)
-    return "needs_review" if extracted.warnings else "ready_to_publish"
+    return "needs_review" if warnings else "ready_to_publish"
 
 
 def processing_signature(file_sha256: str, settings: Settings, model: str) -> str:
     payload = {
         "file": file_sha256,
-        "parser": "netsec-knowledge-pdfium-tesseract-v2",
+        "parser": f"{PARSER_NAME}-{PARSER_VERSION}",
         "chunk": [MAX_CHUNK_CHARS, CHUNK_OVERLAP_CHARS],
         "embedding": [model, settings.embedding_dimensions],
     }
@@ -269,9 +346,15 @@ async def queue_ready_files(db: Database, settings: Settings, embeddings: Embedd
         files = list(
             await session.scalars(
                 select(DocumentFile)
-                .where(DocumentFile.status == "ready")
+                .join(KnowledgeSource, KnowledgeSource.id == DocumentFile.source_id)
+                .where(
+                    DocumentFile.status == "ready",
+                    # Book text goes to the embedding provider only with the owner's recorded approval (CLI egress).
+                    KnowledgeSource.embed_egress_approved_at.is_not(None),
+                    KnowledgeSource.rights_revoked_at.is_(None),
+                )
                 .order_by(DocumentFile.created_at)
-                .with_for_update(skip_locked=True)
+                .with_for_update(of=DocumentFile, skip_locked=True)
             )
         )
         for file in files:
@@ -324,9 +407,9 @@ async def queue_ready_files(db: Database, settings: Settings, embeddings: Embedd
                     revision_number=revision_number,
                     status="queued",
                     processing_signature=signature,
-                    parser_name="netsec-knowledge-pdfium-tesseract",
-                    parser_version="v2",
-                    parser_config_hash=hashlib.sha256(b"netsec-knowledge-pdfium-tesseract-v2").hexdigest(),
+                    parser_name=PARSER_NAME,
+                    parser_version=PARSER_VERSION,
+                    parser_config_hash=hashlib.sha256(f"{PARSER_NAME}-{PARSER_VERSION}".encode()).hexdigest(),
                     chunking_config_hash=hashlib.sha256(
                         f"{MAX_CHUNK_CHARS}:{CHUNK_OVERLAP_CHARS}".encode()
                     ).hexdigest(),

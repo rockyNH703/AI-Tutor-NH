@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import math
+import re
 import time
 import uuid
+from dataclasses import replace
 from typing import Any
 
 from langchain_core.callbacks import AsyncCallbackManagerForRetrieverRun, CallbackManagerForRetrieverRun
@@ -13,11 +15,20 @@ from langchain_core.embeddings import Embeddings
 from langchain_core.retrievers import BaseRetriever
 from pydantic import ConfigDict, Field, field_validator
 
+from app.knowledge.concepts import query_concepts
 from app.rag.embeddings import embedding_model_id, is_configured
 from app.rag.errors import EmbeddingError
 from app.rag.lexical import build_lexical_query
-from app.rag.store import FileHit, KnowledgeStore
+from app.rag.store import FileHit, KnowledgeStore, SearchHit
 from app.rag.types import AccessScope
+
+# A course the question names outright overrides the profile's ("for CCNP, ..."); CCIE builds on CCNP.
+_NAMED_COURSE = re.compile(r"\b(ccna|ccnp|ccie)\b", re.IGNORECASE)
+_COURSE_OF = {"ccna": "ccna", "ccnp": "ccnp", "ccie": "ccnp"}
+
+
+def named_courses(query: str) -> tuple[str, ...]:
+    return tuple(sorted({_COURSE_OF[match.lower()] for match in _NAMED_COURSE.findall(query)}))
 
 
 class PgVectorRetriever(BaseRetriever):
@@ -42,6 +53,8 @@ class PgVectorRetriever(BaseRetriever):
     dense_candidates: int = 20
     lexical_candidates: int = 20
     rrf_k: int = 60
+    # The turn's course boundary (None: every course); its general sources are always in.
+    courses: list[str] | None = None
     # Filled by each call, for observability (milliseconds).
     last_timings: dict[str, int | str] = Field(default_factory=dict)
 
@@ -51,6 +64,32 @@ class PgVectorRetriever(BaseRetriever):
         if isinstance(value, bool) or not isinstance(value, int) or value <= 0 or value > 1_000:
             raise ValueError("retrieval limits must be integers between 1 and 1000")
         return value
+
+    async def _search(
+        self, query: str, vector: list[float], model: str, courses, *, include_general: bool
+    ) -> tuple[list[SearchHit], dict]:
+        common = {
+            "embedding_model": model,
+            "k": self.k,
+            "source_names": self.source_names,
+            "metadata_filter": self.metadata_filter,
+            "min_score": self.min_score,
+            "courses": courses,
+            "include_general": include_general,
+        }
+        if not self.hybrid:
+            return await self.store.search(self.scope, vector, **common), {}
+        result = await self.store.hybrid_search(
+            self.scope,
+            vector,
+            build_lexical_query(query),
+            dense_candidates=max(self.k, self.dense_candidates),
+            lexical_candidates=max(self.k, self.lexical_candidates),
+            rrf_k=self.rrf_k,
+            concept_keys=query_concepts(query),
+            **common,
+        )
+        return result.hits, dict(result.timings)
 
     def _get_relevant_documents(self, query: str, *, run_manager: CallbackManagerForRetrieverRun) -> list[Document]:
         raise NotImplementedError("PgVectorRetriever is async-only; use `await retriever.ainvoke(query)`")
@@ -73,40 +112,20 @@ class PgVectorRetriever(BaseRetriever):
         embedded = time.perf_counter()
 
         model = embedding_model_id(self.embeddings)
-        if self.hybrid:
-            result = await self.store.hybrid_search(
-                self.scope,
-                vector,
-                build_lexical_query(query),
-                embedding_model=model,
-                k=self.k,
-                dense_candidates=max(self.k, self.dense_candidates),
-                lexical_candidates=max(self.k, self.lexical_candidates),
-                rrf_k=self.rrf_k,
-                source_names=self.source_names,
-                metadata_filter=self.metadata_filter,
-                min_score=self.min_score,
-            )
-            hits = result.hits
-            self.last_timings = {
-                "embedding_ms": int((embedded - started) * 1000),
-                "search_ms": int((time.perf_counter() - embedded) * 1000),
-                **result.timings,
-            }
-        else:
-            hits = await self.store.search(
-                self.scope,
-                vector,
-                embedding_model=model,
-                k=self.k,
-                source_names=self.source_names,
-                metadata_filter=self.metadata_filter,
-                min_score=self.min_score,
-            )
-            self.last_timings = {
-                "embedding_ms": int((embedded - started) * 1000),
-                "search_ms": int((time.perf_counter() - embedded) * 1000),
-            }
+        courses = named_courses(query) or (tuple(self.courses) if self.courses else None)
+        hits, timings = await self._search(query, vector, model, courses, include_general=True)
+        foundation = await self.store.foundation_courses(courses) if courses and len(hits) < self.k else ()
+        if foundation:
+            # Primary evidence fell short: the course this one builds on (CCNA under CCNP) fills in, labelled.
+            more, _ = await self._search(query, vector, model, foundation, include_general=False)
+            seen = {hit.chunk_id for hit in hits}
+            extra = [hit for hit in more if hit.chunk_id not in seen][: self.k - len(hits)]
+            hits = [*hits, *(replace(hit, metadata={**hit.metadata, "course_role": "foundation"}) for hit in extra)]
+        self.last_timings = {
+            "embedding_ms": int((embedded - started) * 1000),
+            "search_ms": int((time.perf_counter() - embedded) * 1000),
+            **timings,
+        }
         return [
             Document(
                 page_content=hit.content,

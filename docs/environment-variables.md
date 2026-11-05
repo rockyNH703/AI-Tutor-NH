@@ -254,8 +254,12 @@ and does nothing today.
 |---|---|---|---|
 | `CHAT_MAX_MESSAGE_CHARS` | integer | `16000` | Longest message a user may send. |
 | `CHAT_HISTORY_MAX_MESSAGES` | integer | `50` | Most earlier messages considered for the prompt (the character budget also applies). |
-| `CHAT_GENERATIONS_PER_MINUTE` | integer | `20` | Per-user reply quota per minute (429 `rate_limited`). |
-| `CHAT_GENERATIONS_PER_DAY` | integer | `500` | Per-user reply quota per day. |
+| `CHAT_GENERATIONS_PER_MINUTE` | integer | `20` | Per-user reply quota per minute (429 `rate_limited`). 0 to 10,000; 0 refuses every reply. |
+| `CHAT_GENERATIONS_PER_DAY` | integer | `500` | Per-user reply quota per day. 0 to 1,000,000. |
+| `CHAT_ENABLED` | bool | `true` | `false` switches chat off without a deploy (restart the API): new replies get 503 `service_unavailable`. |
+| `CHAT_GENERATIONS_GLOBAL_PER_DAY` | integer | `0` | Replies per day for every account together (429 when reached); `0` = no cap. |
+| `CHAT_LIVE_GENERATIONS_PER_USER` | integer | `3` | Replies one account may have generating at once, across its chats (429). 1 to 100. |
+| `CHAT_LIVE_GENERATIONS_MAX` | integer | `64` | Replies this API process generates at once; beyond it, 503. |
 | `STREAM_KEEPALIVE_S` | number | `15.0` | Seconds of silence before the SSE stream sends a `: keepalive` comment. |
 | `STREAM_STALE_AFTER_S` | integer | `300` | A reply still `streaming` after this long is treated as dead and marked interrupted. |
 | `STREAM_CANCEL_POLL_S` | number | `1.0` | How often a generation checks the database's stop flag (a stop from another tab or process). |

@@ -53,6 +53,8 @@ export type ProxyDeps = {
   fetchImpl?: typeof fetch;
   requestId?: () => string;
   jsonTimeoutMs?: number;
+  /** How long a file response may take to reach the browser in all (FILE_DELIVERY_TIMEOUT_MS). */
+  fileDeliveryTimeoutMs?: number;
   log?: (line: string) => void;
 };
 
@@ -174,20 +176,40 @@ function mediaType(value: string | null): string {
   return (value ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
 }
 
-/** Pass an upstream stream through; cancelling ours aborts theirs. */
+/**
+ * A file response (a preview, or a book's PDF range) must reach the browser within this time in all: a stalled or
+ * deliberately slow reader would otherwise hold one of the FILES_IN_FLIGHT_MAX slots, and its upstream request,
+ * for as long as it likes. 25 MB at ~85 KB/s, as for uploads.
+ */
+export const FILE_DELIVERY_TIMEOUT_MS = 300_000;
+
+/** Pass an upstream stream through; cancelling ours aborts theirs. With `deadlineMs`, it ends in error then. */
 function passThrough(
   upstream: ReadableStream<Uint8Array>,
   abort: () => void,
   complete: () => void = () => undefined,
+  deadlineMs?: number,
 ): ReadableStream<Uint8Array> {
   const reader = upstream.getReader();
   let completed = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   const finish = () => {
     if (completed) return;
     completed = true;
+    if (timer) clearTimeout(timer);
     complete();
   };
   return new ReadableStream<Uint8Array>({
+    start(controller) {
+      if (deadlineMs === undefined) return;
+      timer = setTimeout(() => {
+        if (completed) return;
+        finish();
+        abort();
+        reader.cancel("delivery_timeout").catch(() => undefined);
+        controller.error(new Error("delivery_timeout"));
+      }, deadlineMs);
+    },
     async pull(controller) {
       try {
         const { done, value } = await reader.read();
@@ -307,7 +329,8 @@ export async function proxyRequest(request: Request, segments: string[], deps: P
         release();
         return response;
       }
-      return new Response(passThrough(response.body, () => undefined, release), response);
+      const deadline = deps.fileDeliveryTimeoutMs ?? FILE_DELIVERY_TIMEOUT_MS;
+      return new Response(passThrough(response.body, () => undefined, release, deadline), response);
     } catch (error) {
       release();
       throw error;
@@ -380,6 +403,9 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps, au
   const headers = new Headers({
     Accept: spec.stream ? "text/event-stream" : spec.file ? spec.file.types.join(", ") : "application/json",
     "X-Request-ID": requestId,
+    // When the whole request was in hand (epoch ms): where the API's pre-LLM interval starts. Set here only;
+    // a browser's own header of that name is never forwarded (these headers are built from scratch).
+    "X-NetSec-Received-At": String(Date.now()),
   });
   if (body !== undefined && bodyType) headers.set("Content-Type", bodyType);
   if (spec.auth && token) headers.set("Authorization", `Bearer ${token}`);

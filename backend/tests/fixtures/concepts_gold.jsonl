@@ -1,0 +1,110 @@
+{"id": 1, "text": "OSPF is a link-state routing protocol that uses IP protocol 89.", "facts": [["ospf", "is_a", "link_state_protocol", null], ["ospf", "has_value", "ip_protocol", "89"]]}
+{"id": 2, "text": "EIGRP uses DUAL to compute loop-free paths and keeps a feasible successor in its topology table.", "facts": [["eigrp", "uses", "dual", null]]}
+{"id": 3, "text": "By default, OSPF on a broadcast network sends hello packets every 10 seconds and uses a dead interval of 40 seconds.", "facts": [["ospf", "has_value", "hello_timer_s", "10"], ["ospf", "has_value", "dead_timer_s", "40"]]}
+{"id": 4, "text": "BGP uses TCP port 179 to establish sessions between peers.", "facts": [["bgp", "has_value", "tcp_port", "179"], ["bgp", "uses", "tcp", null]]}
+{"id": 5, "text": "The administrative distance of eBGP routes is 20, while iBGP routes have an administrative distance of 200.", "facts": [["bgp", "has_value", "administrative_distance", "20"], ["bgp", "has_value", "administrative_distance", "200"]]}
+{"id": 6, "text": "RIP has an administrative distance of 120 and uses hop count as its metric.", "facts": [["rip", "has_value", "administrative_distance", "120"]]}
+{"id": 7, "text": "HSRP is a Cisco-proprietary first hop redundancy protocol, while VRRP is an open standard.", "facts": [["hsrp", "is_a", "fhrp", null]]}
+{"id": 8, "text": "VRRP sends advertisements to the multicast address 224.0.0.18.", "facts": [["vrrp", "has_value", "multicast_address", "224.0.0.18"]]}
+{"id": 9, "text": "OSPF routers send hello packets to 224.0.0.5, and the DR and BDR listen on 224.0.0.6.", "facts": [["ospf", "has_value", "multicast_address", "224.0.0.5"], ["dr", "has_value", "multicast_address", "224.0.0.6"], ["bdr", "has_value", "multicast_address", "224.0.0.6"]]}
+{"id": 10, "text": "STP operates at Layer 2 and prevents loops by blocking redundant ports.", "facts": [["stp", "operates_at", "layer2", null]]}
+{"id": 11, "text": "A router operates at layer 3 of the OSI model.", "facts": [["router", "operates_at", "layer3", null]]}
+{"id": 12, "text": "RSTP replaces the original 802.1D spanning tree and converges much faster.", "facts": [["rstp", "replaces", "stp", null]]}
+{"id": 13, "text": "IKEv2 replaces IKEv1 in most modern IPsec VPN designs.", "facts": []}
+{"id": 14, "text": "GRE is a tunneling protocol that can carry multicast traffic, which plain IPsec cannot.", "facts": [["gre", "is_a", "tunneling_protocol", null]]}
+{"id": 15, "text": "DMVPN uses GRE tunnels and NHRP to build spoke-to-spoke paths on demand.", "facts": [["dmvpn", "uses", "gre", null]]}
+{"id": 16, "text": "SSH uses TCP port 22, whereas Telnet uses TCP port 23 and sends everything in clear text.", "facts": [["ssh", "has_value", "tcp_port", "22"], ["telnet", "has_value", "tcp_port", "23"], ["ssh", "uses", "tcp", null], ["telnet", "uses", "tcp", null]]}
+{"id": 17, "text": "SNMP agents listen on UDP port 161 and send traps to UDP port 162.", "facts": [["snmp", "has_value", "udp_port", "161"], ["snmp", "has_value", "udp_port", "162"]]}
+{"id": 18, "text": "DNS normally uses UDP port 53 but falls back to TCP for large responses.", "facts": [["dns", "has_value", "udp_port", "53"], ["dns", "uses", "udp", null], ["dns", "uses", "tcp", null]]}
+{"id": 19, "text": "NTP synchronizes clocks using UDP port 123.", "facts": [["ntp", "has_value", "udp_port", "123"], ["ntp", "uses", "udp", null]]}
+{"id": 20, "text": "DHCP uses UDP ports 67 and 68.", "facts": [["dhcp", "has_value", "udp_port", "67"], ["dhcp", "has_value", "udp_port", "68"], ["dhcp", "uses", "udp", null]]}
+{"id": 21, "text": "TFTP runs over UDP port 69 and has no authentication.", "facts": [["tftp", "has_value", "udp_port", "69"], ["tftp", "uses", "udp", null]]}
+{"id": 22, "text": "HTTPS uses TCP port 443, and HTTP uses TCP port 80.", "facts": [["https", "has_value", "tcp_port", "443"], ["http", "has_value", "tcp_port", "80"], ["https", "uses", "tcp", null], ["http", "uses", "tcp", null]]}
+{"id": 23, "text": "RADIUS uses UDP, while TACACS+ uses TCP port 49 and encrypts the whole payload.", "facts": [["radius", "uses", "udp", null], ["tacacs", "uses", "tcp", null], ["tacacs", "has_value", "tcp_port", "49"]]}
+{"id": 24, "text": "EIGRP has an administrative distance of 90 for internal routes and 170 for external routes.", "facts": [["eigrp", "has_value", "administrative_distance", "90"], ["eigrp", "has_value", "administrative_distance", "170"]]}
+{"id": 25, "text": "OSPF has an administrative distance of 110.", "facts": [["ospf", "has_value", "administrative_distance", "110"]]}
+{"id": 26, "text": "A static route has an administrative distance of 1 by default.", "facts": [["static_route", "has_value", "administrative_distance", "1"]]}
+{"id": 27, "text": "Directly connected networks have an administrative distance of 0.", "facts": []}
+{"id": 28, "text": "IS-IS is a link-state protocol that runs directly over Layer 2 rather than over IP.", "facts": [["isis", "is_a", "link_state_protocol", null]]}
+{"id": 29, "text": "BGP is a path-vector protocol and is the exterior gateway protocol of the Internet.", "facts": [["bgp", "is_a", "path_vector_protocol", null], ["bgp", "is_a", "egp", null]]}
+{"id": 30, "text": "EIGRP is an advanced distance-vector protocol.", "facts": [["eigrp", "is_a", "advanced_distance_vector", null]]}
+{"id": 31, "text": "RIP is a distance-vector routing protocol that uses the Bellman-Ford algorithm.", "facts": [["rip", "is_a", "distance_vector_protocol", null], ["rip", "uses", "bellman_ford", null]]}
+{"id": 32, "text": "OSPF uses the SPF algorithm, also known as Dijkstra.", "facts": [["ospf", "uses", "spf", null]]}
+{"id": 33, "text": "LACP is defined in IEEE 802.3ad, and PAgP is a Cisco-proprietary alternative.", "facts": []}
+{"id": 34, "text": "An EtherChannel uses LACP or PAgP to negotiate the bundle.", "facts": [["etherchannel", "uses", "lacp", null], ["etherchannel", "uses", "pagp", null]]}
+{"id": 35, "text": "VTP advertises VLAN information over trunk links.", "facts": []}
+{"id": 36, "text": "DTP negotiates whether a link becomes a trunk.", "facts": []}
+{"id": 37, "text": "The native VLAN on an 802.1Q trunk is VLAN 1 by default.", "facts": []}
+{"id": 38, "text": "PortFast lets an access port skip the listening and learning states, and BPDU Guard err-disables the port if a BPDU arrives.", "facts": []}
+{"id": 39, "text": "The root bridge is the switch with the lowest bridge ID.", "facts": [["root_bridge", "is_a", "switch", null]]}
+{"id": 40, "text": "In RSTP, an alternate port provides a backup path to the root bridge.", "facts": []}
+{"id": 41, "text": "IPv6 uses NDP instead of ARP to resolve link-layer addresses.", "facts": [["ipv6", "uses", "ndp", null]]}
+{"id": 42, "text": "SLAAC lets a host build its own IPv6 address from the router advertisement prefix.", "facts": []}
+{"id": 43, "text": "ICMP has no ports; ping uses ICMP echo request and echo reply messages.", "facts": []}
+{"id": 44, "text": "IPsec uses ESP for encryption and AH for integrity without encryption.", "facts": [["ipsec", "uses", "esp", null], ["ipsec", "uses", "ah", null]]}
+{"id": 45, "text": "ESP is IP protocol 50 and AH is IP protocol 51.", "facts": [["esp", "has_value", "ip_protocol", "50"], ["ah", "has_value", "ip_protocol", "51"]]}
+{"id": 46, "text": "IKE uses UDP port 500, and NAT traversal moves it to UDP port 4500.", "facts": [["ike", "has_value", "udp_port", "500"], ["ike", "has_value", "udp_port", "4500"], ["ike", "uses", "udp", null]]}
+{"id": 47, "text": "GRE is IP protocol 47.", "facts": [["gre", "has_value", "ip_protocol", "47"]]}
+{"id": 48, "text": "EIGRP uses IP protocol 88 and sends updates to 224.0.0.10.", "facts": [["eigrp", "has_value", "ip_protocol", "88"], ["eigrp", "has_value", "multicast_address", "224.0.0.10"]]}
+{"id": 49, "text": "RIPv2 sends updates to 224.0.0.9 every 30 seconds.", "facts": [["rip", "has_value", "multicast_address", "224.0.0.9"], ["rip", "has_value", "update_timer_s", "30"]]}
+{"id": 50, "text": "OSPFv3 supports IPv6 and sends hellos to FF02::5.", "facts": [["ospf", "has_value", "multicast_address", "ff02::5"]]}
+{"id": 51, "text": "HSRP version 2 uses the multicast address 224.0.0.102 and UDP port 1985.", "facts": [["hsrp", "has_value", "multicast_address", "224.0.0.102"], ["hsrp", "has_value", "udp_port", "1985"]]}
+{"id": 52, "text": "GLBP load-balances across several gateways, unlike HSRP and VRRP.", "facts": []}
+{"id": 53, "text": "A standard ACL filters only on the source address, while an extended ACL can match protocol and port.", "facts": []}
+{"id": 54, "text": "NAT overload, also called PAT, maps many inside addresses to one outside address using port numbers.", "facts": []}
+{"id": 55, "text": "QoS marks traffic with DSCP values in the IP header.", "facts": []}
+{"id": 56, "text": "NETCONF uses SSH on TCP port 830, while RESTCONF uses HTTPS.", "facts": [["netconf", "uses", "ssh", null], ["netconf", "has_value", "tcp_port", "830"], ["restconf", "uses", "https", null]]}
+{"id": 57, "text": "RESTCONF uses YANG data models encoded in JSON or XML.", "facts": [["restconf", "uses", "yang", null]]}
+{"id": 58, "text": "SD-WAN controllers use OMP to distribute routes and policy to WAN Edge routers.", "facts": [["sd_wan", "uses", "omp", null]]}
+{"id": 59, "text": "vSmart is the SD-WAN controller that runs OMP, vManage is the management plane, and vBond orchestrates onboarding.", "facts": [["vsmart", "uses", "omp", null]]}
+{"id": 60, "text": "EIGRP uses bandwidth and delay in its composite metric by default.", "facts": []}
+{"id": 61, "text": "OSPF cost is the reference bandwidth divided by the interface bandwidth.", "facts": []}
+{"id": 62, "text": "BFD detects link failures in milliseconds and can notify OSPF, EIGRP and BGP.", "facts": []}
+{"id": 63, "text": "MPLS forwards packets on labels that LDP distributes between neighbors.", "facts": []}
+{"id": 64, "text": "A VRF is a separate routing table instance on one router.", "facts": []}
+{"id": 65, "text": "VXLAN extends Layer 2 segments over a Layer 3 underlay.", "facts": []}
+{"id": 66, "text": "MP-BGP extends BGP with address families such as VPNv4.", "facts": []}
+{"id": 67, "text": "LISP is the control-plane protocol of SD-Access.", "facts": []}
+{"id": 68, "text": "CAPWAP carries traffic between lightweight access points and a WLC over UDP ports 5246 and 5247.", "facts": [["capwap", "has_value", "udp_port", "5246"], ["capwap", "has_value", "udp_port", "5247"], ["capwap", "uses", "udp", null]]}
+{"id": 69, "text": "WPA3 replaces WPA2 for new wireless deployments.", "facts": []}
+{"id": 70, "text": "802.1X uses EAP between the supplicant and the authenticator, and RADIUS between the authenticator and the server.", "facts": [["dot1x", "uses", "eap", null], ["dot1x", "uses", "radius", null]]}
+{"id": 71, "text": "Unlike Telnet, SSH encrypts the session.", "facts": []}
+{"id": 72, "text": "OSPF vs EIGRP: OSPF is open, EIGRP converges faster.", "facts": [["ospf", "compared_with", "eigrp", null]]}
+{"id": 73, "text": "STP versus RSTP is a common exam topic.", "facts": [["stp", "compared_with", "rstp", null]]}
+{"id": 74, "text": "Syslog messages are usually sent to UDP port 514.", "facts": [["syslog", "has_value", "udp_port", "514"], ["syslog", "uses", "udp", null]]}
+{"id": 75, "text": "The OSPF hello timer is 10 seconds on broadcast links and 30 seconds on NBMA links.", "facts": [["ospf", "has_value", "hello_timer_s", "10"], ["ospf", "has_value", "hello_timer_s", "30"]]}
+{"id": 76, "text": "Some older texts state that the OSPF hello interval is 30 seconds on every link.", "facts": [["ospf", "has_value", "hello_timer_s", "30"]]}
+{"id": 77, "text": "BGP keepalive messages are sent every 60 seconds and the hold time defaults to 180 seconds.", "facts": [["bgp", "has_value", "keepalive_timer_s", "60"], ["bgp", "has_value", "hold_timer_s", "180"]]}
+{"id": 78, "text": "EIGRP hello packets go out every 5 seconds on high-speed links, with a hold time of 15 seconds.", "facts": [["eigrp", "has_value", "hello_timer_s", "5"], ["eigrp", "has_value", "hold_timer_s", "15"]]}
+{"id": 79, "text": "HSRP uses a hello time of 3 seconds and a hold time of 10 seconds.", "facts": [["hsrp", "has_value", "hello_timer_s", "3"], ["hsrp", "has_value", "hold_timer_s", "10"]]}
+{"id": 80, "text": "RIP update timer is 30 seconds, with an invalid timer of 180 seconds and a flush timer of 240 seconds.", "facts": [["rip", "has_value", "update_timer_s", "30"], ["rip", "has_value", "invalid_timer_s", "180"], ["rip", "has_value", "flush_timer_s", "240"]]}
+{"id": 81, "text": "LLDP is an open standard; CDP is Cisco-proprietary.", "facts": []}
+{"id": 82, "text": "CDP runs at Layer 2, so it works even without IP addressing.", "facts": [["cdp", "operates_at", "layer2", null]]}
+{"id": 83, "text": "ARP maps IPv4 addresses to MAC addresses.", "facts": []}
+{"id": 84, "text": "A switch learns MAC addresses into the MAC address table.", "facts": []}
+{"id": 85, "text": "TLS 1.3 replaces older SSL versions for HTTPS.", "facts": []}
+{"id": 86, "text": "DHCP snooping builds a binding table that DAI uses to validate ARP packets.", "facts": []}
+{"id": 87, "text": "PIM builds multicast distribution trees and relies on the unicast routing table for RPF checks.", "facts": []}
+{"id": 88, "text": "IGMP lets hosts join multicast groups on the local segment.", "facts": []}
+{"id": 89, "text": "IPv4 uses ARP, whereas IPv6 uses NDP.", "facts": [["ipv4", "uses", "arp", null], ["ipv6", "uses", "ndp", null]]}
+{"id": 90, "text": "An IGP such as OSPF runs inside one autonomous system, while an EGP such as BGP runs between them.", "facts": [["ospf", "is_a", "igp", null], ["bgp", "is_a", "egp", null]]}
+{"id": 91, "text": "OSPF has an administrative distance of 110 while internal EIGRP has 90.", "facts": [["ospf", "has_value", "administrative_distance", "110"], ["eigrp", "has_value", "administrative_distance", "90"]]}
+{"id": 92, "text": "The default administrative distance for RIP is 120.", "facts": [["rip", "has_value", "administrative_distance", "120"]]}
+{"id": 93, "text": "LDP discovers neighbors on UDP port 646 and builds sessions over TCP port 646.", "facts": [["ldp", "has_value", "udp_port", "646"], ["ldp", "has_value", "tcp_port", "646"]]}
+{"id": 94, "text": "BFD control packets use UDP port 3784.", "facts": [["bfd", "has_value", "udp_port", "3784"], ["bfd", "uses", "udp", null]]}
+{"id": 95, "text": "VXLAN uses UDP port 4789.", "facts": [["vxlan", "has_value", "udp_port", "4789"], ["vxlan", "uses", "udp", null]]}
+{"id": 96, "text": "GRE adds 24 bytes of overhead, so the tunnel MTU is often set to 1476.", "facts": []}
+{"id": 97, "text": "OMP runs over DTLS or TLS tunnels between WAN Edge routers and vSmart.", "facts": [["omp", "uses", "tls", null]]}
+{"id": 98, "text": "In SD-Access, LISP is the control plane and VXLAN is the data plane.", "facts": []}
+{"id": 99, "text": "IS-IS uses its own Layer 2 encapsulation rather than IP protocol numbers.", "facts": []}
+{"id": 100, "text": "TACACS+ separates authorization from authentication, unlike RADIUS.", "facts": []}
+{"id": 101, "text": "Open Shortest Path First (OSPF) and Enhanced Interior Gateway Routing Protocol (EIGRP) are common IGPs.", "facts": []}
+{"id": 102, "text": "Hot Standby Router Protocol (HSRP) uses UDP port 1985.", "facts": [["hsrp", "has_value", "udp_port", "1985"], ["hsrp", "uses", "udp", null]]}
+{"id": 103, "text": "Virtual Extensible LAN (VXLAN) is a tunneling protocol for overlay networks.", "facts": [["vxlan", "is_a", "tunneling_protocol", null]]}
+{"id": 104, "text": "Generic Routing Encapsulation (GRE) is a tunneling protocol defined in RFC 2784.", "facts": [["gre", "is_a", "tunneling_protocol", null]]}
+{"id": 105, "text": "The EIGRP AD for internal routes is 90.", "facts": [["eigrp", "has_value", "administrative_distance", "90"]]}
+{"id": 106, "text": "iBGP routes have an AD of 200.", "facts": [["bgp", "has_value", "administrative_distance", "200"]]}
+{"id": 107, "text": "HTTP uses port 80/TCP and HTTPS uses port 443/TCP.", "facts": [["http", "has_value", "tcp_port", "80"], ["https", "has_value", "tcp_port", "443"]]}
+{"id": 108, "text": "Telnet should be replaced by SSH on every management interface.", "facts": []}
+{"id": 109, "text": "BPDU Guard is a feature that protects PortFast-enabled access ports.", "facts": []}
+{"id": 110, "text": "A WLC uses CAPWAP to manage lightweight access points.", "facts": [["wlc", "uses", "capwap", null]]}

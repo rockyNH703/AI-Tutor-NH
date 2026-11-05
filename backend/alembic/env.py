@@ -46,7 +46,7 @@ def _run(connection) -> None:
 
 
 async def run_migrations_online() -> None:
-    engine = create_async_engine(_url())
+    engine = create_async_engine(_url(), hide_parameters=True)  # no bound values (user text) in a traceback
     async with engine.connect() as connection:
         await connection.run_sync(_run)
     await engine.dispose()

@@ -199,6 +199,15 @@ describe("session and identity", () => {
     expect(sent.get("origin")).toBeNull();
   });
 
+  test("stamps when the request was in hand, and never passes on a client's own stamp", async () => {
+    const { calls, fetchImpl } = upstream(() => json(200, {}));
+    const before = Date.now();
+    await run(browser("GET", "/v1/me", { headers: { "x-netsec-received-at": "1" } }), "/v1/me", fetchImpl);
+    const stamp = Number(new Headers(calls[0]?.init.headers).get("x-netsec-received-at"));
+    expect(stamp).toBeGreaterThanOrEqual(before);
+    expect(stamp).toBeLessThanOrEqual(Date.now());
+  });
+
   test("a client-supplied X-Forwarded-For is never passed on", async () => {
     const { calls, fetchImpl } = upstream(() => json(200, {}));
     await run(browser("GET", "/v1/me", { headers: { "x-forwarded-for": "6.6.6.6" } }), "/v1/me", fetchImpl);
@@ -498,6 +507,53 @@ describe("files", () => {
     );
     for (const response of after) expect(response.status).toBe(200);
     expect(recovered.calls.length).toBe(FILES_IN_FLIGHT_MAX);
+  });
+
+  test("a file read too slowly is cut at the delivery deadline, which frees its slot and the upstream", async () => {
+    // One chunk, then nothing: a stalled (or deliberately slow) reader would hold the slot forever.
+    let cancelled = 0;
+    const stalled = upstream(
+      () =>
+        new Response(
+          new ReadableStream<Uint8Array>({
+            start(controller) {
+              controller.enqueue(PHOTO.slice(0, 4));
+            },
+            cancel() {
+              cancelled += 1;
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "image/webp" } },
+        ),
+    );
+    const slow = await Promise.all(
+      Array.from({ length: FILES_IN_FLIGHT_MAX }, () =>
+        run(browser("GET", `/v1/me/avatar?v=${HASH}`), "/v1/me/avatar", stalled.fetchImpl, {
+          fileDeliveryTimeoutMs: 50,
+        }),
+      ),
+    );
+    const outcome = await Promise.race([
+      Promise.allSettled(slow.map((response) => response.arrayBuffer())),
+      new Promise<"stalled">((resolve) => setTimeout(() => resolve("stalled"), 2_000)),
+    ]);
+    if (outcome === "stalled") {
+      for (const response of slow) await response.body?.cancel().catch(() => undefined); // let the runner exit
+    }
+    expect(outcome).not.toBe("stalled");
+    expect((outcome as PromiseSettledResult<ArrayBuffer>[]).every((result) => result.status === "rejected")).toBe(true);
+    expect(cancelled).toBe(FILES_IN_FLIGHT_MAX);
+
+    const healthy = upstream(() => new Response(PHOTO, { status: 200, headers: { "Content-Type": "image/webp" } }));
+    const after = await Promise.all(
+      Array.from({ length: FILES_IN_FLIGHT_MAX }, async () => {
+        const response = await run(browser("GET", `/v1/me/avatar?v=${HASH}`), "/v1/me/avatar", healthy.fetchImpl);
+        await response.arrayBuffer();
+        return response;
+      }),
+    );
+    for (const response of after) expect(response.status).toBe(200);
+    expect(healthy.calls.length).toBe(FILES_IN_FLIGHT_MAX);
   });
 
   test("a photo is passed back as bytes with the API's private cache headers", async () => {

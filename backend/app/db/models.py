@@ -116,6 +116,8 @@ KNOWLEDGE_DUPLICATE_CLASSIFICATIONS = (
     "different_edition",
     "related",
     "inconclusive",
+    "subset",  # 0025: this file's pages are all inside the candidate (a volume against the combined book)
+    "superset",
 )
 KNOWLEDGE_DUPLICATE_DECISIONS = ("pending", "reuse", "keep_separate", "reject", "quarantine_approved")
 KNOWLEDGE_BLOB_BYTES = 1024 * 1024
@@ -1029,8 +1031,15 @@ class KnowledgeSource(Base):
             "visibility = 'owner_only' OR rights_status = 'approved'",
             name="distribution_rights_approved",
         ),
+        CheckConstraint(
+            "embed_egress_approved_at IS NULL OR embed_egress_basis IS NOT NULL", name="embed_egress_basis"
+        ),
+        CheckConstraint(
+            "extract_egress_approved_at IS NULL OR extract_egress_basis IS NOT NULL", name="extract_egress_basis"
+        ),
         Index("ix_knowledge_sources_owner_user_id", "owner_user_id"),
         Index("ix_knowledge_sources_visibility", "visibility", "rights_status"),
+        Index("ix_knowledge_sources_course", "course"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -1047,6 +1056,20 @@ class KnowledgeSource(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
     rights_revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # The logical course boundary (knowledge_courses); None = general material, eligible in every course.
+    course: Mapped[str | None] = mapped_column(String(40), ForeignKey("knowledge_courses.slug", ondelete="RESTRICT"))
+    # The operator's recorded approvals to send this source's text to the embedding provider, and to a model
+    # for concept extraction. Nothing is queued (or extracted by a model) without them.
+    embed_egress_approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    embed_egress_basis: Mapped[str | None] = mapped_column(String(500))
+    embed_egress_approved_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    extract_egress_approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    extract_egress_basis: Mapped[str | None] = mapped_column(String(500))
+    extract_egress_approved_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
     metadata_: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
@@ -1333,6 +1356,282 @@ class KnowledgeDuplicateReview(Base):
     )
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     quarantine_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+
+
+# ---- canonical knowledge (0025): a text once, where it appears, who may read it, what it says ----
+KNOWLEDGE_RELATION_PREDICATES = (
+    "uses",
+    "is_a",
+    "operates_at",
+    "part_of",
+    "extends",
+    "replaces",
+    "compared_with",
+    "related",
+    "has_value",
+)
+KNOWLEDGE_RELATION_METHODS = ("pattern", "outline", "cooccurrence", "model")
+
+
+class KnowledgeCourse(Base):
+    """A logical course boundary (ccna, ccnp, ...); builds_on is the course it assumes (ccnp -> ccna)."""
+
+    __tablename__ = "knowledge_courses"
+    __table_args__ = (
+        CheckConstraint("slug ~ '^[a-z][a-z0-9_]{1,39}$'", name="slug"),
+        CheckConstraint("level BETWEEN 1 AND 9", name="level"),
+        CheckConstraint("builds_on IS NULL OR builds_on <> slug", name="not_self"),
+    )
+
+    slug: Mapped[str] = mapped_column(String(40), primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    level: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("1"))
+    builds_on: Mapped[str | None] = mapped_column(String(40), ForeignKey("knowledge_courses.slug", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = _created()
+
+
+class KnowledgeEdition(Base):
+    """The book and edition a document is (a work key groups editions of one book)."""
+
+    __tablename__ = "knowledge_editions"
+    __table_args__ = (
+        CheckConstraint("metadata_source IN ('pdf','title_page','operator')", name="metadata_source"),
+        Index("ix_knowledge_editions_work_key", "work_key"),
+        Index("ix_knowledge_editions_isbn13", "isbn13", postgresql_using="gin"),
+    )
+
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), primary_key=True
+    )
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), nullable=False
+    )
+    work_key: Mapped[str] = mapped_column(String(200), nullable=False)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    edition_number: Mapped[int | None] = mapped_column(SmallInteger)
+    edition_statement: Mapped[str | None] = mapped_column(String(120))
+    volume: Mapped[str | None] = mapped_column(String(40))
+    isbn13: Mapped[list[str]] = mapped_column(ARRAY(String(13)), nullable=False, server_default=text("'{}'"))
+    publisher: Mapped[str | None] = mapped_column(String(200))
+    year: Mapped[int | None] = mapped_column(SmallInteger)
+    exam_codes: Mapped[list[str]] = mapped_column(ARRAY(String(20)), nullable=False, server_default=text("'{}'"))
+    domain: Mapped[str | None] = mapped_column(String(120))
+    language: Mapped[str] = mapped_column(String(16), nullable=False, server_default=text("'en'"))
+    metadata_source: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'pdf'"))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class KnowledgePassage(Base):
+    """One distinct text (normalized-text key), stored and indexed once whatever the books that carry it."""
+
+    __tablename__ = "knowledge_passages"
+    __table_args__ = (
+        UniqueConstraint("content_key", name="uq_knowledge_passages_content_key"),
+        CheckConstraint("char_count > 0", name="char_count"),
+        Index("ix_knowledge_passages_content_tsv_gin", "content_tsv", postgresql_using="gin"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    content_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_tsv: Mapped[Any] = mapped_column(
+        TSVECTOR, Computed("to_tsvector('simple'::regconfig, content)", persisted=True), nullable=False
+    )
+    simhash: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    char_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class KnowledgePassageEmbedding(Base):
+    __tablename__ = "knowledge_passage_embeddings"
+    __table_args__ = (
+        Index(
+            "ix_knowledge_passage_embeddings_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+    )
+
+    passage_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="CASCADE"), primary_key=True
+    )
+    embedding_model: Mapped[str] = mapped_column(String(200), primary_key=True)
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class KnowledgePassageOccurrence(Base):
+    """Where a passage appears: a revision of a book, its pages, its section."""
+
+    __tablename__ = "knowledge_passage_occurrences"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["revision_id", "document_id", "source_id"],
+            ["document_revisions.id", "document_revisions.document_id", "document_revisions.source_id"],
+            ondelete="CASCADE",
+        ),
+        UniqueConstraint("revision_id", "ordinal", name="uq_knowledge_passage_occurrences_ordinal"),
+        CheckConstraint("physical_page_start >= 1 AND physical_page_end >= physical_page_start", name="pages"),
+        Index("ix_knowledge_passage_occurrences_passage", "passage_id"),
+        Index("ix_knowledge_passage_occurrences_source", "source_id", "passage_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    passage_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="RESTRICT"), nullable=False
+    )
+    revision_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    document_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    source_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    stable_chunk_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    physical_page_start: Mapped[int] = mapped_column(Integer, nullable=False)
+    physical_page_end: Mapped[int] = mapped_column(Integer, nullable=False)
+    printed_page_label: Mapped[str | None] = mapped_column(String(40))
+    section_path: Mapped[list[str]] = mapped_column(ARRAY(String(300)), nullable=False, server_default=text("'{}'"))
+    element_type: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'paragraph'"))
+    created_at: Mapped[datetime] = _created()
+
+
+class KnowledgePassageSource(Base):
+    """A passage is live in a source while a published revision of that source carries it."""
+
+    __tablename__ = "knowledge_passage_sources"
+    __table_args__ = (Index("ix_knowledge_passage_sources_passage", "passage_id"),)
+
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="CASCADE"), primary_key=True
+    )
+    passage_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="CASCADE"), primary_key=True
+    )
+
+
+class KnowledgePassageLink(Base):
+    __tablename__ = "knowledge_passage_links"
+    __table_args__ = (
+        CheckConstraint("kind IN ('near_duplicate','revised_in_edition')", name="kind"),
+        CheckConstraint("passage_a < passage_b", name="order"),
+        Index("ix_knowledge_passage_links_b", "passage_b"),
+    )
+
+    passage_a: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="CASCADE"), primary_key=True
+    )
+    passage_b: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="CASCADE"), primary_key=True
+    )
+    kind: Mapped[str] = mapped_column(String(30), primary_key=True)
+    distance: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+
+
+class KnowledgePageFingerprint(Base):
+    __tablename__ = "knowledge_page_fingerprints"
+    __table_args__ = (
+        CheckConstraint("page_class IN ('body','front','back')", name="page_class"),
+        Index("ix_knowledge_page_fingerprints_page_key", "page_key"),
+    )
+
+    file_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("document_files.id", ondelete="CASCADE"), primary_key=True
+    )
+    physical_page: Mapped[int] = mapped_column(Integer, primary_key=True)
+    page_key: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    char_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    page_class: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'body'"))
+
+
+class KnowledgeConcept(Base):
+    __tablename__ = "knowledge_concepts"
+    __table_args__ = (
+        UniqueConstraint("key", name="uq_knowledge_concepts_key"),
+        CheckConstraint("origin IN ('vocabulary','learned')", name="origin"),
+        CheckConstraint("status IN ('active','candidate')", name="status"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    key: Mapped[str] = mapped_column(String(80), nullable=False)
+    name: Mapped[str] = mapped_column(String(160), nullable=False)
+    kind: Mapped[str] = mapped_column(String(30), nullable=False)
+    origin: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'vocabulary'"))
+    status: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'active'"))
+    created_at: Mapped[datetime] = _created()
+
+
+class KnowledgeConceptAlias(Base):
+    __tablename__ = "knowledge_concept_aliases"
+    __table_args__ = (
+        CheckConstraint("origin IN ('vocabulary','learned')", name="origin"),
+        Index("ix_knowledge_concept_aliases_concept", "concept_id"),
+    )
+
+    alias: Mapped[str] = mapped_column(String(160), primary_key=True)
+    concept_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_concepts.id", ondelete="CASCADE"), nullable=False
+    )
+    origin: Mapped[str] = mapped_column(String(20), nullable=False, server_default=text("'vocabulary'"))
+    evidence_passage_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="SET NULL")
+    )
+
+
+class KnowledgePassageConcept(Base):
+    __tablename__ = "knowledge_passage_concepts"
+    __table_args__ = (
+        CheckConstraint("mentions > 0", name="mentions"),
+        Index("ix_knowledge_passage_concepts_concept", "concept_id"),
+    )
+
+    passage_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="CASCADE"), primary_key=True
+    )
+    concept_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_concepts.id", ondelete="CASCADE"), primary_key=True
+    )
+    mentions: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    extractor_version: Mapped[str] = mapped_column(String(40), nullable=False)
+
+
+class KnowledgeRelation(Base):
+    """What one passage states: a relation to another concept, or a value (a port, an AD), with its evidence span."""
+
+    __tablename__ = "knowledge_relations"
+    __table_args__ = (
+        CheckConstraint(f"predicate IN {KNOWLEDGE_RELATION_PREDICATES}", name="predicate"),
+        CheckConstraint(f"method IN {KNOWLEDGE_RELATION_METHODS}", name="method"),
+        CheckConstraint("(predicate = 'has_value') <> (object_concept_id IS NOT NULL)", name="object_predicate"),
+        CheckConstraint(
+            "(predicate = 'has_value') = (attribute IS NOT NULL AND value IS NOT NULL)", name="value_predicate"
+        ),
+        CheckConstraint("evidence_start >= 0 AND evidence_end > evidence_start", name="evidence"),
+        CheckConstraint("confidence BETWEEN 0 AND 100", name="confidence"),
+        Index("ix_knowledge_relations_subject", "subject_concept_id", "predicate"),
+        Index("ix_knowledge_relations_object", "object_concept_id"),
+        Index("ix_knowledge_relations_passage", "passage_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    subject_concept_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_concepts.id", ondelete="CASCADE"), nullable=False
+    )
+    predicate: Mapped[str] = mapped_column(String(20), nullable=False)
+    object_concept_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_concepts.id", ondelete="CASCADE")
+    )
+    attribute: Mapped[str | None] = mapped_column(String(40))
+    value: Mapped[str | None] = mapped_column(String(80))
+    qualifiers: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    passage_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("knowledge_passages.id", ondelete="CASCADE"), nullable=False
+    )
+    evidence_start: Mapped[int] = mapped_column(Integer, nullable=False)
+    evidence_end: Mapped[int] = mapped_column(Integer, nullable=False)
+    method: Mapped[str] = mapped_column(String(20), nullable=False)
+    extractor_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    confidence: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     created_at: Mapped[datetime] = _created()
 
 

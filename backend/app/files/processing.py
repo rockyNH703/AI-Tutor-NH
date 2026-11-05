@@ -38,6 +38,7 @@ from sqlalchemy.orm import aliased
 from app.db.models import FileChunk, UserFile, UserFileBlob
 from app.db.session import Database
 from app.files.service import DB_CEILING_BYTES, MAX_ATTEMPTS, OWN_DATA_BYTES
+from app.llm.redact import mask_secrets
 from app.logging import get_logger
 from app.rag.embeddings import embedding_model_id, is_configured
 from app.rag.errors import EmbeddingError
@@ -105,8 +106,9 @@ SANDBOX_PROPERTIES = (
     f"TemporaryFileSystem={DEPLOY_ROOT}:ro",
     f"BindReadOnlyPaths={BACKEND_DIR}",
     # PadhAI's /opt/aichat and /etc/aichat share this host: hidden too ("-": fine when absent).
+    # A backend .env next to the read-only code (development habit) would otherwise be readable.
     f"InaccessiblePaths=-{SECRETS_DIR} -/etc/aichat -/opt/aichat -/etc/cloudflared -/var/lib/docker -/var/backups"
-    " -/run/dbus",
+    f" -/run/dbus -{BACKEND_DIR}/.env",
     "MemoryMax=512M",
     "MemorySwapMax=0",
     "RuntimeMaxSec=300",
@@ -524,7 +526,11 @@ class FileWorker:
             await self._fail(claim, extraction.code)
             return "failed", extraction.code, stats
 
-        documents = [Document(page_content=page["text"], metadata=page["meta"]) for page in extraction.pages]
+        # Masked before it is split: a secret longer than a chunk (a PEM key) has no BEGIN/END left in its middle
+        # chunks, so masking each chunk later would send the key body to the embeddings provider (REQ-llm-2).
+        documents = [
+            Document(page_content=mask_secrets(page["text"])[0], metadata=page["meta"]) for page in extraction.pages
+        ]
         chunks = [
             c for c in await asyncio.to_thread(self.splitter.split_documents, documents) if c.page_content.strip()
         ]

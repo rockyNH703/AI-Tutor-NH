@@ -53,8 +53,13 @@ class ProtocolTests(unittest.TestCase):
 
     def test_invalid_records_fail_closed(self):
         cases = [
-            (lambda rows: [dict(rows[0], version=3), *rows[1:]], "unsupported_version"),
+            (lambda rows: [dict(rows[0], version=4), *rows[1:]], "unsupported_version"),
             (lambda rows: [dict(rows[0], surprise=True), *rows[1:]], "unknown_key"),
+            (lambda rows: [dict(rows[0], document_metadata={"isbn13": []}), *rows[1:]], "invalid_document_metadata"),
+            (
+                lambda rows: [dict(rows[0], version=3, document_metadata={"t": "x" * 17_000}), *rows[1:]],
+                "invalid_document_metadata",
+            ),
             (lambda rows: [rows[0], dict(rows[1], physical_page=4), rows[2]], "invalid_page"),
             (lambda rows: [rows[0], dict(rows[1], sequence=2), rows[2]], "invalid_sequence"),
             (lambda rows: rows[:-1], "missing_header_or_footer"),
@@ -66,6 +71,12 @@ class ProtocolTests(unittest.TestCase):
                 payload = b"".join(_line(row) for row in replace(rows))
                 with self.assertRaisesRegex(ExtractionProtocolError, code):
                     parse_ndjson(io.BytesIO(payload))
+
+    def test_version_3_carries_the_book_metadata(self):
+        rows = [json.loads(line) for line in _valid().splitlines()]
+        rows[0] = dict(rows[0], version=3, document_metadata={"isbn13": ["9780135792735"], "edition_number": 2})
+        parsed = parse_ndjson(io.BytesIO(b"".join(_line(row) for row in rows)))
+        self.assertEqual(parsed.document_metadata["isbn13"], ["9780135792735"])
 
     def test_truncated_line_is_rejected(self):
         with self.assertRaisesRegex(ExtractionProtocolError, "line_too_large_or_truncated"):

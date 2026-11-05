@@ -426,6 +426,20 @@ export class ChatStore {
     this.update(canonical, { stream: { phase: "starting", assistantId: null } });
 
     let assistantId: string | null = null;
+    // A regeneration's old reply, kept until the new one is complete: the server supersedes it only then, so a
+    // failed or stopped regeneration still shows the answer the user had.
+    let replaced: { message: Message; index: number } | null = null;
+    const restoreReplaced = () => {
+      if (!replaced) return;
+      const { message: old, index } = replaced;
+      replaced = null;
+      const map = this.messageMap(canonical);
+      if (map.has(old.id)) return;
+      map.set(old.id, old);
+      const order = [...(this.entries.get(canonical)?.order ?? [])];
+      order.splice(Math.min(index, order.length), 0, old.id);
+      this.update(canonical, { order });
+    };
 
     const handlers: StreamHandlers = {
       onMeta: (meta: StreamMeta) => {
@@ -441,6 +455,8 @@ export class ChatStore {
           order = order.map((id) => (id === optimisticId ? (meta.userMessage?.id ?? id) : id));
         }
         if (meta.replacesMessageId) {
+          const old = map.get(meta.replacesMessageId);
+          if (old) replaced = { message: old, index: order.indexOf(meta.replacesMessageId) };
           map.delete(meta.replacesMessageId);
           order = order.filter((id) => id !== meta.replacesMessageId);
         }
@@ -490,10 +506,12 @@ export class ChatStore {
       onDone: (done: StreamDone) => {
         this.flush(canonical, done.message.id);
         this.putMessage(canonical, { ...done.message, feedback: this.getMessage(canonical, done.message.id)?.feedback });
+        if (done.message.status !== "complete") restoreReplaced(); // a stopped regeneration replaces nothing
         this.onConversationUpdated?.(done.conversation);
         this.onReplyFinished?.(done);
       },
       onError: (failure: StreamFailure) => {
+        restoreReplaced();
         const id = failure.messageId ?? assistantId;
         if (!id) return;
         this.flush(canonical, id);

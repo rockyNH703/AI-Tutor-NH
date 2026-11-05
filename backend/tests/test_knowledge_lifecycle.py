@@ -13,16 +13,15 @@ from langchain_core.documents import Document as LCDocument
 from sqlalchemy import func, select
 
 from app.db.models import (
-    DocumentChunk,
     DocumentRevision,
-    DocumentRevisionChunk,
     KnowledgeAdminGrant,
+    KnowledgePassageSource,
     User,
 )
 from app.files.processing import SANDBOX_PROPERTIES
-from app.knowledge import processing
+from app.knowledge import passages, processing
 from app.knowledge.processing import _embed_batch, _extractor_command, processing_signature, queue_ready_files
-from app.knowledge.publication import MAX_CHUNK_CHARS
+from app.knowledge.publication import MAX_CHUNK_CHARS, StagedChunk
 from app.knowledge.worker import RevisionClaim
 from app.rag.context import _block
 from app.rag.embeddings import KeywordHashEmbeddings
@@ -140,6 +139,18 @@ async def _admin(app, *, active=True) -> str:
     return email
 
 
+async def test_an_unverified_account_cannot_be_made_a_knowledge_administrator(app):
+    email = f"unverified-{uuid.uuid4().hex}@example.com"
+    async with app.state.db.sessionmaker() as db, db.begin():
+        db.add(User(email=email, email_verified=False))
+    args = argparse.Namespace(action="grant", target=email, reason="focused regression test", actor=None)
+    async with app.state.db.sessionmaker() as db:
+        assert await knowledge_admin._grants(db, args) == 2
+    async with app.state.db.sessionmaker() as db:
+        user = await db.scalar(select(User).where(User.email == email))
+        assert await db.get(KnowledgeAdminGrant, user.id) is None
+
+
 async def _cli(app, action, target, actor, reason=None) -> int:
     args = argparse.Namespace(
         action=action, target=str(target), actor=actor, status=None, reason=reason, files=None, bytes=None
@@ -150,22 +161,22 @@ async def _cli(app, action, target, actor, reason=None) -> int:
 
 
 async def _stage(app, revision, settings):
+    chunk = StagedChunk(
+        stable_key="b" * 64,
+        ordinal=0,
+        content="OSPF elects a designated router on broadcast segments.",
+        content_sha256="c" * 64,
+        section_path=(),
+        physical_page_start=1,
+        physical_page_end=1,
+        printed_page_label=None,
+        metadata={"element_type": "paragraph"},
+    )
     async with app.state.db.sessionmaker() as db, db.begin():
-        db.add(
-            DocumentRevisionChunk(
-                revision_id=revision.id,
-                document_id=revision.document_id,
-                source_id=revision.source_id,
-                stable_chunk_key="b" * 64,
-                ordinal=0,
-                content="OSPF elects a designated router on broadcast segments.",
-                content_sha256="c" * 64,
-                physical_page_start=1,
-                physical_page_end=1,
-                metadata_={"element_type": "paragraph"},
-                embedding=[0.01] * settings.embedding_dimensions,
-                embedding_model=revision.embedding_model,
-            )
+        await passages.stage_passages(db, revision, [chunk])
+        [(passage_id, _)] = await passages.missing_embeddings(db, revision.id, revision.embedding_model)
+        await passages.store_embeddings(
+            db, [(passage_id, [0.01] * settings.embedding_dimensions)], revision.embedding_model
         )
 
 
@@ -179,10 +190,12 @@ async def test_an_administrator_publishes_a_ready_revision_into_the_index(app, s
     stored = await _stored(app, revision.id)
     assert stored.status == "published" and stored.published_by_user_id is not None
     async with app.state.db.sessionmaker() as db:
-        chunks = await db.scalar(
-            select(func.count()).select_from(DocumentChunk).where(DocumentChunk.document_id == revision.document_id)
+        live = await db.scalar(
+            select(func.count())
+            .select_from(KnowledgePassageSource)
+            .where(KnowledgePassageSource.source_id == revision.source_id)
         )
-    assert chunks == 1
+    assert live == 1
 
 
 async def test_only_an_active_administrator_can_publish(app, settings):

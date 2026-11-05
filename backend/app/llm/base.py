@@ -7,11 +7,24 @@ means composing providers, as `FallbackProvider` already does.
 
 from __future__ import annotations
 
+import time
 from collections.abc import AsyncIterator
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
 Role = Literal["system", "user", "assistant"]
+
+# When the innermost provider sent this turn's first model request (wall clock, seconds): the end of the
+# "pre-LLM" interval the chat service measures. A mutable holder, so a mark made in a task the graph spawned is
+# seen by the turn that set it. Only the first request counts (a fallback's second request does not move it).
+LLM_REQUEST_AT: ContextVar[dict | None] = ContextVar("llm_request_at", default=None)
+
+
+def mark_request_sent() -> None:
+    holder = LLM_REQUEST_AT.get()
+    if holder is not None and holder.get("at") is None:
+        holder["at"] = time.time()
 
 
 @dataclass(frozen=True)

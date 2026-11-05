@@ -29,7 +29,13 @@ async def _revision(
         user = User(email=f"knowledge-worker-{uuid.uuid4().hex}@example.com", email_verified=True)
         db.add(user)
         await db.flush()
-        source = KnowledgeSource(name=f"worker-{uuid.uuid4().hex}", owner_user_id=user.id)
+        source = KnowledgeSource(
+            name=f"worker-{uuid.uuid4().hex}",
+            owner_user_id=user.id,
+            embed_egress_approved_at=datetime.now(UTC),
+            embed_egress_basis="focused regression test",
+            embed_egress_approved_by_user_id=user.id,
+        )
         db.add(source)
         await db.flush()
         document = Document(

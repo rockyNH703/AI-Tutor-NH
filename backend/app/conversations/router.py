@@ -28,7 +28,10 @@ def conversation_out(c: Conversation) -> ConversationOut:
     return ConversationOut(id=c.id, title=c.title, created_at=c.created_at, updated_at=c.updated_at)
 
 
-def message_out(m: Message, attachments=()) -> MessageOut:
+def message_out(m: Message, attachments=(), withdrawn: frozenset[str] = frozenset()) -> MessageOut:
+    metadata = public_metadata(m.metadata_, m.id, m.status, m.content if m.role == "assistant" else "")
+    if withdrawn and metadata.get("citations"):
+        metadata["citations"] = [_redacted(citation, withdrawn) for citation in metadata["citations"]]
     return MessageOut(
         id=m.id,
         conversation_id=m.conversation_id,
@@ -36,9 +39,25 @@ def message_out(m: Message, attachments=()) -> MessageOut:
         content=m.content,
         status=m.status,
         created_at=m.created_at,
-        metadata=public_metadata(m.metadata_, m.id, m.status, m.content if m.role == "assistant" else ""),
+        metadata=metadata,
         attachments=[MessageAttachmentOut(file_id=a.file_id, filename=a.filename) for a in attachments],
     )
+
+
+def _cited_documents(rows) -> set[str]:
+    return {
+        str(citation["documentId"])
+        for m in rows
+        for citation in ((m.metadata_ or {}).get("citations") or [])
+        if isinstance(citation, dict) and citation.get("documentId")
+    }
+
+
+def _redacted(citation: dict, withdrawn: frozenset[str]) -> dict:
+    """A citation of a book since deleted or whose rights were revoked keeps its reference, not its text."""
+    if not isinstance(citation, dict) or str(citation.get("documentId") or "").lower() not in withdrawn:
+        return citation
+    return {**{key: value for key, value in citation.items() if key != "excerpt"}, "withdrawn": True}
 
 
 def public_metadata(
@@ -130,4 +149,5 @@ async def list_messages(
     await owned_conversation(repo, principal.user.id, conversation_id)
     rows, older = await repo.messages_page(conversation_id, limit, before)
     attachments = await repo.attachments([m.id for m in rows if m.role == "user"])
-    return MessagePage(items=[message_out(m, attachments.get(m.id, ())) for m in rows], next_cursor=older)
+    withdrawn = await repo.withdrawn_documents(_cited_documents(rows))
+    return MessagePage(items=[message_out(m, attachments.get(m.id, ()), withdrawn) for m in rows], next_cursor=older)

@@ -25,6 +25,7 @@ from app.llm.base import (
     ProviderInfo,
     StreamPart,
     Usage,
+    mark_request_sent,
 )
 
 _SECRETISH = re.compile(r"[A-Za-z0-9_\-*.]{24,}")
@@ -103,22 +104,29 @@ class OpenAICompatibleProvider:
         if self.stream_usage:
             kwargs["stream_options"] = {"include_usage": True}
         started = time.monotonic()
+        response = None
         try:
-            response = await asyncio.wait_for(
-                self._client.chat.completions.create(**kwargs), timeout=self.first_token_timeout_s
-            )
-            iterator = response.__aiter__()
-            # Read up to the first chunk with content here, so "failed before the
-            # first token" is raised from stream() itself and a fallback can still
-            # take over. Role-only opening chunks carry no content and are skipped.
-            first = None
-            while first is None:
-                chunk = await asyncio.wait_for(iterator.__anext__(), timeout=self.first_token_timeout_s)
-                first = _to_part(chunk)
-        except StopAsyncIteration:
-            return LLMStream(info=ProviderInfo(self.name, model), parts=_empty())
+            # One deadline for the whole wait (K-18b): a provider dripping role-only chunks used to restart the
+            # clock with each one. Read up to the first chunk with text here, so "failed before the first token"
+            # is raised from stream() itself and a fallback can still take over.
+            async with asyncio.timeout(self.first_token_timeout_s):
+                mark_request_sent()  # the end of the turn's pre-LLM interval (app/llm/base.py)
+                response = await self._client.chat.completions.create(**kwargs)
+                iterator = response.__aiter__()
+                first = None
+                while first is None:
+                    try:
+                        chunk = await iterator.__anext__()
+                    except StopAsyncIteration:
+                        # A reply with no text at all is not an answer (MISS-chat-1): the fallback, if any, answers.
+                        raise LLMUnavailable(f"{self.name}: the reply ended before any text") from None
+                    part = _to_part(chunk)
+                    first = part if part is not None and part.text else None
         except BaseException as error:  # noqa: BLE001
-            if isinstance(error, asyncio.CancelledError):
+            if response is not None:  # stop the provider generating (and billing) a reply nobody will read
+                with contextlib.suppress(Exception):
+                    await response.close()
+            if isinstance(error, asyncio.CancelledError | LLMError):
                 raise
             raise map_error(error) from error
 
@@ -168,8 +176,3 @@ def _to_part(chunk) -> StreamPart | None:
     if not text and usage is None and finish is None:
         return None
     return StreamPart(text=text, usage=usage, finish_reason=finish)
-
-
-async def _empty() -> AsyncIterator[StreamPart]:
-    if False:  # pragma: no cover
-        yield StreamPart()

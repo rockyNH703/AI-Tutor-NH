@@ -1,0 +1,14 @@
+[Unit]
+Description=netsecai Knowledge Library work (the worker and every book extractor), below the live services
+
+# The VM is shared with the API, the web app, PostgreSQL and PadhAI: book processing gets what they leave.
+# Weights are relative (the default is 100): under contention the live services win 5 to 1, idle CPU is used.
+# The worker (app/knowledge/admission.py) only starts a book when memory and load allow; these limits are the
+# kernel's guarantee if a book still grows.
+[Slice]
+CPUWeight=20
+IOWeight=20
+MemoryHigh=1000M
+MemoryMax=1200M
+MemorySwapMax=0
+TasksMax=128

@@ -13,10 +13,14 @@ Type=oneshot
 WorkingDirectory=/opt/netsecai/app/backend
 EnvironmentFile=/etc/netsecai/api.env
 ExecStart=/opt/netsecai/app/backend/.venv/bin/python -m app.knowledge
-TimeoutStartSec=1800
-MemoryMax=2G
+# Above the extractor's hour (processing.EXTRACT_TIMEOUT_S) plus embedding: a long scanned book must finish, not
+# restart every tick. The heartbeat keeps its lease fresh meanwhile.
+TimeoutStartSec=7200
+# The worker and its extractors (systemd-run --slice) share this slice's low weights and memory ceiling.
+Slice=netsecai-knowledge.slice
+MemoryMax=600M
 MemorySwapMax=0
-CPUQuota=200%
+CPUQuota=100%
 TasksMax=64
 NoNewPrivileges=yes
 PrivateTmp=yes

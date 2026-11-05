@@ -406,6 +406,20 @@ describe("stop, regenerate, delete", () => {
     expect(store.getMessage(A, uuid(3))?.content).toBe("new");
   });
 
+  test("a failed regeneration puts back the reply it was meant to replace (the server keeps it too)", async () => {
+    const { api, store } = setup();
+    api.pages.set(`${A}:`, { items: [message(uuid(1), A, "user", "q"), message(uuid(2), A, "assistant", "old")], nextCursor: null });
+    await store.ensureLoaded(A);
+    const regenerating = store.regenerate(A);
+    api.streams[0]?.handlers.onMeta?.(meta(A, uuid(3), null, uuid(2)));
+    expect(store.getEntry(A)?.order).toEqual([uuid(1), uuid(3)]);
+    api.streams[0]?.handlers.onError?.({ code: "llm_unavailable", message: "x", retryable: true, messageId: uuid(3), requestId: "r1" });
+    api.streams[0]?.resolve("error");
+    await regenerating;
+    expect(store.getEntry(A)?.order).toEqual([uuid(1), uuid(2), uuid(3)]);
+    expect(store.getMessage(A, uuid(2))?.content).toBe("old");
+  });
+
   test("deleting a streaming chat stops it first and nothing writes to it afterwards", async () => {
     const { api, store, updated } = setup();
     const draft = store.freshDraftKey();

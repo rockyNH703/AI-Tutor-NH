@@ -37,6 +37,9 @@ class ActiveGenerations:
     def __init__(self) -> None:
         self._items: dict[uuid.UUID, Generation] = {}
 
+    def __len__(self) -> int:
+        return len(self._items)
+
     def add(self, generation: Generation) -> None:
         self._items[generation.message_id] = generation
 

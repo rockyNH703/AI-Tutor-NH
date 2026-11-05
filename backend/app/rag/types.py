@@ -34,3 +34,5 @@ class RetrievalOptions:
     metadata_filter: dict[str, Any] | None = None
     classes: tuple[int, ...] = ()
     subjects: tuple[str, ...] = ()
+    # The learner's course boundary (knowledge_courses slugs, from the Engineering Profile goal): () = every course.
+    courses: tuple[str, ...] = ()
