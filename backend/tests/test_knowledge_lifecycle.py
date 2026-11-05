@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
+import sys
 import uuid
+from pathlib import Path
 
 import pytest
 from langchain_core.documents import Document as LCDocument
@@ -259,3 +262,18 @@ async def test_the_cli_creates_a_source_and_a_batch_token_the_import_api_accepts
     created = await _create_file(client, token, b"%PDF-1.7\ncli batch\n%%EOF\n")
 
     assert created.status_code == 201
+
+
+def test_the_cli_runs_as_a_script_from_the_backend_directory():
+    # The operator runs `python scripts/knowledge_admin.py` (sys.path is scripts/, not backend/).
+    backend = Path(__file__).resolve().parents[1]
+    result = subprocess.run(  # noqa: S603 - fixed argv, no shell
+        [sys.executable, "scripts/knowledge_admin.py", "--help"],
+        cwd=backend,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr[-500:]
+    assert "publish" in result.stdout

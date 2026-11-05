@@ -23,17 +23,26 @@ import secrets
 import sys
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
-from app.db.models import DocumentRevision, KnowledgeAdminGrant, KnowledgeImportBatch, KnowledgeSource, User
-from app.db.session import Database
-from app.errors import AppError
-from app.knowledge.access import is_knowledge_admin
-from app.knowledge.publication import publish_revision
-from app.knowledge.router import BATCH_TTL, MAX_BATCH_BYTES, MAX_BATCH_FILES, _hash_secret
-from app.settings import Settings
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from app.db.models import (  # noqa: E402
+    DocumentRevision,
+    KnowledgeAdminGrant,
+    KnowledgeImportBatch,
+    KnowledgeSource,
+    User,
+)
+from app.db.session import Database  # noqa: E402
+from app.errors import AppError  # noqa: E402
+from app.knowledge.access import is_knowledge_admin  # noqa: E402
+from app.knowledge.publication import publish_revision  # noqa: E402
+from app.knowledge.router import BATCH_TTL, MAX_BATCH_BYTES, MAX_BATCH_FILES, _hash_secret  # noqa: E402
+from app.settings import Settings  # noqa: E402
 
 GRANT_ACTIONS = ("grant", "revoke", "show")
 IMPORT_ACTIONS = ("source", "batch")
