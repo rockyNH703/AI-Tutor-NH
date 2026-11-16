@@ -72,6 +72,7 @@ Where a PadhAI-era page and a current page disagree, the current page (and the c
 |---|---|---|
 | [ai-architecture.md](ai-architecture.md) | Providers, what the model is told, the intent router and scope filter, retrieval, voice, flags | PadhAI-era (the NetSec prompt is `SYSTEM_PROMPT` in `backend/app/chat/assistant.py`) |
 | [rag.md](rag.md) | Retrieval: the pgvector knowledge base, files, embeddings, the NCERT service (dormant here) | PadhAI-era |
+| [certification-coverage.md](certification-coverage.md) | The CCNA/CCNP library against the official exam objectives, per domain, with source gaps | Current (2026-11-16) |
 | [memory-evaluation.md](memory-evaluation.md) | `memory_eval.py`: the memory evaluation modes and gates | Current for memory (2026-10-28) |
 | [memory-regression-audit.md](memory-regression-audit.md) | The persistent-memory regression audit | 2026-10-28 |
 | [question_bank.md](question_bank.md) | The question bank: content, import, selection, chat tests | PadhAI-era (content is still NCERT) |

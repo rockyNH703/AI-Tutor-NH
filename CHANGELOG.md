@@ -4,6 +4,12 @@ These are the milestones, newest first, each with the commit that brought it. Ev
 halves, and `git log` is the complete, authoritative record. The dates are commit dates. A milestone isn't
 necessarily live from that date: production runs what was last deployed (`bun run status`).
 
+## 2026-11
+
+| Date | Commit | Milestone |
+|---|---|---|
+| 2026-11-16 | (pending) | The shared library completed for the available sources: the full ENCOR 350-401 Official Cert Guide (1,149 pages) plus the ENCOR and ENARSI exam topics imported, reviewed and published (10 books, 3,426 passages); citation-honesty prompt clauses; dynamic context selection (no fixed final top-k; the context budget selects); the certification coverage matrix ([certification-coverage.md](docs/certification-coverage.md)) |
+
 ## 2026-10
 
 | Date | Commit | Milestone |

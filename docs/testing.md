@@ -167,6 +167,12 @@ are updated in the working tree but have not been run on this PC. Variables:
   | The first NetSec prompt (`0d868b7`), temperature 0.7 | 43/57 (75%) |
   | The same at temperature 0.3 | 39/57 (68%), so the default 0.7 stays |
   | The tuned prompt (3,780 characters) | 45/57 (79%) |
+  | The citation-honesty prompt (2026-11-16, 4,099 characters) | NOT RUN (needs the host and the production key's quota) |
+
+  The 2026-11-16 prompt adds the citation-honesty clauses (cite only the passage that supports the specific
+  claim; say when the library lacks a topic and label the answer not source-backed; never present a command or
+  its output as from the material unless it shows it). Its live validation run is pending; the frozen-prompt
+  fixtures and `tests/test_netsec_prompt.py` follow the new text.
 
   Still below their gates with the tuned prompt: a vague request ("my VPN is down") asks for too little (1/3); AWS
   egress never names VPC flow logs; the Ansible backup rarely offers check mode; the OSPF review rarely advises a lab

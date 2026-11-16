@@ -576,7 +576,11 @@ class KnowledgeStore:
     ) -> HybridSearchResult:
         """Fuse bounded dense, lexical and concept rankings; a failed optional leg degrades to the others. A candidate
         only the lexical or concept leg found must still clear the cosine floor (measured exactly), unless it holds
-        an engineering identifier the question names verbatim: keyword overlap alone never admits a passage."""
+        an engineering identifier the question names verbatim: keyword overlap alone never admits a passage.
+        Every floor-passing fused candidate is returned (dynamic selection): the bounded candidate pools cap the
+        work, and the prompt's context budget (app/rag/context.py) makes the final cut. `k` is kept for callers
+        that still cap (the retriever's foundation-fill threshold); it no longer cuts the fused result.
+        """
         metadata_filter = validate_metadata_filter(metadata_filter)
         try:
             async with self.db.sessionmaker() as session, session.begin():
@@ -646,7 +650,9 @@ class KnowledgeStore:
                 (dense_hits, lexical_hits, concept_hits),
                 key=lambda hit: hit.chunk_id,
                 k=rrf_k,
-                limit=min(3 * k, 1_000),  # room for the candidates the floor turns away
+                # Every fused candidate gets its floor check: the bounded candidate pools cap the work, and the
+                # prompt's context budget (app/rag/context.py) makes the final selection. No fixed final top-k.
+                limit=min(3 * max(dense_candidates, lexical_candidates), 1_000),
                 candidates_per_ranking=max(dense_candidates, lexical_candidates),
             )
             dense_scores = {hit.chunk_id: hit.score for hit in dense_hits}
@@ -666,8 +672,9 @@ class KnowledgeStore:
             if score is None or (score < min_score and not named):
                 continue
             hits.append(replace(hit, score=round(score, 6)))
-            if len(hits) == k:
-                break
+        # Dynamic selection: every fused candidate that clears the floor (or carries an identifier the question
+        # names verbatim) is returned; the bounded candidate pools above cap the work, and the prompt's context
+        # budget (app/rag/context.py) decides what finally enters the model. There is no fixed final top-k cut.
         return HybridSearchResult(
             hits,
             {
@@ -676,7 +683,7 @@ class KnowledgeStore:
                 "lexical_reason": lexical_reason,
                 "concept_ms": concept_ms,
                 "concept_reason": concept_reason,
-                "turned_away": len(fused) - len(hits) if len(hits) < k else 0,
+                "turned_away": len(fused) - len(hits),
             },
         )
 

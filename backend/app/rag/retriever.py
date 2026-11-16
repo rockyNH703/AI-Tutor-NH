@@ -34,6 +34,10 @@ def named_courses(query: str) -> tuple[str, ...]:
 class PgVectorRetriever(BaseRetriever):
     """Embeds the query, searches pgvector inside the caller's AccessScope, returns Documents.
 
+    Dynamic selection: every candidate that clears the cosine floor is returned (within the bounded
+    candidate pools); the prompt's context budget (app/rag/context.py) makes the final cut, not a fixed
+    top-k. `k` remains the foundation-fill sufficiency threshold and a caller-set cap when one is given.
+
     Every Document carries the metadata a citation needs later: chunk_id, document_id,
     source_id, source, title, uri, ordinal, score, embedding_model and the chunk's own
     attributes. Async only: the application never blocks the event loop on retrieval.
@@ -78,7 +82,13 @@ class PgVectorRetriever(BaseRetriever):
             "include_general": include_general,
         }
         if not self.hybrid:
-            return await self.store.search(self.scope, vector, **common), {}
+            # Dynamic selection on the dense-only path too: fetch the candidate pool, keep every hit that clears
+            # the floor; the prompt's context budget makes the final cut. No fixed final top-k.
+            dense_common = {key: value for key, value in common.items() if key != "k"}
+            return (
+                await self.store.search(self.scope, vector, k=max(self.k, self.dense_candidates), **dense_common),
+                {},
+            )
         result = await self.store.hybrid_search(
             self.scope,
             vector,

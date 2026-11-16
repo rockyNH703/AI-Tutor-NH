@@ -306,3 +306,63 @@ async def test_lexical_query_can_use_gin_index(app):
         connection = await session.connection()
         plan = (await connection.exec_driver_sql("EXPLAIN " + str(compiled), positional)).scalars().all()
     assert any("ix_document_chunks_content_tsv_gin" in line for line in plan), "\n".join(plan)
+
+
+# ---------------------------------------------------------------- dynamic context selection
+async def test_hybrid_returns_every_floor_passing_candidate_not_a_fixed_top_k(app):
+    """Dynamic selection: more relevant passages than `k` all come back (RED on the fixed top-k cut)."""
+    await ingest_docs(
+        app,
+        {
+            f"ospf{i}.md": f"# OSPF {i}\n\nOSPF neighbor adjacency states and hello timers for area {i} routing."
+            for i in range(1, 9)
+        },
+    )
+    docs = await retriever(app, hybrid=True, k=2, dense_candidates=8, lexical_candidates=8).ainvoke(
+        "OSPF neighbor adjacency hello timers"
+    )
+    assert len(docs) > 2, f"a fixed top-k cut kept {len(docs)} hits; dynamic selection returns every relevant one"
+
+
+async def test_dense_only_path_returns_every_floor_passing_candidate(app):
+    """The non-hybrid path fetches the candidate pool and keeps every floor-passing hit (RED on limit(k))."""
+    await ingest_docs(
+        app,
+        {
+            f"eigrp{i}.md": f"# EIGRP {i}\n\nEIGRP feasible successor and feasible distance for topology {i}."
+            for i in range(1, 7)
+        },
+    )
+    docs = await retriever(app, hybrid=False, k=2, dense_candidates=6).ainvoke(
+        "EIGRP feasible successor feasible distance"
+    )
+    assert len(docs) > 2, f"a fixed top-k cut kept {len(docs)} hits; dynamic selection returns every relevant one"
+
+
+async def test_dynamic_selection_still_respects_the_floor_and_the_budget(app):
+    """The floor still turns away noise, and the context budget (not retrieval) makes the final cut."""
+    from app.llm.base import ChatMessage
+    from app.rag.context import build_llm_messages
+
+    await ingest_docs(
+        app,
+        {
+            "ospf1.md": "# OSPF\n\nOSPF neighbor adjacency states and hello timers.",
+            "ospf2.md": "# OSPF\n\nOSPF hello timers and adjacency on broadcast networks.",
+            "noise.md": "# Cooking\n\nBread needs flour, water, yeast and salt.",
+        },
+    )
+    docs = await retriever(app, hybrid=True, k=2, dense_candidates=6, lexical_candidates=6, min_score=0.3).ainvoke(
+        "OSPF neighbor adjacency hello timers"
+    )
+    assert {d.metadata["uri"] for d in docs} == {"ospf1.md", "ospf2.md"}  # both relevant: dynamic selection keeps both
+    assert "noise.md" not in {d.metadata["uri"] for d in docs}  # the floor turns the noise away
+    prompt = build_llm_messages(
+        "system prompt",
+        [ChatMessage("user", "How do OSPF neighbors form an adjacency?")],
+        docs,
+        max_input_chars=100_000,
+        max_context_chars=400,
+    )
+    assert prompt.context_chars <= 400  # the budget trims; chunks are never cut
+    assert len(prompt.sources) < len(docs)  # fewer blocks fit than retrieval returned

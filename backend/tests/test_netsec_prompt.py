@@ -71,6 +71,18 @@ def test_the_frozen_prompt_is_an_engineering_assistants():
     assert "\n\n## " not in BANK_BLOCKS and "\n\n## " not in INTERACTIVE_BLOCKS
 
 
+def test_the_frozen_prompt_demands_citation_honesty():
+    """The blind-evaluation failures (2026-11-06): unsupported citations, no missing-topic admission,
+    invented CLI. Each must be answered by an explicit prompt clause."""
+    for clause in (
+        "cite a number only for the passage that supports that specific claim",
+        "say the library lacks it",
+        "label that answer as not source-backed",
+        "Never present a command or its output as from the material unless it shows it",
+    ):
+        assert clause in SYSTEM_PROMPT, clause
+
+
 @pytest.mark.parametrize("name", sorted(FIXED_TEXTS))
 def test_no_text_the_model_reads_speaks_of_school(name):
     found = SCHOOL.search(FIXED_TEXTS[name])

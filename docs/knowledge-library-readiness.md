@@ -2,35 +2,47 @@
 
 This ledger is the acceptance record for the CCNA-first PDF Knowledge Library: what the repository proves, what
 is still open, and which trust boundary each control protects. It does **not** authorize scanning `F:\CCNA`,
-moving local books, sending book text to a provider, or deploying. Last verified: 2026-11-06 on production (release
-`24fe947`).
+moving local books, sending book text to a provider, or deploying. Last verified: 2026-11-16 on production (release
+`292d18e`'s backend, `24fe947`).
 
-## State in production (2026-11-06, release 24fe947)
+## State in production (2026-11-16)
 
 - The schema is live through migration 0025 (canonical passages, courses, editions, concept graph).
 - **The shared CCNA/CCNP library is live for every NetSec user.** Courses `ccna` and `ccnp` (ccnp builds on ccna);
   two global, ownerless sources (rights approved by the owner, embedding egress approved for OpenRouter
   `openai/text-embedding-3-small`).
-  - The 7 unique books are imported with their SHA-256 checked: CCNA Vol 1 and Vol 2 (partial samples), the CCNA
-    200-301 v2.0, ENSDWI 300-415 v1.2 and ENAUTO 300-435 v2.0 exam topics, and two SD-WAN books.
-  - The duplicate Volume 1 on `F:\CCNA` was never imported; the originals are unchanged (hash, size, time).
-  - All 7 are published from book reader v4 (2026-11-06): 1,321 passages, 1,315 live rows; the v3 revisions are
-    retired, not deleted.
-- Verified on production: retrieval 16/16 (no course leak, a page on every citation, no page twice) and the web app
-  in headed Chrome with the test account (8 questions, every source with a page).
-- Blind judging of the same 8 questions before and after reader v4 (two independent judges, the versions shuffled
-  and unlabelled, scored on correctness, grounding, citation relevance and usefulness, 0-5 each): after 112 points,
-  before 97; preferred after 5, before 2, tie 1. What they still found: the model attaches citations to passages that
-  do not support a claim, never says the books lack a topic, and invents some SD-WAN CLI (`show omp status`); that is
-  generation, not retrieval, and a prompt change needs an `eval_engineering.py` run.
-- Content limit: the CCNA PDFs are samples (front matter, one chapter, index), so access ports, trunks and MAC
-  learning are not in the library; the full books are needed for that coverage.
+  - The **10 unique books** are imported with their SHA-256 checked: CCNA Vol 1 and Vol 2 (samples; the owner
+    confirmed 2026-11-16 that `F:\CCNA` is the complete available CCNA scope), the CCNA 200-301 v2.0, ENSDWI
+    300-415 v1.2, ENARSI 300-410 v1.1, ENCOR 350-401 v1.2 and ENAUTO 300-435 v2.0 exam topics, two SD-WAN books,
+    and — imported 2026-11-16 — the **full CCNP and CCIE Enterprise Core ENCOR 350-401 Official Cert Guide,
+    2nd edition (1,149 pages, 2,090 passages)**.
+  - The duplicate Volume 1 on `F:\CCNA` (`ccna_book.pdf`, byte-identical to `ccna_vol_2.pdf`) was never imported;
+    the originals are unchanged (hash, size, time).
+  - All 10 are published from book reader v4: **3,426 passages** across the two sources; the v3 revisions are
+    retired, not deleted. No duplicate review was raised by the new imports (the ENCOR book and its exam-topic
+    PDF are different works).
+- Verified on production (2026-11-16, read-only): 12/12 retrieval questions across all five exams returned hits
+  with pages from the correct course's sources; 3/3 course-boundary tests clean (no cross-course leak); all three
+  legs live (dense, lexical, concept); search p95 well under 300 ms on the host.
+- Objective-level coverage per exam: [certification-coverage.md](certification-coverage.md). ENCOR and ENSDWI
+  are VERIFIED COMPLETE against their objectives; CCNA is complete for its available (sample) sources; ENARSI
+  and ENAUTO are PARTIALLY COMPLETE with recorded SOURCE GAPs (MPLS/DMVPN, AI-in-automation) that need
+  owner-provided or licensed official documents.
+- Blind judging (2026-11-06, before/after reader v4): after 112 points, before 97. The generation-side failures
+  it found (unsupported citations, no missing-topic admission, invented SD-WAN CLI) are addressed by the
+  citation-honesty prompt clauses (2026-11-16); the live `eval_engineering.py` validation run is pending the
+  owner's go-ahead (production key quota).
 - `netsecai-knowledge.timer` is **enabled**: `deploy-netsec/server/install-units.sh` enables it on every deploy,
   unless the owner's off switch exists: `touch /etc/netsecai/knowledge.disabled` keeps it disabled and stopped
   through every later deploy (remove the file, then deploy or `systemctl enable --now netsecai-knowledge.timer`,
   to switch it on again).
   With nothing queued, a run claims nothing.
-- Hybrid retrieval (`RAG_HYBRID`) is on.
+- Hybrid retrieval (`RAG_HYBRID`) is on, with **dynamic context selection** (2026-11-16): every fused candidate
+  that clears the cosine floor is returned within the bounded candidate pools; the prompt's context budget makes
+  the final cut. No fixed final top-k.
+- Pre-LLM latency: the per-reply `timing.preLlmMs` instrumentation is live; `pre_llm_report.py --hours 168` on
+  2026-11-16 found **0 turns** in the window (no traffic to measure). The p95 ≤ 1,000 ms target is NOT MEASURED
+  until real turns exist.
 
 ## Operator procedure
 
