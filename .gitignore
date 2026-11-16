@@ -29,6 +29,7 @@ logs/
 # OS / editors
 .DS_Store
 *.pem
+.vscode/
 
 # Per-user Claude Code permissions (local only)
 .claude/settings.local.json
