@@ -63,9 +63,10 @@ exam-topic PDF reconciles with it (kept separate: different works, no duplicate 
 | 4.0 Infrastructure Services (25%) | 4.1–4.7 | ENCOR book (SNMP, syslog, DHCP, IP SLA, NetFlow) | PARTIAL | OK |
 
 **ENARSI status: PARTIALLY COMPLETE.** The exam-topic document is published; the ENARSI Official Cert Guide
-itself is not in the authorized folders. MPLS and DMVPN are the clearest SOURCE GAPs. Authorized official
-Cisco documentation (e.g. the DMVPN design and configuration guides) can fill them when the owner provides
-or authorizes those documents.
+itself is not in the authorized folders. **MPLS (2.1–2.2) and DMVPN (2.3) are SOURCE GAPs**: no authorized
+study material exists in the library, and Cisco's online documentation cannot be ingested without the owner
+providing or authorizing those documents (Cisco's site refuses automated retrieval, and unlicensed copying is
+not permitted). The existing import paths are ready the moment the owner supplies them.
 
 ## CCNP ENAUTO 300-435 — coverage by domain
 
@@ -78,7 +79,9 @@ or authorizes those documents.
 | 5.0 AI in Automation (15%) | 5.1–5.4 | Exam topics only | SOURCE GAP: no AI-in-automation study material (FastMCP, AI-assisted code) | GAP |
 
 **ENAUTO status: PARTIALLY COMPLETE.** The ENAUTO Official Cert Guide is not in the authorized folders;
-ENCOR's automation chapters cover the foundations. Domain 5.0 (AI in Automation) is a SOURCE GAP.
+ENCOR's automation chapters cover the foundations. Domain 5.0 (AI in Automation) is a **SOURCE GAP**: no
+authorized study material exists (FastMCP, AI-assisted code development), and Cisco's online documentation
+cannot be ingested without the owner providing or authorizing those documents.
 
 ## CCNP ENSDWI 300-415 — coverage by domain
 
@@ -104,9 +107,12 @@ subsequent embeddings ~300 ms.
 ## Source gaps (recorded, never fabricated)
 
 1. **CCNA**: the sample chapters' scope (owner-confirmed final). Agentic-AI objectives 5.1–5.2 are outside
-   the 2024/2025 samples.
-2. **ENARSI**: the ENARSI 300-410 Official Cert Guide; MPLS (2.1–2.2) and DMVPN (2.3) study depth.
-3. **ENAUTO**: the ENAUTO 300-435 Official Cert Guide; AI-in-Automation (5.0) study material.
+   the 2024/2025 samples — **SOURCE GAP** (no authorized material exists; Cisco's online documentation
+   cannot be ingested without the owner providing or authorizing it).
+2. **ENARSI**: the ENARSI 300-410 Official Cert Guide; MPLS (2.1–2.2) and DMVPN (2.3) study depth —
+   **SOURCE GAP**.
+3. **ENAUTO**: the ENAUTO 300-435 Official Cert Guide; AI-in-Automation (5.0) study material —
+   **SOURCE GAP**.
 
 Filling these needs owner-provided or licensed official documents; the existing import paths (operator PDF
 import, `ingest_documents.py` for authorized text) are ready the moment they arrive.
