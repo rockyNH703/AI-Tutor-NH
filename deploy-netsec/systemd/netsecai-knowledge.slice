@@ -8,7 +8,7 @@ Description=netsecai Knowledge Library work (the worker and every book extractor
 [Slice]
 CPUWeight=20
 IOWeight=20
-MemoryHigh=1000M
-MemoryMax=1200M
+MemoryHigh=1500M
+MemoryMax=1800M
 MemorySwapMax=0
 TasksMax=128

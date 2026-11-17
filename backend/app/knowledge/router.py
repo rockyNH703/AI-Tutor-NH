@@ -25,7 +25,7 @@ from app.schemas import ApiModel, RequestModel
 
 router = APIRouter(prefix="/v1/knowledge", tags=["knowledge"])
 
-MAX_IMPORT_FILE_BYTES = 50 * 1024 * 1024
+MAX_IMPORT_FILE_BYTES = 256 * 1024 * 1024
 MAX_BATCH_FILES = 500
 MAX_BATCH_BYTES = 5 * 1024 * 1024 * 1024
 UPLOAD_CHUNK_BYTES = 1024 * 1024

@@ -230,6 +230,51 @@ class KnowledgeExtractorAdapterTests(unittest.TestCase):
         self.assertEqual(extracted.page_count, 2)
         self.assertGreater(len(extracted.elements), 0)
 
+    def test_a_tiled_image_page_with_no_text_objects_is_read_with_ocr(self):
+        # Tiled-image PDFs (real export tools) cover far less of the page than the image-share threshold
+        # with each tile's bounds; before the fix such a page was never OCR'd and the book had no chunks.
+        path = Path(__file__).parent / "fixtures" / "knowledge" / "generated" / "tiled-image.pdf"
+        if not path.exists():  # the fixture is generated; regenerate when missing
+            from tests.fixtures.knowledge.generate import generate
+
+            generate(path.parent)
+        data = path.read_bytes()
+        output = records(data)
+        raw = b"".join(
+            json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n" for record in output
+        )
+
+        extracted = parse_ndjson(io.BytesIO(raw))
+
+        self.assertEqual(extracted.page_count, 1)
+        self.assertGreater(len(extracted.elements), 0)
+        self.assertIn("ocr_used", extracted.warnings)
+        joined = "\n".join(element["content"] for element in extracted.elements)
+        self.assertIn("permit", joined.lower())  # the OCR actually read the tile text
+
+    def test_a_scanned_page_with_a_text_watermark_is_still_read_with_ocr(self):
+        # Watermarked course books carry a small text object (a site watermark) on an image page: the
+        # picture still has to be OCR'd. A first version of the tiled fix stopped counting image coverage
+        # at the first text object and silently dropped these pages back to unread.
+        path = Path(__file__).parent / "fixtures" / "knowledge" / "generated" / "watermarked-scan.pdf"
+        if not path.exists():  # the fixture is generated; regenerate when missing
+            from tests.fixtures.knowledge.generate import generate
+
+            generate(path.parent)
+        data = path.read_bytes()
+        output = records(data)
+        raw = b"".join(
+            json.dumps(record, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n" for record in output
+        )
+
+        extracted = parse_ndjson(io.BytesIO(raw))
+
+        self.assertEqual(extracted.page_count, 1)
+        self.assertGreater(len(extracted.elements), 0)
+        self.assertIn("ocr_used", extracted.warnings)
+        joined = "\n".join(element["content"] for element in extracted.elements)
+        self.assertIn("permit", joined.lower())  # the OCR actually read the scanned text
+
 
 if __name__ == "__main__":
     unittest.main()

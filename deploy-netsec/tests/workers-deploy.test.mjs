@@ -38,7 +38,8 @@ describe("the knowledge worker and its extractors run in a low-priority slice wi
   test("the slice weighs CPU and IO below the default 100 and caps memory under the host's 3.9 GB", () => {
     expect(slice).toMatch(/^CPUWeight=20$/m);
     expect(slice).toMatch(/^IOWeight=20$/m);
-    expect(slice).toMatch(/^MemoryMax=1200M$/m);
+    // The worker (600M) plus one extractor at the cap (384 + 256*2 + 256 book) must fit: 1200M OOM-killed it.
+    expect(slice).toMatch(/^MemoryMax=1800M$/m);
     expect(slice).toMatch(/^MemorySwapMax=0$/m);
   });
 

@@ -26,7 +26,7 @@ from typing import Any
 from app.files.extract import EnvironmentProblem, Failure, _ocr, normalize
 from app.knowledge.protocol import MAX_CONTENT_BYTES, MAX_SECTION_DEPTH, PROTOCOL, VERSION
 
-MAX_INPUT_BYTES = 100 * 1024 * 1024
+MAX_INPUT_BYTES = 256 * 1024 * 1024
 MAX_PAGES = 3_000
 SCANNED_PAGE_TEXT = 200  # fewer characters than this on an image-covered page: a scanned page
 SCANNED_PAGE_IMAGE_SHARE = 0.5
@@ -447,10 +447,16 @@ def _scanned(pdf, pdfium_c, count: int) -> tuple[list[str], list[int]]:
         if len(texts[-1].strip()) < SCANNED_PAGE_TEXT:
             width, height = page.get_size()
             covered = 0.0
-            for obj in page.get_objects(filter=(pdfium_c.FPDF_PAGEOBJ_IMAGE,)):
-                left, bottom, right, top = obj.get_bounds()
-                covered += max(0.0, right - left) * max(0.0, top - bottom)
-            if width * height > 0 and covered / (width * height) >= SCANNED_PAGE_IMAGE_SHARE:
+            has_text_objects = False
+            for obj in page.get_objects():
+                if obj.type == pdfium_c.FPDF_PAGEOBJ_TEXT:
+                    has_text_objects = True
+                elif obj.type == pdfium_c.FPDF_PAGEOBJ_IMAGE:
+                    left, bottom, right, top = obj.get_bounds()
+                    covered += max(0.0, right - left) * max(0.0, top - bottom)
+            # A page with no text objects is a picture of text however it is drawn: one big scan or many
+            # tiles (tiled-image PDFs cover far less than the share threshold with each tile's bounds).
+            if width * height > 0 and (not has_text_objects or covered / (width * height) >= SCANNED_PAGE_IMAGE_SHARE):
                 scanned.append(index)
         page.close()
     return texts, scanned

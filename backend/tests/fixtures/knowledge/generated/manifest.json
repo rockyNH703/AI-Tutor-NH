@@ -18,7 +18,17 @@
     "scanned-ocr.pdf": {
       "kind": "scanned",
       "pages": 1,
-      "sha256": "e94a14897fcbc6bea79c61cdf34193dcb1d8406f8c19e77a3cc862903a949ca0"
+      "sha256": "671d7bfc193362f91cfb27c74b700e4d51bd3df5cab06ba67c5cfd0fa8376934"
+    },
+    "tiled-image.pdf": {
+      "kind": "tiled",
+      "pages": 1,
+      "sha256": "1696282e1b07c2bf9a7379cf83120e7ff52ce4b476ee1feb26118ee2b7736c40"
+    },
+    "watermarked-scan.pdf": {
+      "kind": "watermarked",
+      "pages": 1,
+      "sha256": "c16b840c8551391be59ce01d193f18b0eaa1c533cda9cefb5220e14dfce61930"
     }
   },
   "generated": true,

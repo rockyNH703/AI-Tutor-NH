@@ -22,6 +22,7 @@ from app.db.models import Document, DocumentFile, DocumentFileBlob, DocumentRevi
 from app.db.session import Database
 from app.files.processing import BACKEND_DIR, EMBED_RETRY_DELAYS_S, SANDBOX_PROPERTIES, _systemctl
 from app.knowledge import concepts, passages
+from app.knowledge.extract import MAX_INPUT_BYTES
 from app.knowledge.protocol import MAX_STDOUT_BYTES, ExtractedDocument, parse_ndjson
 from app.knowledge.publication import CHUNK_OVERLAP_CHARS, CHUNKING, MAX_CHUNK_CHARS, build_chunks
 from app.knowledge.worker import RevisionClaim
@@ -39,11 +40,15 @@ PARSER_NAME, PARSER_VERSION = "netsec-knowledge-pdfium-tesseract", "v4"
 # The File Library's sandbox, with what a book needs: a runtime for OCR (about 1-5 s per scanned page per CPU),
 # and CPU and memory for its OCR processes (each ~150 MB). The later -p wins.
 KNOWLEDGE_SANDBOX_OVERRIDES = (f"RuntimeMaxSec={EXTRACT_TIMEOUT_S}",)
+# The extractor holds the whole book (MAX_INPUT_BYTES) in memory while it reads, parses and OCRs it, on top of
+# its own base and the OCR pool: the sandbox grant must scale with the cap or a large book is OOM-killed.
+EXTRACTOR_BASE_MB, OCR_WORKER_MB = 384, 256
 
 
 def sandbox_overrides(ocr_workers: int) -> tuple[str, ...]:
     workers = max(1, ocr_workers)
-    return (*KNOWLEDGE_SANDBOX_OVERRIDES, f"CPUQuota={100 * workers}%", f"MemoryMax={384 + 256 * workers}M")
+    memory = EXTRACTOR_BASE_MB + OCR_WORKER_MB * workers + MAX_INPUT_BYTES // (1024 * 1024)
+    return (*KNOWLEDGE_SANDBOX_OVERRIDES, f"CPUQuota={100 * workers}%", f"MemoryMax={memory}M")
 
 
 # A revision still being worked on: a new one for the same file waits until it ends.

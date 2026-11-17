@@ -676,6 +676,12 @@ def test_a_course_named_in_the_question_and_the_profile_goal_set_the_boundary():
     assert named_courses("how does OSPF elect a DR?") == ()
     assert course_for_goal("CCNA") == ("ccna",)
     assert course_for_goal("CCNP Security") == course_for_goal("CCIE Enterprise Infrastructure") == ("ccnp",)
+    assert course_for_goal("AWS Solutions Architect – Associate") == ("aws",)
+    assert course_for_goal("Microsoft Azure Administrator (AZ-104)") == ("azure",)
+    assert course_for_goal("EC-Council CPENT") == ("cpent",)
+    assert course_for_goal("EC-Council CEH") == ("ceh",)
+    assert course_for_goal("Palo Alto Networks PCNSE") == ("paloalto",)
+    assert course_for_goal("Fortinet Certified Professional (FCP)") == ("fortigate",)
     assert course_for_goal("CompTIA Network+") == course_for_goal(None) == ()
 
 

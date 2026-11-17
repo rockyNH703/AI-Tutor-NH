@@ -24,7 +24,14 @@ class FixtureTests(unittest.TestCase):
             self.assertEqual(persisted["license"], "CC0-1.0")
             self.assertEqual(
                 set(persisted["fixtures"]),
-                {"digital-structure.pdf", "edition-a.pdf", "edition-b.pdf", "scanned-ocr.pdf"},
+                {
+                    "digital-structure.pdf",
+                    "edition-a.pdf",
+                    "edition-b.pdf",
+                    "scanned-ocr.pdf",
+                    "tiled-image.pdf",
+                    "watermarked-scan.pdf",
+                },
             )
             for name, entry in persisted["fixtures"].items():
                 data = (root / name).read_bytes()

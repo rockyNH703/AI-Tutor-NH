@@ -175,7 +175,7 @@ ETAG = f'"academic-{CATALOG_VERSION}-{content_hash()[:16]}"'
 
 
 # ------------------------------------------------------------------ engineering
-ENGINEERING_VERSION = 1
+ENGINEERING_VERSION = 2
 
 ROLES = _entries(
     ("network_engineer", "Network Engineer"),
@@ -274,6 +274,9 @@ CERTIFICATIONS = _entries(
     ("aws_security", "AWS Security – Specialty"),
     ("az_104", "Microsoft Azure Administrator (AZ-104)"),
     ("az_500", "Microsoft Azure Security Engineer (AZ-500)"),
+    ("az_900", "Microsoft Azure Fundamentals (AZ-900)"),
+    ("az_305", "Microsoft Azure Solutions Architect Expert (AZ-305)"),
+    ("cpent", "EC-Council CPENT"),
     ("cka", "Certified Kubernetes Administrator (CKA)"),
     ("cks", "Certified Kubernetes Security Specialist (CKS)"),
     ("rhcsa", "Red Hat RHCSA"),

@@ -17,10 +17,11 @@ from sqlalchemy import func, select
 
 from app.db.models import Message
 from app.db.session import Database
-from app.knowledge.extract import MAX_OCR_WORKERS
+from app.knowledge.extract import MAX_INPUT_BYTES, MAX_OCR_WORKERS
 
 MEMORY_RESERVE_MB = 512  # always left to the live services
 EXTRACTOR_BASE_MB, OCR_WORKER_MB = 384, 256  # what processing.sandbox_overrides grants the extractor
+BOOK_CAP_MB = MAX_INPUT_BYTES // (1024 * 1024)  # the extractor holds the whole book while it reads and OCRs it
 LOAD_SHARE = 0.75  # load1 above this share of the cores: the host is busy, books wait
 MAX_LIVE_STREAMS = 8  # replies streaming right now: past this, live users come first
 
@@ -42,13 +43,19 @@ def decide(*, cores: int, mem_available_mb: int | None, load1: float | None, liv
     def verdict(admitted: bool, reason: str, workers: int = 0) -> Admission:
         return Admission(admitted, reason, workers, mem_available_mb, load1, cores, live_streams)
 
-    if mem_available_mb is not None and mem_available_mb < MEMORY_RESERVE_MB + EXTRACTOR_BASE_MB + OCR_WORKER_MB:
+    if mem_available_mb is not None and mem_available_mb < (
+        MEMORY_RESERVE_MB + EXTRACTOR_BASE_MB + BOOK_CAP_MB + OCR_WORKER_MB
+    ):
         return verdict(False, "memory")
     if load1 is not None and load1 > LOAD_SHARE * cores:
         return verdict(False, "cpu_busy")
     if live_streams >= MAX_LIVE_STREAMS:
         return verdict(False, "live_traffic")
-    by_memory = (mem_available_mb - MEMORY_RESERVE_MB - EXTRACTOR_BASE_MB) // OCR_WORKER_MB if mem_available_mb else 1
+    by_memory = (
+        (mem_available_mb - MEMORY_RESERVE_MB - EXTRACTOR_BASE_MB - BOOK_CAP_MB) // OCR_WORKER_MB
+        if mem_available_mb
+        else 1
+    )
     return verdict(True, "ok", max(1, min(MAX_OCR_WORKERS, cores - 2, by_memory)))
 
 
