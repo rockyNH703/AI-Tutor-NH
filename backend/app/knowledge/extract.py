@@ -27,7 +27,7 @@ from app.files.extract import EnvironmentProblem, Failure, _ocr, normalize
 from app.knowledge.protocol import MAX_CONTENT_BYTES, MAX_SECTION_DEPTH, PROTOCOL, VERSION
 
 MAX_INPUT_BYTES = 256 * 1024 * 1024
-MAX_PAGES = 3_000
+MAX_PAGES = 4_500  # the largest real book (FortiOS 7.6 Admin Guide, 4,169 pages) fits; stays below passages.KEY_BATCH
 SCANNED_PAGE_TEXT = 200  # fewer characters than this on an image-covered page: a scanned page
 SCANNED_PAGE_IMAGE_SHARE = 0.5
 OCR_MAX_PIXELS = 12_000_000

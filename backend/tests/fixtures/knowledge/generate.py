@@ -177,6 +177,11 @@ def _watermarked_scan_pdf(image: Image.Image) -> bytes:
     return bytes(output)
 
 
+def _many_pages_pdf(count: int) -> bytes:
+    """A minimal digital PDF with `count` one-line pages (for the page-cap boundary test)."""
+    return _digital_pdf([[(54, 744, 10, f"Synthetic volume page {number + 1}")] for number in range(count)])
+
+
 def generate(output: Path) -> dict:
     output.mkdir(parents=True, exist_ok=True)
     fixtures: dict[str, dict] = {}

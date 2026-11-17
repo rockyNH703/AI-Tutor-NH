@@ -275,6 +275,20 @@ class KnowledgeExtractorAdapterTests(unittest.TestCase):
         joined = "\n".join(element["content"] for element in extracted.elements)
         self.assertIn("permit", joined.lower())  # the OCR actually read the scanned text
 
+    def test_the_largest_real_book_fits_the_page_cap_and_the_cap_still_refuses_more(self):
+        # The FortiOS 7.6 Administration Guide (the Fortigate library's substance) is 4,169 pages: the
+        # old 3,000-page cap refused it whole. The cap stays below passages.KEY_BATCH (5,000), whose
+        # IN-lists assume a book has fewer pages than that.
+        from tests.fixtures.knowledge.generate import _many_pages_pdf
+
+        self.assertGreater(extract.MAX_PAGES, 4_169)
+        self.assertLess(extract.MAX_PAGES, 5_000)
+        data = _many_pages_pdf(extract.MAX_PAGES)
+        output = records(data)
+        header = next(record for record in output if record["kind"] == "header")
+        self.assertEqual(header["page_count"], extract.MAX_PAGES)
+        self.assertGreater(header["page_count"], 3_000)  # the old cap refused this book whole
+
 
 if __name__ == "__main__":
     unittest.main()
