@@ -42,7 +42,12 @@ export function cacheAttributes(attributes: AppearanceAttributes | null): void {
   }
 }
 
-/** Runs before the first paint (inline in the root layout). Only sets known attributes. */
-export const PREPAINT_SCRIPT = `(function(){try{var a=JSON.parse(localStorage.getItem(${JSON.stringify(
+/**
+ * Runs before the first paint (inline in the root layout). Only sets known attributes, and the
+ * colour theme's class with next-themes' own semantics (its `theme` key, `system` default): the
+ * server cannot know the theme, so without this the browser paints the light page first and
+ * next-themes switches it to dark after hydration — the white flash on every hard load.
+ */
+export const PREPAINT_SCRIPT = `(function(){try{var r=document.documentElement;var a=JSON.parse(localStorage.getItem(${JSON.stringify(
   APPEARANCE_CACHE_KEY,
-)})||"null");if(!a)return;var r=document.documentElement;["data-font-size","data-contrast","data-motion","data-reading"].forEach(function(n){var v=a[n];if(typeof v==="string"&&/^[a-z_]{1,16}$/.test(v))r.setAttribute(n,v);});}catch(e){}})();`;
+)})||"null");if(a)["data-font-size","data-contrast","data-motion","data-reading"].forEach(function(n){var v=a[n];if(typeof v==="string"&&/^[a-z_]{1,16}$/.test(v))r.setAttribute(n,v);});var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"&&t!=="system")t="system";if(t==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches)t="dark";r.classList.add(t==="dark"?"dark":"light");}catch(e){}})();`;

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { cn } from "@v1/ui/utils";
 import { ArrowRight, ChevronLeft, Eye, EyeOff, Loader2, Lock, ShieldCheck, User } from "lucide-react";
@@ -53,7 +53,7 @@ const RESEND_SECONDS = 30;
 const LEAVE_MS = 350;
 const EASE = "ease-[cubic-bezier(0.23,1,0.32,1)]";
 
-const label = "text-sm font-medium uppercase tracking-widest text-slate-500 dark:text-white/40";
+const label = "text-sm font-medium uppercase tracking-widest text-slate-500 dark:text-white/70";
 // The hairline under the field is its edge (WCAG 1.4.11: at least 3:1 against the ground, about
 // 3.4:1 on white and 3.7:1 on the dark ground), and turns blue while it has focus.
 const bigInput =
@@ -65,7 +65,7 @@ const primaryPill = cn(
   EASE,
 );
 const quietLink =
-  "rounded text-sm text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 disabled:opacity-50 dark:text-white/40 dark:hover:text-white";
+  "rounded text-sm text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 disabled:opacity-50 dark:text-white/70 dark:hover:text-white";
 
 /** A first step's answer when the account has two-step sign-in. */
 function needsSecondStep(data: unknown): boolean {
@@ -431,7 +431,7 @@ export function AuthForm({
       )}
       <div aria-live="polite" className="w-full">
         {info && !error && (
-          <p role="status" className="text-sm text-slate-500 dark:text-white/50">
+          <p role="status" className="text-sm text-slate-500 dark:text-white/70">
             {info}
           </p>
         )}
@@ -541,7 +541,7 @@ export function AuthForm({
                   "rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
                   tab === value
                     ? "bg-white text-slate-900 shadow-sm dark:bg-white dark:text-black"
-                    : "text-slate-500 hover:text-slate-900 dark:text-white/50 dark:hover:text-white/80",
+                    : "text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white",
                 )}
               >
                 {value === "signIn" ? "Sign In" : "Sign Up"}
@@ -591,7 +591,7 @@ export function AuthForm({
       const typed = password.length > 0;
       panel = (
         <form noValidate onSubmit={submitSignIn} className="flex w-full flex-col items-center">
-          <div className="mb-6 flex items-center gap-3 text-slate-500 dark:text-white/40">
+          <div className="mb-6 flex items-center gap-3 text-slate-500 dark:text-white/70">
             <Lock aria-hidden className="h-5 w-5" />
             <h1 className={label}>{title}</h1>
           </div>
@@ -654,7 +654,7 @@ export function AuthForm({
         <form noValidate onSubmit={submitCode} className="flex w-full flex-col items-center">
           <div className="mb-6 flex flex-col items-center text-center">
             <h1 className={cn(label, "mb-2")}>{title}</h1>
-            <p id="auth-code-for" className="text-sm text-slate-500 dark:text-white/50">
+            <p id="auth-code-for" className="text-sm text-slate-500 dark:text-white/70">
               Enter the {CODE_LENGTH}-digit code sent to <br />
               <b className="text-slate-700 dark:text-white/80">{email.trim()}</b>
             </p>
@@ -675,7 +675,7 @@ export function AuthForm({
             <Swap shown={complete}>{cta(codeFor === "reset" ? "Continue" : "Verify Code", complete)}</Swap>
             <Swap shown={!complete}>
               <button type="button" onClick={() => void resend()} disabled={cooldown > 0 || pending} className={quietLink}>
-                {cooldown > 0 ? `Resend code in ${cooldown}s` : "Didn’t receive it? Resend"}
+                {cooldown > 0 ? `Resend code in ${cooldown}s` : "Didnâ€™t receive it? Resend"}
               </button>
             </Swap>
           </div>
@@ -692,7 +692,7 @@ export function AuthForm({
           <div className="mb-6 flex flex-col items-center text-center">
             <ShieldCheck aria-hidden className="mb-2 h-5 w-5 text-green-600 dark:text-green-400" />
             <h1 className={cn(label, "mb-1")}>{title}</h1>
-            <p className="text-sm text-slate-500 dark:text-white/50">Secure your new account with a password.</p>
+            <p className="text-sm text-slate-500 dark:text-white/70">Secure your new account with a password.</p>
           </div>
           {field({
             id: "auth-new-account-password",
@@ -712,7 +712,7 @@ export function AuthForm({
               </button>
             </Swap>
           </div>
-          {status(`${PASSWORD_MIN}–${PASSWORD_MAX} characters.`)}
+          {status(`${PASSWORD_MIN}â€“${PASSWORD_MAX} characters.`)}
         </form>
       );
       break;
@@ -722,7 +722,7 @@ export function AuthForm({
       const enough = password.length >= PASSWORD_MIN;
       panel = (
         <form noValidate onSubmit={submitReset} className="flex w-full flex-col items-center">
-          <div className="mb-6 flex items-center gap-3 text-slate-500 dark:text-white/40">
+          <div className="mb-6 flex items-center gap-3 text-slate-500 dark:text-white/70">
             <Lock aria-hidden className="h-5 w-5" />
             <h1 className={label}>{title}</h1>
           </div>
@@ -739,7 +739,7 @@ export function AuthForm({
           <div className="relative mt-12 flex h-16 w-full justify-center">
             <Swap shown={enough}>{cta("Save & Sign In", enough)}</Swap>
           </div>
-          {status(`${PASSWORD_MIN}–${PASSWORD_MAX} characters. Every device will be signed out.`)}
+          {status(`${PASSWORD_MIN}â€“${PASSWORD_MAX} characters. Every device will be signed out.`)}
         </form>
       );
       break;
@@ -750,9 +750,9 @@ export function AuthForm({
       panel = (
         <form noValidate onSubmit={submitSecondStep} className="flex w-full flex-col items-center">
           <div className="mb-6 flex flex-col items-center text-center">
-            <ShieldCheck aria-hidden className="mb-3 h-5 w-5 text-slate-400 dark:text-white/40" />
+            <ShieldCheck aria-hidden className="mb-3 h-5 w-5 text-slate-400 dark:text-white/70" />
             <h1 className={cn(label, "mb-2")}>{title}</h1>
-            <p id="auth-second-step" className="text-sm text-slate-500 dark:text-white/50">
+            <p id="auth-second-step" className="text-sm text-slate-500 dark:text-white/70">
               {recovery ? "Enter one of your recovery codes." : "Enter the 6-digit code from your authenticator app."}
             </p>
           </div>
@@ -830,7 +830,7 @@ export function AuthForm({
             <span className="hidden text-base font-semibold tracking-wide min-[480px]:block">NetSec AI</span>
           </div>
         </div>
-        <ThemeMenu className="border-transparent bg-transparent text-slate-500 hover:bg-slate-900/5 hover:text-slate-900 dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white" />
+        <ThemeMenu className="border-transparent bg-transparent text-slate-500 hover:bg-slate-900/5 hover:text-slate-900 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white" />
       </header>
 
       <main id="main" tabIndex={-1} className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-6 pb-28 pt-14 outline-none sm:pb-20">
@@ -853,7 +853,7 @@ export function AuthForm({
               showBadge ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "-translate-y-8 scale-95 opacity-0",
             )}
           >
-            <User aria-hidden className="h-4 w-4 shrink-0 text-slate-500 dark:text-white/50" />
+            <User aria-hidden className="h-4 w-4 shrink-0 text-slate-500 dark:text-white/70" />
             <span className="truncate text-sm font-medium text-slate-700 dark:text-white/80">{email.trim()}</span>
           </button>
         </div>
@@ -889,8 +889,8 @@ export function AuthForm({
 
       {/* A hint, not content: in the flow under the step, and only where there is room for it. */}
       <footer className="pointer-events-none hidden w-full items-center justify-center p-6 min-[480px]:[@media(min-height:700px)]:flex">
-        <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-white/20">
-          Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans dark:bg-white/10">Enter</kbd> to continue
+        <p className="text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-white/70">
+          Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans text-slate-700 dark:bg-white/10 dark:text-white/70">Enter</kbd> to continue
         </p>
       </footer>
     </div>

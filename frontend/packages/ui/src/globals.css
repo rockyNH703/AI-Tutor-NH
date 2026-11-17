@@ -104,7 +104,7 @@
        spelt as an opacity on `--primary`. */
     --surface: 210 20% 98%; /* #F9FAFB: sidebar and recessed surfaces */
     --surface-2: 220 13% 95.5%; /* #F2F3F5 */
-    --text-secondary: 220 8.9% 46.1%; /* #6B7280 */
+    --text-secondary: 220 8.9% 42%; /* #626B79: 5.3:1 on surface-2 (the student's bubble), 5.7:1 on the page */
 
     /* The one accent: a muted grey sage. Decoration only (the greeting's gradient, the empty
        state), never a status. 4.90:1 on the page. */

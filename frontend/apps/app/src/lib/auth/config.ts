@@ -97,7 +97,10 @@ export function readAuthEnv(env: Record<string, string | undefined> = process.en
   if (secret.length < 32) throw new Error("BETTER_AUTH_SECRET must be at least 32 characters");
   const internalToken = need("AUTH_INTERNAL_TOKEN");
   if (internalToken.length < 32) throw new Error("AUTH_INTERNAL_TOKEN must be at least 32 characters");
-  if (env.NODE_ENV === "production" && env.AUTH_RATE_LIMIT === "off") {
+  const siteUrl = (env.NEXT_PUBLIC_SITE_URL?.trim() || "http://127.0.0.1:3000").replace(/\/+$/, "");
+  // A deployed production serves HTTPS; the e2e suite runs the same production build on loopback
+  // HTTP, where every test comes from one address and needs the limiter off (per-account limits stay).
+  if (env.NODE_ENV === "production" && siteUrl.startsWith("https://") && env.AUTH_RATE_LIMIT === "off") {
     throw new Error("AUTH_RATE_LIMIT cannot be off in production");
   }
   const clientId = env.GOOGLE_CLIENT_ID?.trim();
