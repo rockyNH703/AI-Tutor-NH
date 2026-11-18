@@ -7,6 +7,25 @@
 > them. **A topic is covered only when a source passage supports it; an exam-objective line alone is not
 > study coverage.**
 
+## Eight libraries in production (2026-11-18)
+
+Read on production (`f7727c5`, read-only): 66 published revisions, 7 retired, none failed or waiting for review;
+**24,335 live passages**. Retrieval (real embeddings, production retriever): **8×8 course isolation with no leak**
+(64 scoped searches), and **27/27 per-objective questions** answered from their own course (p95 563 ms including
+the embedding call). Exam versions from the official study guides: AZ-900 skills as of 2026-07-20, AZ-305 as of
+2026-04-17.
+
+| Course | Live passages | Sources | Status |
+|---|---|---|---|
+| ccna | 229 | CCNA 200-301 shared library (samples) | PARTIAL by source (unchanged, below) |
+| ccnp | 3,190 | CCNP Enterprise shared library | as below (unchanged) |
+| aws | 2,467 | AWS Cloud shared library (2017 SAA Official Study Guide, SAA and Security slide decks, exam sheets) 2,435; AWS official SAA-C03 exam guide 32 | **PARTIAL**: SAA-C03 objectives answer from the 2017 guide; no current-edition study book (SOURCE GAP until the owner provides one) |
+| azure | 650 | Azure Cloud shared library (AZ-104/305/500/900 syllabi) 23; Azure official study content (Microsoft Learn, 174 units) 627 | **PARTIAL, rights pending**: all 7 AZ-900/AZ-305 skill areas answer from the Learn content, but Learn's Terms of Use restrict its training content to personal, non-commercial use; the recorded "CC-BY" basis is not confirmed (owner decision) |
+| ceh | 7,043 | CEH shared library (v12 modules, 20 published) | processed incl. the formerly oversized modules |
+| cpent | 1,799 | CPENT shared library (14 modules) | processed incl. module 06 |
+| fortigate | 6,563 | Fortigate shared library (FortiOS 7.6 Administration Guide, 4,169 pages, + training-institute syllabus) 6,559; "Fortinet official NSE program reference" 4 | **PARTIAL**: technical content complete for FortiOS 7.6; Fortinet's official NSE 4 blueprint is login-only (BLOCKED until the owner downloads it); the 4-passage "program reference" was written by an agent, not by Fortinet (owner decision: delete) |
+| paloalto | 2,395 | Palo Alto NGFW shared library (PAN-OS administration 2023 + PCNSE datasheet) | PARTIAL per objective (2023 content) |
+
 ## Library (10 published books, 2026-11-16)
 
 | Course | Source | Book | Pages | Passages |

@@ -55,22 +55,21 @@ async function snap(page: Page, name: string): Promise<void> {
       width,
     );
   }
-  await page.waitForTimeout(150);
+  // Two frames: the box above is laid out and painted before anything is measured.
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   // Radix popovers and menus animate in for --motion-fast (180 ms); a screenshot taken mid-flight
   // catches a random frame of the zoom-in (the account-menu flake at 390px was exactly that).
-  // Wait until every finite animation has actually finished before comparing pixels.
-  await page
-    .waitForFunction(
-      () =>
-        document.getAnimations().every(
-          (animation) =>
-            animation.playState !== "running" ||
-            animation.effect?.getTiming().iterations === Number.POSITIVE_INFINITY,
-        ),
-      undefined,
-      { timeout: 5_000 },
-    )
-    .catch(() => undefined);
+  // Wait until every finite animation has actually finished before comparing pixels. A page that
+  // never settles fails here, by name, instead of being photographed at a random frame.
+  await page.waitForFunction(
+    () =>
+      document.getAnimations().every(
+        (animation) =>
+          animation.playState !== "running" || animation.effect?.getTiming().iterations === Number.POSITIVE_INFINITY,
+      ),
+    undefined,
+    { timeout: 5_000 },
+  );
   // Soft: every state is compared (and a candidate written) in one run; any difference still fails the test.
   await expect.soft(page).toHaveScreenshot(`${name}.png`, {
     animations: "disabled",

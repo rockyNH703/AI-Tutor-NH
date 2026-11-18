@@ -10,6 +10,7 @@ to its reason in [decisions.md](decisions.md). Planned work is in [ROADMAP.md](.
 ## Contents
 
 - [NetSec AI (2026-10-29)](#netsec-ai-2026-10-29)
+- [QA closure (2026-11-18)](#qa-closure-2026-11-18)
 - [For students](#for-students)
 - [Files](#files)
 - [Production and operations](#production-and-operations)
@@ -43,6 +44,20 @@ From the final review of the working tree. Each is true of the code today; none 
 | **Gate overrides are logged only in the local checkout's `.git`** (`netsec-security-gate.overrides`); the host's `HISTORY` does not record the gate's outcome | `deploy-netsec/deploy.sh:61`; `deploy-netsec/server/update.sh:285` |
 | **The gate's receipt names a commit, but its scanners read the working tree**: a sparse-checkout or skip-worktree file can differ from that commit while `git status` stays clean (the history scan reads commits) | `scripts/security.sh:62-78` |
 | **A deploy that changes the frontend's dependencies runs `bun install --force` in the live `node_modules`**: the running web app serves from a reinstalled tree during the build, until its restart; a failed install leaves it on a partly reinstalled one. The first deploy of the 2026-10-29 dependency changes takes this path | `deploy-netsec/server/update.sh:143` |
+
+## QA closure (2026-11-18)
+
+Verified on production (`f7727c5`, MATCH) and on the local production build. Evidence:
+`C:\Users\test\Desktop\netsec-qa-evidence\2026-11-18\` on the owner's PC (not in git).
+
+| Limitation | Where it shows |
+|---|---|
+| **The nightly backup cannot run at today's disk level.** Every dump carries the book PDFs (`document_file_blobs`, 2.7 GB of a 3.3 GB database; the 2026-11-18 dump is 2.54 GB) and the gate wants twice the database free (6.6 GB); 5.4 GB is free. Uploads and imports refuse below 5 GB free (`MIN_FREE_DISK_BYTES`), about 0.4 GB away | `deploy-netsec/backup.sh` (the 2× gate), `app/files/service.py`; needs a larger VM disk or a backup-policy decision by the owner |
+| **The citation tooltip does not always open on the first keyboard focus after a page load** (probe: 1 of 30 focus cycles; seen once live). The chip's accessible name and the Sources list under the reply always carry the source | `features/markdown/citation.tsx` (Radix Tooltip 1.1.8); `e2e/p2-headed-verification.e2e.ts` asserts the name and the focus ring instead |
+| **Azure study content from Microsoft Learn has no confirmed licence.** Learn's Terms of Use limit its training content to personal, non-commercial use unless otherwise specified; the 2026-11-18 import ("Azure official study content (Microsoft Learn)", 627 passages) recorded "CC-BY", which applies only to documentation published with an explicit licence | Library source on production; owner decision pending (remove it, or replace with CC BY 4.0 Azure documentation) |
+| **The Fortinet library has no official exam blueprint.** Fortinet publishes NSE 4 exam objectives only behind its training login; the source "Fortinet official NSE program reference" (4 passages) is a summary written by an agent, not a Fortinet document | Library source on production; owner decision pending (delete it); the owner can download the official exam description |
+| **AWS SAA-C03 has no current-edition study book.** The library has the 2017 Official Study Guide (SAA-C01 era) and the official SAA-C03 exam guide (objectives only) | Library sources on production; needs a licensed current guide from the owner |
+| **The 0.01 ms reduced-motion clamp is gone for transitions** (`transition: none`): it left hundreds of transitions reported as running in `document.getAnimations()`, so settle-waits never settled (the visual flakes). Animations keep the 0.01 ms clamp | `packages/ui/src/globals.css`; A/B evidence in the QA evidence folder |
 
 ## For students
 

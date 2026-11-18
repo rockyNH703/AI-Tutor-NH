@@ -46,7 +46,8 @@ MAX_ATTEMPTS = 3  # processing claims per file, retries included
 MAX_ATTACHMENTS = 5  # per message
 SCOPE_FILES = 5  # a turn uses the most recently attached files of its conversation...
 SCOPE_CHUNKS = 4_000  # ...up to this many chunks in total (exact search stays cheap)
-DB_CEILING_BYTES = 4 * 1024**3  # physical guard for the shared disk and its backups (raised 2026-11-18: the eight-library corpus is 3.3 GiB; the host's volume and backups were re-measured with headroom)
+# Physical guard for the shared disk and its backups (raised 2026-11-18 for the 3.3 GiB eight-library corpus).
+DB_CEILING_BYTES = 4 * 1024**3
 MIN_FREE_DISK_BYTES = 5 * 10**9
 # What DB_CEILING_BYTES limits: this app's own tables (schema public), indexes and TOAST included. The
 # database is shared: the NCERT knowledge service keeps its own, much larger schema in it, which must not
