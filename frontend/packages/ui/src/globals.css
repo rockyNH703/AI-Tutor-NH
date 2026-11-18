@@ -701,7 +701,12 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       animation-delay: 0ms !important;
-      transition-duration: 0.01ms !important;
+      /* Transitions are removed outright, not clamped: a 0.01ms transition is reported by
+         Chromium as forever-running in document.getAnimations() (startTime 0, never
+         advancing), which keeps accessibility tooling and test automation waiting for the
+         page to settle forever. Nothing in this app or its Radix versions listens for
+         transitionend, so removing transitions breaks nothing. */
+      transition: none !important;
       scroll-behavior: auto !important;
     }
 
@@ -775,7 +780,7 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     animation-delay: 0ms !important;
-    transition-duration: 0.01ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
   html[data-motion="reduce"] .animate-rise-in,

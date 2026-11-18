@@ -56,6 +56,21 @@ async function snap(page: Page, name: string): Promise<void> {
     );
   }
   await page.waitForTimeout(150);
+  // Radix popovers and menus animate in for --motion-fast (180 ms); a screenshot taken mid-flight
+  // catches a random frame of the zoom-in (the account-menu flake at 390px was exactly that).
+  // Wait until every finite animation has actually finished before comparing pixels.
+  await page
+    .waitForFunction(
+      () =>
+        document.getAnimations().every(
+          (animation) =>
+            animation.playState !== "running" ||
+            animation.effect?.getTiming().iterations === Number.POSITIVE_INFINITY,
+        ),
+      undefined,
+      { timeout: 5_000 },
+    )
+    .catch(() => undefined);
   // Soft: every state is compared (and a candidate written) in one run; any difference still fails the test.
   await expect.soft(page).toHaveScreenshot(`${name}.png`, {
     animations: "disabled",
