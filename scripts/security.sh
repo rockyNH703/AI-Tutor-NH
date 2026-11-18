@@ -256,14 +256,32 @@ bun_audit() {
       console.log(`SUMMARY tool error (exit ${rc})`);
       process.exit(2);
     }
+    // Reviewed exceptions: one exact advisory and package each, with the reason and an expiry after
+    // which the advisory fails again. Add one only when no fixed release exists and the package
+    // never runs with untrusted input in production (deploy-netsec/tests/security-gate.test.mjs).
+    const ACCEPTED = {
+      "GHSA-fc5q-39xc-vjpf": {
+        pkg: "picomatch",
+        until: "2026-12-31",
+        why: "no fixed release; build-time only (Sentry build plugin, Tailwind watcher), patterns are build config",
+      },
+    };
+    const accepted = (r) =>
+      ACCEPTED[r.id]?.pkg === r.pkg && new Date().toISOString().slice(0, 10) <= ACCEPTED[r.id].until;
     const order = ["critical", "high", "moderate", "low"];
     const rows = Object.entries(report)
       .flatMap(([pkg, list]) => list.map((a) => ({ pkg, sev: a.severity, id: String(a.url ?? a.id).split("/").pop(), range: a.vulnerable_versions })))
       .sort((a, b) => order.indexOf(a.sev) - order.indexOf(b.sev) || a.pkg.localeCompare(b.pkg));
-    for (const r of rows) console.log(`${["critical", "high"].includes(r.sev) ? "FAIL" : "info"}  ${r.sev.padEnd(8)} ${r.pkg} ${r.range}  ${r.id}`);
+    const failing = (r) => ["critical", "high"].includes(r.sev) && !accepted(r);
+    for (const r of rows) {
+      const tag = failing(r) ? "FAIL" : accepted(r) ? "ACCEPTED" : "info";
+      const note = accepted(r) ? `  (until ${ACCEPTED[r.id].until}: ${ACCEPTED[r.id].why})` : "";
+      console.log(`${tag}  ${r.sev.padEnd(8)} ${r.pkg} ${r.range}  ${r.id}${note}`);
+    }
     const count = (s) => rows.filter((r) => r.sev === s).length;
-    console.log(`SUMMARY ${order.map((s) => `${s} ${count(s)}`).join(", ")} (high or critical fails)`);
-    process.exit(count("critical") + count("high") > 0 ? 1 : 0);
+    const fails = rows.filter(failing).length;
+    console.log(`SUMMARY ${order.map((s) => `${s} ${count(s)}`).join(", ")}; ${rows.filter(accepted).length} accepted until expiry (high or critical fails)`);
+    process.exit(fails > 0 ? 1 : 0);
   ' < "$OUT/bun.json"
 }
 

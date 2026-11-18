@@ -111,6 +111,18 @@ describe("scanner configuration", () => {
     }
   });
 
+  test("bun audit: reviewed exceptions are exact (advisory + package), dated and short-lived", () => {
+    const block = gate.slice(gate.indexOf("const ACCEPTED = {"), gate.indexOf("const accepted ="));
+    const ids = [...block.matchAll(/"(GHSA-[a-z0-9-]+)": \{/g)].map((m) => m[1]);
+    expect(ids).toEqual(["GHSA-fc5q-39xc-vjpf"]);
+    expect(block).toContain('pkg: "picomatch"');
+    for (const [, until] of block.matchAll(/until: "(\d{4}-\d{2}-\d{2})"/g)) {
+      expect(until <= "2026-12-31").toBe(true);
+    }
+    expect(gate).toContain("ACCEPTED[r.id]?.pkg === r.pkg && new Date().toISOString().slice(0, 10) <= ACCEPTED[r.id].until");
+    expect(gate).toContain('["critical", "high"].includes(r.sev) && !accepted(r)');
+  });
+
   test("semgrepignore lists only generated or vendored paths, never source directories", () => {
     const entries = read(".semgrepignore").split("\n").filter((line) => line && !line.startsWith("#"));
     for (const source of ["backend/", "frontend/", "tests/", "test/", "scripts/", "deploy-netsec/", "docs/", "app/", "src/", "qbank/"]) {
