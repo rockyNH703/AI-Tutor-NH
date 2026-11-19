@@ -8,6 +8,7 @@ practice test: single-answer questions are kind 'mcq', multiple-answer ones 'mul
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from app.assessments.state import RECORD_MAX, _canonical, fingerprint, locator
@@ -24,13 +25,23 @@ def _keys(row: Any) -> list[int]:
     return sorted(LETTERS.index(letter) for letter in letters)
 
 
-def fence_body(rows: list[Any], title: str) -> str:
-    """The reply's test block: what a client and the assistant may see before answering (no keys)."""
+_CHOOSE = re.compile(r"\s*\((?:choose|select)\s+(?:two|three|four|2|3|4)\)", re.I)
+
+
+def _stem(row: Any) -> str:
+    """The stem as shown: the card says "Choose N" itself, so the stored "(Choose two)" is left out."""
+    return _CHOOSE.sub("", row.stem).strip() if row.question_format == "multi_select" else row.stem
+
+
+def fence_body(rows: list[Any], title: str, *, more: bool = True) -> str:
+    """The reply's test block: what a client and the assistant may see before answering (no keys). `more`: the
+    bank has more questions on these topics, so the card offers the next batch once this one is done."""
     shown = {
         "title": title,
         "bank": True,
+        "more": more,
         "questions": [
-            {"id": row.question_id, "question": row.stem, "options": _options(row), "choose": len(_keys(row))}
+            {"id": row.question_id, "question": _stem(row), "options": _options(row), "choose": len(_keys(row))}
             for row in rows
         ],
     }
@@ -43,7 +54,7 @@ def bank_record(rows: list[Any], *, title: str, body: str) -> dict | None:
     questions = []
     for row in rows:
         options, keys = _options(row), _keys(row)
-        question = {"text": row.stem, "options": options, "explanation": row.explanation}
+        question = {"text": _stem(row), "options": options, "explanation": row.explanation}
         if row.question_format == "multi_select":
             questions.append({"kind": "multi", **question, "key": keys})
         else:

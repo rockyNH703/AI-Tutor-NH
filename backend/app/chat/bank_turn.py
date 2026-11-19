@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from sqlalchemy import select
@@ -27,7 +27,7 @@ from app.assessments.bank import bank_record, fence_body
 from app.db.models import Message
 from app.qbank import bank_tests, finder
 from app.qbank.request import Request, parse
-from app.qbank.selection import Pool
+from app.qbank.selection import Pool, pick_next
 
 NOT_ENTITLED = "No practice question bank is available for your account yet."
 _MARKUP = re.compile(r"([\\`*_{}\[\]()#+\-.!|<>~])")
@@ -186,7 +186,9 @@ async def answer(
     if not rows:
         return Served(_none_text(finder.Found("none"), request), {**base, "status": "none"})
     title = _title(found)
-    body = fence_body(rows, title)
+    taken = (*exclude, *(row.question_id for row in rows))
+    more = await pick_next(session, user_id, replace(pool, difficulty=None), str(reply_id), exclude=taken) is not None
+    body = fence_body(rows, title, more=more)
     record = bank_record(rows, title=title, body=body)
     if record is None:
         return Served(_none_text(finder.Found("none"), request), {**base, "status": "none"})
@@ -214,6 +216,7 @@ async def answer(
         "multiOnly": request.multi_only,
         "title": title,
         "source": source,
+        "more": more,
     }
     return Served(
         f"{line}\n\n```quiz\n{body}\n```",

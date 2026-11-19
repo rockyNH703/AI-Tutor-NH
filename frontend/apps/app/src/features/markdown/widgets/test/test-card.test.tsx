@@ -185,6 +185,7 @@ describe("practice, v2 records", () => {
     expect(draw(done, true, tests())).not.toContain("Next 5 questions"); // no chat to ask in
     expect(isBankBatch('{"bank":true,"questions":[]}')).toBe(true);
     expect(isBankBatch('{"questions":[]}')).toBe(false);
+    expect(isBankBatch('{"bank":true,"more":false,"questions":[]}')).toBe(false); // nothing left to offer
     expect(isBankBatch("not json")).toBe(false);
   });
 

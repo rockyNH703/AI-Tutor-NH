@@ -18,11 +18,14 @@ function TestBlock({ source, onError, single }: WidgetProps & { single: boolean 
   return <TestCard test={record} single={single} tests={tests} onError={onError} bank={isBankBatch(source)} />;
 }
 
-/** A certification-bank batch: the server writes `"bank":true` in its block (app/assessments/bank.py). */
+/**
+ * A certification-bank batch with more questions left: the server writes `"bank":true` in its block, and
+ * `"more":false` once the topics have nothing left (app/assessments/bank.py), so the card offers no empty batch.
+ */
 export function isBankBatch(source: string): boolean {
   try {
-    const spec: unknown = JSON.parse(source);
-    return typeof spec === "object" && spec !== null && (spec as { bank?: unknown }).bank === true;
+    const spec = JSON.parse(source) as { bank?: unknown; more?: unknown } | null;
+    return typeof spec === "object" && spec !== null && spec.bank === true && spec.more !== false;
   } catch {
     return false;
   }

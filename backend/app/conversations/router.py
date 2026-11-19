@@ -108,7 +108,7 @@ def public_metadata(
             "topics": [topic.get("title") for topic in bank.get("topics") or [] if isinstance(topic, dict)],
             "choices": bank.get("choices"),
             "source": bank.get("source"),
-            "next": bool(bank.get("setId")),
+            "next": bool(bank.get("setId")) and bank.get("more", True) is not False,
         }
     return public
 

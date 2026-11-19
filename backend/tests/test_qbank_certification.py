@@ -338,6 +338,11 @@ async def test_next_five_continues_the_test_with_new_questions(client, app, fake
     assert fake_llm.calls == []
     ids = lambda m: {q["text"] for q in m["metadata"]["assessments"][0]["questions"]}  # noqa: E731
     assert len(ids(second)) >= 4 and not ids(first) & ids(second)
+    # 9 VLAN questions: the second batch takes the last 4, so no third is offered (session 1's e2e nit b)
+    assert first["metadata"]["bank"]["next"] is True and second["metadata"]["bank"]["next"] is False
+    assert '"more":false' in second["content"]
+    # The card says "Choose N" itself; the stem shown doesn't repeat "(Choose two)" (nit a)
+    assert not any("(Choose" in text for text in ids(first) | ids(second))
 
 
 async def test_someone_who_is_not_a_student_gets_no_nhprep_questions(client, app, fake_llm, bank):
