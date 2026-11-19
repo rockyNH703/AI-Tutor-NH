@@ -8,6 +8,9 @@
  *   bun build scripts/nhprep-export/export.ts --target=node --external @playwright/test --outfile node_modules/.cache/nhprep-export/export.mjs
  *   NHPREP_CREDENTIALS_FILE=<abs path> node node_modules/.cache/nhprep-export/export.mjs [--lessons] [--quiz]
  *     [--courses a,b] [--categories a,b] [--max-lessons N] [--max-attempts N] [--gap-ms N] [--resume <run folder>]
+ *     [--retry-rounds N (2)] [--retry-wait-s N (120)]
+ * Failed items are retried at the end of each phase after a pause; what still fails is listed in failed.json /
+ * failed-quiz.json, and `--resume <run folder>` later retries exactly what is missing.
  */
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -34,7 +37,15 @@ const exportFile = join(runDir, "export.jsonl");
 const ledgerFile = join(ROOT, "ledger.json");
 
 type Row = Record<string, unknown> & { type: string };
-const existing: Row[] = existsSync(exportFile) ? readFileSync(exportFile, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line) as Row) : [];
+// On resume, keep only whole records: a run stopped mid-write can leave a partial last line, which is dropped.
+const existing: Row[] = (existsSync(exportFile) ? readFileSync(exportFile, "utf8").split("\n") : []).flatMap((line) => {
+  try {
+    return line ? [JSON.parse(line) as Row] : [];
+  } catch {
+    return [];
+  }
+});
+if (existsSync(exportFile)) writeFileSync(exportFile, existing.map((row) => `${JSON.stringify(row)}\n`).join(""));
 const write = (row: Row): void => appendFileSync(exportFile, `${JSON.stringify(row)}\n`);
 const readLedger = (): { quizAttempts: number } => (existsSync(ledgerFile) ? (JSON.parse(readFileSync(ledgerFile, "utf8")) as { quizAttempts: number }) : { quizAttempts: 0 });
 const bumpLedger = (): void => writeFileSync(ledgerFile, JSON.stringify({ quizAttempts: readLedger().quizAttempts + 1 }));
@@ -98,11 +109,14 @@ async function readLesson(session: Session, courseSlug: string, lessonSlug: stri
   const path = `/course/${courseSlug}/lesson/${lessonSlug}`;
   seen.artifacts = null;
   seen.videoId = null;
-  const link = page.locator(`a[href="${path}"]`).first();
-  if (new URL(page.url()).pathname.startsWith(`/course/${courseSlug}/lesson/`) && (await link.isVisible().catch(() => false))) await link.click();
+  // `$=`: the sidebar's links may be absolute; a click is an in-app change (~4 requests), a goto a full load (~30).
+  const link = page.locator(`a[href$="${path}"]`).first();
+  const before = { requests: session.stats().paced, at: Date.now() };
+  const inApp = new URL(page.url()).pathname.startsWith(`/course/${courseSlug}/lesson/`) && (await link.isVisible().catch(() => false));
+  if (inApp) await link.click();
   else await page.goto(`${NHPREP_ORIGIN}${path}`, { waitUntil: "domcontentloaded" });
   await page.waitForURL((url) => url.pathname === path, { timeout: 90_000 });
-  for (const started = Date.now(); !captured().artifacts && Date.now() - started < 90_000; ) await sleep(250);
+  for (const started = Date.now(); !captured().artifacts && Date.now() - started < 45_000; ) await sleep(250);
   for (const started = Date.now(); !captured().videoId && Date.now() - started < 4_000; ) await sleep(250);
   const { artifacts, videoId } = captured();
   const dom = await page.evaluate(() => ({
@@ -112,6 +126,7 @@ async function readLesson(session: Session, courseSlug: string, lessonSlug: stri
   }));
   const bunny = dom.iframe ? BUNNY_EMBED.exec(new URL(dom.iframe).pathname) : null;
   const video = videoId ? { provider: "nhprep-mp4", videoId } : bunny ? { provider: "bunny", libraryId: Number(bunny[1]), videoId: bunny[2] } : null;
+  session.log("lesson", { course: courseSlug, lesson: lessonSlug, nav: inApp ? "click" : "goto", requests: session.stats().paced - before.requests, ms: Date.now() - before.at, aids: Boolean(artifacts) });
   return { dom, video, artifacts };
 }
 
@@ -122,17 +137,27 @@ async function exportLessons(session: Session, summary: Record<string, unknown>)
   const doneCourses = new Set(existing.filter((row) => row.type === "course").map((row) => String(row.slug)));
   const inventory = await videoCourses(session.page);
   session.log("inventory", { reported: inventory.reported, found: inventory.slugs.length });
-  let complete = inventory.reported !== null && inventory.reported === inventory.slugs.length && !onlyCourses && maxLessons === null;
+  const complete = inventory.reported !== null && inventory.reported === inventory.slugs.length && !onlyCourses && maxLessons === null;
   let exported = 0;
-  let failed = 0;
-  for (const slug of inventory.slugs.filter((item) => !onlyCourses || onlyCourses.has(item))) {
-    const course = await readCourse(session.page, slug);
+  // Failed items (a whole course page, or one lesson), retried at the end after a pause; what still fails goes to failed.json.
+  let failures: { course: string; lesson: string | null; message: string }[] = [];
+
+  const exportCourse = async (slug: string, only: string | null): Promise<void> => {
+    let course: Awaited<ReturnType<typeof readCourse>>;
+    try {
+      course = await readCourse(session.page, slug);
+    } catch (error) {
+      failures.push({ course: slug, lesson: null, message: errorText(error) });
+      session.log("course-failed", { course: slug, message: errorText(error) });
+      return;
+    }
     if (!doneCourses.has(slug)) {
       write({ type: "course", schema: SCHEMA, slug, title: course.title, description: course.description, trainerHints: trainerHints(slug, course.title, course.description), lessonCount: course.lessons.length });
+      doneCourses.add(slug);
     }
     for (const row of course.lessons) {
-      if (doneLessons.has(`${slug}/${row.slug}`)) continue;
-      if (maxLessons !== null && exported >= maxLessons) return false;
+      if (doneLessons.has(`${slug}/${row.slug}`) || (only !== null && row.slug !== only)) continue;
+      if (maxLessons !== null && exported >= maxLessons) return;
       try {
         const lesson = await readLesson(session, slug, row.slug);
         if (!lesson.artifacts) throw new Error("no study-aid response");
@@ -150,17 +175,28 @@ async function exportLessons(session: Session, summary: Record<string, unknown>)
           video: lesson.video,
           aids: stripSourceRefs(lesson.artifacts.body),
         });
+        doneLessons.add(`${slug}/${row.slug}`);
         exported++;
       } catch (error) {
-        failed++;
-        complete = false;
+        failures.push({ course: slug, lesson: row.slug, message: errorText(error) });
         session.log("lesson-failed", { course: slug, lesson: row.slug, message: errorText(error) });
       }
     }
-    session.log("course-done", { course: slug, lessons: course.lessons.length, exported, failed });
+    session.log("course-done", { course: slug, lessons: course.lessons.length, exported, failures: failures.length });
+  };
+
+  for (const slug of inventory.slugs.filter((item) => !onlyCourses || onlyCourses.has(item))) await exportCourse(slug, null);
+  const rounds = number("retry-rounds") ?? 2;
+  for (let round = 1; round <= rounds && failures.length > 0 && (maxLessons === null || exported < maxLessons); round++) {
+    const retry = failures;
+    failures = [];
+    session.log("retry-round", { round, items: retry.length });
+    await sleep((number("retry-wait-s") ?? 120) * 1000);
+    for (const item of retry) await exportCourse(item.course, item.lesson);
   }
-  Object.assign(summary, { inventory: { reported: inventory.reported, found: inventory.slugs.length }, lessonsExported: exported, lessonsFailed: failed });
-  return complete && failed === 0;
+  writeFileSync(join(runDir, "failed.json"), JSON.stringify(failures, null, 2));
+  Object.assign(summary, { inventory: { reported: inventory.reported, found: inventory.slugs.length }, lessonsExported: exported, lessonsFailed: failures.length });
+  return complete && failures.length === 0;
 }
 
 async function quizCategories(page: Page): Promise<string[]> {
@@ -209,23 +245,25 @@ async function exportQuiz(session: Session, summary: Record<string, unknown>): P
   }
   const attemptsBefore = new Map(existing.filter((row) => row.type === "quiz_coverage").map((row) => [String(row.category), Number(row.attempts)]));
   const categories = (await quizCategories(session.page)).filter((slug) => !only || only.has(slug));
-  let complete = !only;
   let runAttempts = 0;
-  for (const slug of categories) {
+  const attemptsOf = new Map(attemptsBefore);
+  const reportedOf = new Map<string, number | null>(
+    existing.filter((row) => row.type === "quiz_coverage").map((row) => [String(row.category), typeof row.reported === "number" ? row.reported : null]),
+  );
+
+  /** Attempts until the stop rule; returns the error of a failed attempt, if any (the category is then retried later). */
+  const runCategory = async (slug: string): Promise<string | null> => {
     const ids = seenIds.get(slug) ?? new Set<string>();
-    let attempts = attemptsBefore.get(slug) ?? 0;
-    let reported: number | null = null;
+    seenIds.set(slug, ids);
     let stale = 0;
-    while (!categoryDone(ids.size, reported, stale)) {
-      if (maxAttempts !== null && runAttempts >= maxAttempts) {
-        complete = false;
-        break;
-      }
+    let lastError: string | null = null;
+    while (!categoryDone(ids.size, reportedOf.get(slug) ?? null, stale)) {
+      if (maxAttempts !== null && runAttempts >= maxAttempts) return "attempt cap reached";
       try {
         const { draw, submitted } = await attempt(session, slug);
         runAttempts++;
-        attempts++;
-        reported = draw.totalAvailable;
+        attemptsOf.set(slug, (attemptsOf.get(slug) ?? 0) + 1);
+        reportedOf.set(slug, draw.totalAvailable);
         if (submitted.status !== 200) throw new Error(`submit ${submitted.status}`);
         let fresh = 0;
         for (const question of keyedQuestions(slug, draw.categoryName, submitted.body)) {
@@ -236,17 +274,40 @@ async function exportQuiz(session: Session, summary: Record<string, unknown>): P
         }
         stale = fresh === 0 ? stale + 1 : 0;
       } catch (error) {
-        session.log("attempt-failed", { category: slug, message: errorText(error) });
+        lastError = errorText(error);
+        session.log("attempt-failed", { category: slug, message: lastError });
         stale++;
         await sleep(5000);
       }
     }
-    write({ type: "quiz_coverage", schema: SCHEMA, category: slug, attempts, seen: ids.size, reported });
-    session.log("category-done", { category: slug, attempts, seen: ids.size, reported });
-    if (reported === null || ids.size < reported) complete = false;
+    const reported = reportedOf.get(slug) ?? null;
+    write({ type: "quiz_coverage", schema: SCHEMA, category: slug, attempts: attemptsOf.get(slug) ?? 0, seen: ids.size, reported });
+    session.log("category-done", { category: slug, attempts: attemptsOf.get(slug) ?? 0, seen: ids.size, reported });
+    return reported === null || ids.size < reported ? lastError : null;
+  };
+
+  let failures: { category: string; message: string }[] = [];
+  for (const slug of categories) {
+    const error = await runCategory(slug);
+    if (error) failures.push({ category: slug, message: error });
   }
-  Object.assign(summary, { quizCategories: categories.length, quizAttemptsThisRun: runAttempts });
-  return complete;
+  for (let round = 1; round <= (number("retry-rounds") ?? 2) && failures.length > 0; round++) {
+    const retry = failures;
+    failures = [];
+    session.log("quiz-retry-round", { round, items: retry.length });
+    await sleep((number("retry-wait-s") ?? 120) * 1000);
+    for (const item of retry) {
+      const error = await runCategory(item.category);
+      if (error) failures.push({ category: item.category, message: error });
+    }
+  }
+  writeFileSync(join(runDir, "failed-quiz.json"), JSON.stringify(failures, null, 2));
+  const fullySeen = categories.every((slug) => {
+    const reported = reportedOf.get(slug);
+    return reported !== undefined && reported !== null && (seenIds.get(slug)?.size ?? 0) >= reported;
+  });
+  Object.assign(summary, { quizCategories: categories.length, quizAttemptsThisRun: runAttempts, quizFailed: failures.length });
+  return !only && failures.length === 0 && fullySeen;
 }
 
 function writeManifest(startedAt: string, sections: Record<string, boolean>, summary: Record<string, unknown>, session: Session): void {
