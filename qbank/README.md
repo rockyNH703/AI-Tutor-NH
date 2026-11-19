@@ -76,7 +76,8 @@ python scripts/import_questions.py ../qbank --apply    # one transaction, all or
 python scripts/qbank_coverage.py                       # real counts, statuses and shortfalls
 ```
 
-## What is here (2026-10-15)
-- **Manifest (the inventory):** 167 books, 1,442 chapters (CBSE 2026-27); 424 chapter titles verified.
-- **Content:** Chapter 9 only, with topics and concepts: 147 questions and 14 cases, all `needs_review`.
-- **Not yet in the bank:** every other chapter and every other book for Classes 6–12.
+## What is here (2026-11-19)
+- **Nothing yet.** PadhAI's NCERT content (the CBSE 2026-27 inventory and the Chapter 9 questions) was deleted
+  on the owner's instruction; it remains in git history (commit e57652c and earlier). NetSec's production
+  question-bank tables were already empty. The certification bank (domains and topics) is still to be written
+  in the layout above.

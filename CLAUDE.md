@@ -29,7 +29,8 @@ Honest state (2026-10-29):
 - **The knowledge base is empty and will be provided by the owner.** The pgvector pipeline and
   `backend/scripts/ingest_documents.py` (repeatable `--metadata key=value`, e.g. vendor, platform, version, topic)
   are ready. The NCERT client (`backend/app/rag/ncert.py`) is PadhAI-only and dormant unless `NCERT_KB_*` is set.
-- **The question bank's content (`qbank/`) is still PadhAI's NCERT content**; a certification bank is pending
+- **The question bank is empty** (PadhAI's NCERT content was deleted from `qbank/` on 2026-11-19; production's
+  `qb_*` tables were already empty); a certification bank is pending
   ([ROADMAP.md](ROADMAP.md)).
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.

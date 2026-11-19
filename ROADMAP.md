@@ -9,7 +9,7 @@ embeddings providers, the local security gate, Graphify, and NetSec's isolated d
 1. **Knowledge base:** ingest the owner's documents (`backend/scripts/ingest_documents.py`, with `--metadata` such
    as vendor, platform, version, topic), then calibrate `RAG_MIN_SCORE` with `eval_retrieval.py` and decide how
    retrieval uses the Engineering Profile (today `retrieval_for` still reads the retired school fields).
-2. **Certification question bank:** replace PadhAI's NCERT content in `qbank/` with certification domains and topics,
+2. **Certification question bank:** fill the empty `qbank/` (PadhAI's NCERT content deleted 2026-11-19) with certification domains and topics,
    then decide on `TUTOR_INTERACTIVE_BLOCKS` (chat tests and widgets).
 3. **Engineering Profile in the web app:** finish and release the Settings section (in the working tree on
    2026-10-29), then use the profile in retrieval (item 1).
