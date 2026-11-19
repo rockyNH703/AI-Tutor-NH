@@ -79,12 +79,11 @@
     --radius: 0.5rem;
 
     /* ---- layout ----
-       The composition, in one place (Tailwind: max-w-chat|measure|page|page-narrow,
+       The composition, in one place (Tailwind: max-w-chat|page|page-narrow,
        h-header; classes .app-frame, .chat-column, .page-container below).
          header   the app bar AND the sidebar's brand row, so their hairlines meet.
          chat     the cap on the chat column (~70% of the chat pane from 1024px, gutters included).
-         measure  a reply's prose (paragraphs, lists, headings, study cards): 65-75
-                  characters a line. rem, so the reading size setting keeps the count.
+                  A reply's text, user bubbles and the composer all use the column's full width.
          page     Skills & Certifications, File Library, Lab Activity, Settings; narrow: Help.
        Rhythm is Tailwind's 4px scale: 8/12 inside a group, 16/24 between groups, 32/40 for
        sections. Edges: `border` for structure, `input` for fields (3:1), `ring` for focus;
@@ -92,7 +91,6 @@
        the composer 3xl. */
     --header-h: 4rem;
     --chat-max: 84rem; /* 70% of a 1920 pane holds at every text size; it binds only on wider screens */
-    --measure: 36rem;
     --page-max: 56rem;
     --page-max-narrow: 48rem;
 
@@ -387,16 +385,6 @@
     .page-container-narrow {
       padding-block: 2.5rem;
     }
-  }
-  /* A chat reply's own prose reads at the measure; code, tables, cheat sheets and drawn widgets
-     keep the whole column. Only the reply's top-level blocks: .message-content is reused inside
-     widgets (flashcards, test cards) and on Skills & Certifications, where it must not apply. */
-  [data-reply] > .message-content > :is(p, ul, ol, blockquote, h3, h4, h5, h6) {
-    max-width: var(--measure);
-  }
-  /* A study card's text at the measure: the card adds its own padding and border. */
-  [data-reply] > .message-content > [data-card]:not([data-card="cheatsheet"]) {
-    max-width: calc(var(--measure) + 2rem + 2px);
   }
 }
 

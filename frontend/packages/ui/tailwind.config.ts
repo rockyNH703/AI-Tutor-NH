@@ -185,10 +185,8 @@ const config = {
       maxWidth: {
         // A description's or a short block's reading width.
         prose: "42.5rem", // 680px
-        // The composition (globals.css, "layout"): the app frame, the chat column, a
-        // reply's prose measure, the page containers.
+        // The composition (globals.css, "layout"): the chat column, the page containers.
         chat: "var(--chat-max)",
-        measure: "var(--measure)",
         page: "var(--page-max)",
         "page-narrow": "var(--page-max-narrow)",
       },

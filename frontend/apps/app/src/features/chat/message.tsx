@@ -208,8 +208,7 @@ function AssistantMessage({
       <BrandMark size={28} className="mt-0.5 rounded-lg" />
       <div className="min-w-0 flex-1">
         {(text || revealing || phase === "stopping" || message.status === "cancelled" || elsewhere) && (
-          // data-reply: the reply's prose reads at the measure (globals.css); code and widgets keep the column.
-          <div data-reply="" className={cn("max-w-full pt-0.5", needsFullWidth(text) ? "w-full" : "w-fit")}>
+          <div className={cn("max-w-full pt-0.5", needsFullWidth(text) ? "w-full" : "w-fit")}>
             {text ? (
               <>
                 <MessageContent
