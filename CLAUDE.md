@@ -273,8 +273,8 @@ does not see `Depends(...)` or SQL). Commands and boundaries: [docs/graphify.md]
 
 ## Repo hygiene
 
-- The root files `dummy_acc.txt`, `git.txt`, `google_auth.txt`, `ollalink.txt`, `ollastack.txt`, `ollima.txt` and
-  `openrouter.txt` hold live keys and credentials. They are git-ignored (`*.txt`); **never open, print or commit
+- The root files `dummy_acc.txt`, `git.txt`, `google_auth.txt`, `NHprep.txt`, `nhprep_google_signin.txt`,
+  `ollalink.txt`, `ollastack.txt`, `ollima.txt` and `openrouter.txt` hold live keys and credentials. They are git-ignored (`*.txt`); **never open, print or commit
   them**, and never copy their values anywhere. The same goes for every `.env*` file.
 - `.claude/settings.local.json` (per-user permission rules) is git-ignored; `.claude/skills/` holds the vendored security skills.
 - `.gitattributes` forces LF (`* text=auto eol=lf`), for the shell scripts and for Biome.
