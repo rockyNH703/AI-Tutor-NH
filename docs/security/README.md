@@ -55,6 +55,7 @@ flowchart LR
     O["Ollalink: classifiers, speech<br/>(off in the example env)"]
     M[Email: SMTP or Ollastack]
     H[HIBP range API, Turnstile, Google]
+    Y["YouTube privacy-enhanced player"]
   end
   D["Release workstation<br/>Windows + WSL"]
   B -->|HTTPS| CF --> W
@@ -69,12 +70,14 @@ flowchart LR
   A --> O
   A --> M
   W --> H
+  B -.->|framed only after Play| Y
   D -->|SSH as root, deploy-netsec| Host
 ```
 
 | Boundary | What crosses it | What protects it |
 |---|---|---|
 | Browser → Cloudflare → web app | Everything a user does | HTTPS at Cloudflare's edge. The Quick Tunnel publishes only `127.0.0.1:4300` ([`netsecai-cloudflared.service`](../../deploy-netsec/systemd/netsecai-cloudflared.service)). `__Host-` cookies, CSP and security headers, `Origin` checks on mutations |
+| Browser → YouTube (2026-11-18) | After Play on a ```` ```video ````: the user's IP address, our origin as the referrer, the chosen video | CSP `frame-src` allows only `https://www.youtube-nocookie.com` besides Turnstile; nothing is fetched before Play; a sandboxed iframe; the id and parameters are validated and set through `URL` ([`video.tsx`](../../frontend/apps/app/src/features/markdown/widgets/video.tsx)). Dormant in production: the model is not taught the block |
 | Web app → API | Allowlisted `/v1` calls | Loopback only (`--host 127.0.0.1 --port 4400`, [`netsecai-api.service`](../../deploy-netsec/systemd/netsecai-api.service)); `Authorization: Bearer`, taken from a cookie whose HMAC is verified first; the API re-checks every request |
 | Better Auth → API | Code and security-notice requests | Loopback `/internal/auth/*`, the shared `AUTH_INTERNAL_TOKEN` compared in constant time ([`internal.py:55`](../../backend/app/auth/internal.py)), and checks that the rows named are real and fresh |
 | Web app and API → PostgreSQL | SQL | Loopback port 55432 only ([`docker-compose.yml:20`](../../deploy-netsec/compose/docker-compose.yml)). Three roles: `netsecai_migrator` owns the database and runs migrations; `netsecai_runtime` is the API's; `netsecai_auth` reaches the identity tables only ([`database-grants.sh`](../../deploy-netsec/database-grants.sh)) |
@@ -183,9 +186,12 @@ rotated in Google Cloud and `web.env`.
 From [`next.config.mjs`](../../frontend/apps/app/next.config.mjs), [`proxy-core.ts`](../../frontend/apps/app/src/lib/server/proxy-core.ts)
 and [`middleware.ts`](../../frontend/apps/app/src/middleware.ts):
 
-- **Content-Security-Policy** ([`next.config.mjs:43-55`](../../frontend/apps/app/next.config.mjs)):
+- **Content-Security-Policy** ([`next.config.mjs:46-58`](../../frontend/apps/app/next.config.mjs)):
   - `default-src 'self'`, `object-src 'none'`, `base-uri 'none'`, `form-action 'self'`, `frame-ancestors 'none'`;
-  - the only outside origins are Cloudflare Turnstile and Cloudflare Web Analytics;
+  - the only outside origins are Cloudflare Turnstile, Cloudflare Web Analytics and, as a frame only, YouTube's
+    privacy-enhanced player (`https://www.youtube-nocookie.com`, 2026-11-18): `frame-src` is Turnstile plus exactly
+    that origin. A ```` ```video ```` block frames it, sandboxed, only after the user presses Play
+    ([THREAT_MODEL.md, B10](THREAT_MODEL.md#trust-boundaries-and-entry-points));
   - `script-src` still allows `'unsafe-inline'` (Next's inline scripts), so the CSP would not stop an inline
     handler if a sanitiser bypass appeared. Moving to nonces is a follow-up;
   - `'unsafe-eval'` and WebSockets are in development only.
@@ -287,7 +293,7 @@ renders.
 | A pasted config or log carries passwords, keys or community strings | Every message is masked before the LLM, its fallback or the embeddings provider sees it: `RedactingProvider` and `RedactingEmbeddings` ([`redact.py:365-460`](../../backend/app/llm/redact.py)) wrap whatever `build_llm` and `build_embeddings` return, so the API, the jobs worker and the scripts all get them ([`factory.py:24-27`](../../backend/app/llm/factory.py), [`embeddings.py:155-159`](../../backend/app/rag/embeddings.py)) **(released 0d868b7)**. The system prompt tells the model never to ask for secrets ([`assistant.py:58-60`](../../backend/app/chat/assistant.py)). Limits: patterns catch obvious secrets only; the stored message keeps what the user wrote; Ollalink requests are not masked |
 | A user's file or a knowledge-base passage says "ignore your instructions" | File text goes inside the user's own message, in an `<attached_files>` block marked as reference material, and anything that could close the block is neutralised ([`context.py:61-71, 136-186`](../../backend/app/rag/context.py)). Retrieved passages come with a note that they may be incomplete or unrelated. This lowers the risk; it cannot guarantee the model ignores the text |
 | Memory as an injection channel | Recalled memory goes in its own `<personal_memory>` block, labelled untrusted background data, delimiters neutralised ([`context.py:38-57`](../../backend/app/rag/context.py)). Only explicit or user-approved memories exist; recall is off by default |
-| A user's settings text tries to steer the assistant | Their own text reaches the prompt only in quotes, as information (`app/learning/tutor.py`) |
+| A user's settings text or practice answers try to steer the assistant | Their own text reaches the prompt only in quotes, as information (`app/learning/tutor.py`; the practice record quotes answers the same way, a written one cut to 80 characters, `app/assessments/readers.py` `quote`) |
 | The model's output is hostile HTML or a malicious link | The renderer sanitises **first** (`rehype-sanitize`), shows raw HTML as text, allows only `http`, `https` and `mailto` links ([`sanitize-schema.ts:48-63`](../../frontend/apps/app/src/features/markdown/sanitize-schema.ts)), never loads images, runs KaTeX with `trust: false` and mermaid in strict mode |
 | The model offers a script download | Code blocks with a file name download as text Blobs built in the page; any extension is accepted. Rejected as a finding (A-20), kept as a hardening note |
 | The model invents command output, versions, CVE ids or claims a config was tested | Prompt rules ([`assistant.py:48-51`](../../backend/app/chat/assistant.py)); measured by [`eval_engineering.py`](../../backend/scripts/eval_engineering.py) on the host. The baseline at `e439b96` failed its gate (37/57; `verify_claim` 0/3) |

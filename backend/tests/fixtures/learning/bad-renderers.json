@@ -1,0 +1,4 @@
+{
+  "message": "Here are blocks the app cannot draw: each one shows its source instead.\n\n```flashcards\n{\"title\":\"Broken deck\",\"cards\":[{\"front\":\"Only a front\"}]}\n```\n\n```video\n{\"youtube\":\"https://example.com/watch?v=aBcDeFgHiJk\",\"title\":\"Not YouTube\"}\n```\n\n```topology\n{\"nodes\":[{\"id\":\"A\",\"label\":\"A\",\"kind\":\"router\"}],\"links\":[{\"id\":\"X\",\"from\":\"A\",\"to\":\"B\"}]}\n```",
+  "refusal": null
+}

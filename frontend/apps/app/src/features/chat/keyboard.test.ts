@@ -34,6 +34,20 @@ describe("plainText (screen-reader announcement)", () => {
     expect(plainText("Here:\n```js\nconst x = 1;\n```\nDone.")).toBe("Here: (code) Done.");
   });
 
+  test("names drawn blocks instead of reading them, and never reads a test's answers", () => {
+    const exam = '```quiz\n{"mode": "exam", "questions": [{"question": "Q?", "options": ["a", "b"], "answer": 1}]}\n```';
+    expect(plainText(`Try:\n${exam}\nGo.`)).toBe("Try: (practice test) Go.");
+    expect(plainText("~~~mcq\n{\"answer\": 1}\n~~~")).toBe("(practice test)");
+    expect(plainText("```flashcards\n[]\n```")).toBe("(flashcards)");
+    expect(plainText('```video\n{"youtube": "abc"}\n```')).toBe("(video)");
+    expect(plainText("```topology\n{}\n```")).toBe("(network diagram)");
+    expect(plainText("```diagram\n{}\n```\n```mermaid\ngraph TD\n```")).toBe("(diagram) (diagram)");
+    expect(plainText("```chart\n{}\n```\n```graph\n{}\n```")).toBe("(chart) (chart)");
+    // In a list item or a quote, and still unclosed: the same.
+    expect(plainText("- ```quiz\n  {\"answer\": 1}")).toBe("(practice test)");
+    expect(plainText("> ~~~toString\n> x\n> ~~~")).toBe("(code)");
+  });
+
   test("caps the length", () => {
     expect(plainText("word ".repeat(500), 20)).toBe("word word word word…");
   });

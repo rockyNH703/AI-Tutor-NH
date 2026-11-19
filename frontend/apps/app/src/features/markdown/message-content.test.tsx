@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
+import type { ComponentPropsWithoutRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+
+import { NOTES, SpeechChunker, speak } from "@/features/voice/speech-text";
+import { type SheetNode, sectionize, sheetFilename, sheetMarkdown } from "./cheatsheet";
 import { MessageContent } from "./message-content";
+import { remarkTutor } from "./remark-tutor";
+import { sanitizeSchema } from "./sanitize-schema";
 
 const render = (content: string) => renderToStaticMarkup(<MessageContent content={content} />);
 
@@ -127,3 +135,155 @@ describe("safety", () => {
     expect(html).not.toContain("onmouseover=");
   });
 });
+
+const SHEET = [
+  "::::cheatsheet[OSPF timers]",
+  "Defaults on broadcast links.",
+  "",
+  "## Hello and dead",
+  "Hello every **10 s**, dead after 40 s.",
+  "",
+  "### NBMA",
+  "Hello every 30 s.",
+  "",
+  "## Commands",
+  "```",
+  "show ip ospf interface",
+  "```",
+  "",
+  ":::note",
+  "Timers must match on both ends.",
+  ":::",
+  "::::",
+].join("\n");
+
+describe("cheat sheets", () => {
+  test("a sheet renders its title, open sections under heading buttons, and the header actions", () => {
+    const html = render(SHEET);
+    expect(html).toContain('data-card="cheatsheet"');
+    expect(html).toContain("Cheat sheet");
+    expect(html).toContain("OSPF timers");
+    // Three sections (## Hello and dead, ### NBMA, ## Commands), all open; each heading holds its button.
+    expect(html.match(/aria-expanded="true"/g)).toHaveLength(3);
+    expect(html).not.toContain('aria-expanded="false"');
+    expect(html).not.toContain("cheatsheet-closed");
+    expect(html).toMatch(/<h4[^>]*><button type="button" aria-expanded="true" aria-controls="[^"]+"/);
+    expect(html).toMatch(/<h5[^>]*><button type="button" aria-expanded="true"/);
+    expect(html).toContain(`id="${aria("aria-controls", html)}"`);
+    expect(html).toContain(">Collapse all<");
+    expect(html).toContain('aria-label="Copy as Markdown"');
+    expect(html).toContain('aria-label="Download .md"');
+    expect(html).toContain('aria-label="Print cheat sheet"');
+    expect(html).toContain('aria-live="polite"');
+    // The study card inside is still a card (drawn flat by markdown.css), and the code keeps its block.
+    expect(html).toContain('data-card="note"');
+    expect(html).toContain('aria-label="Copy code"');
+  });
+
+  test("hostile Markdown in a sheet stays text and loads nothing", () => {
+    const html = render(
+      [
+        ":::cheatsheet[<img src=x onerror=alert(1)>]",
+        "## <script>alert(1)</script>",
+        '<iframe src="https://evil.example/frame"></iframe>',
+        "",
+        "![pixel](https://tracker.example/p.png)",
+        "",
+        "[x](javascript:alert(1)) and <b>bold?</b>",
+        ":::",
+      ].join("\n"),
+    );
+    expect(html).toContain('data-card="cheatsheet"');
+    for (const tag of ["<script", "<img", "<iframe", "<b>"]) expect(html).not.toContain(tag);
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(html).not.toMatch(/\ssrc="/);
+    expect(html.toLowerCase()).not.toContain('href="javascript:');
+    expect(html).not.toContain('href="https://evil.example');
+  });
+
+  test("an unknown container, and a sheet without sections, still render as a plain div", () => {
+    for (const markdown of [":::foo[Bar]\nSome text.\n:::", ":::cheatsheet[Bar]\n- 22 SSH\n- 23 Telnet\n:::"]) {
+      const html = render(markdown);
+      expect(html).toContain('<div><p class="my-3 first:mt-0 last:mb-0">Bar</p>');
+      expect(html).not.toContain("data-card");
+      expect(html).not.toContain("aria-expanded");
+    }
+  });
+
+  test("sections nest by heading level, in reading order", () => {
+    const levels: Record<string, number> = { A: 2, B: 3, C: 2, X: 3 };
+    const { parts, count } = sectionize(["intro", "A", "a", "B", "b", "C", "c"], (item) => levels[item] ?? null);
+    expect(count).toBe(3);
+    expect(parts).toEqual([
+      { kind: "item", item: "intro" },
+      {
+        kind: "section",
+        id: 0,
+        heading: "A",
+        parts: [
+          { kind: "item", item: "a" },
+          { kind: "section", id: 1, heading: "B", parts: [{ kind: "item", item: "b" }] },
+        ],
+      },
+      { kind: "section", id: 2, heading: "C", parts: [{ kind: "item", item: "c" }] },
+    ]);
+    // A `###` before any `##` is a section of its own, and the next `##` is its sibling.
+    expect(sectionize(["X", "x", "A"], (item) => levels[item] ?? null).parts.map((part) => part.kind)).toEqual([
+      "section",
+      "section",
+    ]);
+  });
+
+  test("Copy and Download take the sheet's own Markdown: its title, then its body as written", () => {
+    const text = "::::cheatsheet[OSPF *timers*]\n## Hello\nEvery **10 s** [1].\n\n## Commands\n```\nshow ip ospf\n```\n::::";
+    let sheet: SheetNode | undefined;
+    const plugins = [remarkTutor] as NonNullable<ComponentPropsWithoutRef<typeof ReactMarkdown>["remarkPlugins"]>;
+    renderToStaticMarkup(
+      <ReactMarkdown
+        remarkPlugins={plugins}
+        rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
+        components={{
+          div: ({ node, children }) => {
+            if (node?.properties?.dataSheet === "true") sheet = node as SheetNode;
+            return <div>{children}</div>;
+          },
+        }}
+      >
+        {text}
+      </ReactMarkdown>,
+    );
+    expect(sheet).toBeDefined();
+    expect(sheetMarkdown(text, sheet)).toBe("# OSPF timers\n\n## Hello\nEvery **10 s** [1].\n\n## Commands\n```\nshow ip ospf\n```\n");
+    expect(sheetMarkdown(text, undefined)).toBe("\n");
+  });
+
+  test("a download is named after the sheet", () => {
+    expect(sheetFilename("OSPF timers & areas")).toBe("ospf-timers-areas.md");
+    expect(sheetFilename("Ünïcode — 802.1Q trunks")).toBe("unicode-802-1q-trunks.md");
+    expect(sheetFilename("  ✓ ")).toBe("cheat-sheet.md");
+    expect(sheetFilename("x".repeat(80))).toBe(`${"x".repeat(60)}.md`);
+  });
+
+  test("voice mode names a cheat sheet, a video and a topology instead of reading them", () => {
+    const sheet = speak(`Here are the timers.\n\n${SHEET}`).join(" ");
+    expect(sheet).toContain(NOTES.cheatsheet);
+    expect(sheet).not.toContain("10 s");
+    expect(speak('Watch this first.\n\n```video\n{"youtube": "dQw4w9WgXcQ", "title": "OSPF"}\n```').join(" ")).toContain(NOTES.video);
+    expect(speak("The lab network.\n\n```topology\n{}\n```").join(" ")).toContain(NOTES.diagram);
+
+    // While a sheet is still arriving none of it is spoken; once finished it is named, never read.
+    const chunker = new SpeechChunker();
+    const arriving = "Look at this sheet, it covers the timers well.\n\n:::cheatsheet[OSPF]\n## Hello\nHello every ten seconds. Dead after forty.";
+    const early = chunker.next(arriving).map((chunk) => chunk.text);
+    expect(early.join(" ")).not.toContain("seconds");
+    const late = chunker.finish(`${arriving}\n:::`).map((chunk) => chunk.text);
+    expect(late.join(" ")).toContain(NOTES.cheatsheet);
+    expect([...early, ...late].join(" ")).not.toContain("forty");
+  });
+});
+
+/** The value of the first `name="…"` attribute in `html`. */
+function aria(name: string, html: string): string {
+  return new RegExp(`${name}="([^"]+)"`).exec(html)?.[1] ?? "missing";
+}

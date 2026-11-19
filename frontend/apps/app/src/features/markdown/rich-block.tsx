@@ -2,6 +2,7 @@
 
 import { Component, type ComponentType, type ReactNode, Suspense, lazy, useCallback, useContext, useState } from "react";
 
+import { isExamSource } from "./assessment";
 import { LiveContext } from "./context";
 
 /**
@@ -20,6 +21,8 @@ const WIDGETS = new Map<string, { label: string; load: ComponentType<WidgetProps
   ["fill-blank", { label: "exercise", load: lazy(() => import("./widgets/fill-blank")) }],
   ["graph", { label: "graph", load: lazy(() => import("./widgets/math-graph")) }],
   ["diagram", { label: "diagram", load: lazy(() => import("./widgets/concept-diagram")) }],
+  ["video", { label: "video", load: lazy(() => import("./widgets/video")) }],
+  ["topology", { label: "network diagram", load: lazy(() => import("./widgets/topology")) }],
 ]);
 
 export function isRichLanguage(language: string | null): language is string {
@@ -61,14 +64,20 @@ export function RichBlock({ language, source, fallback }: { language: string; so
   const widget = WIDGETS.get(language);
   if (!widget) return fallback;
   if (live) return <Placeholder label={widget.label} />;
-  const shown = (
-    <div>
-      <p className="mb-[-0.25rem] mt-3 text-2xs text-text-secondary">
-        {failed || `This ${widget.label} couldn't be shown; here is its source.`}
+  // A mock exam's source holds its answers: never print it, whatever the card's record says.
+  const shown =
+    (language === "quiz" || language === "mcq") && isExamSource(source) ? (
+      <p className="my-3 rounded-xl border border-border bg-study-card px-3.5 py-3 text-sm text-text-secondary">
+        {failed || "This mock exam couldn't be shown."}
       </p>
-      {fallback}
-    </div>
-  );
+    ) : (
+      <div>
+        <p className="mb-[-0.25rem] mt-3 text-2xs text-text-secondary">
+          {failed || `This ${widget.label} couldn't be shown; here is its source.`}
+        </p>
+        {fallback}
+      </div>
+    );
   if (failed !== null) return shown;
   const Widget = widget.load;
   return (

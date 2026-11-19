@@ -1,10 +1,12 @@
 "use client";
 
+import { ConfirmDialog } from "@v1/ui/confirm-dialog";
 import { cn } from "@v1/ui/utils";
 import { Check, Copy, RefreshCw, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { maskExamFences } from "@/features/markdown/assessment";
 import { describeError } from "@/lib/api/errors";
 import type { FeedbackRating } from "@/lib/api/types";
 import type { ChatMessage } from "./chat-store";
@@ -33,6 +35,7 @@ export function MessageActions({
 }) {
   const { chat } = useStores();
   const [copied, setCopied] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     if (!copied) return;
@@ -42,7 +45,8 @@ export function MessageActions({
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(message.content);
+      // A finished reply's records are known: only an unsubmitted mock exam's fence is left out.
+      await navigator.clipboard.writeText(maskExamFences(message.content, message.metadata?.assessments ?? []));
       setCopied(true);
     } catch {
       toast.error("Couldn't copy to the clipboard.");
@@ -60,6 +64,11 @@ export function MessageActions({
   const regenerate = () => {
     if (message.conversationId) void chat.regenerate(message.conversationId);
   };
+  // The server keeps a mock exam's saved answers with this reply: a new reply would lose them.
+  const savedExam =
+    message.metadata?.assessments?.some(
+      (test) => test.mode === "exam" && !test.submitted && test.questions.some((question) => question.draft != null),
+    ) ?? false;
 
   return (
     <div
@@ -72,10 +81,27 @@ export function MessageActions({
         {copied ? <Check aria-hidden className="h-4 w-4" /> : <Copy aria-hidden className="h-4 w-4" />}
       </button>
       {canRegenerate && (
-        <button type="button" onClick={regenerate} className={actionClass} aria-label="Regenerate reply">
+        <button
+          type="button"
+          onClick={savedExam ? () => setConfirming(true) : regenerate}
+          className={actionClass}
+          aria-label="Regenerate reply"
+        >
           <RefreshCw aria-hidden className="h-4 w-4" />
         </button>
       )}
+      <ConfirmDialog
+        open={confirming && canRegenerate}
+        onOpenChange={setConfirming}
+        title="Regenerate and lose your saved answers?"
+        description="A new reply replaces this mock exam, and the answers you saved in it are not kept."
+        confirmLabel="Regenerate"
+        destructive
+        onConfirm={() => {
+          setConfirming(false);
+          regenerate();
+        }}
+      />
       <button
         type="button"
         onClick={() => rate("up")}

@@ -318,7 +318,7 @@ finished message (`done` and message lists), not while the reply streams.
 | POST | `/v1/messages/{id}/cancel` | – | `{status}` — stops a `streaming` reply (idempotent) |
 | PUT | `/v1/messages/{id}/feedback` | `{rating: up\|down, comment?}` | `{messageId, rating, comment}` (assistant messages only; upsert) |
 | GET / DELETE | `/v1/messages/{id}/feedback` | – | read / remove your feedback |
-| POST | `/v1/messages/{id}/assessment-responses` | `{position, hash, question, action: answer\|skip, value? (answers only: an option index, or one text per blank)}` | The test as recorded (below), and `learning` (additive, 2026-10-22): `{event: started\|extended\|milestone, streak}` when this answer made its India day a learning day, else null. 409 `assessment_answered` / `assessment_out_of_order` / `assessment_changed` / `assessment_closed`, 422 no such question or option, 404 not the student's reply or no such test |
+| POST | `/v1/messages/{id}/assessment-responses` | `{position, hash, question, action: answer\|skip\|save\|clear\|submit, value? (answer and save only: an option index, one text per blank, or a newer kind's value), revision? (submit only)}` | The test as recorded (below), and `learning` (additive, 2026-10-22): `{event: started\|extended\|milestone, streak}` when this answer made its India day a learning day, else null. 409 `assessment_answered` / `assessment_out_of_order` / `assessment_changed` / `assessment_closed`, and for schemaVersion 2 (2026-11-18) `assessment_not_exam` / `assessment_exam` / `assessment_submitted` / `assessment_stale`; 422 no such question or option (v2: `fields: [{field: "value", reason, question}]`); 429 `rate_limited` (120 a minute per user); 404 not the student's reply or no such test |
 
 ### Practice tests
 
@@ -378,6 +378,83 @@ exercise it writes is kept (2026-10-22), put in its fence if it wrote one withou
   against the model (`scripts/eval_tutor_record.py`): finished or not, the score, every answer,
   and what to do when asked how they did. Flashcards, graphs and diagrams are not recorded, and the
   tutor is told so.
+
+#### Newer kinds, practice and mock exams (schemaVersion 2, 2026-11-18)
+
+A ```` ```quiz ```` is **schemaVersion 2** when it uses anything beyond the v1 shape: a newer `type`, a `listing`,
+a `mode` or a `scenario` (`app/assessments/kinds.py`, `rules.py`, `modes.py`). Anything else, including an absent
+or unknown `type`, is read as before, with the same record and `hash`. ```` ```mcq ```` and
+```` ```fill-blank ```` are unchanged.
+
+```
+{title?, mode?: "practice" | "exam", scenario?: {title?, summary, symptoms[], evidence[{label, title?, language?, content}]},
+ questions: [{type?, question, listing?: {title?, language?, content}, explanation?, ...}]}
+```
+
+| `type` (kind) | the author writes | the value a client sends | graded | shown once final |
+|---|---|---|---|---|
+| none (`mcq`) | `options` 2-8, `answer` | option index | exact, 1 pt | `correct` |
+| `multi` | `options` 2-8, `answer[]` | indices (sorted; a duplicate is 422) | exact set, 1 pt; `marks` per option | `correctList` |
+| `fill` (`fill_blank`) | `text` with `[[a\|alt]]` | one text per blank | per blank (the v1 rule) | `answers` |
+| `numeric` | `answer`, `tolerance?` (amount, or `"n%"`, 0 < n ≤ 100), `unit?` | text `-?[0-9]{1,30}(\.[0-9]{1,9})?` | within the tolerance, 1 pt | `accepted`, `tolerance` |
+| `short` / `long` | `keyPoints` (1-6 / 1-10, each a form or a list of forms), `sample?` | text ≤ 1,000 / ≤ 6,000 | 1 pt per key point found | `keyPoints`, `sample` |
+| `match` | `pairs [[left, right]]` 2-8, `extra?` ≤ 3 | a choice index (or null) per left item | 1 pt per pair | `correctList` |
+| `order` | `items` 3-8, in order | a permutation of the shown indices | exact, 1 pt; `marks` per position | `correctList` |
+| `cli` | `prompt`, `answers` 1-8 (every accepted form), `output?` | text ≤ 300 | the CLI rule, 1 pt | `accepted`, `output` |
+| `lines` (`select: "lines"`) | `listing`, `answer` (1-based line numbers) | 0-based line indices (sorted) | exact set, 1 pt | `correctList` |
+| `diagram` | `topology {nodes[{id, label, kind, detail?}], links[{id, from, to, label?, detail?}]}`, `select: node\|link\|any`, `answer[ids]` | ids (sorted) | exact set, 1 pt | `accepted` |
+
+- **Rules (refused whole at build, `invalid_question`/`invalid_test`):** duplicates ignoring case (options, items,
+  left items, right items with extras, topology ids); a dangling link; caps (a listing ≤ 200 lines and 8,000
+  characters, counted after CR LF → LF and one trailing newline dropped; a scenario summary ≤ 1,000, ≤ 8 symptoms
+  of ≤ 200, ≤ 4 evidence listings; ≤ 8 forms per key point, 2-80 characters each once normalised, no form in two
+  points; an item ≤ 200; a CLI prompt ≤ 60 and forms ≤ 300; a unit ≤ 20; a diagram ≤ 30 nodes and ≤ 40 links,
+  labels ≤ 40, details ≤ 300; an explanation ≤ 2,000; the record's canonical JSON ≤ 64 KB). A numeric answer
+  and tolerance must fit the value grammar (stored as fixed-point text); `%` of a zero answer is refused.
+- **Shown order:** `match` choices and `order` items are shown sorted by `sha256("<locator>:<question>:<i>")`,
+  rotated by one when that would be the answer itself. Values index the shown order.
+- **Written answers:** both sides are normalised (NFKC, casefold, `-`/`_` as spaces, spacing collapsed); a form
+  matches as a phrase, bounded by non-word characters only where it starts or ends with a word character ('IP'
+  is not in 'ship'). No stemming: authors list every form. Forms are tried longest first across all key points,
+  and the text a match used is masked, so a phrase inside a longer key point's matched form doesn't count again
+  ('SYN-ACK' found for one point is not also 'SYN' or 'ACK'; 'TCP/IP' is not also 'IP'). Each point counts once.
+- **CLI:** token by token against each accepted form with as many tokens (an interface type and its number,
+  `gi 0/1`, are joined into one token first). The author's token decides how the typed token at that place is
+  read: as a keyword from a closed table (any accepted prefix, in any case: `sh ip int br`), as an interface (any
+  anchored abbreviation of its type: `gi0/1`), or otherwise as an exact argument. An author's word is an
+  interface only when it can't be a name: a type of two or more letters, or a slot in its number (`Gi0/1`,
+  `g0/1`, `Lo0`, `Ethernet1`); a one-letter interface type with a plain number, like `E1`, is an exact argument
+  (`hostname E1` does not accept `hostname e1`).
+- **Record (v2 only, every field present):** `mode`, `submitted` (exam: graded and revealed; practice: null),
+  `revision` (bumped by every change, never by a replay), `scenario`, `pending` (practice: the waiting question's
+  wrong tries, `{question, tries}`). Each question has `choose, unit, prompt, left, right, items, listing,
+  diagram, select, points, maxLength, maxTries, draft` before it is final, and `correctList, accepted,
+  tolerance, keyPoints, sample, output` (with `explanation`) only once final. A response adds `answer` (a newer
+  kind's value; `value` is null for those) and `tries` only when set. A **schemaVersion 1 record is shown
+  exactly as before**: none of these fields.
+- **Practice:** `answer` and `skip` ("Show answer", 0 points), in order and final. A `numeric` or `cli` question
+  allows 3 tries: a wrong try is 200 with `pending` and reveals nothing; the third, or a right one, is final and
+  its earlier tries move into `response.tries`. The same try sent again is a replay.
+- **Mock exam:** `save` (`value` checked as `answer` would be: well formed, not necessarily complete) and `clear`
+  keep one ungraded `draft` per question, in any order, last write wins; at most 64 KB of drafts per test (past
+  it: 422 `drafts_full`). `submit` (question 0, optional `revision`: a stale one is 409 `assessment_stale`)
+  grades every draft and records the empty ones as skipped; it is never 422. Nothing (`correct...`,
+  `explanation`) is shown before it. `answer`/`skip` are 409 `assessment_exam`; after submit, any change is 409
+  `assessment_submitted`. `current` is null; the test is `active` once anything is saved.
+- **Order of checks:** a request that would not change the record (the same draft, clearing an empty draft, a
+  submit after submit, an exact replay) returns it unchanged, 200, before any rule. **save, clear and submit are
+  v2 only:** on a v1 record (bank tests, fill-blank exercises) or a practice test they are 409
+  `assessment_not_exam`, and nothing is recorded.
+- **422 (v2):** `message` names the question ("Question 3: ..."); `fields: [{field: "value", reason, question}]`
+  with `reason` one of `question`, `value`, `number`, `duplicate`, `too_long`, `drafts_full`. Values are never
+  echoed or logged.
+- **Rate limit:** 120 requests a minute per user (`429 rate_limited`), checked before the reply is locked.
+- **The tutor** sees a v2 quiz in the chat history as exactly what a client sees before answering (no keys,
+  explanations or outputs). While a mock exam is not submitted, the summary starts with a guard (nothing is
+  graded; never reveal or hint at answers). Points and questions are told apart ("earned 7 of 12 points; 3 of
+  5 questions fully right, 1 partly").
+- **Client obligation:** draw only records whose `schemaVersion` you know (today 1 and 2); otherwise show the
+  block's source.
 
 ### Server-Sent Events
 

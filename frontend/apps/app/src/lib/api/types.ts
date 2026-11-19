@@ -705,6 +705,13 @@ export type MessageMetadata = {
 
 // --------------------------------------------------------- practice tests
 
+/**
+ * One answer's value as a newer kind sends it (docs/api-contract.md, Practice tests): an option or line
+ * index, indices (null = no choice yet: match only), texts (blanks, diagram ids) or one text (numeric,
+ * cli, written).
+ */
+export type AssessmentValue = number | (number | null)[] | string[] | string;
+
 /** One question's recorded response: final, graded by the server. */
 export type AssessmentAnswer = {
   status: "answered" | "skipped";
@@ -713,16 +720,41 @@ export type AssessmentAnswer = {
   earned: number;
   possible: number;
   at: string;
-  /** Fill-in-the-blanks: whether each blank was right. */
+  /** Whether each blank, option, pair, position, line or key point was right. */
   marks: boolean[] | null;
+  /** A newer kind's value (`value` is null for those). */
+  answer?: AssessmentValue | null;
+  /** Practice numeric/cli: the wrong values tried before this response. */
+  tries?: string[] | null;
 };
+
+export type QuestionKind = (typeof CONTRACT.AssessmentQuestionOut.kind.enum)[number];
+/** What a diagram question asks to pick. */
+export type QuestionSelect = (typeof CONTRACT.AssessmentQuestionOut.select.enum)[number];
+/** A schemaVersion 2 test's mode: one question at a time, or a mock exam graded on submit. */
+export type TestMode = (typeof CONTRACT.AssessmentResponseOut.mode.enum)[number];
+
+/** Code, a log or a config shown with line numbers. */
+export type AssessmentListing = { title?: string | null; language?: string | null; content: string };
+
+export type AssessmentScenario = {
+  title?: string | null;
+  summary: string;
+  symptoms: string[];
+  evidence: (AssessmentListing & { label: string })[];
+};
+
+export type DiagramNode = { id: string; label: string; kind: string; detail?: string | null };
+export type DiagramLink = { id: string; from: string; to: string; label?: string | null; detail?: string | null };
+export type Diagram = { nodes: DiagramNode[]; links: DiagramLink[] };
 
 /**
  * One question. Multiple choice (`mcq`) has `text` and `options`; a fill-in-the-blanks exercise
- * (`fill_blank`) has `segments` (the text around the blanks) and `blanks`. The rest are null.
+ * (`fill_blank`) has `segments` (the text around the blanks) and `blanks`. Newer kinds (schemaVersion 2)
+ * use the optional fields; any field a kind doesn't use is null (or absent from an older server).
  */
 export type AssessmentQuestion = {
-  kind: "mcq" | "fill_blank";
+  kind: QuestionKind;
   text: string | null;
   options: string[] | null;
   segments: string[] | null;
@@ -733,6 +765,28 @@ export type AssessmentQuestion = {
   /** The accepted answers of each blank (fill-in-the-blanks): only once answered or skipped. */
   answers: string[][] | null;
   explanation: string | null;
+  // Newer kinds, shown before answering.
+  choose?: number | null;
+  unit?: string | null;
+  prompt?: string | null;
+  left?: string[] | null;
+  right?: string[] | null;
+  items?: string[] | null;
+  listing?: AssessmentListing | null;
+  diagram?: Diagram | null;
+  select?: QuestionSelect | null;
+  points?: number | null;
+  maxLength?: number | null;
+  maxTries?: number | null;
+  /** Exam: the saved, ungraded value. */
+  draft?: AssessmentValue | null;
+  // Newer kinds, only once final (an exam: once submitted).
+  correctList?: number[] | null;
+  accepted?: string[] | null;
+  tolerance?: string | null;
+  keyPoints?: string[] | null;
+  sample?: string | null;
+  output?: string | null;
 };
 
 /**
@@ -757,7 +811,19 @@ export type Assessment = {
   earned: number;
   possible: number;
   questions: AssessmentQuestion[];
+  // schemaVersion 2 only (null or absent on schemaVersion 1).
+  mode?: TestMode | null;
+  /** Exam: graded and revealed. */
+  submitted?: boolean | null;
+  /** Bumped by every change; a submit names the one it saw. */
+  revision?: number | null;
+  scenario?: AssessmentScenario | null;
+  /** Practice numeric/cli: the waiting question's wrong tries (nothing revealed). */
+  pending?: { question: number; tries: string[] } | null;
 };
+
+/** The record versions this client draws; any other shows the block's source (client obligation). */
+export const KNOWN_SCHEMA_VERSIONS: readonly number[] = [1, 2];
 
 /**
  * What an answer returns: the test as recorded, and `learning` only when this answer made its day a
@@ -769,9 +835,12 @@ export type AssessmentResponseRequest = {
   position: number;
   hash: string;
   question: number;
-  action: "answer" | "skip";
-  /** Answers only: an option's index, or one text per blank. */
-  value?: number | string[];
+  /** answer/skip on every record; save/clear/submit on schemaVersion 2 only. */
+  action: (typeof CONTRACT.AssessmentResponseRequest.action.enum)[number];
+  /** answer and save only: an option's index, one text per blank, or a newer kind's value. */
+  value?: AssessmentValue;
+  /** submit only: the record's revision as it was shown. */
+  revision?: number;
 };
 
 /** A file attached to a user message. `fileId` is null once the file was deleted (the name stays). */

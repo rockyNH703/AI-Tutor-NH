@@ -7,6 +7,10 @@ test("pages are sent with the security headers", async ({ page }) => {
   expect(headers["content-security-policy"]).toContain("default-src 'self'");
   expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
   expect(headers["content-security-policy"]).not.toContain("unsafe-eval"); // production build
+  // Frames: Turnstile's check and YouTube's privacy-enhanced player (```video), exactly these.
+  expect(headers["content-security-policy"]?.split("; ").find((directive) => directive.startsWith("frame-src "))).toBe(
+    "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com",
+  );
   expect(headers["x-frame-options"]).toBe("DENY");
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");

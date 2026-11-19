@@ -1,9 +1,12 @@
 "use client";
 
-import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { type RefObject, createContext, useCallback, useEffect, useRef, useState } from "react";
 
 /** Within this many pixels of the bottom counts as "at the bottom". */
 const NEAR_BOTTOM_PX = 80;
+
+/** Re-attaches the transcript to its latest message (a card's own send, like the composer's). Stable. */
+export const ScrollToLatestContext = createContext<() => void>(() => {});
 
 /**
  * Follow new content only while the reader is at the bottom.
@@ -73,8 +76,10 @@ export function useStickToBottom(
     scrollToBottom();
   }, [resetKey, scrollToBottom]);
 
+  // The reader is now away from the latest: "Jump to latest" shows, as after scrolling up.
   const release = useCallback(() => {
     stick.current = false;
+    setAtBottom(false);
   }, []);
 
   return { atBottom, scrollToBottom, release };

@@ -8,7 +8,14 @@ import re
 
 import pytest
 
-from app.assessments.state import NOT_ANSWERED, SUMMARY_FRAME, USE_RECORD
+from app.assessments.state import (
+    EXAM_GUARD,
+    EXAM_WAITING,
+    NEVER_REGRADE,
+    NOT_ANSWERED,
+    SUMMARY_FRAME,
+    USE_RECORD,
+)
 from app.chat.assistant import BANK_BLOCKS, INTENT_NOTE, INTERACTIVE_BLOCKS, SYSTEM_PROMPT, VOICE_TURN
 from app.chat.teaching import TEACHING_POLICY
 from app.intents import scope
@@ -39,6 +46,9 @@ FIXED_TEXTS = {
     "SUMMARY_FRAME": SUMMARY_FRAME,
     "USE_RECORD": USE_RECORD,
     "NOT_ANSWERED": NOT_ANSWERED,
+    "EXAM_GUARD": EXAM_GUARD,
+    "EXAM_WAITING": EXAM_WAITING,
+    "NEVER_REGRADE": NEVER_REGRADE,
     "NOTE_UNKNOWN": chat_tests.NOTE_UNKNOWN,
     "NOTE_MODEL": chat_tests.NOTE_MODEL,
     "GROUP_QUESTION": GROUP_QUESTION,

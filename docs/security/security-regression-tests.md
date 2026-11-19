@@ -89,6 +89,10 @@ it if its name ended in `_test`.
 | `test_route_auth.py::test_no_route_is_hidden_from_the_api_description`, `::test_the_public_list_names_only_routes_that_exist`, `::test_every_non_public_route_rejects_a_request_without_a_session` | Every route is in the API description, and every non-public route needs a session: a new route is covered automatically | — |
 | `test_architecture_guards.py::test_dependency_direction` and the other guards | Routers never touch retrieval directly; the store knows no LangChain; domains are reached through their public modules | — |
 | `test_chat.py::test_naming_touches_only_the_owners_conversation`, `::test_private_knowledge_is_scoped_to_its_owner_in_chat` | Chat side effects and private knowledge stay with the owner | — |
+| `test_authorization.py::test_other_users_resources_are_404` (save and submit rows, 2026-11-18) | A mock exam's save and submit on another user's reply are 404, like answer and skip | — |
+| `test_learning_engine.py::test_save_clear_and_submit_never_touch_a_bank_test_or_its_ledger` | save/clear/submit on a question-bank (v1) test are 409 `assessment_not_exam` and leave the practice ledger and the record unchanged (they used to pass as a skip) | Failed first (2026-11-18, lane B1): 422 on the old schema, not 409 |
+| `test_assessment_api.py::test_save_clear_and_submit_are_refused_on_a_v1_test`, `test_assessment_modes.py::test_save_clear_and_submit_are_refused_on_a_v1_record_and_on_practice` | The v1 contract holds: answer and skip only | Failed first (2026-11-18) |
+| `test_assessment_api.py::test_the_endpoint_is_rate_limited_per_user` | Practice-test actions are limited per user (429 `rate_limited`) before the reply's row lock | — |
 
 ## Retrieval, context and prompt injection
 
@@ -149,6 +153,7 @@ it if its name ended in `_test`.
 | `test_redact_wiring.py::test_the_built_model_masks_secrets_before_the_provider`, `::test_the_built_embeddings_mask_secrets_before_the_provider` | `build_llm` and `build_embeddings` return masking wrappers, so every caller gets them | — |
 | `test_chat.py::test_logs_never_contain_the_question_or_document_text`, `::test_slow_generations_are_logged_without_content` | Chat logs carry no message or document text | — |
 | `test_intents.py::test_two_short_requests_fail_fast_and_the_key_never_reaches_a_log`; `test_email.py::test_refused_or_failed_sends_raise_without_secrets`; `test_voice.py::test_the_key_and_the_words_never_reach_a_log`; `test_llm.py::test_provider_error_details_are_redacted` | Keys and words never reach logs on the other provider paths | — |
+| `test_assessment_api.py::test_no_log_line_holds_an_answer` | Every question kind through answer, save and submit, and the 422 and 409 paths, logs ids and reason codes only, never a value | — |
 
 ## The assistant's behaviour
 
@@ -156,6 +161,11 @@ it if its name ended in `_test`.
 |---|---|---|
 | `test_netsec_prompt.py` (3 tests) | The frozen prompt is an engineering assistant's (including the secrets and authorised-testing rules) and no model-facing text speaks of school | — |
 | `test_eval_engineering.py` | The engineering eval's scoring logic: refusals, authorised pentest answers, no over-claiming | — |
+| `test_assessment_kinds.py::test_each_kind_is_graded_and_its_key_stays_hidden_until_final`, `test_assessment_modes.py::test_a_mock_exam_saves_in_any_order_and_grades_only_on_submit` | A question's key, explanation and output reach a client only once it is final (an exam: once submitted); the assistant's history shows a v2 quiz without them | — |
+| `test_assessment_modes.py::test_an_exam_in_progress_puts_the_guard_first_and_tells_no_answer`, `::test_the_summary_stays_within_its_budget_and_keeps_the_frame_and_the_guard` | While a mock exam is open the assistant is told never to reveal or hint at answers, is told no saved answer, and the guard is never cut | — |
+| `test_assessment_kinds.py::test_a_malformed_question_refuses_the_whole_test`, `::test_numbers_are_fixed_point_within_the_user_grammar_and_never_raise` | The new parsers refuse malformed or oversized blocks whole; a number like `1e999999999` is refused without being expanded, and a decimal error grades wrong instead of a 500 | — |
+| `test_assessment_api.py::test_an_unreadable_record_never_breaks_the_reply_or_the_next_turn`, `test_assessment_modes.py::test_an_unreadable_record_is_left_out_of_the_summary` | A stored record the code can't read is skipped (logged): the reply still loads and the next turn still streams | — |
+| `test_assessment_fences.py`, `test_chat_tests_card_open.py`, `test_reply_repair_linear.py` | A reply can't stall the API: the fence scans, the card and directive openers, unclosed card lines and the key lines of a non-JSON exercise run in linear time (each old pattern was quadratic, up to 28 s on a 40,000-character reply), with the same output as before on generated text; JSON nested deeper than Python recurses is `invalid_json` or left as it is, never an error | Failed first (2026-11-18/19): the timing and nesting cases on the old code (`test_reply_repair_linear.py`: 17 of 22) |
 | [`backend/scripts/eval_engineering.py`](../../backend/scripts/eval_engineering.py) (on the host, real model) | Behaviour on 19 scenarios, including `rag_prompt_injection`, `pentest_authorized`, `wifi_unauthorized` and `verify_claim` | Baseline at `e439b96`: 37/57, FAIL (`verify_claim` 0/3, `rag_prompt_injection` 3/3). Not a regression test: a measurement |
 
 ## The BFF and the browser

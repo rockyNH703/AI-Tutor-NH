@@ -140,6 +140,14 @@ on 2026-10-26 and are not yet re-verified for NetSec):
   them either way), `TUTOR_TEACHING_POLICY`, `INTENT_ROUTER` and `STUDY_SCOPE` (Ollalink classifiers; the
   2026-10-29 taxonomy needs a new `eval_intents.py` run before `on`), `VOICE_MODE` (English only),
   `MEMORY_RECALL_ENABLED` and `MEMORY_AUTOMATIC_PROPOSALS` (explicit memory APIs are on), the jobs worker.
+- **Interactive learning blocks (2026-11-18), dormant in production:** the web app draws them, but nothing teaches
+  the model to write them (no prompt change), and `QUESTION_BANK_TESTS` (on in production) still turns a test the
+  model writes into a note. They are a ```` ```quiz ```` of schemaVersion 2 with 12 question types (single, multi, fill, numeric, short,
+  long, match, order, cli, output lines, a scenario, diagram) in practice, mock-exam and review modes
+  (`app/assessments/kinds.py`, `rules.py`, `modes.py`; save/clear/submit only on v2 records; docs/api-contract.md
+  "Practice tests"), plus flashcards, `:::cheatsheet[Title]`, ```` ```video ```` (YouTube privacy-enhanced,
+  click-to-load: the CSP's one frame host besides Turnstile) and ```` ```topology ````. Details:
+  `frontend/CLAUDE.md`. Teaching them is a follow-up ([ROADMAP.md](ROADMAP.md)).
 - **Retrieval never fails a turn:** skipped or failed with a reason code. Every search is scoped by
   `AccessScope(user_id)` (global sources plus the user's own); options come only from `resolve_assistant_config`.
   The embedding dimension is fixed at **1536** in three places, kept in sync by a test; changing model or dimension

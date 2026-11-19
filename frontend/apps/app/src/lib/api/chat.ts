@@ -251,10 +251,11 @@ export function clearFeedback(messageId: string): Promise<void> {
 }
 
 /**
- * Answer or skip the waiting question of a reply's practice test; returns the test as recorded
- * (with `learning` when the answer made its day a learning day). Sending the same response again is
- * a safe retry (the same test back). 409: the test moved on (another tab, an earlier tap) or was
- * replaced; re-read the conversation.
+ * One response to a reply's practice test: answer or skip (every record), or a mock exam's save, clear
+ * and submit (schemaVersion 2 only); returns the test as recorded (with `learning` when the answer made
+ * its day a learning day). Sending the same request again is a safe retry (the same test back). 409: the
+ * test changed elsewhere (another tab, an earlier tap) or was replaced; re-read the conversation. 429:
+ * too many in a minute; try again shortly. The chat store queues and retries these (chat-store.ts).
  */
 export function respondToAssessment(messageId: string, request: AssessmentResponseRequest): Promise<AssessmentResponse> {
   return callRoute<AssessmentResponse>("POST /v1/messages/{message_id}/assessment-responses", {

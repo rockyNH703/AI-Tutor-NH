@@ -1,0 +1,4 @@
+{
+  "message": "This walkthrough covers OSPF areas before the lab.\n\n```video\n{\"youtube\":\"https://www.youtube.com/watch?v=aBcDeFgHiJk\",\"title\":\"OSPF areas and LSAs\",\"channel\":\"NetSec AI lab\",\"start\":30,\"chapters\":[{\"at\":0,\"title\":\"Introduction\"},{\"at\":135,\"title\":\"OSPF areas\"},{\"at\":410,\"title\":\"LSA types\"}],\"captions\":\"en\"}\n```",
+  "refusal": null
+}

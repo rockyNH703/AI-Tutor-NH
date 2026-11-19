@@ -159,6 +159,26 @@ async def test_a_retry_is_a_replay_of_the_test_as_it_is_now_and_nothing_is_recor
     assert await ledger(app, message) == rows
 
 
+async def test_save_clear_and_submit_never_touch_a_bank_test_or_its_ledger(client, app, fake_llm, bank):
+    """Mock-exam actions are a schemaVersion 2 test's. On a bank test (v1) they are refused before anything is
+    recorded: no answer, no skip and no next question reach the ledger (a save before the first answer once
+    went through as a skip)."""
+    headers = (await register(client, app))["headers"]
+    message = await bank_test(client, headers, fake_llm, {"chapter": "TSCI1-CH01", "count": 3})
+    [test] = message["metadata"]["assessments"]
+    rows = await ledger(app, message)
+    url = f"/v1/messages/{message['id']}/assessment-responses"
+    for action, value in (("save", 1), ("clear", None), ("submit", None)):
+        body = {"position": 0, "hash": test["hash"], "question": 0, "action": action}
+        refused = await client.post(url, json=body | ({"value": value} if value is not None else {}), headers=headers)
+        assert refused.status_code == 409 and refused.json()["error"]["code"] == "assessment_not_exam", refused.text
+    assert await ledger(app, message) == rows  # one question served, none answered
+    page = await client.get(f"/v1/conversations/{message['conversationId']}/messages", headers=headers)
+    assert page.json()["items"][-1]["metadata"]["assessments"] == [test]
+    answered = await respond(client, headers, message, test, 0, await key(app, message, 1))
+    assert answered.status_code == 200 and (answered.json()["answered"], len(answered.json()["questions"])) == (1, 2)
+
+
 async def test_a_skip_is_not_evidence_and_the_next_question_keeps_its_level(client, app, fake_llm, bank):
     headers = (await register(client, app))["headers"]
     message = await bank_test(client, headers, fake_llm, {"chapter": "TSCI1-CH01", "count": 3})

@@ -9,7 +9,8 @@
  *            (`math-inline` / `math-display`) KaTeX uses to tell inline from display
  *
  * and admits the tutor's own elements (remark-tutor.ts), each property with an allowlist of
- * values: study cards (`div[data-card]`, a title `div[data-card-title]`), file embeds
+ * values: study cards (`div[data-card]`, a title `div[data-card-title]`), cheat sheets
+ * (`div[data-sheet]`, with the same title), file embeds
  * (`div[data-embed][data-ref][data-page]`), citations (`sup[data-cite]`), a download name
  * (`code[data-filename]`) and images inside links (`img[data-in-link]`).
  *
@@ -38,6 +39,7 @@ export const sanitizeSchema: SanitizeSchema = {
       ...(defaultSchema.attributes?.div ?? []),
       ["dataCard", ...CARD_TYPES],
       ["dataCardTitle", "true"],
+      ["dataSheet", "true"],
       ["dataEmbed", "file", "pdf"],
       ["dataRef", REF],
       ["dataPage", /^\d{1,4}$/],

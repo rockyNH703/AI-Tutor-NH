@@ -31,6 +31,16 @@ async def test_other_users_resources_are_404(client, app):
             f"/v1/messages/{mid}/assessment-responses",
             {"position": 0, "hash": "0" * 64, "question": 0, "action": "skip"},
         ),
+        (  # a mock exam's save and submit: the same 404, before any rule of the test is applied
+            "POST",
+            f"/v1/messages/{mid}/assessment-responses",
+            {"position": 0, "hash": "0" * 64, "question": 0, "action": "save", "value": 1},
+        ),
+        (
+            "POST",
+            f"/v1/messages/{mid}/assessment-responses",
+            {"position": 0, "hash": "0" * 64, "question": 0, "action": "submit", "revision": 0},
+        ),
     ]
     for method, url, body in checks:
         r = await client.request(method, url, json=body, headers=b)

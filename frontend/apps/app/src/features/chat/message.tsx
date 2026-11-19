@@ -2,20 +2,21 @@
 
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/utils";
-import { type CSSProperties, memo, useMemo, useState } from "react";
+import { type CSSProperties, memo, useContext, useMemo, useState, useSyncExternalStore } from "react";
 
 import { BrandMark } from "@/components/brand/brand-mark";
 import { FileKindIcon } from "@/features/files/attachment-chip";
 import { fileTypeOf } from "@/lib/api/files";
 import type { TestState } from "@/features/markdown/context";
 import { MessageContent, needsFullWidth } from "@/features/markdown/lazy-message-content";
-import type { ChatMessage } from "./chat-store";
-import { useChatEntry, useChatMessage, useStores } from "./chat-context";
+import type { ChatEntry, ChatMessage } from "./chat-store";
+import { useChatMessage, useStores } from "./chat-context";
 import { CONTINUE_PROMPT, cutOffNote } from "./cut-off";
 import { ErrorMessage } from "./error-message";
 import { MessageActions } from "./message-actions";
 import { useSmoothText } from "./smooth-text";
 import { StreamingCaret, StreamingIndicator } from "./streaming-indicator";
+import { ScrollToLatestContext } from "./use-stick-to-bottom";
 
 /**
  * One row of the transcript. Subscribes to its own message only, so a streamed
@@ -33,11 +34,9 @@ export const MessageRow = memo(function MessageRow({
   const message = useChatMessage(chatKey, messageId);
   if (!message) return null;
   if (message.role === "user") return <UserMessage message={message} />;
-  return isLast ? (
-    <LastAssistantMessage chatKey={chatKey} message={message} />
-  ) : (
-    <AssistantMessage chatKey={chatKey} message={message} live={false} phase={null} canRegenerate={false} />
-  );
+  // One component type for every reply: a reply that stops being the last is not remounted, so its widgets keep
+  // their state (a playing video, a sheet's folds, an exam's unsent edits).
+  return <AssistantRow chatKey={chatKey} message={message} isLast={isLast} />;
 });
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
@@ -122,9 +121,18 @@ export function UserMessage({ message }: { message: ChatMessage }) {
   );
 }
 
-/** The latest reply also watches the conversation's stream (stop, regenerate). */
-function LastAssistantMessage({ chatKey, message }: { chatKey: string; message: ChatMessage }) {
-  const entry = useChatEntry(chatKey);
+/** The chat's entry for the last reply only: any other row reads nothing, so it never re-renders for it. */
+function useLastEntry(chatKey: string, isLast: boolean): ChatEntry | undefined {
+  const { chat } = useStores();
+  return useSyncExternalStore(
+    (listener) => (isLast ? chat.subscribe(chatKey, listener) : () => {}),
+    () => (isLast ? chat.getEntry(chatKey) : undefined),
+    () => (isLast ? chat.getEntry(chatKey) : undefined),
+  );
+}
+
+function AssistantRow({ chatKey, message, isLast }: { chatKey: string; message: ChatMessage; isLast: boolean }) {
+  const entry = useLastEntry(chatKey, isLast);
   const live = entry?.stream?.assistantId === message.id;
   return (
     <AssistantMessage
@@ -132,7 +140,7 @@ function LastAssistantMessage({ chatKey, message }: { chatKey: string; message: 
       message={message}
       live={live}
       phase={live ? (entry?.stream?.phase ?? null) : null}
-      canRegenerate={!entry?.stream && Boolean(message.conversationId)}
+      canRegenerate={isLast && !entry?.stream && Boolean(message.conversationId)}
     />
   );
 }
@@ -151,21 +159,35 @@ function AssistantMessage({
   canRegenerate: boolean;
 }) {
   const { chat } = useStores();
+  const scrollToLatest = useContext(ScrollToLatestContext);
   const streaming = message.status === "streaming";
   const revealing = live && streaming;
   const assessments = message.metadata?.assessments;
   const testError = message.metadata?.assessmentError?.code ?? null;
   const testNotice = message.testNotice ?? null;
+  const messageId = message.id;
+  // What the reply's test cards call: stable while the chat and the reply stay the same.
+  const actions = useMemo<Omit<TestState, "streaming" | "assessments" | "error" | "notice">>(
+    () => ({
+      respond: (position, request) => chat.respondToTest(chatKey, messageId, position, request),
+      idle: (position) => chat.testIdle(messageId, position),
+      unsaved: (position) => chat.unsavedQuestions(messageId, position),
+      drafts: {
+        get: (position, question) => chat.getPracticeDraft(messageId, position, question),
+        set: (position, question, value) => chat.setPracticeDraft(messageId, position, question, value),
+      },
+      ask: async (text) => {
+        const result = await chat.ask(chatKey, text);
+        if (result === "sent") scrollToLatest(); // like the composer's send: follow the new turn
+        return result;
+      },
+    }),
+    [chat, chatKey, messageId, scrollToLatest],
+  );
   // The reply's practice test as the server recorded it: its card draws only this.
   const tests = useMemo<TestState>(
-    () => ({
-      streaming,
-      assessments: assessments ?? [],
-      error: testError,
-      notice: testNotice,
-      respond: (position, request) => chat.respondToTest(chatKey, message.id, position, request),
-    }),
-    [chat, chatKey, message.id, streaming, assessments, testError, testNotice],
+    () => ({ ...actions, streaming, assessments: assessments ?? [], error: testError, notice: testNotice }),
+    [actions, streaming, assessments, testError, testNotice],
   );
   // The reply as it should read now: at an even pace while it streams (smooth-text.ts).
   const text = useSmoothText(message.content, revealing);

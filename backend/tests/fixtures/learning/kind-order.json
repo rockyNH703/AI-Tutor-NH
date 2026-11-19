@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check on the life of a TCP connection.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"type\":\"order\",\"question\":\"Put the life of a TCP connection in order.\",\"items\":[\"Client sends SYN\",\"Server replies SYN-ACK\",\"Client sends ACK\",\"Data is exchanged\",\"FIN closes the connection\"],\"explanation\":\"The handshake comes first, then data, then the FIN exchange that tears the connection down.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check on address resolution.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"question\":\"Which protocol maps IPv4 to MAC?\",\"options\":[\"ARP\",\"arp\",\"DNS\"],\"answer\":\"A\"}]}\n```",
+  "refusal": "invalid_question"
+}

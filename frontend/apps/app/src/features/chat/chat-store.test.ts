@@ -1,7 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import type { StreamHandlers, StreamOutcome } from "@/lib/api/chat";
 import { ApiError } from "@/lib/api/errors";
-import type { ChatRequest, Conversation, Message, MessagePage } from "@/lib/api/types";
+import type {
+  Assessment,
+  AssessmentQuestion,
+  AssessmentResponse,
+  AssessmentResponseRequest,
+  ChatRequest,
+  Conversation,
+  Message,
+  MessagePage,
+  QuestionKind,
+} from "@/lib/api/types";
 import { type ChatApi, ChatStore } from "./chat-store";
 
 const A = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -72,8 +82,27 @@ class FakeApi implements ChatApi {
   deleteConversation = async (id: string) => {
     this.deleted.push(id);
   };
-  respondToAssessment = async (): Promise<never> => {
-    throw new ApiError(404, "not_found");
+  /** Every test request sent, and the replies scripted for the next ones (in order). */
+  assessmentCalls: { messageId: string; request: AssessmentResponseRequest }[] = [];
+  private answers: (() => Promise<AssessmentResponse>)[] = [];
+  reply(test: AssessmentResponse) {
+    this.answers.push(() => Promise.resolve(test));
+  }
+  fail(error: unknown) {
+    this.answers.push(() => Promise.reject(error));
+  }
+  /** A reply the test settles itself, later. */
+  hold() {
+    let resolve: (test: AssessmentResponse) => void = () => undefined;
+    const promise = new Promise<AssessmentResponse>((settle) => {
+      resolve = settle;
+    });
+    this.answers.push(() => promise);
+    return { resolve: (test: AssessmentResponse) => resolve(test) };
+  }
+  respondToAssessment = (messageId: string, request: AssessmentResponseRequest) => {
+    this.assessmentCalls.push({ messageId, request: { ...request } });
+    return this.answers.shift()?.() ?? Promise.reject(new ApiError(404, "not_found"));
   };
 }
 
@@ -106,6 +135,7 @@ function setup(options: { stopGraceMs?: number } = {}) {
     api,
     schedule: clock.schedule,
     stopGraceMs: options.stopGraceMs ?? 3000,
+    testRetryDelayMs: 0,
     onConversationCreated: (c, draftKey) => created.push({ conversation: c, draftKey }),
     onConversationUpdated: (c) => updated.push(c),
   });
@@ -466,5 +496,283 @@ describe("feedback", () => {
     await store.ensureLoaded(A);
     await store.setFeedback(A, uuid(1), "up");
     expect(api.feedbackCalls).toEqual([]);
+  });
+});
+
+// ------------------------------------------------------------------ practice tests
+
+const question = (kind: QuestionKind = "mcq"): AssessmentQuestion => ({
+  kind,
+  text: "Which one?",
+  options: kind === "mcq" ? ["a", "b", "c"] : null,
+  segments: null,
+  blanks: null,
+  response: null,
+  correct: null,
+  answers: null,
+  explanation: null,
+});
+
+/** A schemaVersion 1 practice test waiting on question 0, unless overridden. */
+const record = (overrides: Partial<Assessment> = {}): Assessment => ({
+  id: "t1",
+  position: 0,
+  schemaVersion: 1,
+  kind: "test",
+  title: null,
+  hash: "h1",
+  locator: "l1",
+  state: "active",
+  answerable: true,
+  total: 3,
+  answered: 0,
+  current: 0,
+  earned: 0,
+  possible: 3,
+  questions: [question(), question(), question()],
+  ...overrides,
+});
+
+const exam = (overrides: Partial<Assessment> = {}) =>
+  record({ schemaVersion: 2, mode: "exam", submitted: false, revision: 3, current: null, ...overrides });
+
+/** Conversation A: a question, then a reply holding `test`; returns what the store keeps of the test. */
+function testReply(test: Assessment) {
+  return {
+    items: [
+      message(uuid(1), A, "user", "Test me"),
+      { ...message(uuid(2), A, "assistant", "```quiz\n{}\n```"), metadata: { assessments: [test] } },
+    ],
+    nextCursor: null,
+  };
+}
+
+async function withTest(test: Assessment) {
+  const context = setup();
+  context.api.pages.set(`${A}:`, testReply(test));
+  await context.store.ensureLoaded(A);
+  const stored = () => context.store.getMessage(A, uuid(2))?.metadata?.assessments?.[0];
+  const notice = () => context.store.getMessage(A, uuid(2))?.testNotice?.text;
+  return { ...context, stored, notice };
+}
+
+const save = (q: number, value: number) => ({ hash: "h1", question: q, action: "save" as const, value });
+const submit = { hash: "h1", question: 0, action: "submit" as const };
+
+describe("practice tests", () => {
+  test("an adaptive record: typed b answers h1/q0, the grown record is kept, typed c answers h2/q1; a late reply is ignored", async () => {
+    const { api, store, stored, notice } = await withTest(record({ total: 1, questions: [question()] }));
+    api.reply(record({ hash: "h2", total: 2, answered: 1, current: 1, questions: [question(), question()] }));
+    await store.send(A, "b");
+    expect(api.assessmentCalls[0]).toEqual({
+      messageId: uuid(2),
+      request: { position: 0, hash: "h1", question: 0, action: "answer", value: 1 },
+    });
+    expect(stored()?.hash).toBe("h2");
+    expect(notice()).toBe("You answered B to question 1.");
+
+    api.reply(record({ hash: "h3", total: 3, answered: 2, current: 2 }));
+    await store.send(A, "option c");
+    expect(api.assessmentCalls[1]?.request).toEqual({ position: 0, hash: "h2", question: 1, action: "answer", value: 2 });
+    expect(stored()?.hash).toBe("h3");
+
+    // An older state arriving late never puts the record back.
+    api.reply(record({ hash: "h2", total: 2, answered: 1, current: 1 }));
+    await store.respondToTest(A, uuid(2), 0, { hash: "h2", question: 1, action: "answer", value: 2 });
+    expect(stored()?.hash).toBe("h3");
+    expect(api.streams.length).toBe(0); // nothing went to the tutor
+  });
+
+  test("save then submit go one at a time; the submit carries the revision the save returned", async () => {
+    const { api, store, stored } = await withTest(exam());
+    const answered: number[] = [];
+    store.onPracticeAnswered = (_learning, _id, count) => answered.push(count);
+    const held = api.hold();
+    api.reply(exam({ revision: 5, submitted: true, answered: 3 }));
+
+    const saving = store.respondToTest(A, uuid(2), 0, save(0, 1));
+    const submitting = store.respondToTest(A, uuid(2), 0, submit);
+    let idle = false;
+    const waiting = store.testIdle(uuid(2), 0).then(() => {
+      idle = true;
+    });
+    await settle();
+    expect(api.assessmentCalls.length).toBe(1); // the submit waits for the save
+    expect(idle).toBe(false);
+
+    held.resolve(exam({ revision: 4 }));
+    await Promise.all([saving, submitting, waiting]);
+    expect(idle).toBe(true);
+    expect(api.assessmentCalls.map((call) => call.request)).toEqual([
+      { position: 0, hash: "h1", question: 0, action: "save", value: 1 },
+      { position: 0, hash: "h1", question: 0, action: "submit", revision: 4 },
+    ]);
+    expect(stored()?.submitted).toBe(true);
+    expect(answered).toEqual([3]); // a submit is an answer for the streak; a save is not
+  });
+
+  test("a 409 drops what was queued, reads the test again, then says it changed elsewhere", async () => {
+    const { api, store, stored, notice } = await withTest(exam());
+    api.fail(new ApiError(409, "conflict"));
+    api.pages.set(`${A}:`, testReply(exam({ revision: 9 })));
+
+    const first = store.respondToTest(A, uuid(2), 0, save(0, 1));
+    const second = store.respondToTest(A, uuid(2), 0, save(1, 2));
+    const third = store.respondToTest(A, uuid(2), 0, submit);
+    for (const request of [first, second, third]) await expect(request).rejects.toMatchObject({ status: 409 });
+    expect(api.assessmentCalls.length).toBe(1);
+    expect(api.listCalls.length).toBe(2); // opened, then read again
+    expect(stored()?.revision).toBe(9);
+    expect(notice()).toBe("Changed in another tab. The test now shows where it is.");
+    expect(store.unsavedQuestions(uuid(2), 0)).toEqual([]);
+
+    // What is asked after the conflict is sent, with the revision read again.
+    api.reply(exam({ revision: 10, submitted: true }));
+    await store.respondToTest(A, uuid(2), 0, submit);
+    expect(api.assessmentCalls[1]?.request).toEqual({ position: 0, hash: "h1", question: 0, action: "submit", revision: 9 });
+  });
+
+  test("a 409 while a reply streams reads the test again only once the stream has ended", async () => {
+    const { api, store, notice } = await withTest(exam());
+    const sending = store.send(A, "Explain OSPF areas");
+    api.fail(new ApiError(409, "conflict"));
+    await expect(store.respondToTest(A, uuid(2), 0, save(0, 1))).rejects.toMatchObject({ status: 409 });
+    expect(api.listCalls.length).toBe(1);
+
+    api.streams[0]?.handlers.onMeta?.(meta(A, uuid(4), message(uuid(3), A, "user", "Explain OSPF areas")));
+    api.pages.set(`${A}:`, {
+      items: [...testReply(exam({ revision: 7 })).items, message(uuid(3), A, "user", "q"), message(uuid(4), A, "assistant", "a")],
+      nextCursor: null,
+    });
+    api.streams[0]?.handlers.onDone?.({ message: message(uuid(4), A, "assistant", "a"), conversation: conversation(A) });
+    api.streams[0]?.resolve("done");
+    await sending;
+    await settle();
+    expect(api.listCalls.length).toBe(2);
+    expect(notice()).toBe("Changed in another tab. The test now shows where it is.");
+  });
+
+  test("a 429 is retried twice, then the question is unsaved; a failed save never blocks the next", async () => {
+    const { api, store } = await withTest(exam());
+    for (let index = 0; index < 3; index += 1) api.fail(new ApiError(429, "rate_limited"));
+    api.fail(new ApiError(503, "service_unavailable"));
+    api.reply(exam({ revision: 4 }));
+
+    const limited = store.respondToTest(A, uuid(2), 0, save(1, 0));
+    const offline = store.respondToTest(A, uuid(2), 0, save(2, 1));
+    const fine = store.respondToTest(A, uuid(2), 0, save(0, 2));
+    await expect(limited).rejects.toMatchObject({ status: 429 });
+    await expect(offline).rejects.toMatchObject({ status: 503 });
+    await fine;
+    expect(api.assessmentCalls.map((call) => call.request.question)).toEqual([1, 1, 1, 2, 0]);
+    expect(store.unsavedQuestions(uuid(2), 0)).toEqual([1, 2]);
+
+    // Saved again: no longer unsaved. One 429 then success needs no second retry.
+    api.fail(new ApiError(429, "rate_limited"));
+    api.reply(exam({ revision: 5 }));
+    await store.respondToTest(A, uuid(2), 0, save(1, 0));
+    expect(store.unsavedQuestions(uuid(2), 0)).toEqual([2]);
+    expect(api.assessmentCalls.length).toBe(7);
+  });
+
+  test("a test's notice goes once a later response for it is stored; a typed command still says its own", async () => {
+    const { api, store, notice } = await withTest(record());
+    api.reply(record({ answered: 1, current: 1 }));
+    await store.send(A, "b");
+    expect(notice()).toBe("You answered B to question 1.");
+
+    // The card's own answer: its result line shows again, not the old notice.
+    api.reply(record({ answered: 2, current: 2 }));
+    await store.respondToTest(A, uuid(2), 0, { hash: "h1", question: 1, action: "answer", value: 0 });
+    expect(notice()).toBeUndefined();
+
+    // A typed command's notice is posted after its response is stored, so it shows.
+    api.reply(record({ answered: 3, current: null }));
+    await store.send(A, "c");
+    expect(notice()).toBe("You answered C to question 3.");
+  });
+
+  test("a schemaVersion 1 record never sends save, clear or submit", async () => {
+    const { api, store } = await withTest(record());
+    await store.respondToTest(A, uuid(2), 0, save(0, 1));
+    await store.respondToTest(A, uuid(2), 0, { hash: "h1", question: 0, action: "clear" });
+    await store.respondToTest(A, uuid(2), 0, submit);
+    expect(api.assessmentCalls).toEqual([]);
+  });
+
+  test("typed commands on a mock exam are answered with a notice, and nothing is sent", async () => {
+    const { api, store, notice } = await withTest(exam());
+    for (const typed of ["b", "skip", "next"]) {
+      await store.send(A, typed);
+      expect(notice()).toBe("Answer in the mock exam card; nothing is graded until you submit.");
+    }
+    expect(api.assessmentCalls).toEqual([]);
+    expect(api.streams.length).toBe(0);
+  });
+
+  test("typed commands on a newer practice question: a letter only for single choice, skip shows the answer", async () => {
+    const practice = record({
+      schemaVersion: 2,
+      mode: "practice",
+      revision: 1,
+      answered: 1,
+      current: 1,
+      questions: [question(), question("numeric"), question()],
+    });
+    const { api, store, notice } = await withTest(practice);
+    await store.send(A, "b");
+    expect(notice()).toBe("Question 2 is answered in its card.");
+    await store.send(A, "next");
+    expect(notice()).toBe("Question 2 of 3 is waiting: answer it in its card, or type skip.");
+    expect(api.assessmentCalls).toEqual([]);
+
+    api.reply({ ...practice, revision: 2, answered: 2, current: 2 });
+    await store.send(A, "skip");
+    expect(api.assessmentCalls[0]?.request).toEqual({ position: 0, hash: "h1", question: 1, action: "skip" });
+    expect(notice()).toBe("Question 2: answer shown.");
+  });
+
+  test("a submitted exam takes no typed commands: the message goes to the tutor", async () => {
+    const { api, store } = await withTest(exam({ submitted: true, answered: 3, state: "completed" }));
+    void store.send(A, "b");
+    expect(api.streams[0]?.request?.message).toBe("b");
+  });
+
+  test("a card's send leaves the typed draft and the composer alone, even when refused, and is never a command", async () => {
+    const { api, store } = await withTest(record());
+    store.setDraft(A, "half-typed question");
+
+    const refused = store.ask(A, "Review my answer to Q1");
+    api.streams[0]?.reject(new ApiError(409, "conflict"));
+    expect(await refused).toBe("refused");
+    expect(store.getDraft(A)).toBe("half-typed question");
+    expect(store.getEntry(A)?.composerError).toBeNull();
+    expect(store.getEntry(A)?.order).toEqual([uuid(1), uuid(2)]);
+
+    const asking = store.ask(A, "b"); // a letter, yet a message for the tutor: the card built it
+    expect(api.streams[1]?.request?.message).toBe("b");
+    expect(await store.ask(A, "again")).toBe("busy");
+    api.streams[1]?.handlers.onMeta?.(meta(A, uuid(4), message(uuid(3), A, "user", "b")));
+    expect(await asking).toBe("sent");
+    expect(store.getDraft(A)).toBe("half-typed question");
+    expect(api.assessmentCalls).toEqual([]);
+
+    api.streams[1]?.handlers.onDone?.({ message: message(uuid(4), A, "assistant", "Here is a review."), conversation: conversation(A) });
+    api.streams[1]?.resolve("done");
+    await settle();
+    expect(await store.ask(A, "x".repeat(16_001))).toBe("refused");
+    expect(store.getEntry(A)?.composerError).toBeNull();
+    expect(api.streams.length).toBe(2);
+  });
+
+  test("practice drafts are kept per question in memory and forgotten with their chat", async () => {
+    const { store } = await withTest(record());
+    store.setPracticeDraft(uuid(2), 0, 1, "12.5");
+    store.setPracticeDraft(uuid(2), 0, 2, [1, 0]);
+    expect(store.getPracticeDraft(uuid(2), 0, 1)).toBe("12.5");
+    store.setPracticeDraft(uuid(2), 0, 1, undefined);
+    expect(store.getPracticeDraft(uuid(2), 0, 1)).toBeUndefined();
+    store.forget(A);
+    expect(store.getPracticeDraft(uuid(2), 0, 2)).toBeUndefined();
   });
 });

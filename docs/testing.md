@@ -4,7 +4,8 @@
 > `frontend/apps/app/playwright.config.ts`, `playwright.smoke.config.ts`, `deploy-netsec/tests/` and
 > `scripts/tests/`. The owner's directives (2026-10-29, [CLAUDE.md](../CLAUDE.md)) require focused regression tests
 > for security and behaviour changes. Which test protects which security property:
-> [security/security-regression-tests.md](security/security-regression-tests.md).
+> [security/security-regression-tests.md](security/security-regression-tests.md). The learning suite (the interactive
+> blocks' end-to-end tests, which run on the owner's PC) was added on 2026-11-18.
 
 ## Contents
 
@@ -15,6 +16,7 @@
 - [Local restore rehearsal](#local-restore-rehearsal)
 - [Commands](#commands)
 - [End-to-end tests](#end-to-end-tests)
+- [The learning suite](#the-learning-suite)
 - [Model behaviour and production checks](#model-behaviour-and-production-checks)
 - [CI](#ci)
 - [Writing a test](#writing-a-test)
@@ -29,7 +31,7 @@
 | NetSec deploy script tests | The namespace and PadhAI denylist, the legacy `deploy/` guard, the security-gate receipt, the files sandbox wiring | `deploy-netsec/tests/*.test.mjs` |
 | Graph boundary tests | Graphify never reads an ignored secret and stays inside its boundaries | `scripts/tests/graph.test.mjs` |
 | The security gate | Semgrep (registry packs + `.semgrep/netsec.yml` and its self-test), gitleaks (tree and history), pip-audit, `bun audit`, zizmor, pinned tool versions | `scripts/security.sh` ([security/security-tools.md](security/security-tools.md)) |
-| End to end (Playwright + axe) | The built web app, proxy, API and database together in browsers | `frontend/apps/app/e2e/` (25 specs, written for PadhAI) |
+| End to end (Playwright + axe) | The built web app, proxy, API and database together in browsers | `frontend/apps/app/e2e/` (25 specs, written for PadhAI); the learning suite `e2e/learning/*.learning.ts` ([below](#the-learning-suite)) |
 
 PadhAI's `deploy/tests/` still exist but are not part of `bun run test`.
 
@@ -43,6 +45,7 @@ PadhAI's `deploy/tests/` still exist but are not part of `bun run test`.
 | Deploy script and graph tests | Windows, with Bun (graph tests also need `uv`) | – |
 | `bun run security` | Git Bash on Windows, scanners in WSL (`/root/sec-tools`) | about 3 minutes |
 | End to end | **Does not run** (needs Mailpit, normally from Docker) | an API on `:4100`, Mailpit, Playwright browsers |
+| The learning suite (end to end) | **Runs:** Windows, headed, with the database in WSL | the steps [below](#the-learning-suite); `bunx playwright install chromium` (and `webkit` for the `learning-webkit` project); no Mailpit, no Docker |
 | Browser smoke (`bun run smoke`) | Written for PadhAI; not verified against NetSec | `SMOKE_BASE_URL` set to NetSec's URL (it defaults to PadhAI's site) |
 
 ## Backend tests in WSL
@@ -143,6 +146,75 @@ never starts one), reading sign-up codes from Mailpit (`:8025`). `global-setup.t
 the suite can never touch production. The specs were written for PadhAI's copy; after the 2026-10-29 renames they
 are updated in the working tree but have not been run on this PC. Variables:
 [environment-variables.md, "Tests"](environment-variables.md#tests).
+
+## The learning suite
+
+`frontend/apps/app/playwright.learning.config.ts` runs `e2e/learning/*.learning.ts`: the interactive blocks (the 12
+question types, practice and mock-exam modes, the v1 blocks, flashcards, cheat sheets and print, video, topology)
+and the brutal cases. **It runs on this PC** with no Mailpit and no Docker, apart from the default suite. It has its
+own ports (web 3210, preview 3211, which `serve.mjs` always starts, and API 4210), its own build
+(`.next-learning-e2e`, git-ignored) and its own database (`netsec_learning_e2e_test` in WSL's PostgreSQL 16).
+`bunx playwright test --list` (the default config) lists none of its files. Playwright starts and stops both
+servers itself (`reuseExistingServer: false`), so ports 3210, 3211 and 4210 must be free first. The stack was
+proven on 2026-11-18 (`stack.learning.ts`, a build run and a rerun).
+
+1. **Database** (once; nothing is dropped). In WSL, wait until `pg_isready -h 127.0.0.1` answers (a cold VM runs
+   crash recovery first). Then, as `aichat`, create `netsec_learning_e2e_test` owned by `aichat` if it is missing,
+   and run `CREATE EXTENSION IF NOT EXISTS` for `vector`, `citext` and `pgcrypto`. Migration 0012 creates the
+   NOLOGIN role `aichat_auth` itself.
+2. **Migrations** (once, and after any new revision). From `backend/` on Windows, with `PYTHONUTF8=1`:
+   `.venv/Scripts/python.exe -m alembic -x url=<DATABASE_URL from e2e/learning/env.ts> upgrade head`.
+3. **Backend snapshot.** The e2e API runs the code of a copy of `backend/` kept outside the repository
+   (`<evidence>\stack\backend-snapshot`, copied without `.venv`, caches or any `.env*` file; `robocopy /MIR`,
+   where exit 1 means files were copied). It uses the repository's venv and an empty working directory
+   (`<evidence>\stack\api-cwd`), so no `.env` is read. Copy again to test newer backend code.
+4. **Run** from `frontend/apps/app`. The projects set headed mode, so pass no `--headed`: it would break
+   `learning-pdf`, because `page.pdf()` is headless only.
+
+   ```sh
+   bunx playwright test -c playwright.learning.config.ts --list                 # what will run
+   bunx playwright test -c playwright.learning.config.ts                        # the first run builds (~4 min)
+   E2E_SKIP_BUILD=1 bunx playwright test -c playwright.learning.config.ts       # reuse the kept build
+   bunx playwright test -c playwright.learning.config.ts --project learning-demo   # watch the @demo flows
+   LEARNING_LIVE=1 bunx playwright test -c playwright.learning.config.ts video-live   # the real YouTube player
+   ```
+
+   Before a building run, save a copy of `tsconfig.json`. `next build` rewrites the file, and `serve.mjs` puts
+   its bytes back. Compare the file afterwards, and if it differs, copy the saved bytes back (never
+   `git checkout`).
+
+- **Projects:**
+  - `learning`: desktop Chrome at 1440 px; the specs pick 834, 390 or 320 px (a Pixel 7 at phone widths); video on.
+  - `learning-demo`: the `@demo` flows, slowed down (slowMo 400).
+  - `learning-webkit`: an iPhone 14 (WebKit) for `@webkit` (numeric, cli, video).
+  - `learning-pdf`: headless, for `@pdf` (print to PDF, a real clipboard read-back).
+  - The live YouTube check (`@live`) never gates a release. Offline, or with automation blocked, it reports
+    BLOCKED.
+- **What it starts:**
+  - **The API**, from the snapshot on :4210. The model, embeddings and email are fakes (`LLM_FAKE_TOKEN_DELAY_S=0.01`).
+    `QUESTION_BANK_TESTS=false`, so a model-written test is recorded as written; production keeps the bank-only
+    rule. `FILES_ENABLED=false`. The intent router, study scope, voice, NCERT and memory recall or proposals are
+    off. The chat generation limits are raised. `PYTHONUTF8=1`.
+  - **The web app**, `e2e/serve.mjs` with `NEXT_DIST_DIR=.next-learning-e2e`, `API_BASE_URL=http://127.0.0.1:4210`,
+    `NEXT_PUBLIC_SITE_URL=http://localhost:3210`, a libpq `AUTH_DATABASE_URL` and `AUTH_RATE_LIMIT=off`.
+  - `BETTER_AUTH_SECRET` and `AUTH_INTERNAL_TOKEN` are the default suite's e2e-only literals
+    (`e2e/learning/env.ts`). Every value is set explicitly, so it wins over `apps/app/.env.local` (never open it).
+- **Guards:**
+  - The config refuses a database that is not on loopback or whose name does not match `^[a-z0-9_]+_test$`. It
+    checks this when it loads, before any server starts.
+  - `e2e/learning/global-setup.ts` checks the same again. It also checks that every `baseURL` and the API are on
+    loopback, and requires `/ready` to return `{status: ok, schema: current}`.
+- **Sign-in is seeded per test** (`e2e/learning/support.ts`, as `smoke_chat.py` does):
+  - a `users` row and an `auth_sessions` row with a random token;
+  - the host-only `padhai_session` cookie, signed byte for byte as Better Auth signs it (`e2e/learning/wire.test.ts`);
+  - the user is deleted afterwards.
+- **Content:** each reply comes from `backend/tests/fixtures/learning/*.json` (also checked by
+  `tests/test_learning_fixtures.py`). The fixture is sent to `/api/v1/chat/stream`, and the fake model echoes it.
+  `e2e/learning/fixtures.test.ts` and `wire.test.ts` are `bun test` files for the suite's own logic.
+- **Evidence stays outside the repository.** Each run writes to
+  `C:\Users\test\Desktop\netsec-learning-evidence\runs\<UTC time>\` (`EVIDENCE_DIR` in `e2e/learning/env.ts`):
+  `results\` holds videos, screenshots and traces on failure, and `report\` the HTML report
+  (`bunx playwright show-report <dir>`). A `--list` run leaves an empty report folder; delete it.
 
 ## Model behaviour and production checks
 

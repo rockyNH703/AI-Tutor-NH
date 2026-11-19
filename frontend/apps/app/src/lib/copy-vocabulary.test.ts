@@ -7,6 +7,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 import { NAV_ITEMS } from "@/components/nav-items";
 import { AboutPage, FAQ, HelpPage } from "@/features/help/help-pages";
+import { MessageContent } from "@/features/markdown/message-content";
+import Flashcards from "@/features/markdown/widgets/flashcards";
+import Video from "@/features/markdown/widgets/video";
 import { EngineeringFields } from "@/features/settings/engineering-section";
 import { MAIN_GOAL_LABELS, PREFERENCES } from "@/features/settings/learning-labels";
 import { SETTINGS_SECTIONS } from "@/features/settings/sections";
@@ -119,6 +122,40 @@ describe("user-visible copy has no school vocabulary", () => {
     const text = visibleText(form);
     expect(text).toContain("Focus areas"); // the render reached the form
     expect(offenders(text)).toEqual([]);
+  });
+
+  test("a cheat sheet's own copy: its frame, controls and their names", () => {
+    const content = ":::cheatsheet[OSPF timers]\n## Hello\nEvery 10 s.\n\n## Dead\nFour times hello.\n:::";
+    const html = renderToStaticMarkup(createElement(MessageContent, { content }));
+    const names = [...html.matchAll(/aria-label="([^"]*)"/g)].map((match) => match[1] ?? "");
+    const shown = [...visibleText(html), ...names];
+    expect(shown).toContain("Collapse all"); // the render reached the controls
+    expect(shown).toContain("Print cheat sheet");
+    expect(offenders(shown)).toEqual([]);
+  });
+
+  test("flashcards and video: their frames, controls and their names", () => {
+    const shownBy = (html: string) => [
+      ...visibleText(html),
+      ...[...html.matchAll(/aria-label="([^"]*)"/g)].map((match) => match[1] ?? ""),
+    ];
+    const deck = { title: "OSPF", cards: [{ front: "Area 0 is called?", back: "The backbone area" }] };
+    const cards = shownBy(renderToStaticMarkup(createElement(Flashcards, { source: JSON.stringify(deck), onError: () => {} })));
+    expect(cards).toContain("Area 0 is called?"); // the render reached the deck
+    expect(offenders(cards)).toEqual([]);
+
+    const video = {
+      youtube: "dQw4w9WgXcQ",
+      title: "OSPF in ten minutes",
+      channel: "Lab Notes",
+      chapters: [
+        { at: 0, title: "Neighbours" },
+        { at: 135, title: "OSPF areas" },
+      ],
+    };
+    const player = shownBy(renderToStaticMarkup(createElement(Video, { source: JSON.stringify(video), onError: () => {} })));
+    expect(player).toContain("Jump to"); // the render reached the list, which is never called "Chapters"
+    expect(offenders(player)).toEqual([]);
   });
 
   test("brand, emails and errors", () => {

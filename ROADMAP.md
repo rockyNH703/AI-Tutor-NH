@@ -22,6 +22,16 @@ embeddings providers, the local security gate, Graphify, and NetSec's isolated d
    ([docs/security/security-audit.md](docs/security/security-audit.md)).
 7. **Intent router and scope filter for NetSec:** new evaluation cases and a `--sweep` for the 2026-10-29 taxonomy
    before either is turned on.
+8. **Interactive learning blocks (built 2026-11-18, dormant in production).** Each item needs its own owner decision:
+   - **Prompt teaching** for the new blocks: the quiz kinds and modes, cheat sheets, video and topology. Teaching
+     cheat sheets also needs a bank-mode guard (`chat_tests._card_exercises` would turn a sheet holding `[[x]]` into
+     an exercise).
+   - **Question-bank support** for the new kinds, and a bank mock exam.
+   - **Stream redaction of exam keys:** today they are readable in the reply's text (devtools, network).
+   - **An exam timer.**
+   - **A lab block** (today `:::steps` and code Copy cover it).
+   - **Video from the File Library.**
+   - **Spaced repetition** for flashcards.
 
 ## Standing follow-ups
 

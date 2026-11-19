@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check with some maths in it.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"question\":\"A subnet has $h$ host bits. Which expression gives its usable hosts? $\\\\frac{2^{h}{$\",\"options\":[\"$2^{h} - 2$\",\"$2^{h}$\",\"$h^{2}$\",\"$\\\\sqrt{h\"],\"answer\":\"A\",\"explanation\":\"Subtract the network and broadcast addresses: $2^{h} - 2$.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

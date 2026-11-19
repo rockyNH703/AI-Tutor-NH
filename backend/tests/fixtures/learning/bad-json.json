@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check on layers.\n\n```quiz\n{\"questions\":[{\"question\":\"Which layer routes packets?\",\"options\":[\"Data link\",\"Network\"],\"answer\":\"B\"}\n```",
+  "refusal": "invalid_json"
+}

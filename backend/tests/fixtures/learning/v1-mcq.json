@@ -1,0 +1,4 @@
+{
+  "message": "Before we look at TLS, a quick check.\n\n```mcq\n{\"question\":\"Which TCP port does HTTPS use by default?\",\"options\":[\"80\",\"443\",\"8080\",\"22\"],\"answer\":\"B\",\"explanation\":\"HTTPS listens on TCP 443 unless a server is configured otherwise.\"}\n```",
+  "refusal": null
+}

@@ -1,0 +1,4 @@
+{
+  "message": "Before the next topic, a short check on how routers forward.\n\n```quiz\n{\"mode\":\"practice\",\"title\":\"Forwarding\",\"questions\":[{\"question\":\"Which OSI layer makes forwarding decisions based on IP addresses?\",\"options\":[\"Data link\",\"Network\",\"Transport\",\"Session\"],\"answer\":\"B\",\"explanation\":\"Routers forward packets at the network layer, using the destination IP address.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

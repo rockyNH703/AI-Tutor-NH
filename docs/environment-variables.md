@@ -122,9 +122,17 @@ install scripts refuse other values for the fixed names.
 | `E2E_GOOGLE` | `playwright.config.ts`, `auth.e2e.ts` | unset | Turns on Google sign-in with fake client values |
 | `E2E_VISUAL`, `E2E_VISUAL_DIR` | `e2e/visual.e2e.ts` | unset | Capture-only screenshots, saved to a folder |
 | `PREVIEW_PORT` | `e2e/serve.mjs` | `3101` | Port of the second build, with preview features on |
+| `LEARNING_LIVE` | `e2e/learning/video-live.learning.ts` | unset | `1` runs the learning suite's live YouTube check (needs the internet; never gating) |
+| `LEARNING_RUN` | `playwright.learning.config.ts` | the start time (UTC) | The run's folder under the evidence folder outside the repository; set once by the runner, inherited by workers |
 | `SMOKE_BASE_URL` | the browser smoke (`bun run smoke`) | `https://ayur.namahos.com` (**PadhAI**) | Always set it to NetSec's tunnel URL; never run the smoke without it |
 | `SMOKE_EMAIL`, `SMOKE_PASSWORD` | the browser smoke | the first two lines of `dummy_account.txt` | The account the smoke signs in as. Never print them |
 | `SMOKE_HEADLESS`, `SMOKE_SHOTS` | the browser smoke | unset | Hide the browser; save screenshots to an absolute folder outside the repository |
+
+**The learning suite** (`playwright.learning.config.ts`, `e2e/learning/env.ts`) reads none of the `E2E_*` URLs.
+It sets its own values: `PORT=3210`, `PREVIEW_PORT=3211`, `NEXT_DIST_DIR=.next-learning-e2e`, the API on 4210, the
+database `netsec_learning_e2e_test` (loopback and `*_test` only), the fake providers and the e2e-only secrets.
+`E2E_SKIP_BUILD=1` reuses its build. The full list is in
+[testing.md, "The learning suite"](testing.md#the-learning-suite).
 
 ## Deploy commands (workstation)
 
@@ -390,7 +398,7 @@ their vectors from recall until they are recreated or re-embedded.
 
 | Variable | Type / allowed | Default | What it does |
 |---|---|---|---|
-| `TUTOR_INTERACTIVE_BLOCKS` | true/false | `False` | Teach the model the interactive blocks (MCQ, quiz, fill-blank, flashcards, graph, diagram, file previews; app/chat/assistant.py INTERACTIVE_BLOCKS, BANK_BLOCKS) and, with the question bank, chat tests. The web app renders them either way. Off until the owner turns it on; it costs prompt characters on every turn. |
+| `TUTOR_INTERACTIVE_BLOCKS` | true/false | `False` | Teach the model the interactive blocks (MCQ, quiz, fill-blank, flashcards, graph, diagram, file previews; app/chat/assistant.py INTERACTIVE_BLOCKS, BANK_BLOCKS) and, with the question bank, chat tests. The web app renders them either way. Off until the owner turns it on; it costs prompt characters on every turn. It does not teach the 2026-11-18 blocks (the newer quiz kinds and modes, cheat sheets, video, topology): no prompt teaches those yet. |
 | `TUTOR_TEACHING_POLICY` | true/false | `False` | Coaching defaults (app/chat/teaching.py: direct answers when asked, mistakes diagnosed before they are corrected, one hint at a time when stuck); the user's own settings still come first. Off until the owner turns it on; it costs prompt characters on every turn. |
 | `QUESTION_BANK_TESTS` | true/false | `True` | Practice tests in the chat come only from the question bank (app/qbank/chat_tests.py; its content is still PadhAI's until the certification bank arrives): the model names a domain (the bank's chapter id), the app sets stored questions, and a practice block the model writes itself is never shown as a test. The owner's decision, 2026-10-16. |
 | `ADAPTIVE_CHAT_TESTS` | true/false | `True` | A bank test chooses each next question from the answer before it (app/qbank/chat_tests.py). Off: every question is chosen when the test is set (a fixed-length test), still recorded as practice. A kill switch, no rollback needed (docs/question_bank.md). |

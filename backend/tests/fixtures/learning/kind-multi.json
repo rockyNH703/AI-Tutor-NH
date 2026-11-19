@@ -1,0 +1,4 @@
+{
+  "message": "Addressing next: a check on the private ranges.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"type\":\"multi\",\"question\":\"Which of these are private IPv4 ranges from RFC 1918?\",\"options\":[\"10.0.0.0/8\",\"172.16.0.0/12\",\"192.168.0.0/16\",\"100.64.0.0/10\",\"169.254.0.0/16\"],\"answer\":[\"A\",\"B\",\"C\"],\"explanation\":\"RFC 1918 reserves 10/8, 172.16/12 and 192.168/16. 100.64/10 is shared address space for carrier-grade NAT, and 169.254/16 is link-local.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

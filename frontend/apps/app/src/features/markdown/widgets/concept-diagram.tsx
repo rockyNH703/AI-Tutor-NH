@@ -1,15 +1,15 @@
 "use client";
 
 import "@xyflow/react/dist/style.css";
-import dagre from "@dagrejs/dagre";
 import { Background, Controls, type Edge, MarkerType, type Node, Position, ReactFlow } from "@xyflow/react";
 import { Network } from "lucide-react";
-import { useTheme } from "next-themes";
-import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
+import { ReleaseScrollContext } from "../context";
 import type { WidgetProps } from "../rich-block";
 import { CardFrame } from "../study-card";
+import { ariaLabels, FLOW_PROPS, FLOW_THEME, layered, useFlowLook } from "./flow";
 import { parseJson } from "./tokens";
 
 const Spec = z.object({
@@ -27,57 +27,38 @@ const Spec = z.object({
 type DiagramSpec = z.infer<typeof Spec>;
 
 const WIDTH = 150;
-
-/** React Flow's own colours, from the design system (light, dark and high contrast alike). Set on
- * its root element: its themes define these same variables there, and an inline style wins. */
-const THEME = {
-  "--xy-node-background-color-default": "hsl(var(--card))",
-  "--xy-node-border-default": "1px solid hsl(var(--border))",
-  "--xy-node-color-default": "hsl(var(--foreground))",
-  "--xy-node-boxshadow-selected-default": "0 0 0 2px hsl(var(--brand))",
-  "--xy-edge-stroke-default": "hsl(var(--text-secondary))",
-  "--xy-edge-label-background-color-default": "hsl(var(--card))",
-  "--xy-edge-label-color-default": "hsl(var(--foreground))",
-  "--xy-background-color-default": "hsl(var(--surface))",
-  "--xy-background-pattern-dots-color-default": "hsl(var(--border))",
-  "--xy-controls-button-background-color-default": "hsl(var(--card))",
-  "--xy-controls-button-background-color-hover-default": "hsl(var(--surface-2))",
-  "--xy-controls-button-color-default": "hsl(var(--foreground))",
-  "--xy-controls-button-border-color-default": "hsl(var(--border))",
-} as CSSProperties;
+const LABELS = ariaLabels("Press Enter to read about this box.");
 
 /** Boxes placed in layers by dagre, arrows between them. */
-function layout(spec: DiagramSpec): { nodes: Node[]; edges: Edge[] } {
+export function layout(spec: DiagramSpec): { nodes: Node[]; edges: Edge[] } {
   const direction = spec.direction ?? "TB";
-  const graph = new dagre.graphlib.Graph();
-  graph.setGraph({ rankdir: direction, nodesep: 18, ranksep: 48, marginx: 8, marginy: 8 });
-  graph.setDefaultEdgeLabel(() => ({}));
   const ids = new Set(spec.nodes.map((node) => node.id));
   const height = (label: string) => Math.min(96, 44 + 18 * Math.floor(label.length / 22));
-  for (const node of spec.nodes) graph.setNode(node.id, { width: WIDTH, height: height(node.label) });
   const edges = (spec.edges ?? []).filter((edge) => ids.has(edge.from) && ids.has(edge.to));
-  for (const edge of edges) graph.setEdge(edge.from, edge.to);
-  dagre.layout(graph);
+  const places = layered(
+    spec.nodes.map((node) => ({ id: node.id, width: WIDTH, height: height(node.label) })),
+    edges,
+    direction,
+  );
   const across = direction === "LR" || direction === "RL";
+  const label = (id: string) => spec.nodes.find((node) => node.id === id)?.label ?? id;
   return {
-    nodes: spec.nodes.map((node) => {
-      const place = graph.node(node.id) as { x: number; y: number };
-      const tall = height(node.label);
-      return {
-        id: node.id,
-        position: { x: place.x - WIDTH / 2, y: place.y - tall / 2 },
-        data: { label: node.label },
-        style: { width: WIDTH, fontSize: 13, lineHeight: 1.35 },
-        sourcePosition: across ? Position.Right : Position.Bottom,
-        targetPosition: across ? Position.Left : Position.Top,
-        connectable: false,
-      };
-    }),
+    nodes: spec.nodes.map((node) => ({
+      id: node.id,
+      position: places.get(node.id) ?? { x: 0, y: 0 },
+      data: { label: node.label },
+      ariaLabel: node.label,
+      style: { width: WIDTH, fontSize: 13, lineHeight: 1.35 },
+      sourcePosition: across ? Position.Right : Position.Bottom,
+      targetPosition: across ? Position.Left : Position.Top,
+      connectable: false,
+    })),
     edges: edges.map((edge, index) => ({
       id: `e${index}`,
       source: edge.from,
       target: edge.to,
       label: edge.label,
+      ariaLabel: `${label(edge.from)} to ${label(edge.to)}${edge.label ? ` (${edge.label})` : ""}`,
       markerEnd: { type: MarkerType.ArrowClosed },
     })),
   };
@@ -95,14 +76,19 @@ export default function ConceptDiagram({ source, onError }: WidgetProps) {
   }, [source]);
   const flow = useMemo(() => (spec ? layout(spec) : null), [spec]);
   const [selected, setSelected] = useState<string | null>(null);
-  const [fine, setFine] = useState(false);
-  const { resolvedTheme } = useTheme();
+  const look = useFlowLook();
+  const release = useContext(ReleaseScrollContext);
 
   useEffect(() => {
     if (!spec) onError();
   }, [spec, onError]);
-  useEffect(() => setFine(window.matchMedia("(pointer: fine)").matches), []);
-  const onSelectionChange = useCallback(({ nodes }: { nodes: Node[] }) => setSelected(nodes[0]?.id ?? null), []);
+  const onSelectionChange = useCallback(
+    ({ nodes }: { nodes: Node[] }) => {
+      if (nodes[0]) release(); // the detail grows the card: don't let "stick to the bottom" scroll it away
+      setSelected(nodes[0]?.id ?? null);
+    },
+    [release],
+  );
 
   if (!spec || !flow) return null;
   const chosen = spec.nodes.find((node) => node.id === selected);
@@ -112,24 +98,16 @@ export default function ConceptDiagram({ source, onError }: WidgetProps) {
     <CardFrame kind="diagram" icon={Network} label="Diagram" title={spec.title}>
       <div className="h-80 w-full min-w-0 overflow-hidden rounded-lg border border-border sm:h-96">
         <ReactFlow
+          {...FLOW_PROPS}
           defaultNodes={flow.nodes}
           defaultEdges={flow.edges}
-          style={THEME}
-          fitView
-          fitViewOptions={{ padding: 0.12, maxZoom: 1.25 }}
-          minZoom={0.2}
-          maxZoom={2}
-          nodesDraggable={fine}
-          nodesConnectable={false}
+          style={FLOW_THEME}
           elementsSelectable
-          panOnDrag={fine}
-          panOnScroll={false}
-          zoomOnScroll={false}
-          zoomOnDoubleClick={false}
-          preventScrolling={false}
+          panOnDrag={look.fine}
+          defaultMarkerColor={look.marker}
+          ariaLabelConfig={LABELS}
           onSelectionChange={onSelectionChange}
-          onNodeClick={(_, node) => setSelected(node.id)}
-          colorMode={resolvedTheme === "dark" ? "dark" : "light"}
+          colorMode={look.colorMode}
         >
           <Background gap={16} size={1} />
           <Controls showInteractive={false} />
@@ -146,7 +124,11 @@ export default function ConceptDiagram({ source, onError }: WidgetProps) {
         ) : null}
       </div>
       <details className="mt-1 text-sm">
-        <summary className="focus-ring w-fit cursor-pointer rounded-md text-text-secondary hover:text-foreground">
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: a summary is a native button; Enter and Space click it */}
+        <summary
+          onClick={release}
+          className="focus-ring w-fit cursor-pointer rounded-md text-text-secondary hover:text-foreground"
+        >
           The diagram as text
         </summary>
         <ul className="mt-1 list-disc space-y-0.5 pl-5 leading-6">

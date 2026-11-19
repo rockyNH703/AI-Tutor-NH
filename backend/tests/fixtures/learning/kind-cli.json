@@ -1,0 +1,4 @@
+{
+  "message": "Time for the command line on R1.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"type\":\"cli\",\"question\":\"Show a one-line status of every interface, with its IP address.\",\"prompt\":\"R1#\",\"answers\":[\"show ip interface brief\"],\"output\":\"Interface              IP-Address      OK? Method Status                Protocol\\nGigabitEthernet0/0     10.0.12.1       YES manual up                    up\\nGigabitEthernet0/1     unassigned      YES unset  administratively down down\",\"explanation\":\"Abbreviations such as sh ip int br are accepted: IOS expands any unambiguous prefix.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

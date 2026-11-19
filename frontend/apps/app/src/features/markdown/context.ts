@@ -1,6 +1,6 @@
 import { createContext } from "react";
 
-import type { Assessment, AssessmentResponseRequest, Citation } from "@/lib/api/types";
+import type { Assessment, AssessmentResponseRequest, AssessmentValue, Citation } from "@/lib/api/types";
 
 /**
  * True only for the last block of a reply that is still streaming. Widgets that need their
@@ -27,7 +27,33 @@ export type TestState = {
   /** Why the reply's test was not accepted (no test was kept). */
   error: string | null;
   notice: TestNotice | null;
-  respond: (position: number, request: Omit<AssessmentResponseRequest, "position">) => Promise<void>;
+  /**
+   * Sends one request through the test's queue in the chat store (`${messageId}:${position}`), so
+   * card saves, answers, submits and typed commands go one at a time; the store fills `revision`.
+   */
+  respond: (position: number, request: Omit<AssessmentResponseRequest, "position" | "revision">) => Promise<void>;
+  /** Resolves once the test's queued requests have all settled (e.g. before counting unanswered). */
+  idle?: (position: number) => Promise<void>;
+  /** The questions of a test whose last save failed (still unsaved after its retries). */
+  unsaved?: (position: number) => readonly number[];
+  /** Practice answers typed but not yet sent: in memory, survive switching chats, never sent. */
+  drafts?: PracticeDrafts;
+  /**
+   * Get feedback: sends `text` as the user's next message in this chat (not through the composer,
+   * whose draft stays as typed). `busy`: a reply is still being written; `refused`: not sent.
+   */
+  ask?: (text: string) => Promise<"sent" | "busy" | "refused">;
+};
+
+export type PracticeDrafts = {
+  get: (position: number, question: number) => AssessmentValue | undefined;
+  set: (position: number, question: number, value: AssessmentValue | undefined) => void;
 };
 
 export const TestContext = createContext<TestState | null>(null);
+
+/**
+ * Lets go of "stick to the bottom" before a card grows by the user's own action (expand all, a review,
+ * a preview), so the transcript doesn't scroll the control they just pressed out of view. Stable.
+ */
+export const ReleaseScrollContext = createContext<() => void>(() => {});

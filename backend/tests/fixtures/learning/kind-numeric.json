@@ -1,0 +1,4 @@
+{
+  "message": "Wireless design next, starting with the signal you design for.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"type\":\"numeric\",\"question\":\"Cisco's voice over Wi-Fi design guidance sets a minimum signal strength at the edge of each cell. What is it?\",\"answer\":-67,\"unit\":\"dBm\",\"explanation\":\"Voice needs a stronger signal than data: the usual design target is -67 dBm or better at the cell edge.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

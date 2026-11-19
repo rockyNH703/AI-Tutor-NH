@@ -3,6 +3,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 
 import type { Citation } from "@/lib/api/types";
+import { maskExamFences } from "./assessment";
 import type { TestState } from "./context";
 
 /**
@@ -87,10 +88,19 @@ export function LazyInlineMarkdown({ text }: { text: string }) {
  * have no width of their own, so such a reply takes the whole column instead of fitting its text.
  */
 const WIDE =
-  /^ {0,3}(?:`{3,}\s*(?:mermaid|chart|mcq|quiz|flashcards|fill-blank|graph|diagram)\b|:{3,}\s*[\w-]|::(?:file|pdf)\{|>\s*\[![A-Za-z]+\])/m;
+  /^ {0,3}(?:`{3,}\s*(?:mermaid|chart|mcq|quiz|flashcards|fill-blank|graph|diagram|video|topology)\b|:{3,}\s*[\w-]|::(?:file|pdf)\{|>\s*\[![A-Za-z]+\])/m;
 
 export function needsFullWidth(content: string): boolean {
   return WIDE.test(content);
+}
+
+/** The reply as plain text until the renderer is here: a test's answers never show (assessment.ts). */
+function PlainReply({ content, tests, streaming }: { content: string; tests: TestState | null; streaming: boolean }) {
+  return (
+    <div className="min-w-0 whitespace-pre-wrap break-words text-[0.9375rem] leading-7 text-foreground">
+      {maskExamFences(content, tests?.assessments, streaming || Boolean(tests?.streaming))}
+    </div>
+  );
 }
 
 export function MessageContent({
@@ -105,13 +115,7 @@ export function MessageContent({
   tests?: TestState | null;
 }) {
   return (
-    <Suspense
-      fallback={
-        <div className="min-w-0 whitespace-pre-wrap break-words text-[0.9375rem] leading-7 text-foreground">
-          {content}
-        </div>
-      }
-    >
+    <Suspense fallback={<PlainReply content={content} tests={tests} streaming={streaming} />}>
       <Renderer content={content} streaming={streaming} citations={citations} tests={tests} />
     </Suspense>
   );

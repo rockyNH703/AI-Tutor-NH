@@ -263,6 +263,8 @@ def create_app(
     app.state.study_action_limiter = SlidingWindowLimiter(limit=30, window_s=60)
     # Unsubscribe links need no sign-in: limited per client address instead.
     app.state.unsubscribe_limiter = SlidingWindowLimiter(limit=30, window_s=60)
+    # Practice-test actions per user (answers, mock-exam saves): checked before the reply's row lock.
+    app.state.assessment_limiter = SlidingWindowLimiter(limit=120, window_s=60)
     # Voice mode (app/voice): OllaLink's speech, only when VOICE_MODE is not off and it is configured.
     app.state.voice = voice if voice is not None else build_voice(settings)
     app.state.voice_calls = InFlight()

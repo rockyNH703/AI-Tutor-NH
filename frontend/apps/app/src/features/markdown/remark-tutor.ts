@@ -2,6 +2,8 @@
  * The tutor's study syntax, added to the one Markdown pipeline (message-content.tsx):
  *
  *   :::type[Title] … :::   a study card; `::::` for an outer card around another one
+ *   :::cheatsheet[Title]   a cheat sheet: its `##`/`###` headings become sections (cheatsheet.tsx);
+ *                          one without such a heading stays a plain div
  *   > [!NOTE] …            GitHub's alert syntax, rendered as the matching card
  *   ::file{ref=F1}         an attached file; ::pdf{ref=F1 page=3} one page of an attached PDF
  *   [1] and [F1]           a citation of a numbered source or attached file
@@ -52,9 +54,13 @@ const ALERTS: Record<string, CardType> = {
   CAUTION: "warning",
 };
 
+/** The directive name of a cheat sheet (`:::cheatsheet[Title]`). */
+export const SHEET = "cheatsheet";
+
 type MdNode = {
   type: string;
   name?: string;
+  depth?: number;
   value?: string;
   lang?: string | null;
   meta?: string | null;
@@ -153,9 +159,15 @@ export function remarkTutor(this: { data(): ProcessorData }) {
 
         if (child.type === "containerDirective") {
           const card = cardType(child.name);
-          child.data = { ...child.data, hName: "div", hProperties: card ? { dataCard: card } : {} };
+          // A sheet needs a section to fold; without one it is drawn as any unknown container.
+          const sheet =
+            !card &&
+            (child.name ?? "").toLowerCase() === SHEET &&
+            (child.children ?? []).some((part) => part.type === "heading" && (part.depth === 2 || part.depth === 3));
+          const properties = card ? { dataCard: card } : sheet ? { dataSheet: "true" } : {};
+          child.data = { ...child.data, hName: "div", hProperties: properties };
           const label = child.children?.[0];
-          if (card && label?.data?.directiveLabel) {
+          if ((card || sheet) && label?.data?.directiveLabel) {
             label.data = { ...label.data, hName: "div", hProperties: { dataCardTitle: "true" } };
           }
         } else if (child.type === "leafDirective") {

@@ -36,14 +36,17 @@ const KATEX = createRequire(import.meta.url).resolve("katex").replace(/katex\.js
  * iframe it draws the check in. And Cloudflare Web Analytics, which the site's Cloudflare zone adds
  * to every page it serves (cookieless page timings; Cloudflare already carries every request):
  * its script and where it reports. Blocked, it was a console error on every page (2026-10-23).
+ * And YouTube's privacy-enhanced player, framed only after Play is pressed on a ```video block
+ * (features/markdown/widgets/video.tsx, sandboxed): the one frame host besides Turnstile.
  */
 const isDev = process.env.NODE_ENV !== "production";
 const TURNSTILE = "https://challenges.cloudflare.com";
+const YOUTUBE_NOCOOKIE = "https://www.youtube-nocookie.com";
 const CF_INSIGHTS = { script: "https://static.cloudflareinsights.com", report: "https://cloudflareinsights.com" };
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' ${TURNSTILE} ${CF_INSIGHTS.script}${isDev ? " 'unsafe-eval'" : ""}`,
-  `frame-src ${TURNSTILE}`,
+  `frame-src ${TURNSTILE} ${YOUTUBE_NOCOOKIE}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",

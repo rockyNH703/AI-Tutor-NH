@@ -1,0 +1,4 @@
+{
+  "message": "Here is a video link that is not a YouTube video id.\n\n```video\n{\"youtube\":\"not a video id\",\"title\":\"Broken link\"}\n```",
+  "refusal": null
+}

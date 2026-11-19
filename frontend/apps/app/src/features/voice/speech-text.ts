@@ -6,7 +6,8 @@
  * remark-tutor: message-content.tsx) and its tree is read in order: paragraphs, headings, list items (with their
  * numbers) and study cards (title, then text) are spoken; a link is its text; maths is read by latex.ts. What
  * cannot be read aloud faithfully is named instead, once per reply: code, a table, a diagram, the question
- * bank's questions, an attached file, a picture, and anything in Hindi (OllaLink speaks English only).
+ * bank's questions, an attached file, a picture, a cheat sheet, a video, and anything in Hindi (OllaLink speaks
+ * English only).
  *
  * WHILE IT STREAMS. The reply is cut into its blocks (blocks.ts splitBlocks: contiguous, so progress is a
  * character offset). A finished block is spoken whole; the block still arriving only up to its last complete
@@ -26,7 +27,7 @@ import remarkParse from "remark-parse";
 import { unified } from "unified";
 
 import { splitBlocks } from "@/features/markdown/blocks";
-import { remarkTutor } from "@/features/markdown/remark-tutor";
+import { SHEET, remarkTutor } from "@/features/markdown/remark-tutor";
 import { speakLatex } from "./latex";
 
 export const MIN_CHUNK = 25;
@@ -42,6 +43,7 @@ const processor = unified()
 
 type MdNode = {
   type: string;
+  name?: string;
   value?: string;
   lang?: string | null;
   children?: MdNode[];
@@ -50,7 +52,7 @@ type MdNode = {
   data?: { directiveLabel?: boolean };
 };
 
-export type SpokenNote = "code" | "table" | "diagram" | "questions" | "file" | "picture" | "hindi";
+export type SpokenNote = "code" | "table" | "diagram" | "questions" | "file" | "picture" | "cheatsheet" | "video" | "hindi";
 export const NOTES: Record<SpokenNote, string> = {
   code: "There's some code in the chat.",
   table: "There's a table in the chat.",
@@ -58,10 +60,14 @@ export const NOTES: Record<SpokenNote, string> = {
   questions: "I've put the questions in the chat.",
   file: "There's a file in the chat.",
   picture: "There's a picture in the chat.",
+  cheatsheet: "There's a cheat sheet in the chat.",
+  video: "There's a video in the chat.",
   hindi: "Part of this answer is in Hindi; you can read it in the chat.",
 };
 const QUESTION_LANGS = new Set(["question-bank", "mcq", "quiz", "flashcards", "fill-blank", "practice"]);
-const DIAGRAM_LANGS = new Set(["mermaid", "chart", "graph", "diagram"]);
+const DIAGRAM_LANGS = new Set(["mermaid", "chart", "graph", "diagram", "topology"]);
+/** A cheat sheet opening (`:::cheatsheet`, remark-tutor.ts): read in the chat, named aloud, never spoken in part. */
+const SHEET_OPEN = /^ {0,3}:{3,}cheatsheet\b/im;
 const DEVANAGARI = /[ऀ-ॿ]/;
 const EMOJI = /\p{Extended_Pictographic}️?/gu;
 // Outside maths: symbols a voice reads badly or not at all. Numbers and letters are never touched.
@@ -129,9 +135,18 @@ function units(node: MdNode, out: Unit[]): void {
     }
     case "code": {
       const lang = (node.lang ?? "").toLowerCase();
-      out.push({ note: QUESTION_LANGS.has(lang) ? "questions" : DIAGRAM_LANGS.has(lang) ? "diagram" : "code" });
+      out.push({
+        note: QUESTION_LANGS.has(lang) ? "questions" : DIAGRAM_LANGS.has(lang) ? "diagram" : lang === "video" ? "video" : "code",
+      });
       return;
     }
+    case "containerDirective": // a study card is read (its title, then its text); a cheat sheet is only named
+      if ((node.name ?? "").toLowerCase() === SHEET) {
+        out.push({ note: "cheatsheet" });
+        return;
+      }
+      for (const child of node.children ?? []) units(child, out);
+      return;
     case "math":
       out.push({ text: speakLatex(node.value ?? "") });
       return;
@@ -157,7 +172,7 @@ function units(node: MdNode, out: Unit[]): void {
       }
       return;
     }
-    default: // root, blockquote (a card too), listItem, containerDirective (a study card: its title first)
+    default: // root, blockquote (a card too), listItem
       for (const child of node.children ?? []) units(child, out);
   }
 }
@@ -248,6 +263,8 @@ export function streamingCut(block: string, from: number, first: boolean): numbe
   if (displays.length % 2 === 1) limit = Math.min(limit, displays[displays.length - 1]?.index ?? limit);
   const table = /(?:^|\n)(\s*\|[^\n]*(?:\n|$))+$/.exec(block);
   if (table) limit = Math.min(limit, table.index);
+  const sheet = SHEET_OPEN.exec(block);
+  if (sheet) limit = Math.min(limit, sheet.index);
   if (limit <= from) return from;
 
   const window = block.slice(0, limit);

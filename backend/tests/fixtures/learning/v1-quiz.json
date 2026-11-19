@@ -1,0 +1,4 @@
+{
+  "message": "Here is a short check on routing basics before we go further.\n\n```quiz\n{\"title\": \"Routing basics\", \"questions\": [{\"question\": \"Which OSI layer makes forwarding decisions based on IP addresses?\", \"options\": [\"Data link\", \"Network\", \"Transport\", \"Session\"], \"answer\": \"B\", \"explanation\": \"Routers forward packets at the network layer, using the destination IP address.\"}, {\"question\": \"Which protocol maps an IPv4 address to a MAC address on the local segment?\", \"options\": [\"ARP\", \"DNS\", \"DHCP\", \"ICMP\"], \"answer\": \"A\", \"explanation\": \"ARP resolves a next-hop IPv4 address to the hardware address frames are sent to.\"}]}\n```",
+  "refusal": null
+}

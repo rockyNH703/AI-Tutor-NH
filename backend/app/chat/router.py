@@ -28,7 +28,7 @@ from app.conversations.router import conversation_out, message_out
 from app.conversations.schemas import ConversationOut, MessageOut
 from app.db.models import MessageFeedback
 from app.db.session import get_session
-from app.errors import Conflict, NotFound, ValidationFailed, error_body
+from app.errors import Conflict, NotFound, RateLimited, ValidationFailed, error_body
 from app.logging import get_logger
 from app.progress.learning import StreakEvent, now, record_practice
 from app.qbank import chat_tests
@@ -206,6 +206,20 @@ REFUSED = {
     "unsupported": "This can't be answered. Ask for a new one.",
     "answered": "This question already has an answer.",
     "out_of_order": "Answer the waiting question first.",
+    # schemaVersion 2 (app/assessments/modes.py)
+    "not_exam": "This test checks each answer as you give it; nothing is saved for later.",
+    "exam": "In a mock exam, answers are saved and graded together when you submit.",
+    "submitted": "This mock exam has been submitted.",
+    "stale": "Your answers changed in another tab. Reload to see them.",
+}
+# A v2 test's 422: what was wrong with the value sent for the named question (never the value itself).
+INVALID = {
+    "question": "No such question in this test.",
+    "value": "This answer doesn't fit the question.",
+    "number": "Use digits, with an optional leading minus and a full stop for decimals (for example -12.5).",
+    "duplicate": "Each choice can be picked only once.",
+    "too_long": "This answer is too long.",
+    "drafts_full": "Your saved answers are too long to keep. Shorten one and save again.",
 }
 
 
@@ -243,25 +257,42 @@ async def _bank_step(
 @router.post(
     "/messages/{message_id}/assessment-responses",
     response_model=AssessmentResponseOut,
+    # Exactly the fields public() gives, so a response equals the reloaded metadata: a schemaVersion 1 record
+    # keeps its v1 shape, and a v2 record has every field.
+    response_model_exclude_unset=True,
     tags=["assessments"],
-    summary="Answer or skip the waiting question of a practice test in a reply",
+    summary="Answer, skip, save, clear or submit a practice test or mock exam in a reply",
 )
 async def respond_to_assessment(
     message_id: uuid.UUID,
     body: AssessmentResponseRequest,
+    request: Request,
     principal: Principal = Depends(get_principal),
     db: AsyncSession = Depends(get_session),
 ):
-    """Answers are final, in order and graded here. Sending the same response again returns the
-    same test unchanged (a safe retry); any other response to an answered question, or to a
-    question after the waiting one, is 409. The message row is locked while the response is
-    recorded, so two tabs or a double tap record one response.
+    """One action on a reply's test, graded and recorded here; values are never logged.
 
-    A question-bank test also records the answer in the student's practice ledger and, while it is
+    `answer` and `skip` (practice): final, in order. On schemaVersion 2 a numeric or CLI answer gets
+    three tries; a wrong try is kept in `pending` and reveals nothing. `save`, `clear` and `submit`
+    are for a schemaVersion 2 mock exam only (409 on any other test, schemaVersion 1 included, and
+    `answer` is 409 on an exam): `save` keeps a question's draft (checked like an answer, graded
+    only on submit), `clear` empties it, and `submit` (question 0, with the record's `revision`; a
+    stale one is 409) grades every draft, a missing one as skipped. After submit any other action
+    is 409.
+
+    A request that would not change the test (an exact replay, the same draft, a second submit)
+    returns it unchanged (a safe retry); any other response to an answered question, or to a
+    question after the waiting one, is 409. Requests are limited per user (429). The message row is
+    locked while the action is recorded, so two tabs or a double tap record one.
+
+    A question-bank test also records the answer in the user's practice ledger and, while it is
     adaptive, adds its next question chosen from that answer, all in the same transaction: a retry
     after a lost reply (with the hash it was shown) gets the test as it is now. `learning` says what
     this answer did to the streak when it made its India day a learning day (5 answers a day), as the
     chat's `done` does; null otherwise."""
+    # Mock-exam saves arrive in bursts (a debounced save per edit): bounded per user before the row lock.
+    if not request.app.state.assessment_limiter.allow(str(principal.user.id)):
+        raise RateLimited()
     message = await ConversationRepository(db).get_message(principal.user.id, message_id, lock=True)
     if message is None or message.role != "assistant":
         raise NotFound("Message not found.")
@@ -271,7 +302,10 @@ async def respond_to_assessment(
     records = list(assessments.records_for(message.metadata_, message.content, message.status))
     if body.position >= len(records):
         raise NotFound("This reply has no such test.")
+    # Ids, positions, actions and reason codes only: never a value or an answer.
     extra = {"message_id": str(message_id), "position": body.position, "question": body.question}
+    extra["action"] = body.action
+    before = len(records[body.position].get("responses") or [])
     try:
         record, changed = assessments.respond(
             records[body.position],
@@ -281,6 +315,7 @@ async def respond_to_assessment(
             action=body.action,
             value=body.value,
             at=now().isoformat(),
+            revision=body.revision,
         )
     except assessments.Refused as refused:
         log.warning(
@@ -289,24 +324,34 @@ async def respond_to_assessment(
         )
         raise Conflict(REFUSED[refused.reason], code=f"assessment_{refused.reason}") from None
     except assessments.Invalid as invalid:
-        log.info("assessment invalid", extra={**extra, "reason": str(invalid)})
-        raise ValidationFailed("No such question, option or blank.") from None
-    learning = None
+        reason = str(invalid)
+        log.info("assessment invalid", extra={**extra, "reason": reason})
+        if records[body.position].get("schemaVersion") == 1:
+            raise ValidationFailed("No such question, option or blank.") from None
+        message_text = f"Question {body.question + 1}: {INVALID.get(reason, INVALID['value'])}"
+        raise ValidationFailed(
+            message_text, fields=[{"field": "value", "reason": reason, "question": body.question}]
+        ) from None
+    learning, added = None, False
     if changed:
-        if (record.get("source") or {}).get("setId"):  # a question-bank test (since 0017)
+        # A save, a clear or a wrong try changes the record without a new response: only a new response is
+        # practice evidence, and only it is logged as one.
+        added = len(record["responses"]) > before
+        if added and (record.get("source") or {}).get("setId"):  # a question-bank test (since 0017)
             record, learning = await _bank_step(db, principal.user.id, record, extra)
         records[body.position] = record
         message.metadata_ = {**message.metadata_, "assessments": records}
         await db.commit()
         if not stored:
             log.info("assessment created", extra={**extra, "questions": record["total"], "from": "earlier reply"})
+    shown = assessments.public(record, message.id, message.status)
+    if added:
         latest = record["responses"][-1]
         log.info("assessment response", extra={**extra, "status": latest["status"], "earned": latest["earned"]})
-        if assessments.state_of(record) == "completed":
-            earned = sum(response["earned"] for response in record["responses"])
-            log.info("assessment completed", extra={**extra, "earned": earned, "possible": record["total"]})
+        if shown["state"] == "completed":
+            log.info("assessment completed", extra={**extra, "earned": shown["earned"], "possible": shown["possible"]})
     event = {"event": learning.kind, "streak": learning.streak} if learning is not None else None
-    return {**assessments.public(record, message.id, message.status), "learning": event}
+    return {**shown, "learning": event}
 
 
 @router.delete("/messages/{message_id}/feedback", status_code=status.HTTP_204_NO_CONTENT, tags=["feedback"])

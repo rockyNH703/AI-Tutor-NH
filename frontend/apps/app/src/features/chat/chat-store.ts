@@ -24,6 +24,9 @@
  *   - NOTHING IS WRITTEN FROM HERE. The API persists both sides of every turn. The
  *     old page wrote messages itself (fire-and-forget), which is how a deleted chat
  *     could be resurrected by a late reply.
+ *
+ * Size (~1,000 lines, over the 800 ceiling on purpose): the stream lifecycle (`runStream`) and the entry bookkeeping
+ * it shares stay in one file; practice-test requests live in test-requests.ts.
  */
 
 import { LETTERS, type TestCommand, parseTestCommand } from "@/features/markdown/assessment";
@@ -34,6 +37,7 @@ import type {
   Assessment,
   AssessmentResponse,
   AssessmentResponseRequest,
+  AssessmentValue,
   ChatRequest,
   Conversation,
   FeedbackRating,
@@ -47,6 +51,7 @@ import type {
   StreamMeta,
 } from "@/lib/api/types";
 import { MESSAGE_MAX } from "@/lib/api/types";
+import { type TestRequest, TestRequests } from "./test-requests";
 
 export type ChatApi = {
   streamChat: (request: ChatRequest, handlers: StreamHandlers, options: { signal?: AbortSignal }) => Promise<StreamOutcome>;
@@ -119,6 +124,8 @@ export type ChatStoreOptions = {
   /** How long Stop waits for the server's final `done` before cutting the connection. */
   stopGraceMs?: number;
   now?: () => Date;
+  /** How long a test request refused with 429 waits before each retry (0 in tests). */
+  testRetryDelayMs?: number;
   onConversationCreated?: (conversation: Conversation, draftKey: string) => void;
   onConversationUpdated?: (conversation: Conversation) => void;
 };
@@ -127,6 +134,11 @@ const defaultSchedule: Scheduler = (run) => {
   const timer = setTimeout(run, 50);
   return () => clearTimeout(timer);
 };
+
+const TEST_RETRY_DELAY_MS = 2000;
+
+/** Which state of a record is newer: its revision (schemaVersion 2), else its responses. */
+const stepOf = (test: Assessment) => test.revision ?? test.answered;
 
 function emptyEntry(key: string, conversationId: string | null, status: EntryStatus): ChatEntry {
   return {
@@ -156,6 +168,8 @@ export class ChatStore {
   private readonly schedule: Scheduler;
   private readonly stopGraceMs: number;
   private readonly now: () => Date;
+  /** Practice-test requests: their queues, retries, unsaved questions, drafts and 409 re-reads. */
+  private readonly tests: TestRequests;
 
   /** Canonical key → entry. A conversation's canonical key is its id. */
   private readonly entries = new Map<string, ChatEntry>();
@@ -190,6 +204,16 @@ export class ChatStore {
     this.schedule = options.schedule ?? defaultSchedule;
     this.stopGraceMs = options.stopGraceMs ?? 3000;
     this.now = options.now ?? (() => new Date());
+    this.tests = new TestRequests(
+      {
+        respond: (messageId, body) => this.api.respondToAssessment(messageId, body),
+        findTest: (canonical, messageId, position) => this.findTest(canonical, messageId, position),
+        applyRecord: (...args) => this.applyRecord(...args),
+        conflict: (canonical) => this.rereadTests(canonical),
+        notice: (canonical, messageId, position, text) => this.noticeTest(canonical, messageId, position, text),
+      },
+      options.testRetryDelayMs ?? TEST_RETRY_DELAY_MS,
+    );
     this.onConversationCreated = options.onConversationCreated;
     this.onConversationUpdated = options.onConversationUpdated;
   }
@@ -360,7 +384,34 @@ export class ChatStore {
     const command = attachments.length ? null : parseTestCommand(text);
     const target = command ? this.testTarget(canonical) : null;
     if (command && target) return this.typedTestCommand(canonical, command, target);
+    await this.post(key, text, attachments, options, null);
+  }
 
+  /**
+   * A card's own message (a test's Get feedback), sent as the user's next message without the composer:
+   * its draft and its error stay exactly as they are, and the text is never read as a typed test command.
+   * Resolves "sent" at `meta`, "busy" while a reply is being written, "refused" when it wasn't sent.
+   */
+  ask(key: string, rawText: string): Promise<"sent" | "busy" | "refused"> {
+    const text = rawText.trim();
+    if (this.ensureEntry(key).stream) return Promise.resolve("busy");
+    if (!text || text.length > MESSAGE_MAX) return Promise.resolve("refused");
+    return new Promise((resolve) => {
+      const refused = () => resolve("refused"); // a no-op once "sent"
+      this.post(key, text, [], {}, () => resolve("sent")).then(refused, refused);
+    });
+  }
+
+  /** Sends one user message; `card` (a card's send) is told at `meta` and leaves the composer alone. */
+  private async post(
+    key: string,
+    text: string,
+    attachments: MessageAttachment[],
+    options: { mode?: "voice"; speechFormat?: SpeechFormat },
+    card: (() => void) | null,
+  ): Promise<void> {
+    const entry = this.ensureEntry(key);
+    const canonical = this.resolve(key);
     const optimisticId = `local:${++this.localCounter}`;
     const optimistic: ChatMessage = {
       id: optimisticId,
@@ -373,18 +424,20 @@ export class ChatStore {
       ...(attachments.length ? { attachments } : {}),
     };
     this.messageMap(canonical).set(optimisticId, optimistic);
-    this.drafts.set(canonical, "");
-    this.update(canonical, {
-      order: [...entry.order, optimisticId],
-      composerError: null,
-    });
+    const order = [...entry.order, optimisticId];
+    if (!card) this.drafts.set(canonical, "");
+    this.update(canonical, card ? { order } : { order, composerError: null });
 
     const request: ChatRequest = { conversationId: entry.conversationId, message: text };
     if (attachments.length) request.attachmentIds = attachments.flatMap((a) => (a.fileId ? [a.fileId] : []));
     if (options.mode === "voice") request.mode = "voice"; // spoken in voice mode (features/voice)
     if (options.mode === "voice" && options.speechFormat) request.speechFormat = options.speechFormat;
-    await this.runStream(key, optimisticId, text, (handlers, signal) =>
-      this.api.streamChat(request, handlers, { signal }),
+    await this.runStream(
+      key,
+      optimisticId,
+      card ? null : text,
+      (handlers, signal) => this.api.streamChat(request, handlers, { signal }),
+      card,
     );
   }
 
@@ -411,6 +464,8 @@ export class ChatStore {
     optimisticId: string | null,
     sentText: string | null,
     open: (handlers: StreamHandlers, signal: AbortSignal) => Promise<StreamOutcome>,
+    /** A card's send (`ask`): told at `meta`; a refusal leaves the composer's draft and error alone. */
+    card: (() => void) | null = null,
   ): Promise<void> {
     const controller = new AbortController();
     const draftKey = key;
@@ -473,6 +528,7 @@ export class ChatStore {
 
         if (before !== canonical) this.onConversationCreated?.(meta.conversation, draftKey);
         else this.onConversationUpdated?.(meta.conversation);
+        card?.();
       },
       onToken: ({ text }) => {
         const runtime = this.runtimes.get(canonical);
@@ -560,12 +616,13 @@ export class ChatStore {
       if (refused?.length && failure?.code === "validation_error") {
         failure = { ...failure, code: "attachment_unavailable" };
       }
+      const order = (entry?.order ?? []).filter((id) => id !== optimisticId);
+      if (card) {
+        this.update(canonical, { stream: null, order }); // the card says why; the composer is untouched
+        return;
+      }
       this.drafts.set(canonical, this.drafts.get(canonical) || sentText || "");
-      this.update(canonical, {
-        stream: null,
-        order: (entry?.order ?? []).filter((id) => id !== optimisticId),
-        composerError: failure,
-      });
+      this.update(canonical, { stream: null, order, composerError: failure });
       return;
     }
 
@@ -575,12 +632,9 @@ export class ChatStore {
       const stopped = optimisticId ? map.get(optimisticId)?.attachments : undefined;
       if (optimisticId) map.delete(optimisticId);
       if (stopped?.length) this.onSendRefused?.(canonical, stopped);
-      this.drafts.set(canonical, this.drafts.get(canonical) || sentText || "");
-      this.update(canonical, {
-        stream: null,
-        order: (entry?.order ?? []).filter((id) => id !== optimisticId),
-        composerError: null,
-      });
+      const order = (entry?.order ?? []).filter((id) => id !== optimisticId);
+      if (!card) this.drafts.set(canonical, this.drafts.get(canonical) || sentText || "");
+      this.update(canonical, card ? { stream: null, order } : { stream: null, order, composerError: null });
       const conversationId = this.entries.get(canonical)?.conversationId;
       if (conversationId) await this.reload(conversationId);
       return;
@@ -655,40 +709,75 @@ export class ChatStore {
   // -------------------------------------------------------- practice tests
 
   /**
-   * Answer or skip the waiting question of a reply's practice test. The server grades and records
-   * it, and the reply's test becomes what it returns; an answer goes on to `onPracticeAnswered`,
-   * with its `learning` when it made its day a learning day, like a reply's `done`. A 409 means
-   * the test moved on elsewhere (another tab) or was replaced: the conversation is read again.
-   * Errors are rethrown for the card.
+   * One request to a reply's test (answer, skip, or an exam's save, clear and submit), sent through that
+   * test's queue (`${messageId}:${position}`) one at a time, after what was asked before it. The server
+   * grades and records it, and the reply's test becomes what it returns; an answer or a submit goes on to
+   * `onPracticeAnswered`, with its `learning` when it made its day a learning day, like a reply's `done`.
+   * Errors are rethrown for the card: a 409 (the test changed elsewhere, or was replaced) first drops
+   * what was queued, reads the conversation again and says so; a 429 is retried; a failed save or clear
+   * leaves its question unsaved (test-requests.ts).
    */
-  async respondToTest(
-    key: string,
+  respondToTest(key: string, messageId: string, position: number, request: TestRequest): Promise<void> {
+    return this.tests.respond(this.resolve(key), messageId, position, request);
+  }
+
+  /** Resolves once every request queued for the test so far (and any queued meanwhile) has settled. */
+  testIdle(messageId: string, position: number): Promise<void> {
+    return this.tests.idle(messageId, position);
+  }
+
+  /** The test's questions whose last save or clear failed (after its retries), in order. */
+  unsavedQuestions(messageId: string, position: number): readonly number[] {
+    return this.tests.unsaved(messageId, position);
+  }
+
+  /** A practice answer typed but not sent (memory only, like the composer's draft; notifies no one). */
+  getPracticeDraft(messageId: string, position: number, question: number): AssessmentValue | undefined {
+    return this.tests.getDraft(messageId, position, question);
+  }
+
+  setPracticeDraft(messageId: string, position: number, question: number, value: AssessmentValue | undefined): void {
+    this.tests.setDraft(messageId, position, question, value);
+  }
+
+  private findTest(canonical: string, messageId: string, position: number): Assessment | undefined {
+    return this.getMessage(canonical, messageId)?.metadata?.assessments?.find((test) => test.position === position);
+  }
+
+  /** The record a test request returned becomes the reply's test (an answer or a submit tells the streak first). */
+  private applyRecord(
+    canonical: string,
     messageId: string,
     position: number,
-    request: Omit<AssessmentResponseRequest, "position">,
-  ): Promise<void> {
-    const canonical = this.resolve(key);
-    try {
-      const { learning, ...test } = await this.api.respondToAssessment(messageId, { position, ...request });
-      if (request.action === "answer") this.onPracticeAnswered?.(learning ?? null, messageId, test.answered);
-      const current = this.getMessage(canonical, messageId);
-      const tests = current?.metadata?.assessments;
-      const index = tests?.findIndex((item) => item.position === position) ?? -1;
-      // Responses only ever grow: a late reply never puts an older state back.
-      if (!current || !tests || index < 0 || (tests[index]?.answered ?? 0) > test.answered) return;
-      const next = tests.map((item, at) => (at === index ? test : item));
-      this.putMessage(canonical, { ...current, metadata: { ...current.metadata, assessments: next } });
-    } catch (error) {
-      const conversationId = this.entries.get(canonical)?.conversationId;
-      if (error instanceof ApiError && error.status === 409 && conversationId) void this.reload(conversationId);
-      throw error;
-    }
+    response: AssessmentResponse,
+    answered: boolean,
+  ): void {
+    const { learning, ...test } = response;
+    if (answered) this.onPracticeAnswered?.(learning ?? null, messageId, test.answered);
+    const current = this.getMessage(canonical, messageId);
+    const tests = current?.metadata?.assessments;
+    const stored = tests?.find((item) => item.position === position);
+    // A record only moves forward: a late reply never puts an older state back.
+    if (!current || !tests || !stored || stepOf(stored) > stepOf(test)) return;
+    const next = tests.map((item) => (item === stored ? test : item));
+    // The test's notice was about an earlier state and would hide its later results. A typed command's notice
+    // (said once its response is stored) and a 409's (after the re-read) are posted after this.
+    const testNotice = current.testNotice?.position === position ? undefined : current.testNotice;
+    this.putMessage(canonical, { ...current, testNotice, metadata: { ...current.metadata, assessments: next } });
+  }
+
+  /** A test changed elsewhere: read its conversation again; false while a reply streams (again when it ends). */
+  private async rereadTests(canonical: string): Promise<boolean> {
+    const entry = this.entries.get(canonical);
+    if (entry?.stream || !entry?.conversationId) return false;
+    await this.reload(entry.conversationId);
+    return !this.entries.get(canonical)?.stream; // a reply started meanwhile: again when it ends
   }
 
   /**
-   * The test typed commands reach: the chat's latest practice block, only when it is a test that
-   * waits for an answer. An older unfinished test is answered through its own card; a finished
-   * test, or an exercise, takes none.
+   * The test typed commands reach: the chat's latest practice block, only when it is a test still
+   * waiting (a practice test's current question, or a mock exam not yet submitted). An older unfinished
+   * test is answered through its own card; a finished test, or an exercise, takes none.
    */
   testTarget(key: string): { messageId: string; test: Assessment } | null {
     const canonical = this.resolve(key);
@@ -698,8 +787,9 @@ export class ChatStore {
       if (message?.role !== "assistant" || message.status !== "complete") continue;
       const test = message.metadata?.assessments?.at(-1);
       if (!test) continue;
-      // A typed letter, skip or next is for a multiple-choice test; never for an exercise.
-      return test.kind === "test" && test.answerable && test.current !== null ? { messageId: message.id, test } : null;
+      const waiting = test.mode === "exam" ? test.submitted !== true : test.current !== null;
+      // A typed letter, skip or next is for a test; never for an exercise.
+      return test.kind === "test" && test.answerable && waiting ? { messageId: message.id, test } : null;
     }
     return null;
   }
@@ -710,15 +800,27 @@ export class ChatStore {
     command: TestCommand,
     { messageId, test }: { messageId: string; test: Assessment },
   ): Promise<void> {
-    const question = test.current ?? 0;
-    const options = test.questions[question]?.options?.length ?? 0;
     const say = (notice: string) => this.noticeTest(canonical, messageId, test.position, notice);
+    if (test.mode === "exam") {
+      say("Answer in the mock exam card; nothing is graded until you submit.");
+      return;
+    }
+    const question = test.current ?? 0;
+    const number = question + 1;
+    // Only a single-choice question takes a letter; every kind takes skip (Show answer) and next.
+    const single = test.questions[question]?.kind === "mcq";
+    const options = test.questions[question]?.options?.length ?? 0;
     if (command.kind === "show") {
-      say(`Question ${question + 1} of ${test.total} is waiting: pick an option, or type skip.`);
+      const how = single ? "pick an option" : "answer it in its card";
+      say(`Question ${number} of ${test.total} is waiting: ${how}, or type skip.`);
+      return;
+    }
+    if (command.kind === "answer" && !single) {
+      say(`Question ${number} is answered in its card.`);
       return;
     }
     if (command.kind === "answer" && command.value >= options) {
-      say(`Question ${question + 1} has options A to ${LETTERS[options - 1]}.`);
+      say(`Question ${number} has options A to ${LETTERS[options - 1]}.`);
       return;
     }
     try {
@@ -727,17 +829,13 @@ export class ChatStore {
         question,
         ...(command.kind === "answer" ? { action: "answer", value: command.value } : { action: "skip" }),
       });
-      say(
-        command.kind === "answer"
-          ? `You answered ${LETTERS[command.value]} to question ${question + 1}.`
-          : `You skipped question ${question + 1}.`,
-      );
+      if (command.kind === "answer") say(`You answered ${LETTERS[command.value]} to question ${number}.`);
+      else say(test.schemaVersion >= 2 ? `Question ${number}: answer shown.` : `You skipped question ${number}.`);
     } catch (error) {
-      say(
-        error instanceof ApiError && error.status === 409
-          ? "This test moved on elsewhere (another tab?). It now shows where it is."
-          : "Your answer wasn't saved. Check your connection and try again.",
-      );
+      // A 409 was already said, once the test had been read again (sendTestRequest).
+      if (!(error instanceof ApiError && error.status === 409)) {
+        say("Your answer wasn't saved. Check your connection and try again.");
+      }
     }
   }
 
@@ -771,6 +869,7 @@ export class ChatStore {
     const canonical = this.resolve(conversationId);
     this.runtimes.get(canonical)?.controller?.abort();
     this.runtimes.delete(canonical);
+    this.tests.forget(canonical, new Set(this.messages.get(canonical)?.keys()));
     this.messages.delete(canonical);
     this.drafts.delete(canonical);
     if (this.entries.has(canonical)) {
@@ -788,6 +887,7 @@ export class ChatStore {
       if (runtime.stopTimer) clearTimeout(runtime.stopTimer);
     }
     this.runtimes.clear();
+    this.tests.reset();
     this.entries.clear();
     this.messages.clear();
     this.aliases.clear();
@@ -873,6 +973,8 @@ export class ChatStore {
     const entry = this.entries.get(canonical) ?? this.ensureEntry(canonical);
     this.entries.set(canonical, { ...entry, ...patch });
     this.notifyEntry(canonical);
+    // A test changed elsewhere while a reply was streaming: read it again now that the stream has ended.
+    if (patch.stream === null) this.tests.streamEnded(canonical);
   }
 
   private addListener(map: Map<string, Set<Listener>>, id: string, listener: Listener): () => void {

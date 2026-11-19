@@ -20,8 +20,10 @@ from app.conversations.schemas import (
 from app.db.models import Conversation, Message
 from app.db.session import get_session
 from app.errors import NotFound
+from app.logging import get_logger
 
 router = APIRouter(prefix="/v1/conversations", tags=["conversations"])
+log = get_logger("app.assessments")
 
 
 def conversation_out(c: Conversation) -> ConversationOut:
@@ -71,9 +73,17 @@ def public_metadata(
     # was recorded gets its record from its text (answerable; stored on the first answer).
     records = assessments.records_for(metadata, content, status or "") if message_id is not None else []
     if records:
-        tests = [assessments.public(record, message_id, status or "") for record in records]
-        public["assessments"] = [test for test in tests if test is not None]
+        public["assessments"] = [test for record in records if (test := _shown(record, message_id, status))]
     return public
+
+
+def _shown(record: dict, message_id: uuid.UUID, status: str | None) -> dict | None:
+    """One record as the client may see it; a record this code can't read is left out (logged), never a 500."""
+    try:
+        return assessments.public(record, message_id, status or "")
+    except Exception:  # noqa: BLE001 - a reply stays readable whatever its stored record holds
+        log.warning("assessment unreadable", extra={"message_id": str(message_id)})
+        return None
 
 
 async def owned_conversation(repo: ConversationRepository, user_id: uuid.UUID, conversation_id: uuid.UUID):

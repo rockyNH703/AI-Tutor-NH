@@ -41,6 +41,7 @@ export function CardFrame({
   kind,
   children,
   className,
+  actions,
 }: {
   icon: LucideIcon;
   label: string;
@@ -49,6 +50,8 @@ export function CardFrame({
   kind: string;
   children: ReactNode;
   className?: string;
+  /** Controls at the end of the header row (a cheatsheet's Collapse all, Print). */
+  actions?: ReactNode;
 }) {
   return (
     <div
@@ -69,6 +72,7 @@ export function CardFrame({
             <span className="min-w-0 break-words">{title}</span>
           </>
         ) : null}
+        {actions ? <div className="ml-auto flex flex-wrap items-center gap-1 font-normal">{actions}</div> : null}
       </div>
       <div className="study-card-body min-w-0">{children}</div>
     </div>

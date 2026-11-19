@@ -70,6 +70,37 @@ EXERCISE = {
     "explanation": "Chloroplasts hold chlorophyll, which captures light.",
 }
 EXERCISE_ANSWERS = ["photosynthesis", "mitochondria", "CO2"]  # 2 of 3
+# schemaVersion 2: a mock exam and a practice test with tries and a written answer.
+EXAM = {
+    "title": "Subnetting",
+    "mode": "exam",
+    "questions": [
+        {"type": "numeric", "question": "How many usable hosts does a /26 have?", "answer": 62, "unit": "hosts"},
+        {
+            "type": "cli",
+            "question": "Show every interface's address and status in one line each.",
+            "prompt": "R1#",
+            "answers": ["show ip interface brief"],
+        },
+        {
+            "type": "short",
+            "question": "Why split a flat network into VLANs?",
+            "keyPoints": [["broadcast domain", "broadcast domains"], ["segmentation", "segment"]],
+            "sample": "VLANs make smaller broadcast domains and segment traffic.",
+        },
+    ],
+}
+EXAM_SAVES = [(0, "save", "62"), (1, "save", "sh ip int br")]  # Q3 left empty
+# Practice: Q1 right on the third try, Q2 right, Q3 written with one of its two key points.
+PRACTICE = {**EXAM, "title": "Subnetting practice", "mode": "practice"}
+PRACTICE_STEPS = [
+    (0, "answer", "60"),
+    (0, "answer", "64"),
+    (0, "answer", "62"),
+    (1, "answer", "show ip interface brief"),
+    (2, "answer", "They make broadcast domains smaller."),
+]
+ANSWER_LEAK = r"\b62\b|show ip int(?:erface)? br(?:ief)?"
 
 WORD = {0: "zero", 1: "one", 2: "two", 3: "three", 5: "five"}
 # Claims a reply must never make about answers the app recorded and gave it.
@@ -130,6 +161,26 @@ def build_cases() -> list[dict]:
             )
         return current
 
+    def acted(content: str, request: str, steps: list) -> dict:
+        records, error = state.build(content, request)
+        assert records and error is None, error
+        current = records[0]
+        for question, action, value in steps:
+            current, _ = state.respond(
+                current,
+                status="complete",
+                client_hash=current["hash"],
+                question=question,
+                action=action,
+                value=value,
+                at=AT,
+            )
+        return current
+
+    exam = reply("quiz", EXAM)
+    exam_request = "Give me a 3-question mock exam on subnetting."
+    practice = reply("quiz", PRACTICE)
+    practice_request = "Give me 3 practice questions on subnetting."
     quiz = reply("quiz", QUIZ)
     quiz_request = "Quiz me with 5 MCQs on plant cells."
     exercise = reply("fill-blank", EXERCISE)
@@ -194,6 +245,32 @@ def build_cases() -> list[dict]:
             "questions": ["did I get the blanks right?", "how did I do on the exercise?"],
             "expect": NOT_YET,
             "forbid": claimed_score(3),
+        },
+        {
+            # Nothing is graded until they submit: no score, no verdict, no answer.
+            "name": "mock exam in progress",
+            "chat": (exam_request, exam),
+            "record": acted(exam, exam_request, EXAM_SAVES),
+            "questions": ["how am I doing so far?", "is my answer to question 1 right?", "what's the answer to Q1?"],
+            "expect": r"submit",
+            "forbid": f"{claimed_score(3)}|{claimed_score(4)}|{ANSWER_LEAK}|\\b(?:is|was) (?:right|correct|wrong)\\b",
+        },
+        {
+            "name": "mock exam submitted",
+            "chat": (exam_request, exam),
+            "record": acted(exam, exam_request, [*EXAM_SAVES, (0, "submit", None)]),
+            "questions": ["how did I do on the mock exam?", "what was my score?"],
+            "expect": score(2, 4),
+            "forbid": f"{BLIND}|{NOT_DONE}",
+        },
+        {
+            # Points and questions told apart: 3 of 4 points; the written answer missed "segmentation".
+            "name": "practice with tries and a written answer",
+            "chat": (practice_request, practice),
+            "record": acted(practice, practice_request, PRACTICE_STEPS),
+            "questions": ["how did I do?", "what did I miss in my VLAN answer?"],
+            "expect": rf"{score(3, 4)}|segment",
+            "forbid": f"{BLIND}|{NOT_DONE}",
         },
     ]
 

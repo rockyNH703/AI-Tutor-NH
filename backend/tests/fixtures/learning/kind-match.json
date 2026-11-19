@@ -1,0 +1,4 @@
+{
+  "message": "Ports come up in every troubleshooting session, so here is a matching check.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"type\":\"match\",\"question\":\"Match each well-known port to its protocol.\",\"pairs\":[[\"22\",\"SSH\"],[\"53\",\"DNS\"],[\"443\",\"HTTPS\"],[\"161\",\"SNMP\"]],\"extra\":[\"Telnet\"],\"explanation\":\"Telnet (23) is the extra choice: it has no pair here.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

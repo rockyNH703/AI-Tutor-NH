@@ -69,7 +69,23 @@ export const CONTRACT = {
     "kind": {
       "enum": [
         "mcq",
-        "fill_blank"
+        "multi",
+        "fill_blank",
+        "numeric",
+        "short",
+        "long",
+        "match",
+        "order",
+        "cli",
+        "lines",
+        "diagram"
+      ]
+    },
+    "select": {
+      "enum": [
+        "node",
+        "link",
+        "any"
       ]
     }
   },
@@ -78,6 +94,12 @@ export const CONTRACT = {
       "enum": [
         "test",
         "exercise"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "practice",
+        "exam"
       ]
     },
     "state": {
@@ -92,7 +114,10 @@ export const CONTRACT = {
     "action": {
       "enum": [
         "answer",
-        "skip"
+        "skip",
+        "save",
+        "clear",
+        "submit"
       ]
     },
     "hash": {
@@ -103,6 +128,9 @@ export const CONTRACT = {
       "minimum": 0
     },
     "question": {
+      "minimum": 0
+    },
+    "revision": {
       "minimum": 0
     }
   },

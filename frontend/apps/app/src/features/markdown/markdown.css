@@ -134,3 +134,72 @@
 .message-content [data-card="formula"] .katex-display {
   font-size: 1.1em;
 }
+
+/* ---- cheat sheets (cheatsheet.tsx) ---- */
+
+/* A folded section's body stays mounted; it is only not drawn. */
+.message-content .cheatsheet-closed {
+  display: none;
+}
+
+/* A study card inside a sheet is part of the sheet: its label and text, without a box of its own. */
+.message-content [data-card="cheatsheet"] .study-card {
+  border-width: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+
+/*
+ * Printing one sheet (printSheet): a copy of it in #print-root is the only thing on the page, every
+ * section open, without its controls. Ctrl+P (no data-print) prints the page as before.
+ */
+@media screen {
+  #print-root {
+    display: none;
+  }
+}
+
+@media print {
+  html[data-print="sheet"] body > :not(#print-root) {
+    display: none !important;
+  }
+  #print-root .print-control {
+    display: none !important;
+  }
+  #print-root .cheatsheet-closed {
+    display: block !important;
+  }
+  /* Paper does not scroll: wide code and tables wrap or run on instead of being cut off. */
+  #print-root pre {
+    white-space: pre-wrap;
+    overflow: visible !important;
+  }
+  #print-root [role="region"] {
+    overflow: visible !important;
+  }
+}
+
+/* ---- topology and diagram questions (React Flow, widgets/flow.ts) ---- */
+
+/* Outranks React Flow's own `.react-flow__node.selectable:focus-visible { outline: none }`, whatever loads last. */
+.react-flow .react-flow__node:focus-visible,
+.react-flow .react-flow__node.selectable:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 3px;
+}
+
+/* Zoom and fit buttons a finger can hit (44px). */
+@media (pointer: coarse) {
+  .react-flow__controls .react-flow__controls-button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
+/* Fill-in blanks (widgets/fill-blank.tsx) a finger can hit (44px); the sentence's lines open up around them. */
+@media (pointer: coarse) {
+  .blank-field {
+    min-height: 2.75rem;
+  }
+}

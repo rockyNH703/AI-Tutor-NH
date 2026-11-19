@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check with nothing in it.\n\n```quiz\n{\"title\":\"Empty\",\"questions\":[]}\n```",
+  "refusal": "invalid_test"
+}

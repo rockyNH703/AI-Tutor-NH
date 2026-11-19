@@ -16,7 +16,8 @@
  * is the same elements as the streaming one, so nothing is replaced when it completes.
  *
  * EXTENSION POINT. `components` below is the single place that decides how each element
- * renders: study cards (`div[data-card]`), file embeds (`div[data-embed]`), citations
+ * renders: study cards (`div[data-card]`), cheat sheets (`div[data-sheet]`, cheatsheet.tsx), file
+ * embeds (`div[data-embed]`), citations
  * (`sup[data-cite]`), and fenced blocks the tutor draws instead of printing (rich-block.tsx:
  * mermaid, chart and the practice widgets). New content types are added there, or as an entry
  * in remark-tutor.ts feeding one, without touching the pipeline or the chat.
@@ -27,7 +28,7 @@
 
 import "katex/contrib/mhchem";
 import { Image as ImageIcon } from "lucide-react";
-import { Fragment, memo, useEffect, useRef, useState } from "react";
+import { Fragment, createContext, memo, useContext, useEffect, useRef, useState } from "react";
 import type { ComponentPropsWithoutRef, JSX, ReactNode } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -39,6 +40,7 @@ import remarkMath from "remark-math";
 import type { Citation } from "@/lib/api/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@v1/ui/table";
 import { splitBlocks, streamSafe } from "./blocks";
+import { Cheatsheet } from "./cheatsheet";
 import { CitationMark, Sources } from "./citation";
 import { CodeBlock } from "./code-block";
 import { CitationsContext, LiveContext, TestContext, type TestState } from "./context";
@@ -157,9 +159,20 @@ function Pre({ node, children }: WithNode<"pre">) {
   return block;
 }
 
-/** Study cards and file embeds (remark-tutor.ts); any other div is just a div. */
+/** The text a block was parsed from: what its nodes' positions point into (a cheat sheet's Copy slices it). */
+const BlockSource = createContext("");
+
+/** Study cards, cheat sheets and file embeds (remark-tutor.ts); any other div is just a div. */
 function Div({ node, children }: WithNode<"div">) {
+  const source = useContext(BlockSource);
   const properties = node?.properties ?? {};
+  if (properties.dataSheet === "true") {
+    return (
+      <Cheatsheet node={node} source={source}>
+        {children}
+      </Cheatsheet>
+    );
+  }
   if (typeof properties.dataCard === "string") {
     return <StudyCard type={properties.dataCard as Parameters<typeof StudyCard>[0]["type"]}>{children}</StudyCard>;
   }
@@ -247,9 +260,11 @@ const urlTransform = (url: string) => safeUrl(url) ?? "";
 /** One block of Markdown, parsed again only when its own text changes. */
 export const Markdown = memo(function Markdown({ text }: { text: string }) {
   return (
-    <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins} components={components} urlTransform={urlTransform}>
-      {text}
-    </ReactMarkdown>
+    <BlockSource.Provider value={text}>
+      <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins} components={components} urlTransform={urlTransform}>
+        {text}
+      </ReactMarkdown>
+    </BlockSource.Provider>
   );
 });
 

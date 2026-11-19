@@ -3,14 +3,15 @@
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/utils";
 import { CircleCheck, CircleX, PencilLine } from "lucide-react";
-import { Fragment, useState } from "react";
+import { Fragment, type ReactNode, type Ref, useState } from "react";
 
 import type { Assessment } from "@/lib/api/types";
 import type { TestState } from "../context";
 import { InlineMarkdown } from "../message-content";
 import type { WidgetProps } from "../rich-block";
 import { CardFrame } from "../study-card";
-import { Preparing, failure, useRecord } from "./quiz";
+// From record.tsx, not quiz.tsx: the quiz's blanks kind imports BlankText from here (no import cycle).
+import { Preparing, failure, useRecord } from "./test/record";
 
 /**
  * ```fill-blank: an exercise the server keeps (app/assessments). The student types into the blanks
@@ -58,47 +59,14 @@ function Exercise({ record, tests }: { record: Assessment; tests: TestState }) {
 
   return (
     <CardFrame kind="fill-blank" icon={PencilLine} label="Fill in the blanks">
-      <p className="leading-9">
-        {segments.map((segment, index) => {
-          const value = typed[index] ?? "";
-          const mark = response?.marks?.[index];
-          const answer = exercise?.answers?.[index]?.[0];
-          return (
-            // biome-ignore lint/suspicious/noArrayIndexKey: segments are positions in the sentence
-            <Fragment key={index}>
-              <InlineMarkdown text={segment} />
-              {index < blanks && (
-                <span className="mx-1 inline-flex max-w-full items-center gap-1 align-baseline">
-                  <input
-                    type="text"
-                    aria-label={`Blank ${index + 1}`}
-                    value={value}
-                    disabled={!open || saving}
-                    maxLength={200}
-                    onChange={(event) =>
-                      setGiven((all) => Object.assign([...all], { [index]: event.target.value }))
-                    }
-                    style={{ width: `${Math.min(16, Math.max(6, value.length)) + 2}ch` }}
-                    className={cn(
-                      "max-w-full rounded-md border bg-card px-1.5 py-0.5 text-center text-sm leading-6 focus-ring",
-                      done ? (mark ? "border-success" : "border-destructive") : "border-input",
-                    )}
-                  />
-                  {done &&
-                    (mark ? (
-                      <CircleCheck aria-label="correct" className="h-4 w-4 shrink-0 text-success" />
-                    ) : (
-                      <span className="inline-flex items-center gap-0.5 text-xs text-destructive">
-                        <CircleX aria-hidden className="h-4 w-4 shrink-0" />
-                        <span aria-label={`the answer is ${answer ?? ""}`}>{answer}</span>
-                      </span>
-                    ))}
-                </span>
-              )}
-            </Fragment>
-          );
-        })}
-      </p>
+      <BlankText
+        segments={segments}
+        blanks={blanks}
+        values={typed}
+        disabled={!open || saving}
+        onChange={(index, value) => setGiven((all) => Object.assign([...all], { [index]: value }))}
+        graded={done ? { marks: response?.marks, answers: exercise?.answers } : undefined}
+      />
       {open ? (
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <Button
@@ -130,5 +98,89 @@ function Exercise({ record, tests }: { record: Assessment; tests: TestState }) {
         </p>
       ) : null}
     </CardFrame>
+  );
+}
+
+export type BlankTextProps = {
+  /** The text around the blanks (one more than the blanks). */
+  segments: readonly string[];
+  blanks: number;
+  /** What is typed into each blank. */
+  values: readonly string[];
+  onChange?: (index: number, value: string) => void;
+  disabled: boolean;
+  /** Once graded: each blank right or wrong (no marks when skipped), a wrong one shown with its answer. */
+  graded?: { marks?: readonly boolean[] | null; answers?: readonly (readonly string[])[] | null };
+  /** Drawn before the text, inside the same paragraph ("Q3."). */
+  lead?: ReactNode;
+  describedBy?: string;
+  invalid?: boolean;
+  /** The first blank, for focus. */
+  inputRef?: Ref<HTMLInputElement>;
+  onBlur?: () => void;
+};
+
+/**
+ * The sentence with an input in each blank, shared by the ```fill-blank exercise and a fill-in question
+ * in a ```quiz (test/questions/blanks.tsx): typed while open, then each blank right or wrong.
+ */
+export function BlankText({
+  segments,
+  blanks,
+  values,
+  onChange,
+  disabled,
+  graded,
+  lead,
+  describedBy,
+  invalid,
+  inputRef,
+  onBlur,
+}: BlankTextProps) {
+  return (
+    <p className="leading-9">
+      {lead}
+      {segments.map((segment, index) => {
+        const value = values[index] ?? "";
+        const mark = graded?.marks?.[index];
+        const answer = graded?.answers?.[index]?.[0];
+        return (
+          // biome-ignore lint/suspicious/noArrayIndexKey: segments are positions in the sentence
+          <Fragment key={index}>
+            <InlineMarkdown text={segment} />
+            {index < blanks && (
+              <span className="mx-1 inline-flex max-w-full items-center gap-1 align-baseline">
+                <input
+                  type="text"
+                  aria-label={`Blank ${index + 1}`}
+                  ref={index === 0 ? inputRef : undefined}
+                  value={value}
+                  disabled={disabled}
+                  maxLength={200}
+                  onChange={(event) => onChange?.(index, event.target.value)}
+                  onBlur={onBlur}
+                  aria-describedby={describedBy}
+                  aria-invalid={invalid || undefined}
+                  style={{ width: `${Math.min(16, Math.max(6, value.length)) + 2}ch` }}
+                  className={cn(
+                    "blank-field max-w-full rounded-md border bg-card px-1.5 py-0.5 text-center text-sm leading-6 focus-ring",
+                    graded ? (mark ? "border-success" : "border-destructive") : invalid ? "border-destructive" : "border-input",
+                  )}
+                />
+                {graded &&
+                  (mark ? (
+                    <CircleCheck aria-label="correct" className="h-4 w-4 shrink-0 text-success" />
+                  ) : (
+                    <span className="inline-flex items-center gap-0.5 text-xs text-destructive">
+                      <CircleX aria-hidden className="h-4 w-4 shrink-0" />
+                      <span aria-label={`the answer is ${answer ?? ""}`}>{answer}</span>
+                    </span>
+                  ))}
+              </span>
+            )}
+          </Fragment>
+        );
+      })}
+    </p>
   );
 }

@@ -139,6 +139,12 @@ Shapes and rules: [api-contract.md, Account and profile](api-contract.md#auth-an
 | GET | `/v1/messages/{message_id}/feedback` | session | not proxied | `app/chat/router.py` `get_feedback` |
 | PUT | `/v1/messages/{message_id}/feedback` | session | `/api/v1/messages/{message_id}/feedback` | `app/chat/router.py` `put_feedback` |
 
+`assessment-responses` takes `action` `answer`, `skip`, `save`, `clear` or `submit`. `save`, `clear` and `submit`
+act only on a schemaVersion 2 mock exam (2026-11-18); elsewhere they are 409 `assessment_not_exam`. Other refusals
+are 409 `assessment_*`. A schemaVersion 2 test's 422 names the question in `fields`, and the route is limited to
+120 requests a minute per user (429 `rate_limited`). Shapes and rules:
+[api-contract.md, "Practice tests"](api-contract.md#practice-tests).
+
 ### Greetings
 
 Shapes and rules: [api-contract.md, Greetings](api-contract.md#auth-and-account).
@@ -332,6 +338,7 @@ conversation instead. Full rules: [api-contract.md, "Server-Sent Events"](api-co
 | File Library | 25 MB per upload (by type), 100 MB per student, 500 files, 5 being read, 20 uploads per 15 minutes and 30 a day | API ([api-contract.md, "Files"](api-contract.md#files-the-file-library)) |
 | Voice | transcriptions 20/min and 400/day; speech 120/min and 3000/day; 1 and 2 at once per student, 8 and 16 in all; 8,000 characters of speech per reply; audio up to 1 MiB and 60 s | API (`auth_attempts`, plus counters in the process) |
 | Tutor preview | 60 a minute | API, in-process limiter |
+| Practice-test answers, saves and submits | 120 a minute per user, checked before the reply is locked | API, in-process limiter (`assessment_limiter`) |
 | Activity reports | 6 a minute | API, in-process limiter |
 | Study beats and actions | 30 a minute each | API, in-process limiters |
 | Support requests | 5 an hour, 20 a day, at most 30 open | API |

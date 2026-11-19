@@ -11,6 +11,7 @@ to its reason in [decisions.md](decisions.md). Planned work is in [ROADMAP.md](.
 
 - [NetSec AI (2026-10-29)](#netsec-ai-2026-10-29)
 - [QA closure (2026-11-18)](#qa-closure-2026-11-18)
+- [Interactive learning blocks (2026-11-18)](#interactive-learning-blocks-2026-11-18)
 - [For students](#for-students)
 - [Files](#files)
 - [Production and operations](#production-and-operations)
@@ -52,12 +53,28 @@ Verified on production (`f7727c5`, MATCH) and on the local production build. Evi
 
 | Limitation | Where it shows |
 |---|---|
-| **The nightly backup cannot run at today's disk level.** Every dump carries the book PDFs (`document_file_blobs`, 2.7 GB of a 3.3 GB database; the 2026-11-18 dump is 2.54 GB) and the gate wants twice the database free (6.6 GB); 5.4 GB is free. Uploads and imports refuse below 5 GB free (`MIN_FREE_DISK_BYTES`), about 0.4 GB away | `deploy-netsec/backup.sh` (the 2× gate), `app/files/service.py`; needs a larger VM disk or a backup-policy decision by the owner |
+| **NetSec's nightly backup is off (the owner's decision, 2026-11-18).** `netsecai-pg-backup.timer` is disabled; the newest dump is `netsecai-2026-11-18-031945.dump`. Every dump carries the book PDFs (`document_file_blobs`, 2.7 GB of a 3.3 GB database; that dump is 2.54 GB) and the gate wants twice the database free (6.6 GB). About 7.0 GB is free after the 2026-11-18 cleanup, so one more dump would leave less than the 5 GB that uploads and imports need (`MIN_FREE_DISK_BYTES`). A deploy that runs `install-units.sh` re-enables the timer: disable it again afterwards. `status:netsec` reports the disabled timer and the ageing dump as failures | `deploy-netsec/backup.sh` (the 2× gate), `app/files/service.py`; needs a larger VM disk or a backup-policy decision by the owner |
 | **The citation tooltip does not always open on the first keyboard focus after a page load** (probe: 1 of 30 focus cycles; seen once live). The chip's accessible name and the Sources list under the reply always carry the source | `features/markdown/citation.tsx` (Radix Tooltip 1.1.8); `e2e/p2-headed-verification.e2e.ts` asserts the name and the focus ring instead |
 | **Azure coverage is partial.** The Microsoft Learn training content was removed on 2026-11-18 (its Terms of Use limit it to personal, non-commercial use) and replaced with 44 CC BY 4.0 articles from MicrosoftDocs/azure-docs; availability zones, VMs, Monitor, Key Vault, AKS, Defender, Arc, Advisor, Service Health and Entra ID are not covered yet | `docs/certification-coverage.md` (azure row) |
 | **The Fortinet library has no official exam blueprint.** Fortinet publishes NSE 4 exam objectives only behind its training login; the agent-written "program reference" was deleted on 2026-11-18 | Library on production; the owner can download the official exam description |
 | **AWS SAA-C03 has no current-edition study book.** The library has the 2017 Official Study Guide (SAA-C01 era) and the official SAA-C03 exam guide (objectives only) | Library sources on production; needs a licensed current guide from the owner |
 | **The 0.01 ms reduced-motion clamp is gone for transitions** (`transition: none`): it left hundreds of transitions reported as running in `document.getAnimations()`, so settle-waits never settled (the visual flakes). Animations keep the 0.01 ms clamp | `packages/ui/src/globals.css`; A/B evidence in the QA evidence folder |
+
+## Interactive learning blocks (2026-11-18)
+
+The chat's learning blocks (quizzes, mock exams, CLI and key-point questions, ordering, matching, flashcards,
+diagrams, charts, videos) render in the web app. What they do not do yet:
+
+| Limitation | Where it shows |
+|---|---|
+| **They are dormant in production.** Nothing teaches the model to write them (the system prompt is unchanged), and `QUESTION_BANK_TESTS` (on) turns a test the model writes into a note | `app/chat/assistant.py`; `app/qbank/chat_tests.py` |
+| **A mock exam's answer keys are readable in the reply's raw text** (devtools, the network response). The UI, Copy, export and the source fallbacks mask them | `features/markdown/` (masking happens in the client) |
+| **Key-point and CLI grading are proxies:** the author's accepted forms plus a keyword table. "Get feedback" asks the tutor | `backend/app/assessments/kinds.py` (server-side grading); "Get feedback" in `widgets/test/review.tsx` |
+| **An unsubmitted practice answer is lost on a full page reload** | the block's client state |
+| **Mermaid diagrams and charts print in the colours they were drawn with** (dark if drawn in dark mode) | `widgets/mermaid-diagram.tsx`, `widgets/chart-view.tsx` |
+| **Pressing Play sends the user's IP address, our origin and the video to Google** (nothing loads from YouTube before Play). A video that won't embed shows YouTube's own error; "Open on YouTube" stays visible | `widgets/video.tsx` |
+| **`@dnd-kit/react` is a 0.x release** (0.5.3). Ordering also works without dragging (Move up / Move down) | `frontend/apps/app/package.json` |
+| **Narrower than a full exam engine:** one scenario per test, matching has no drag, flashcards have no shuffle | `features/markdown/widgets/` |
 
 ## For students
 

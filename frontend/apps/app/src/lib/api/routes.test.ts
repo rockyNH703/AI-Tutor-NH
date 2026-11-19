@@ -143,6 +143,10 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     { position: 0, hash: "a".repeat(64), question: 0, action: "answer", value: 1 },
     { position: 0, hash: "a".repeat(64), question: 1, action: "skip" },
     { position: 0, hash: "a".repeat(64), question: 0, action: "answer", value: ["100", "zero"] },
+    // A mock exam: a draft saved (a match's choices, one still open), cleared, then the submit with its revision.
+    { position: 0, hash: "a".repeat(64), question: 2, action: "save", value: [1, null, 0] },
+    { position: 0, hash: "a".repeat(64), question: 2, action: "clear" },
+    { position: 0, hash: "a".repeat(64), question: 0, action: "submit", revision: 3 },
   ],
   StudyStartIn: [
     { clientId: ID, activity: "reading" },

@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check on OSPF roles before we look at LSAs.\n\n```quiz\n{\"mode\":\"practice\",\"questions\":[{\"type\":\"fill\",\"text\":\"On a broadcast segment OSPF elects a [[DR|designated router]] and a [[BDR|backup designated router]], and area [[0|0.0.0.0]] is the backbone every other area connects to.\",\"explanation\":\"The DR and BDR cut the number of adjacencies on a shared segment; every non-backbone area attaches to area 0.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```",
+  "refusal": null
+}

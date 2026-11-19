@@ -1,0 +1,4 @@
+{
+  "message": "A short public video to check the player with.\n\n```video\n{\"youtube\":\"jNQXAC9IVRw\",\"title\":\"Me at the zoo\",\"channel\":\"jawed\",\"chapters\":[{\"at\":0,\"title\":\"Start\"},{\"at\":10,\"title\":\"Ending\"}]}\n```",
+  "refusal": null
+}

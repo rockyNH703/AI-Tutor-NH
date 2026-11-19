@@ -2,29 +2,9 @@
 
 import { Check, Copy, Download, Terminal } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
+import { toast } from "sonner";
 
-/** Text types a download may be, by extension; anything else downloads as plain text. */
-const MIME: Record<string, string> = {
-  csv: "text/csv",
-  tsv: "text/tab-separated-values",
-  json: "application/json",
-  md: "text/markdown",
-  txt: "text/plain",
-};
-
-/** Saves `text` as a file of that name, made in the page: nothing is fetched or uploaded. */
-function saveText(filename: string, text: string) {
-  const extension = filename.split(".").pop()?.toLowerCase() ?? "";
-  const blob = new Blob([text], { type: `${MIME[extension] ?? "text/plain"};charset=utf-8` });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+import { saveText } from "./download";
 
 /**
  * A fenced code block: language label, horizontal scroll (never the page), and a
@@ -60,6 +40,7 @@ export function CodeBlock({
       setCopied(true);
     } catch {
       setCopied(false);
+      toast.error("Couldn't copy to the clipboard.");
     }
   };
 
@@ -73,7 +54,8 @@ export function CodeBlock({
           {output && <Terminal aria-hidden className="h-3.5 w-3.5 shrink-0" />}
           <span className="truncate">{label}</span>
         </span>
-        <span className="flex shrink-0 items-center gap-1">
+        {/* print-control: left out of a printed cheat sheet (markdown.css). */}
+        <span className="print-control flex shrink-0 items-center gap-1">
           {filename && (
             <button
               type="button"
@@ -94,6 +76,9 @@ export function CodeBlock({
             {copied ? <Check aria-hidden className="h-3.5 w-3.5" /> : <Copy aria-hidden className="h-3.5 w-3.5" />}
             <span>{copied ? "Copied" : "Copy"}</span>
           </button>
+          <span className="sr-only" aria-live="polite">
+            {copied ? "Copied" : ""}
+          </span>
         </span>
       </div>
       <pre

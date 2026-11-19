@@ -1,0 +1,4 @@
+{
+  "message": "Fill in the blanks on this subnet.\n\n```fill-blank\n{\"text\":\"A /24 network has [[254]] usable host addresses, and its subnet mask is [[255.255.255.0]].\",\"explanation\":\"Eight host bits give 256 addresses; the network and broadcast addresses are not usable.\"}\n```",
+  "refusal": null
+}

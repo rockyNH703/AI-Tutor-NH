@@ -45,6 +45,7 @@ export function ConfirmDialog({
   destructive = false,
   pending = false,
   onConfirm,
+  onCloseAutoFocus,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -55,6 +56,8 @@ export function ConfirmDialog({
   destructive?: boolean;
   pending?: boolean;
   onConfirm: () => void | Promise<void>;
+  /** Where focus goes on close when the opener is gone (call `event.preventDefault()`, then focus). */
+  onCloseAutoFocus?: (event: Event) => void;
 }) {
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
@@ -69,6 +72,7 @@ export function ConfirmDialog({
           event.preventDefault();
           cancelRef.current?.focus();
         }}
+        onCloseAutoFocus={onCloseAutoFocus}
       >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

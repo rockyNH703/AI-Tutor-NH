@@ -6,13 +6,14 @@ import { ArrowDown, MessageSquareOff } from "lucide-react";
 import Link from "next/link";
 import { startTransition, useEffect, useRef, useState } from "react";
 
+import { ReleaseScrollContext } from "@/features/markdown/context";
 import { useRendererReady } from "@/features/markdown/lazy-message-content";
 import { describeCode } from "@/lib/api/errors";
 import { useChatEntry, useStores } from "./chat-context";
 import type { ChatEntry } from "./chat-store";
 import { ChatEmptyState } from "./empty-state";
 import { MessageRow } from "./message";
-import { useStickToBottom } from "./use-stick-to-bottom";
+import { ScrollToLatestContext, useStickToBottom } from "./use-stick-to-bottom";
 
 /** A chat with nothing in it yet (a new chat): the greeting shows, and the composer is centred. */
 export function isEmptyChat(entry: ChatEntry | undefined): boolean {
@@ -122,7 +123,10 @@ export function MessageList({ chatKey, scrollRef }: { chatKey: string; scrollRef
     <div className="relative flex min-h-0 flex-1 flex-col">
       <div ref={scrollRef} className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
         <section ref={contentRef} aria-label="Conversation" className="flex min-h-full flex-col">
-          {body}
+          {/* Cards let go before growing by the user's action, and re-attach after their own send. */}
+          <ReleaseScrollContext.Provider value={release}>
+            <ScrollToLatestContext.Provider value={scrollToBottom}>{body}</ScrollToLatestContext.Provider>
+          </ReleaseScrollContext.Provider>
         </section>
       </div>
       {/* Centred just above the composer, as before, but in the flow instead of over the transcript,

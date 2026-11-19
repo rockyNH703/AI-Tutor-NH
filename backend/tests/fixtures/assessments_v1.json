@@ -1,0 +1,410 @@
+{
+ "at": "2026-10-23T10:00:00+00:00",
+ "bankRaw": {
+  "first": {
+   "answer": "B",
+   "explanation": "Layer 3.",
+   "options": [
+    "Data link",
+    "Network",
+    "Transport",
+    "Session"
+   ],
+   "question": "Which layer routes packets?"
+  },
+  "next": {
+   "answer": "A",
+   "explanation": null,
+   "options": [
+    "ARP",
+    "DNS",
+    "DHCP",
+    "ICMP"
+   ],
+   "question": "Which protocol resolves IPv4 to MAC?"
+  }
+ },
+ "content": {
+  "bank": "```quiz\n{\"questions\": [{\"question\": \"Which layer routes packets?\", \"options\": [\"Data link\", \"Network\", \"Transport\", \"Session\"], \"answer\": \"B\", \"explanation\": \"Layer 3.\"}]}\n```",
+  "exercise": "Fill these in.\n\n```fill-blank\n{\"text\": \"Water boils at [[100|hundred]] \\u00b0C and freezes at [[0|zero]] \\u00b0C. Ice is [[solid]].\", \"explanation\": \"At sea level.\"}\n```",
+  "quiz": "Here is your test.\n\n```quiz\n{\n  \"title\": \"Cells\",\n  \"questions\": [\n    {\n      \"question\": \"Which organelle makes most of a cell's ATP?\",\n      \"options\": [\n        \"Nucleus\",\n        \"Mitochondrion\",\n        \"Ribosome\"\n      ],\n      \"answer\": \"B\",\n      \"explanation\": \"Respiration happens there.\"\n    },\n    {\n      \"question\": \"What carries genes?\",\n      \"options\": [\n        \"DNA\",\n        \"Lipids\",\n        \"Starch\"\n      ],\n      \"answer\": 0\n    },\n    {\n      \"question\": \"Which part only plant cells have?\",\n      \"options\": [\n        \"Cell wall\",\n        \"Centriole\"\n      ],\n      \"answer\": \"Cell wall\"\n    }\n  ]\n}\n```"
+ },
+ "messageId": "11111111-2222-4333-8444-555555555555",
+ "records": {
+  "bank": {
+   "hash": "89c734d5ba94eeb7329085c560dfdb4b9002f9a3e68f364ef40df23afdc13f9f",
+   "public": {
+    "answerable": true,
+    "answered": 1,
+    "current": 1,
+    "earned": 1,
+    "hash": "89c734d5ba94eeb7329085c560dfdb4b9002f9a3e68f364ef40df23afdc13f9f",
+    "id": "11111111-2222-4333-8444-555555555555:0",
+    "kind": "test",
+    "locator": "040f643c59a755eb2e096e91d6282f1ec6f74ac2627144db8b75c78dee953658",
+    "position": 0,
+    "possible": 2,
+    "questions": [
+     {
+      "answers": null,
+      "blanks": null,
+      "correct": 1,
+      "explanation": "Layer 3.",
+      "kind": "mcq",
+      "options": [
+       "Data link",
+       "Network",
+       "Transport",
+       "Session"
+      ],
+      "response": {
+       "at": "2026-10-23T10:00:00+00:00",
+       "earned": 1,
+       "marks": null,
+       "possible": 1,
+       "status": "answered",
+       "value": 1
+      },
+      "segments": null,
+      "text": "Which layer routes packets?"
+     },
+     {
+      "answers": null,
+      "blanks": null,
+      "correct": null,
+      "explanation": null,
+      "kind": "mcq",
+      "options": [
+       "ARP",
+       "DNS",
+       "DHCP",
+       "ICMP"
+      ],
+      "response": null,
+      "segments": null,
+      "text": "Which protocol resolves IPv4 to MAC?"
+     }
+    ],
+    "schemaVersion": 1,
+    "state": "active",
+    "title": null,
+    "total": 5
+   },
+   "stored": {
+    "adaptive": true,
+    "hash": "89c734d5ba94eeb7329085c560dfdb4b9002f9a3e68f364ef40df23afdc13f9f",
+    "kind": "test",
+    "locator": "040f643c59a755eb2e096e91d6282f1ec6f74ac2627144db8b75c78dee953658",
+    "position": 0,
+    "questions": [
+     {
+      "correct": 1,
+      "explanation": "Layer 3.",
+      "kind": "mcq",
+      "options": [
+       "Data link",
+       "Network",
+       "Transport",
+       "Session"
+      ],
+      "text": "Which layer routes packets?"
+     },
+     {
+      "correct": 0,
+      "explanation": null,
+      "kind": "mcq",
+      "options": [
+       "ARP",
+       "DNS",
+       "DHCP",
+       "ICMP"
+      ],
+      "text": "Which protocol resolves IPv4 to MAC?"
+     }
+    ],
+    "responses": [
+     {
+      "at": "2026-10-23T10:00:00+00:00",
+      "earned": 1,
+      "possible": 1,
+      "question": 0,
+      "status": "answered",
+      "value": 1
+     }
+    ],
+    "schemaVersion": 1,
+    "source": {
+     "chapterIds": [
+      "net-1"
+     ],
+     "kind": "question_bank",
+     "questionIds": [
+      "q-1",
+      "q-2"
+     ],
+     "setId": "00000000-0000-4000-8000-000000000001",
+     "topicIds": [
+      "net-1-1"
+     ]
+    },
+    "title": null,
+    "total": 5
+   },
+   "summaryEarlier": "## Practice tests in this chat\nThe app records the user's answers to the tests and exercises you write (they are not in the chat transcript). This record is authoritative.\n- Latest exercise (fill in the blanks): SKIPPED (answers shown), 0 of 3 blanks right.\n- Text: \"Water boils at __1__ °C and freezes at __2__ °C. Ice is __3__.\"\n- When the user asks how they did, answer from this record: the score, what they got right and wrong, and the ideas behind the wrong answers. Never say you cannot see their answers.\n- Never rewrite or re-grade this exercise.\n- Earlier test: IN PROGRESS, 1 of 5 answered (1 right).",
+   "summaryLatest": "## Practice tests in this chat\nThe app records the user's answers to the tests and exercises you write (they are not in the chat transcript). This record is authoritative.\n- Latest test: IN PROGRESS, 1 of 5 answered (1 right); question 2 is waiting.\n- Answers (letter chosen; right answer in brackets): Q1 B right\n- When the user asks how they did, answer from this record: the score, what they got right and wrong, and the ideas behind the wrong answers. Never say you cannot see their answers.\n- They answer in the test card, one question at a time; encourage them to finish it there. Until it is finished, write no other practice block unless asked.\n- Never rewrite, re-ask or re-grade this test."
+  },
+  "exercise": {
+   "hash": "b9728c0848b6c1b0e99cb401374c0e2f9e5078f252ded2c6eb676bd027865462",
+   "public": {
+    "answerable": false,
+    "answered": 1,
+    "current": null,
+    "earned": 0,
+    "hash": "b9728c0848b6c1b0e99cb401374c0e2f9e5078f252ded2c6eb676bd027865462",
+    "id": "11111111-2222-4333-8444-555555555555:0",
+    "kind": "exercise",
+    "locator": "48f449636964e74e286446c3057f24f55234750233792903f8f6765961c8b88f",
+    "position": 0,
+    "possible": 3,
+    "questions": [
+     {
+      "answers": [
+       [
+        "100",
+        "hundred"
+       ],
+       [
+        "0",
+        "zero"
+       ],
+       [
+        "solid"
+       ]
+      ],
+      "blanks": 3,
+      "correct": null,
+      "explanation": "At sea level.",
+      "kind": "fill_blank",
+      "options": null,
+      "response": {
+       "at": "2026-10-23T10:00:00+00:00",
+       "earned": 0,
+       "marks": [
+        false,
+        false,
+        false
+       ],
+       "possible": 3,
+       "status": "skipped",
+       "value": null
+      },
+      "segments": [
+       "Water boils at ",
+       " °C and freezes at ",
+       " °C. Ice is ",
+       "."
+      ],
+      "text": null
+     }
+    ],
+    "schemaVersion": 1,
+    "state": "completed",
+    "title": null,
+    "total": 1
+   },
+   "stored": {
+    "hash": "b9728c0848b6c1b0e99cb401374c0e2f9e5078f252ded2c6eb676bd027865462",
+    "kind": "exercise",
+    "locator": "48f449636964e74e286446c3057f24f55234750233792903f8f6765961c8b88f",
+    "position": 0,
+    "questions": [
+     {
+      "answers": [
+       [
+        "100",
+        "hundred"
+       ],
+       [
+        "0",
+        "zero"
+       ],
+       [
+        "solid"
+       ]
+      ],
+      "explanation": "At sea level.",
+      "kind": "fill_blank",
+      "segments": [
+       "Water boils at ",
+       " °C and freezes at ",
+       " °C. Ice is ",
+       "."
+      ]
+     }
+    ],
+    "responses": [
+     {
+      "at": "2026-10-23T10:00:00+00:00",
+      "earned": 0,
+      "marks": [
+       false,
+       false,
+       false
+      ],
+      "possible": 3,
+      "question": 0,
+      "status": "skipped",
+      "value": null
+     }
+    ],
+    "schemaVersion": 1,
+    "title": null,
+    "total": 1
+   },
+   "summaryEarlier": "## Practice tests in this chat\nThe app records the user's answers to the tests and exercises you write (they are not in the chat transcript). This record is authoritative.\n- Latest test \"Cells\": IN PROGRESS, 2 of 3 answered (0 right); question 3 is waiting.\n- Answers (letter chosen; right answer in brackets): Q1 A wrong (B); Q2 skipped (A)\n- Missed questions (the latest 2): Q1 \"Which organelle makes most of a cell's ATP?\": chose \"Nucleus\", right \"Mitochondrion\"; Q2 \"What carries genes?\": skipped, right \"DNA\"\n- When the user asks how they did, answer from this record: the score, what they got right and wrong, and the ideas behind the wrong answers. Never say you cannot see their answers.\n- They answer in the test card, one question at a time; encourage them to finish it there. Until it is finished, write no other practice block unless asked.\n- Never rewrite, re-ask or re-grade this test.\n- Earlier exercise (fill in the blanks): 0 of 3 blanks right.",
+   "summaryLatest": "## Practice tests in this chat\nThe app records the user's answers to the tests and exercises you write (they are not in the chat transcript). This record is authoritative.\n- Latest exercise (fill in the blanks): SKIPPED (answers shown), 0 of 3 blanks right.\n- Text: \"Water boils at __1__ °C and freezes at __2__ °C. Ice is __3__.\"\n- When the user asks how they did, answer from this record: the score, what they got right and wrong, and the ideas behind the wrong answers. Never say you cannot see their answers.\n- Never rewrite or re-grade this exercise."
+  },
+  "quiz": {
+   "hash": "abca10b470df1526fe89ded08e948a678e2c8c2bceac511fdce3f6e995e56f33",
+   "public": {
+    "answerable": true,
+    "answered": 2,
+    "current": 2,
+    "earned": 0,
+    "hash": "abca10b470df1526fe89ded08e948a678e2c8c2bceac511fdce3f6e995e56f33",
+    "id": "11111111-2222-4333-8444-555555555555:0",
+    "kind": "test",
+    "locator": "8e7c7a6bd64676191bf79b4156bc6620323b270ec88cd3739df6938200eec280",
+    "position": 0,
+    "possible": 3,
+    "questions": [
+     {
+      "answers": null,
+      "blanks": null,
+      "correct": 1,
+      "explanation": "Respiration happens there.",
+      "kind": "mcq",
+      "options": [
+       "Nucleus",
+       "Mitochondrion",
+       "Ribosome"
+      ],
+      "response": {
+       "at": "2026-10-23T10:00:00+00:00",
+       "earned": 0,
+       "marks": null,
+       "possible": 1,
+       "status": "answered",
+       "value": 0
+      },
+      "segments": null,
+      "text": "Which organelle makes most of a cell's ATP?"
+     },
+     {
+      "answers": null,
+      "blanks": null,
+      "correct": 0,
+      "explanation": null,
+      "kind": "mcq",
+      "options": [
+       "DNA",
+       "Lipids",
+       "Starch"
+      ],
+      "response": {
+       "at": "2026-10-23T10:00:00+00:00",
+       "earned": 0,
+       "marks": null,
+       "possible": 1,
+       "status": "skipped",
+       "value": null
+      },
+      "segments": null,
+      "text": "What carries genes?"
+     },
+     {
+      "answers": null,
+      "blanks": null,
+      "correct": null,
+      "explanation": null,
+      "kind": "mcq",
+      "options": [
+       "Cell wall",
+       "Centriole"
+      ],
+      "response": null,
+      "segments": null,
+      "text": "Which part only plant cells have?"
+     }
+    ],
+    "schemaVersion": 1,
+    "state": "active",
+    "title": "Cells",
+    "total": 3
+   },
+   "stored": {
+    "hash": "abca10b470df1526fe89ded08e948a678e2c8c2bceac511fdce3f6e995e56f33",
+    "kind": "test",
+    "locator": "8e7c7a6bd64676191bf79b4156bc6620323b270ec88cd3739df6938200eec280",
+    "position": 0,
+    "questions": [
+     {
+      "correct": 1,
+      "explanation": "Respiration happens there.",
+      "kind": "mcq",
+      "options": [
+       "Nucleus",
+       "Mitochondrion",
+       "Ribosome"
+      ],
+      "text": "Which organelle makes most of a cell's ATP?"
+     },
+     {
+      "correct": 0,
+      "explanation": null,
+      "kind": "mcq",
+      "options": [
+       "DNA",
+       "Lipids",
+       "Starch"
+      ],
+      "text": "What carries genes?"
+     },
+     {
+      "correct": 0,
+      "explanation": null,
+      "kind": "mcq",
+      "options": [
+       "Cell wall",
+       "Centriole"
+      ],
+      "text": "Which part only plant cells have?"
+     }
+    ],
+    "responses": [
+     {
+      "at": "2026-10-23T10:00:00+00:00",
+      "earned": 0,
+      "possible": 1,
+      "question": 0,
+      "status": "answered",
+      "value": 0
+     },
+     {
+      "at": "2026-10-23T10:00:00+00:00",
+      "earned": 0,
+      "possible": 1,
+      "question": 1,
+      "status": "skipped",
+      "value": null
+     }
+    ],
+    "schemaVersion": 1,
+    "title": "Cells",
+    "total": 3
+   },
+   "summaryEarlier": "## Practice tests in this chat\nThe app records the user's answers to the tests and exercises you write (they are not in the chat transcript). This record is authoritative.\n- Latest exercise (fill in the blanks): SKIPPED (answers shown), 0 of 3 blanks right.\n- Text: \"Water boils at __1__ °C and freezes at __2__ °C. Ice is __3__.\"\n- When the user asks how they did, answer from this record: the score, what they got right and wrong, and the ideas behind the wrong answers. Never say you cannot see their answers.\n- Never rewrite or re-grade this exercise.\n- Earlier test \"Cells\": IN PROGRESS, 2 of 3 answered (0 right).",
+   "summaryLatest": "## Practice tests in this chat\nThe app records the user's answers to the tests and exercises you write (they are not in the chat transcript). This record is authoritative.\n- Latest test \"Cells\": IN PROGRESS, 2 of 3 answered (0 right); question 3 is waiting.\n- Answers (letter chosen; right answer in brackets): Q1 A wrong (B); Q2 skipped (A)\n- Missed questions (the latest 2): Q1 \"Which organelle makes most of a cell's ATP?\": chose \"Nucleus\", right \"Mitochondrion\"; Q2 \"What carries genes?\": skipped, right \"DNA\"\n- When the user asks how they did, answer from this record: the score, what they got right and wrong, and the ideas behind the wrong answers. Never say you cannot see their answers.\n- They answer in the test card, one question at a time; encourage them to finish it there. Until it is finished, write no other practice block unless asked.\n- Never rewrite, re-ask or re-grade this test."
+  }
+ }
+}

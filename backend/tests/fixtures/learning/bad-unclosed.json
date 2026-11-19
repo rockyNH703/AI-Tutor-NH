@@ -1,0 +1,4 @@
+{
+  "message": "Here is a check that never ends.\n\n```quiz\n{\"questions\":[{\"question\":\"Which layer routes packets?\",\"options\":[\"Data link\",\"Network\"],\"answer\":\"B\"}]}",
+  "refusal": "incomplete_test"
+}

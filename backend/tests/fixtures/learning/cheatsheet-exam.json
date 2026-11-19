@@ -1,0 +1,4 @@
+{
+  "message": "Here is a short sheet with a mock exam inside it.\n\n:::cheatsheet[Forwarding basics]\n## Layers\n\nRouters forward on IP addresses; switches forward on MAC addresses.\n\n## Check yourself\n\n```quiz\n{\"mode\":\"exam\",\"title\":\"Sheet check\",\"questions\":[{\"question\":\"Which OSI layer makes forwarding decisions based on IP addresses?\",\"options\":[\"Data link\",\"Network\",\"Transport\",\"Session\"],\"answer\":\"B\",\"explanation\":\"Routers forward packets at the network layer, using the destination IP address.\"},{\"question\":\"Which protocol resolves an IPv4 address to a MAC address on the local segment?\",\"options\":[\"ARP\",\"DNS\",\"DHCP\",\"ICMP\"],\"answer\":\"A\",\"explanation\":\"ARP maps a next-hop IPv4 address to the hardware address that frames are sent to.\"}]}\n```\n:::",
+  "refusal": null
+}

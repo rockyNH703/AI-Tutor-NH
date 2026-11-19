@@ -25,8 +25,10 @@ from __future__ import annotations
 import json
 import re
 import uuid
+from bisect import bisect_left, bisect_right
 from dataclasses import dataclass
 from datetime import datetime
+from itertools import accumulate
 from typing import Any
 
 from sqlalchemy import text
@@ -70,7 +72,10 @@ _INLINE = re.compile(r"(?:::)?question-bank\s*(?=\{)|(?=\{\s*\"chapters?\"\s*:)"
 # them on 2026-10-23), or in a block with another language (json, none, a misspelt one). Put in its
 # fence, or the user would read the answer key instead of an exercise to answer.
 _BARE_EXERCISE = re.compile(r"\{\s*\"text\"\s*:")
-_CARD_OPEN = re.compile(r"(?:^|\n)[ \t]*:{3,}[ \t]*[\w-]*(?:fill|blank)[\w-]*(?:\[[^\]\n]*\]|\{[^}\n]*\})*\s*$", re.I)
+# The card's name is taken whole (an atomic group): retrying each split of a long name was quadratic.
+_CARD_OPEN = re.compile(
+    r"(?:^|\n)[ \t]*:{3,}[ \t]*(?>[\w-]*(?:fill|blank)[\w-]*)(?:\[[^\]\n]*\]|\{[^}\n]*\})*\s*$", re.I
+)
 _CARD_CLOSE = re.compile(r"\s*\n[ \t]*:{3,}[ \t]*(?=\n|$)")
 EXERCISE_KEYS = {"title", "text", "explanation"}
 # Or with no JSON at all: a ::: card whose own text has the [[blanks]] (`:::steps[...]`, `:::fill-blank`;
@@ -82,14 +87,17 @@ _BOLD_BLANK = re.compile(r"\*\*(\[\[[^\]\n]+\]\])\*\*")
 # test such as [[ -f "$file" ]] always has one (bash needs it), so a command never becomes an exercise (K-04a).
 _BLANK = re.compile(r"\[\[(?=\S)[^\[\]\n]*\S\]\]")
 # Or as a leaf directive, the ::file{ref=F1} form: ::fill-blank{text="... [[answer]] ..." explanation="..."}.
-_DIRECTIVE = re.compile(r"^[ \t]*::[\w-]*(?:fill|blank)[\w-]*\{(?P<attrs>.*?\")\s*\}[ \t]*$", re.I | re.M | re.S)
+_DIRECTIVE = re.compile(r"^[ \t]*::(?>[\w-]*(?:fill|blank)[\w-]*)\{(?P<attrs>.*?\")\s*\}[ \t]*$", re.I | re.M | re.S)
+_DIRECTIVE_OPEN = re.compile(r"^[ \t]*::(?>[\w-]*(?:fill|blank)[\w-]*)\{", re.I | re.M)
+_DIRECTIVE_CLOSE = re.compile(r"\"(?=\s*\}[ \t]*$)", re.M)
 _ATTRIBUTE = re.compile(r"(\w+)\s*=\s*\"((?:[^\"\\]|\\.)*)\"")
-# Or in its block but not strict JSON: line breaks inside its strings, or `text: ...` lines.
-_KEY_LINE = re.compile(r"^\s*\"?(text|explanation)\"?\s*:\s*(.+?)\s*,?\s*$", re.M)
+# Or in its block but not strict JSON: line breaks inside its strings, or `text: ...` lines. The leading
+# space stays on its line: `^\s*` crossed blank lines, so a run of them was retried from each (quadratic).
+_KEY_LINE = re.compile(r"^[^\S\n]*\"?(text|explanation)\"?\s*:\s*(.+?)\s*,?\s*$", re.M)
 # Any fence, as app/assessments/state.py finds them: after indentation, list markers or quote marks;
 # its language is the first word of its info.
 _OPEN = re.compile(
-    r"^(?P<prefix>[ \t>]*(?:(?:[-+*]|\d{1,9}[.)])[ \t]+[ \t>]*)*)(?P<fence>`{3,}|~{3,})[ \t]*(?P<info>[^\s`]*)[^`]*$"
+    r"^(?P<prefix>[ \t>]*(?:(?:[-+*]|\d{1,9}[.)])[ \t][ \t>]*)*)(?P<fence>`{3,}|~{3,})[ \t]*+(?P<info>[^\s`]*+)[^`]*$"
 )
 _WORD = re.compile(r"\w{3,}")
 
@@ -266,7 +274,7 @@ def _request(spec: Any) -> dict | None:
 def _parse(body: str) -> dict | None:
     try:
         return _request(json.loads(body))
-    except ValueError:
+    except (ValueError, RecursionError):
         return None
 
 
@@ -432,18 +440,38 @@ def _exercise(value: Any) -> bool:
 
 def _card_exercises(text: str) -> str:
     """Text with each ::: card whose own text has [[blanks]] (and no JSON or block) as a ```fill-blank
-    block of that text, after its title."""
+    block of that text, after its title. Each card's closing line, and what its text holds, are looked up
+    rather than rescanned for every opening line (many unclosed `:::a` lines were quadratic)."""
     lines = text.split("\n")
+    ends = [at for at, line in enumerate(lines) if _CARD_END.match(line)]
+    blanks = [0, *accumulate(int(_BLANK.search(line) is not None) for line in lines)]  # in the lines before each
+    fences = [0, *accumulate(int("```" in line) for line in lines)]
+    offsets = [0, *accumulate(len(line) + 1 for line in lines)]
+    bare = [  # the first and last line of each bare exercise
+        (bisect_right(offsets, match.start()) - 1, bisect_right(offsets, match.end() - 1) - 1)
+        for match in _BARE_EXERCISE.finditer(text)
+    ]
+
+    def holds_json(first: int, last: int) -> bool:  # a bare exercise lies wholly in lines first..last
+        at = bisect_left(bare, (first, -1))
+        return at < len(bare) and bare[at][1] <= last
+
     out: list[str] = []
     index = 0
     while index < len(lines):
         opened = _CARD_START.match(lines[index])
-        end = next((at for at in range(index + 1, len(lines)) if _CARD_END.match(lines[at])), None) if opened else None
-        body = "\n".join(lines[index + 1 : end]).strip() if opened and end is not None else ""
-        if not _BLANK.search(body) or "```" in body or _BARE_EXERCISE.search(body):
+        later = bisect_right(ends, index)
+        end = ends[later] if opened and later < len(ends) else None
+        if (
+            end is None
+            or blanks[end] == blanks[index + 1]
+            or fences[end] > fences[index + 1]
+            or holds_json(index + 1, end - 1)
+        ):
             out.append(lines[index])
             index += 1
             continue
+        body = "\n".join(lines[index + 1 : end]).strip()
         title = (opened["title"] or "").strip()
         exercise = json.dumps({"text": _BOLD_BLANK.sub(r"\1", body)}, ensure_ascii=False)
         out.append((f"**{title}**\n\n" if title else "") + f"```fill-blank\n{exercise}\n```")
@@ -459,7 +487,22 @@ def _directive_exercises(text: str) -> str:
         value = {key: fields[key] for key in ("text", "explanation") if key in fields}
         return f"```fill-blank\n{json.dumps(value, ensure_ascii=False)}\n```" if _exercise(value) else match[0]
 
-    return _DIRECTIVE.sub(block, text)
+    # As _DIRECTIVE.sub(block, text), in linear time: an opening line with no closing quote after it is
+    # skipped by a lookup, not by scanning the rest of the reply for each one.
+    closes = [match.start() for match in _DIRECTIVE_CLOSE.finditer(text)]
+    pieces: list[str] = []
+    position = 0
+    for opening in _DIRECTIVE_OPEN.finditer(text):
+        if opening.start() < position:
+            continue
+        if bisect_left(closes, opening.end()) == len(closes):
+            break  # no closing after this opening, so none after any later one
+        match = _DIRECTIVE.match(text, opening.start())
+        if match is None:  # not reached: a closing quote after the opening always completes it
+            continue
+        pieces += [text[position : match.start()], block(match)]
+        position = match.end()
+    return "".join([*pieces, text[position:]])
 
 
 def _lenient(body: str) -> str | None:
@@ -468,11 +511,11 @@ def _lenient(body: str) -> str | None:
     try:
         json.loads(body)
         return None
-    except ValueError:
+    except (ValueError, RecursionError):
         pass
     try:
         value = json.loads(body, strict=False)  # line breaks and tabs inside its strings
-    except ValueError:
+    except (ValueError, RecursionError):
         fields = dict(_KEY_LINE.findall(body))
         value = {key: fields[key].strip().strip('"') for key in ("text", "explanation") if key in fields}
     return json.dumps(value, ensure_ascii=False) if _exercise(value) else None
@@ -487,12 +530,15 @@ def _fenced(content: str) -> str:
         if language == "prose":
             pieces: list[str] = []
             position = 0
+            # shortcut: each `{"text":` is parsed as JSON from where it starts, so a reply repeating it thousands of
+            # times costs about 0.2 s per 8,000 characters (bounded by the 4,096-token reply cap); skip what a failed
+            # parse already read if replies ever grow.
             for match in _BARE_EXERCISE.finditer(raw):
                 if match.start() < position or raw[match.start() - 1 : match.start()] == "`":  # inline code
                     continue
                 try:
                     value, stop = json.JSONDecoder().raw_decode(raw, match.start())
-                except ValueError:
+                except (ValueError, RecursionError):
                     continue
                 if _exercise(value):
                     block = f"```fill-blank\n{raw[match.start() : stop]}\n```"
@@ -517,7 +563,7 @@ def _fenced(content: str) -> str:
         if language != "fill-blank":
             try:
                 value = json.loads(body)
-            except ValueError:
+            except (ValueError, RecursionError):
                 pass
         if _exercise(value):
             parts.append(f"```fill-blank\n{body}\n```")
@@ -557,7 +603,7 @@ async def fill(
                     continue
                 try:
                     spec, stop = json.JSONDecoder().raw_decode(raw, match.end())
-                except ValueError:
+                except (ValueError, RecursionError):
                     continue
                 spec = _request(spec)
                 if spec is None:
