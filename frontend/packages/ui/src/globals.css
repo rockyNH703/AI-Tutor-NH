@@ -79,12 +79,10 @@
     --radius: 0.5rem;
 
     /* ---- layout ----
-       The composition, in one place (Tailwind: max-w-frame|chat|measure|page|page-narrow,
+       The composition, in one place (Tailwind: max-w-chat|measure|page|page-narrow,
        h-header; classes .app-frame, .chat-column, .page-container below).
-         frame    the app (sidebar + header + page + composer) from 1440px up: 70% of a 1920
-                  screen, never under 80rem, never over 100rem. Full width below 1440px.
          header   the app bar AND the sidebar's brand row, so their hairlines meet.
-         chat     the chat column, gutters included: room for code, tables and widgets.
+         chat     the cap on the chat column (~70% of the chat pane from 1024px, gutters included).
          measure  a reply's prose (paragraphs, lists, headings, study cards): 65-75
                   characters a line. rem, so the reading size setting keeps the count.
          page     Skills & Certifications, File Library, Lab Activity, Settings; narrow: Help.
@@ -92,9 +90,8 @@
        sections. Edges: `border` for structure, `input` for fields (3:1), `ring` for focus;
        depth: .elev-1..3. Radii by role: menu items md, tooltips lg, controls xl, cards 2xl,
        the composer 3xl. */
-    --frame-max: clamp(80rem, 70vw, 100rem);
     --header-h: 4rem;
-    --chat-max: 52rem;
+    --chat-max: 72rem;
     --measure: 36rem;
     --page-max: 56rem;
     --page-max-narrow: 48rem;
@@ -337,35 +334,35 @@
 
 /* The composition (tokens: "layout" above). Screens use these classes, never their own widths. */
 @layer components {
-  /* The app and the Settings workspace: sidebar, header, page and composer share its edges. */
+  /* The app and the Settings workspace: the whole window, sidebar pinned left at full height. */
   .app-frame {
     display: flex;
     height: 100dvh;
     width: 100%;
-    margin-inline: auto;
     overflow: hidden;
-  }
-  @media (min-width: 90rem) {
-    .app-frame {
-      max-width: var(--frame-max);
-      border-inline: 1px solid hsl(var(--border));
-    }
   }
   /* Every icon-only control in an app bar (menu, sidebar, bell, theme, new chat): one size, one
      shape, a 20px icon, the same hover, press, open and focus states. */
   .icon-button {
     @apply focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-full text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground active:bg-border data-[state=open]:bg-surface-2 data-[state=open]:text-foreground;
   }
-  /* The chat's column: transcript, skeleton and composer, so their edges match. */
+  /* The chat's column: greeting, transcript, skeleton and composer, so their edges match. Full width
+     with padding below 1024px; from there ~70% of the chat pane (not the window), centred, capped
+     at --chat-max. The scroll area and its scrollbar stay the pane's full width. */
   .chat-column {
     width: 100%;
-    max-width: var(--chat-max);
     margin-inline: auto;
     padding-inline: 1rem;
   }
   @media (min-width: 40rem) {
     .chat-column {
       padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .chat-column {
+      width: 70%;
+      max-width: var(--chat-max);
     }
   }
   /* A sidebar place or a Settings section; -narrow for reading pages (Help, About). */

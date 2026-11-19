@@ -187,7 +187,6 @@ const config = {
         prose: "42.5rem", // 680px
         // The composition (globals.css, "layout"): the app frame, the chat column, a
         // reply's prose measure, the page containers.
-        frame: "var(--frame-max)",
         chat: "var(--chat-max)",
         measure: "var(--measure)",
         page: "var(--page-max)",
