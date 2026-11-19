@@ -124,6 +124,47 @@ The first post-fix run surfaced two problems, now fixed:
 
 These numbers are measured on sets that are now spent (holdout 2 was also tuned on). The next honest recall figure needs a fourth fresh set.
 
+**`holdout3.jsonl`** (451 cases, sha256 cfa15069…5c4, run once on a5cc30e; now spent):
+
+| Metric | Result |
+|---|---|
+| Route | 0.716 |
+| False triggers | 4 of 197, at the 0.02 limit |
+| Hit / precision | 0.918 / 0.902 |
+| Positive recall | 0.52 |
+| p95 | 43.4 ms |
+
+What it showed:
+- **Recall:** again, about half of every wording family it introduced was missed ("quiz time: X", "assess me on X", "practice set on X", "a 6-question quiz on X", "I'm after N mcqs", "keep the questions coming").
+- **False triggers:** all four came in request frames ("questions to ask my ISP", "test my understanding by explaining…", "…not a quiz", "the quiz results explained").
+- **A confident wrong topic:** "questions on the last thing you said" was served the routing-table topic.
+
+**The fix:**
+- **Quiz nouns:** a quiz noun (quiz, MCQs, practice/mock test, set, questions, paper, "N-question quiz") now carries a request alone. That counts only when the noun is the thing asked for: at the start, after "a/an/some/N/another", or closing the message, and never before app, software, progress, results, score and similar words.
+- **More request frames:** "kick me off with", "I'm after", "do 3 questions", "assess me", "test what I learned".
+- **Next-batch phrasings:** "go on", "next round", "3 more like these", "keep them coming".
+- **Guards:** "questions to ask", "by explaining", negations ("no quiz") and "quiz results/score/feature".
+- **Chat references:** "the last thing you said" and "what I learned" now refer to the chat.
+- **Typos and parsing:**
+  - a short word may also gain one letter ("jsn" → json);
+  - "2.4 GHz" keeps its numbers;
+  - "spanning <domain>" drops "spanning", but "spanning tree" keeps it.
+- **Aliases:** 2.4/5 GHz, virtual IP/MAC, MIBs/OIDs, DHCP across subnets and ip helper, trusted ports, agentless.
+
+The first run of this fix found four false triggers from the noun-alone cue in holdout 1 ("reset my quiz progress", "the quiz app on our intranet…", "these practice questions say…", "write quiz software"), which is why the noun now has to be the thing asked for.
+
+**After the fix** (WSL), route 1.000 and 0 false triggers on every set:
+
+| Set | False triggers | Hit / precision | p95 |
+|---|---|---|---|
+| dev | 0 of 186 | 1.000 / 0.994 | 29.7 ms |
+| test | 0 of 184 | 0.996 / 0.989 | 37.7 ms |
+| holdout 1 | 0 of 176 | 0.996 / 0.994 | 37.5 ms |
+| holdout 2 | 0 of 165 | 0.981 / 0.961 | 41.3 ms |
+| holdout 3 | 0 of 197 | 0.996 / 0.994 | 41.3 ms |
+
+**Honest reading:** holdouts 2 and 3 were tuned on. On fresh sets, recall of new wordings has stayed around 0.5–0.8, because every set brings wording families no rule has seen. False triggers have stayed at or under 0.02. A missed request is not an error: the model answers it as an ordinary message. Students who use the app's own practice buttons send fixed wordings that always parse.
+
 **Content** (`qbank/`, below):
 - every NHprep quiz question, kept as written and flagged when disputed;
 - 5–10 questions per NHprep video, written by agents from the lesson's notes and served only after a three-way

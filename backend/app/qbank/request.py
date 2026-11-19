@@ -71,8 +71,9 @@ _ASKED = (
 # "I need questions answered about NAT" and "send me the test script" are not requests.
 _THEN = r"(?=\s+(?:on|about|for|from|regarding|covering|related\s+to|in)\b|\s+at\s+(?:me|us)\b|\s*(?:please|pls)?\s*$)"
 _CUES = [
-    re.compile(r"\b(?:quiz|test|examine|drill)\s+(?:me|us)\b"),
+    re.compile(r"\b(?:quiz|test|examine|drill|assess|evaluate)\s+(?:me|us)\b"),
     re.compile(r"\btest\s+my\s+(?:knowledge|understanding|skills?)\b"),
+    re.compile(r"\btest\s+what\s+(?:i|we)\s+(?:just\s+)?(?:learned|learnt|covered|studied|did)\b"),
     re.compile(
         r"\b(?:give|ask|send|throw|fire|generate|make|create|prepare|(?:can|could|may)\s+(?:i|we)\s+(?:get|have|try|take|do))\s+"
         r"(?:me\s+|us\s+)?(?:a\s+|an\s+|the\s+|some\s+)?(?:"
@@ -149,16 +150,42 @@ _QUIZ_WORD = r"(?:quiz(?:zes)?|mcqs?|questions?|tested|(?:mock|practice|exam)\s+
 _FRAME = (
     r"\b(?:i\s+(?:want|need|wanna)|i'?d\s+(?:like|love|take|want)|i\s+would\s+(?:like|love|take)|i'?ll\s+take"
     r"|(?:can|could|would|will)\s+you|how\s+about|what\s+about|time\s+for|let\s+me|let'?s|lets|set\s+me"
-    r"|check\s+(?:my|how\s+(?:well\s+)?i)|drill\s+me|fire\s+away|hit\s+me|challenge\s+me|(?:i'?m\s+)?ready\s+for)\b"
+    r"|check\s+(?:my|how\s+(?:well\s+)?i)|drill\s+me|fire\s+away|hit\s+me|challenge\s+me|(?:i'?m\s+)?ready\s+for"
+    r"|kick\s+me\s+off|start\s+me(?:\s+off)?|i'?m\s+after|do\s+(?:\d{1,3}|a\s+few|some)\b)\b"
 )
 _CUES.append(re.compile(_FRAME + r".*\b" + _QUIZ_WORD + r"\b"))
+# A quiz noun carries a request on its own (holdout 3, 2026-11-19: "quiz time: X", "practice set on X", "a full X
+# quiz", "X: ccna practice questions"). Plain "questions" doesn't: it needs a frame or a verb above. This cue is weak,
+# so the guards and a sure finder decide; "quiz results", "no quiz" and the like are _BLOCKED.
+_QUIZ_NOUN = (
+    r"\b(?:quiz(?:zes)?|mcqs?|(?:practice|mock)\s+(?:tests?|exams?|sets?|questions?|quiz(?:zes)?|papers?)"
+    r"|\d{1,3}-questions?\s+quiz)\b"
+)
+# ...but only as the thing asked for: at the start, after "a/an/some/N/another" (a few words between allowed), or
+# closing the message. "reset my quiz progress", "the quiz app on our intranet", "these practice questions say X",
+# "write quiz software" are not requests (holdout 1, rerun 2026-11-19).
+_NOT_ASKED_FOR = (
+    r"(?!\s+(?:apps?|software|tools?|platform|engine|progress|history|feature|settings|page|link|site|website|bank"
+    r"|module|plugin|system|data|database|results?|scores?)\b)"
+)
+_CUES.append(
+    re.compile(
+        r"(?:^|\b(?:a|an|some|any|another|few|\d{1,3})\s+(?:[\w+.-]+\s+){0,3}?)"
+        + _QUIZ_NOUN
+        + _NOT_ASKED_FOR
+        + r"|"
+        + _QUIZ_NOUN
+        + r"\s*(?:please|pls)?\s*$"
+    )
+)
 # Frames that leave no doubt: the rest of the message needn't be checked for a question.
 _SURE_FRAME = re.compile(
     r"\b(?:set\s+me|drill\s+me|fire\s+away|hit\s+me|challenge\s+me|be\s+tested|time\s+for)\b"
     r"|\b(?:how|what)\s+about\s+(?:a\s+|an\s+|some\s+|\d{1,3}\s+|a\s+few\s+)?" + _LEVEL + _KIND + _ASKED
 )
 _NEXT = re.compile(
-    r"^(?:(?:ok(?:ay)?|now|so|please|pls|then|great|nice|cool|sure)\s+)*(?:give\s+me\s+|send\s+me\s+|ask\s+me\s+)?"
+    r"^(?:(?:ok(?:ay)?|now|so|please|pls|then|great|nice|cool|sure|go\s+on|carry\s+on|continue)\s+)*"
+    r"(?:give\s+me\s+|send\s+me\s+|ask\s+me\s+)?"
     r"(?:(?:the\s+)?next(?:\s+"
     + _COUNTW
     + r")?|"
@@ -166,7 +193,8 @@ _NEXT = re.compile(
     + r"\s+more|more|another\s+(?:"
     + _COUNTW
     + r"|set|batch|round)"
-    r"|one\s+more\s+(?:set|batch|round))(?:\s+(?:questions?|mcqs?|ones?|please|pls|set|batch))*$"
+    r"|one\s+more\s+(?:set|batch|round)|keep\s+(?:the\s+)?(?:questions|mcqs|them|'em)\s+coming)"
+    r"(?:\s+(?:questions?|mcqs?|ones?|please|pls|set|batch|round|like\s+(?:that|these|those|this)))*$"
 )
 _BLOCKED = re.compile(
     r"\b(?:test\s+(?:lab|bed|environment|plan|cases?|network|topology|setup|aaa|connectivity|the|it|this|my\s+config)"
@@ -179,19 +207,28 @@ _BLOCKED = re.compile(
     r"|(?:ask|asking)\s+(?:you|u)|answer\s+(?:a\s+few\s+|some\s+|my\s+|these\s+|the\s+)?questions?"
     # "a quick question on NTP: is it stateful?" asks one; "can you check my answers to these questions" grades one
     r"|(?:a|one|another)\s+(?:quick\s+|short\s+|small\s+|simple\s+|silly\s+|basic\s+)?question\s+(?:on|about|regarding|re|for)"
-    r"|check\s+my\s+answers?|answers?\s+to\s+(?:these|those|the|my|this))\b"
+    r"|check\s+my\s+answers?|answers?\s+to\s+(?:these|those|the|my|this)"
+    # holdout 3: "questions to ask my ISP", "test my understanding by explaining", "not a quiz", "quiz results"
+    r"|questions?\s+(?:to|i\s+should|we\s+should)\s+ask|by\s+explaining"
+    r"|(?:not|no|without|skip(?:\s+the)?|instead\s+of)\s+(?:a\s+|the\s+|any\s+)?(?:quiz(?:zes)?|tests?|mcqs?|questions?)"
+    r"|(?:quiz|test|exam)\s+(?:results?|answers?|scores?|marks?|feature|option|mode|attempts?))\b"
 )
 _ASKING = re.compile(
-    r"^(?:what(?!\s+about)|how(?!\s+about)|why|when|where|which|who|whom|whose|is|are|was|were|does|do|did|should"
-    r"|would|will|explain|define|describe|difference|compare|tell\s+me\s+about|help\s+me\s+(?:understand|with))\b"
+    r"^(?:what(?!\s+about)|how(?!\s+about)|why|when|where|which|who|whom|whose|is|are|was|were|does"
+    r"|do(?!\s+(?:\d{1,3}|a\s+few|some)\b)|did|should|would(?!\s+(?:really\s+)?(?:love|like)\b)|will|explain|define"
+    r"|describe|difference|compare|tell\s+me\s+about|help\s+me\s+(?:understand|with))\b"
 )
 # A weak cue ("practice questions on X", "quiz on X") in a message that is really asking or reporting something
 # ("questions on my mind: why is OSPF stuck in EXSTART?") is left to the model.
 _QUESTIONING = re.compile(
-    r"\b(?:why|how(?!\s+(?:about|well))|what(?!\s+(?:about|you|we))|which|explain|review|can'?t|cannot|isn'?t"
-    r"|doesn'?t|won'?t|stuck|confused|useless|help|know\s+which)\b"
+    r"\b(?:why|how(?!\s+(?:about|well))|what(?!\s+(?:about|you|we|i))|which|explain(?:s|ing)?|(?<!you\s)(?<!just\s)explained"
+    r"|review|can'?t|cannot"
+    r"|isn'?t|doesn'?t|won'?t|stuck|confused|useless|(?<!would\s)help|know\s+which|weird|wrong|strange)\b"
 )
-_STRONG = re.compile(r"\b(?:quiz|test)\s+(?:me|us)\b|\btest\s+my\s+knowledge\b|\b(?:give|ask|send)\s+(?:me|us)\b")
+_STRONG = re.compile(
+    r"\b(?:quiz|test|assess|evaluate)\s+(?:me|us)\b|\btest\s+my\s+knowledge\b|\b(?:give|ask|send)\s+(?:me|us)\b"
+    r"|\btest\s+what\s+(?:i|we)\b"
+)
 _MULTI = re.compile(
     r"\b(?:multiple[- ](?:correct|select)|multi[- ]?select|multiple[- ]answers?|more\s+than\s+one\s+correct"
     r"|select[- ]all(?:[- ]that[- ]apply)?"
@@ -218,10 +255,15 @@ _STOP = {
     "right", "perfect", "good", "fine", "wow", "how", "what", "check", "well", "know", "practise",
     "away", "hit", "wanna", "love", "ready", "go", "ahead", "i'm", "im", "i'll", "challenge", "couple", "style",
     "just", "explained", "said",
+    # holdout 3's frames and chat references: "kick me off", "I'm after", "test what I learned", "the last thing"
+    "learned", "learnt", "studied", "last", "thing", "help", "kick", "off", "after", "really", "complete", "assess",
+    "evaluate", "run", "across", "sets", "papers", "paper",
 }  # fmt: skip
 _WATCHED = re.compile(
     r"\b(?:the|this|that)\s+(?:video|lesson|class|session)\s+(?:i|we)\s+(?:just\s+)?"
     r"(?:watched|saw|finished|completed|did|attended)\b"
+    r"|\bthe\s+last\s+thing\s+(?:you|we)\s+(?:said|covered|discussed|explained|talked\s+about)\b"
+    r"|\bwhat\s+(?:i|we)\s+(?:just\s+)?(?:learned|learnt|studied|covered|did)\b"
     r"|\bwhat\s+(?:you|we)\s+(?:just\s+)?(?:explained|said|covered|discussed|taught|told\s+me|went\s+over"
     r"|talked\s+about)\b|\byour\s+(?:last\s+)?(?:answer|explanation|reply)\b"
 )
@@ -274,7 +316,9 @@ def _count(text: str) -> int:
         r"\b(\d{1,3})\s+(?:more\s+)?" + _LEVEL + _KIND + r"(?:" + _TRACK_WORDS + r")?" + _LEVEL + _KIND + _ITEMS, text
     )
     if found is None:
-        found = re.search(r"\b(?:next|another|give\s+me|ask\s+me)\s+(\d{1,3})\b|\b(\d{1,3})\s+more\b", text)
+        found = re.search(
+            r"\b(?:next|another|give\s+me|ask\s+me)\s+(\d{1,3})\b|\b(\d{1,3})\s+more\b|\b(\d{1,3})-questions?\b", text
+        )
     if found is not None:
         value = int(next(group for group in found.groups() if group))
         return max(1, min(value, MAX_COUNT))
@@ -310,9 +354,10 @@ def _topic(text: str) -> tuple[str, bool]:
 
 
 def _clean(text: str) -> str:
-    text = re.sub(r"\btime\s+for\b", " ", text)  # the frame, not the word: "network time protocol" keeps "time"
+    # Frames, not words: "network time protocol" keeps "time", "spanning tree" keeps "spanning".
+    text = re.sub(r"\b(?:time\s+for|quiz\s+time|\d{1,3}-questions?|spanning(?!\s*-?\s*tree))\b", " ", text)
     # The count goes ("5 hard questions"); a number that is part of the topic stays ("layer 2", "rfc 1918").
-    text = re.sub(r"\b\d{1,3}\b(?=\s+(?:more\s+)?(?:[a-z+-]+\s+){0,3}?" + _ITEMS + r"\b)", " ", text)
+    text = re.sub(r"(?<![\d.])\b\d{1,3}\b(?![.\d])(?=\s+(?:more\s+)?(?:[a-z+-]+\s+){0,3}?" + _ITEMS + r"\b)", " ", text)
     for word in _DIFFICULTY:
         text = re.sub(r"\b" + word + r"\b", " ", text)
     text = _MULTI.sub(" ", text)

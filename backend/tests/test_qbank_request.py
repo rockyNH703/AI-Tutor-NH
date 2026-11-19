@@ -13,6 +13,8 @@ def test_a_short_word_is_corrected_only_when_its_letters_are_swapped():
     known = frozenset({"pool", "ospf", "bgp", "nat", "vlan"})
     assert corrected(["cool", "opsf", "bpg", "vlna", "nta"], known) == ["cool", "ospf", "bgp", "vlan", "nat"]
     assert corrected(["spannning"], frozenset({"spanning"})) == ["spanning"]
+    # one letter missing from a short term, same first letter: "jsn" is json (holdout 3)
+    assert corrected(["jsn", "cool"], frozenset({"json", "pool", "col"})) == ["json", "cool"]
 
 
 ORDINARY = [
@@ -78,6 +80,18 @@ ORDINARY = [
     "best me at this",
     "a quick question on syslog levels: is it stateful?",
     "can you check my answers to these vlan questions: 1 is B, 2 is D",
+    # Guards for a quiz noun standing alone (holdout 3, 2026-11-19), in this file's own words.
+    "could you suggest questions to ask the vendor about their firewall?",
+    "test my understanding by explaining where my ACL logic breaks",
+    "walk me through the OSPF commands one by one, no quiz please",
+    "I'd like my quiz score explained",
+    "my practice test results say I'm weak on NAT, why?",
+    "the mock exam had a weird question about STP, can you explain it",
+    "is there a quiz feature in this app?",
+    "clear my quiz history",
+    "the quiz portal on our LAN uses port 9443, allow it in the ACL",
+    "those practice questions claim EIGRP is a link-state protocol, correct?",
+    "build quiz software in Flask",
 ]
 
 QUIZ_REQUESTS = [
@@ -125,7 +139,32 @@ QUIZ_REQUESTS = [
     "let's do some questions on what you just explained",
     "tset me on vlans",
     "qiz me on ospf pls",
+    # A quiz noun phrase on its own, and frames holdout 3 showed missing (2026-11-19), in this file's own words.
+    "quiz time! subnetting",
+    "assess me on ipv6 addressing",
+    "kick me off with some questions on nat",
+    "run a short quiz on stp",
+    "practice set on wireless security",
+    "would really love some mcqs about acls",
+    "a complete network access quiz",
+    "practice questions across ip connectivity",
+    "a 6-question hard quiz on bgp",
+    "do 3 questions on vlans with me",
+    "I'm after 8 mcqs on etherchannel",
+    "dhcp snooping: ccna practice questions",
+    "begin a CISSP practice test",
+    "test what I learned just now",
+    "a quiz on that would help now",
+    "carry on, next 3",
+    "next batch please",
+    "3 more like these",
+    "keep them coming",
 ]
+
+
+def test_a_numbered_quiz_reads_its_count():
+    request = parse("a 6-question hard quiz on bgp")
+    assert request is not None and request.count == 6 and request.difficulty == "hard" and request.topic == "bgp"
 
 
 @pytest.mark.parametrize(
@@ -136,6 +175,11 @@ QUIZ_REQUESTS = [
         ("let's do some questions on what you just explained", True, ""),
         ("check how well I know ospf with a quiz", False, "ospf"),
         ("I'd like to be tested on spanning tree", False, "spanning tree"),
+        ("questions on the last thing you said", True, ""),
+        ("test what I learned just now", True, ""),
+        ("a quiz on that would help now", True, ""),
+        ("practice questions across ip connectivity", False, "ip connectivity"),
+        ("quiz time! subnetting", False, "subnetting"),
     ],
 )
 def test_a_frame_request_reads_its_topic_or_the_chat(message, refers, topic):

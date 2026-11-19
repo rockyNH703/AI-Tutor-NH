@@ -248,7 +248,11 @@
       "channels",
       "nonoverlapping channels",
       "wireless channels",
-      "802.11"
+      "802.11",
+      "2.4 ghz",
+      "5 ghz",
+      "2.4 ghz channels",
+      "5 ghz channels"
      ],
      "paraphrases": [
       "wireless principles: nonoverlapping Wi-Fi channels, SSID, RF and encryption"
@@ -621,7 +625,10 @@
       "glbp",
       "first hop redundancy",
       "default gateway redundancy",
-      "routing"
+      "routing",
+      "virtual ip",
+      "virtual mac",
+      "virtual ip and virtual mac"
      ],
      "paraphrases": [
       "the purpose, functions and concepts of first hop redundancy protocols"
@@ -722,7 +729,11 @@
       "mib",
       "traps",
       "snmpv3",
-      "community string"
+      "community string",
+      "mibs",
+      "oid",
+      "oids",
+      "mibs and oids"
      ],
      "paraphrases": [
       "the function of SNMP in network operations"
@@ -768,7 +779,10 @@
       "dhcp client",
       "relay agent",
       "dhcp",
-      "dhcp server"
+      "dhcp server",
+      "dhcp across subnets",
+      "ip helper",
+      "dhcp relaying"
      ],
      "paraphrases": [
       "configure and verify DHCP client and relay"
@@ -996,7 +1010,10 @@
       "layer 2 security",
       "sticky mac",
       "violation mode",
-      "layer 2"
+      "layer 2",
+      "trusted ports",
+      "untrusted ports",
+      "dhcp snooping trusted ports"
      ],
      "paraphrases": [
       "configure and verify Layer 2 security features: DHCP snooping, dynamic ARP inspection and port security"
@@ -1170,7 +1187,9 @@
       "chef",
       "infrastructure as code",
       "iac",
-      "playbooks"
+      "playbooks",
+      "agentless",
+      "agentless automation"
      ],
      "paraphrases": [
       "the capabilities of configuration management mechanisms such as Ansible and Terraform"
