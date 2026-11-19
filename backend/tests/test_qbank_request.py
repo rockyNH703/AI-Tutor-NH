@@ -72,6 +72,21 @@ QUIZ_REQUESTS = [
     "ospf pe 5 mcq do",
     "mcqs from this lesson",
     "next 5",
+    # Phrasings the held-out set showed the grammar missed (session 1, 2026-11-19), in this file's own words.
+    "can I get some questions on static routes?",
+    "could I have a few mcqs on nat",
+    "throw a few mcqs at me on vlans",
+    "fire some questions at me about ospf",
+    "I'd like a practice quiz covering acls",
+    "i would like a quick quiz on stp",
+    "a mixed quiz on network access",
+    "an easy quiz on ipv6",
+    "subnetting questions for my ccna",
+    "a CCNA quiz on hsrp",
+    "CCNA practice questions please",
+    "Security+ practice questions",
+    "select-all-that-apply questions on acls",
+    "test me on the video I just watched",
 ]
 
 

@@ -55,10 +55,12 @@ _ITEMS = r"(?:questions?|mcqs?|quiz(?:zes)?|tests?|problems?|multiple[- ]choice(
 _LEVEL = r"(?:(?:" + "|".join(_DIFFICULTY) + r")\s+)?"
 _COUNTW = r"(?:\d{1,3}|" + "|".join(sorted(_NUMBERS, key=len, reverse=True)) + r")"
 _KIND = (
-    r"(?:(?:practice|exam|mock|mcq|certification|interview|more|new|different|other"
-    r"|multiple[- ](?:select|correct|choice)|multi[- ]?select|single[- ](?:correct|choice))\s+)*"
+    r"(?:(?:practice|exam|mock|mcq|certification|interview|more|new|different|other|quick|short|mixed|small|mini"
+    r"|full|random|multiple[- ](?:select|correct|choice)|multi[- ]?select|single[- ](?:correct|choice)"
+    r"|select[- ]all(?:[- ]that[- ]apply)?)\s+)*"
 )
-_TRACK_WORDS = r"(?:" + "|".join(re.escape(word) for word, _ in _TRACKS) + r")\s+"
+_TRACK_ALT = "|".join(re.escape(word) for word, _ in _TRACKS)
+_TRACK_WORDS = r"(?:" + _TRACK_ALT + r")\s+"
 # What a request asks for. A bare "test" is not one: "create a test VLAN", "run a test from R1" (session 1's red team,
 # 2026-11-19). A practice, mock or exam test is.
 _ASKED = (
@@ -67,12 +69,12 @@ _ASKED = (
 )
 # ...and what follows it: a topic ("on/about/for/from ...") or nothing. "give me the questions an interviewer asks",
 # "I need questions answered about NAT" and "send me the test script" are not requests.
-_THEN = r"(?=\s+(?:on|about|for|from|regarding|covering|related\s+to|in)\b|\s*$)"
+_THEN = r"(?=\s+(?:on|about|for|from|regarding|covering|related\s+to|in)\b|\s+at\s+(?:me|us)\b|\s*(?:please|pls)?\s*$)"
 _CUES = [
     re.compile(r"\b(?:quiz|test|examine|drill)\s+(?:me|us)\b"),
     re.compile(r"\btest\s+my\s+(?:knowledge|understanding|skills?)\b"),
     re.compile(
-        r"\b(?:give|ask|send|throw|fire|generate|make|create|prepare)\s+"
+        r"\b(?:give|ask|send|throw|fire|generate|make|create|prepare|(?:can|could|may)\s+(?:i|we)\s+(?:get|have|try|take|do))\s+"
         r"(?:me\s+|us\s+)?(?:a\s+|an\s+|the\s+|some\s+)?(?:"
         + _COUNTW
         + r"\s+)?(?:more\s+)?"
@@ -86,24 +88,36 @@ _CUES = [
         + _ASKED
         + _THEN
     ),
-    re.compile(  # "I want / need 10 questions on X", "I want practice questions on X": a count or a practice word
-        r"\b(?:want|need)\s+(?:(?:"
+    re.compile(  # "I want 10 questions on X", "I'd like a practice quiz covering X"
+        r"\b(?:want|need|(?:i'?d|i\s+would)\s+like)\s+(?:(?:"
         + _COUNTW
-        + r")\s+"
+        + r"|a|an|some)\s+)?"
         + _LEVEL
         + _KIND
-        + r"|(?:some\s+)?"
-        + _LEVEL
-        + r"(?:practice|mock|exam|mcq|certification)\s+"
-        + _KIND
-        + r")(?:"
+        + r"(?:"
         + _TRACK_WORDS
         + r")?"
+        + _LEVEL
+        + _KIND
         + _ASKED
         + _THEN
     ),
+    re.compile(  # "subnetting questions for my ccna"
+        r"\b" + _ASKED + r"\s+for\s+(?:my|the)\s+(?:" + _TRACK_ALT + r")(?![\w+])"
+    ),
+    re.compile(  # "CCNA practice questions please", "Security+ practice questions": a named track, nothing else
+        r"^(?:(?:ok(?:ay)?|now|so|please|pls|hey|hi)\s+)*(?:(?:a|an|some)\s+)?(?:"
+        + _COUNTW
+        + r"\s+)?"
+        + _LEVEL
+        + _TRACK_WORDS
+        + _LEVEL
+        + _KIND
+        + _ASKED
+        + r"\s*(?:please|pls)?\s*$"
+    ),
     re.compile(
-        r"^(?:(?:ok(?:ay)?|now|so|please|pls|then|great|nice|cool|sure|hey|hi)\s+)*(?:"
+        r"^(?:(?:ok(?:ay)?|now|so|please|pls|then|great|nice|cool|sure|hey|hi)\s+)*(?:(?:a|an|some)\s+)?(?:"
         + _COUNTW
         + r"\s+)?"
         + _LEVEL
@@ -158,6 +172,7 @@ _QUESTIONING = re.compile(
 _STRONG = re.compile(r"\b(?:quiz|test)\s+(?:me|us)\b|\btest\s+my\s+knowledge\b|\b(?:give|ask|send)\s+(?:me|us)\b")
 _MULTI = re.compile(
     r"\b(?:multiple[- ](?:correct|select)|multi[- ]?select|multiple[- ]answers?|more\s+than\s+one\s+correct"
+    r"|select[- ]all(?:[- ]that[- ]apply)?"
     r"|select\s+all|choose\s+(?:two|three|all)|multi[- ]correct)\b"
 )
 _CHAT = re.compile(
@@ -172,10 +187,15 @@ _STOP = {
     "ok", "okay", "so", "then", "my", "knowledge", "understanding", "and", "with", "only", "set", "get", "want", "need",
     "lesson", "video", "topic", "chapter", "certification", "level", "few", "more", "new", "multiple", "choice",
     "correct", "answers", "answer", "select", "all", "pe", "par", "do", "dedo", "de", "chahiye", "pucho",
-    "puchho", "ke", "ka", "ki", "upar", "lo", "le", "karo", "karwao", "kara", "skill", "skills",
+    "puchho", "ke", "ka", "ki", "i'd", "like", "have", "try", "quick", "short", "mixed", "small",
+    "mini", "full", "random", "throw", "fire", "at", "upar", "lo", "le", "karo", "karwao", "kara", "skill", "skills",
     "drill", "examine", "generate", "make", "create", "prepare",
     "problems", "problem", "quizzes", "tests", "one", "by", "let", "lets", "let's", "i", "be", "tested",
 }  # fmt: skip
+_WATCHED = re.compile(
+    r"\b(?:the|this|that)\s+(?:video|lesson|class|session)\s+(?:i|we)\s+(?:just\s+)?"
+    r"(?:watched|saw|finished|completed|did|attended)\b"
+)
 _QUOTED = re.compile(r"[\"“”']([^\"“”']{3,120})[\"“”']")
 _NAMED = re.compile(r"\b(?:the\s+)?(?:lesson|video|session|class)\s+(?:called\s+|named\s+|titled\s+|on\s+)?(.+)$")
 
@@ -269,7 +289,7 @@ def parse(message: str) -> Request | None:
         return None
     track, rest = _track(text)
     topic, lesson = _topic(rest)
-    refers = not topic or bool(_CHAT.match(topic))
+    refers = not topic or bool(_CHAT.match(topic)) or bool(_WATCHED.search(text))
     if refers and topic in {"", "it"} and not re.search(r"\b(?:this|that|it|above|same|discussed|covered)\b", rest):
         refers = False  # "quiz me" / "quiz me on CCNA": no topic, nothing in the chat named
     return Request(

@@ -37,7 +37,7 @@ _TOKEN = re.compile(r"[a-z0-9]+(?:[.+/-][a-z0-9]+)*\+?")
 _STOPWORDS = {
     "a", "an", "the", "and", "or", "of", "on", "in", "for", "to", "with", "about", "from", "by", "at", "is", "are",
     "be", "it", "this", "that", "what", "how", "my", "me", "i", "you", "your", "its", "as", "into", "via", "vs",
-    "basics", "basic", "overview", "introduction", "intro", "explained",
+    "basics", "basic", "overview", "introduction", "intro", "explained", "domain", "section", "module",
 }  # fmt: skip
 
 FIND = text(
@@ -193,6 +193,8 @@ def corrected(words: list[str], known: frozenset[str]) -> list[str]:
         if len(close) > 1:
             fewest = min(_edits(word, other, limit) for other in close)
             close = {other for other in close if _edits(word, other, limit) == fewest}
+        if len(close) > 1:  # then the same first letter ("nttp" is ntp, not http)
+            close = {other for other in close if other[0] == word[0]} or close
         out.append(next(iter(close)) if len(close) == 1 else word)
     return out
 
@@ -203,6 +205,7 @@ _CHATTER = {
     "learned", "learning", "just", "watched", "read", "studied", "studying", "doubt", "confused", "difference",
     "between", "use", "used", "need", "want", "get", "got", "still", "really", "much", "some", "more", "lesson",
     "video", "topic", "chapter", "session", "class", "we", "discussed", "talked", "covered", "now", "so", "ok",
+    "finished", "completed", "attended", "saw", "the", "configuring", "configure", "setting", "up",
 }  # fmt: skip
 
 
