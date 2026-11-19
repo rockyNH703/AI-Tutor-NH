@@ -8,7 +8,7 @@
  *   bun build scripts/nhprep-export/export.ts --target=node --external @playwright/test --outfile node_modules/.cache/nhprep-export/export.mjs
  *   NHPREP_CREDENTIALS_FILE=<abs path> node node_modules/.cache/nhprep-export/export.mjs [--lessons] [--quiz]
  *     [--courses a,b] [--categories a,b] [--max-lessons N] [--max-attempts N] [--gap-ms N] [--resume <run folder>]
- *     [--retry-rounds N (2)] [--retry-wait-s N (120)]
+ *     [--retry-rounds N (2)] [--retry-wait-s N (120)] [--submit-gap-s N (20)]
  * Failed items are retried at the end of each phase after a pause; what still fails is listed in failed.json /
  * failed-quiz.json, and `--resume <run folder>` later retries exactly what is missing.
  */
@@ -79,9 +79,13 @@ async function videoCourses(page: Page): Promise<{ reported: number | null; slug
     }
     const next = page.getByRole("link", { name: /^Next/ }).or(page.getByRole("button", { name: /^Next/ })).first();
     if (slugs.size === before || !(await next.isVisible().catch(() => false)) || (await next.isDisabled().catch(() => true))) break;
+    const shown = await page.evaluate(() => [...document.querySelectorAll("main a[href^='/course/']")].map((a) => a.getAttribute("href")).join());
     await next.click();
-    await page.waitForLoadState("domcontentloaded");
-    await sleep(1500);
+    // Under pacing the next page can take many seconds: wait until the list actually changes.
+    for (const started = Date.now(); Date.now() - started < 60_000; await sleep(500)) {
+      const now = await page.evaluate(() => [...document.querySelectorAll("main a[href^='/course/']")].map((a) => a.getAttribute("href")).join()).catch(() => shown);
+      if (now !== shown) break;
+    }
   }
   return { reported, slugs: [...slugs] };
 }
@@ -135,8 +139,12 @@ async function exportLessons(session: Session, summary: Record<string, unknown>)
   const maxLessons = number("max-lessons");
   const doneLessons = new Set(existing.filter((row) => row.type === "lesson").map((row) => `${row.course}/${row.slug}`));
   const doneCourses = new Set(existing.filter((row) => row.type === "course").map((row) => String(row.slug)));
-  const inventory = await videoCourses(session.page);
+  let inventory = await videoCourses(session.page);
   session.log("inventory", { reported: inventory.reported, found: inventory.slugs.length });
+  if (inventory.reported !== null && inventory.slugs.length < inventory.reported) {
+    inventory = await videoCourses(session.page);
+    session.log("inventory", { reported: inventory.reported, found: inventory.slugs.length, retry: true });
+  }
   const complete = inventory.reported !== null && inventory.reported === inventory.slugs.length && !onlyCourses && maxLessons === null;
   let exported = 0;
   // Failed items (a whole course page, or one lesson), retried at the end after a pause; what still fails goes to failed.json.
@@ -218,7 +226,6 @@ async function attempt(session: Session, slug: string): Promise<{ draw: Draw; su
   }, slug);
   if (draw.status !== 200 || draw.questions.length === 0) throw new Error(`draw ${draw.status}`);
   session.allowWrite(`POST /api/quiz/${slug}/submit`, 1);
-  bumpLedger();
   const submitted = await session.page.evaluate(
     async ({ category, answers, seconds }) => {
       const csrf = ((await (await fetch("/api/csrf")).json()) as { csrfToken?: string }).csrfToken ?? "";
@@ -231,6 +238,7 @@ async function attempt(session: Session, slug: string): Promise<{ draw: Draw; su
     },
     { category: slug, answers: draw.questions.map((question) => ({ questionId: question.id, selectedOption: question.options[0] ?? "" })), seconds: 60 + Math.floor(Math.random() * 120) },
   );
+  if (submitted.status === 200) bumpLedger(); // the ledger counts attempts NHprep recorded, not refused ones
   return { draw, submitted };
 }
 
@@ -246,6 +254,8 @@ async function exportQuiz(session: Session, summary: Record<string, unknown>): P
   const attemptsBefore = new Map(existing.filter((row) => row.type === "quiz_coverage").map((row) => [String(row.category), Number(row.attempts)]));
   const categories = (await quizCategories(session.page)).filter((slug) => !only || only.has(slug));
   let runAttempts = 0;
+  let lastSubmitAt = 0;
+  const SUBMIT_GAP_MS = (number("submit-gap-s") ?? 20) * 1000;
   const attemptsOf = new Map(attemptsBefore);
   const reportedOf = new Map<string, number | null>(
     existing.filter((row) => row.type === "quiz_coverage").map((row) => [String(row.category), typeof row.reported === "number" ? row.reported : null]),
@@ -256,11 +266,22 @@ async function exportQuiz(session: Session, summary: Record<string, unknown>): P
     const ids = seenIds.get(slug) ?? new Set<string>();
     seenIds.set(slug, ids);
     let stale = 0;
+    let refused = 0;
     let lastError: string | null = null;
     while (!categoryDone(ids.size, reportedOf.get(slug) ?? null, stale)) {
       if (maxAttempts !== null && runAttempts >= maxAttempts) return "attempt cap reached";
+      // NHprep rate-limits submits (429, no Retry-After): space them, and on a 429 wait (90 s doubling, ≤10 min) and try again.
+      await sleep(Math.max(0, lastSubmitAt + SUBMIT_GAP_MS - Date.now()));
       try {
         const { draw, submitted } = await attempt(session, slug);
+        lastSubmitAt = Date.now();
+        if (submitted.status === 429) {
+          if (++refused > 6) throw new Error("submit 429 (still refused after 6 waits)");
+          session.log("submit-rate-limited", { category: slug, waitS: Math.min(90 * 2 ** (refused - 1), 600) });
+          await sleep(Math.min(90 * 2 ** (refused - 1), 600) * 1000);
+          continue;
+        }
+        refused = 0;
         runAttempts++;
         attemptsOf.set(slug, (attemptsOf.get(slug) ?? 0) + 1);
         reportedOf.set(slug, draw.totalAvailable);
