@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api/errors";
 import type { Assessment, AssessmentQuestion } from "@/lib/api/types";
 import { isExamSource } from "../../assessment";
 import type { TestState } from "../../context";
+import { isBankBatch } from "../quiz";
 import { loadKinds } from "./kinds";
 import { pillName } from "./navigator";
 import choicePack from "./questions/choice";
@@ -169,6 +170,22 @@ describe("practice, v2 records", () => {
 
   test("Get feedback needs the chat's ask: without it the card offers none", () => {
     expect(shown(five(true)).text).not.toContain("Get feedback");
+  });
+
+  test("a certification-bank batch offers the next batch once it is done, and only then", () => {
+    const done = record({ schemaVersion: 2, mode: "practice", answered: 1, current: null, earned: 1, state: "completed" });
+    done.questions = [question({ response: answered(1, 1, { value: 1 }), correct: 1 })];
+    const active = record({ schemaVersion: 2, mode: "practice" });
+    const ask = tests({ ask: async () => "sent" });
+    const draw = (test: Assessment, bank: boolean, state = ask) =>
+      renderToStaticMarkup(<TestCard test={test} single={false} tests={state} onError={() => {}} bank={bank} />);
+    expect(draw(done, true)).toContain("Next 5 questions");
+    expect(draw(done, false)).not.toContain("Next 5 questions");
+    expect(draw(active, true)).not.toContain("Next 5 questions");
+    expect(draw(done, true, tests())).not.toContain("Next 5 questions"); // no chat to ask in
+    expect(isBankBatch('{"bank":true,"questions":[]}')).toBe(true);
+    expect(isBankBatch('{"questions":[]}')).toBe(false);
+    expect(isBankBatch("not json")).toBe(false);
   });
 
   test("the progress line counts points so far, and every kind offers Show answer", () => {

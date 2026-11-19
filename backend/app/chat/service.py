@@ -28,8 +28,10 @@ from sqlalchemy import case, func, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access.students import is_nh_student
 from app.assessments import state as assessments
 from app.auth.service import AuthService
+from app.chat import bank_turn
 from app.chat.assistant import AssistantConfig, resolve_assistant_config
 from app.chat.streams import ActiveGenerations, ChatEvent, Generation
 from app.chat.titles import topic_title
@@ -44,7 +46,7 @@ from app.intents.scope import ALLOW_STUDY, INSTRUCTIONS, NOT_LEARNING, REDIRECT,
 from app.intents.scope import stored as stored_scope
 from app.intents.taxonomy import BANK_INTENTS, INTENTS
 from app.jobs.memory import enqueue_memory_extraction
-from app.learning.context import StudentContext, read_student_context
+from app.learning.context import StudentContext, certification_code, read_student_context
 from app.llm.base import LLM_REQUEST_AT, ChatMessage, GenerationOptions, LLMError
 from app.logging import get_logger, request_id_var
 from app.memory.commands import (
@@ -57,7 +59,7 @@ from app.memory.commands import (
 from app.memory.recall import MemoryRecall
 from app.progress.activity import record_question
 from app.progress.learning import is_meaningful, now, record_learning, tutor_progress
-from app.qbank import chat_tests
+from app.qbank import bank_tests, chat_tests
 from app.settings import Settings
 from app.voice import first_speech
 from app.voice.expression import expression_for
@@ -171,6 +173,8 @@ class PreparedTurn:
     # When the question reached the app (wall clock, seconds): the BFF's stamp, else the API's (app/chat/router.py).
     received_at: float | None = None
     usage_id: uuid.UUID | None = None  # the turn's usage_events row (closed even if its chat is deleted)
+    # The certification bank's own reply to a quiz request (app/chat/bank_turn.py): no model, no search.
+    served: bank_turn.Served | None = None
 
     def meta_event(self) -> ChatEvent:
         return ChatEvent(
@@ -1008,12 +1012,14 @@ class ChatService:
                     conversation.pop()  # but the model answers the question afresh, without them
             if not query:
                 query = next((message.content for message in reversed(conversation) if message.role == "user"), "")
-            memories = await self._memories(turn.user.id, query)
+            # A quiz request the bank answers itself is decided first: no recall, classifier or search runs.
+            turn.served = await self._app_turn(turn, conversation, query)
+            memories = await self._memories(turn.user.id, query) if turn.served is None else []
             # Voice turns (VOICE_PARALLEL_ROUTING): the router's reading and the knowledge search start now, beside the
             # study scope, not after it: the same requests on the same words, so the same decisions (OllaLink answers
             # them one after another anyway). A redirect cancels both; an intent that turns the search off drops it.
             prepared = turn.config.retrieval
-            if self._parallel(turn):
+            if turn.served is None and self._parallel(turn):
                 reading = asyncio.ensure_future(self.intents.classify(conversation, turn.attached_kinds))
                 ahead = asyncio.ensure_future(
                     self.rag_graph.prefetch(
@@ -1026,10 +1032,15 @@ class ChatService:
                         }
                     )
                 )
-            scope, scope_shadow = await self._scope(turn, conversation, generation)
-            turn.scope = scope
+            if turn.served is None:
+                scope, scope_shadow = await self._scope(turn, conversation, generation)
+                turn.scope = scope
             decision = _decision(scope)
-            if decision == REDIRECT:  # not learning: the app's own short reply, without the model or a search
+            if turn.served is not None:  # the bank's own reply: stored questions, no model and no search
+                ttft_ms = int((time.monotonic() - started) * 1000)
+                pieces.append(turn.served.text)
+                await generation.queue.put(ChatEvent("token", {"text": turn.served.text}))
+            elif decision == REDIRECT:  # not learning: the app's own short reply, without the model or a search
                 language = dict(turn.student.preferences).get("language") if turn.student else None
                 text = redirect_copy(turn.user_message.content if turn.user_message is not None else "", language)
                 ttft_ms = int((time.monotonic() - started) * 1000)
@@ -1180,6 +1191,8 @@ class ChatService:
             "scope": scope,
             # Internal: question received -> first model request sent (the 1-second budget; scripts/pre_llm_report.py).
             "timing": _pre_llm(turn.received_at, request_sent["at"]),
+            # The certification bank's reply (app/chat/bank_turn.py): its topics, questions and timings.
+            "bank": turn.served.bank if turn.served is not None else None,
         }
         metadata = {k: v for k, v in metadata.items() if v is not None}
         log.info(
@@ -1266,6 +1279,71 @@ class ChatService:
             earlier = "\n".join(reversed(list(said)))
         return await chat_tests.menu(session, question or "", student.grade, student.medium, earlier, asked=asked)
 
+    async def _app_turn(
+        self, turn: PreparedTurn, conversation: list[ChatMessage], query: str
+    ) -> bank_turn.Served | None:
+        """The certification bank's reply to a message that clearly asks for a quiz (QUESTION_BANK_TURN), or None
+        for every other turn. Text turns only; a failure leaves the turn to the model."""
+        if not self.settings.question_bank_tests or turn.voice or turn.attached_kinds or turn.command is not None:
+            return None
+        if not self.settings.question_bank_turn_allows(turn.user.email or ""):
+            return None
+        request = bank_turn.wants(query)
+        if request is None:
+            return None
+        users = [message.content for message in reversed(conversation) if message.role == "user"]
+        earlier = users[1:4] if users and users[0] == query else users[:3]
+        goal = certification_code(turn.student.certification_goal) if turn.student else None
+        try:
+            async with self.db.sessionmaker() as session:
+                served = await bank_turn.answer(
+                    session,
+                    request,
+                    user_id=turn.user.id,
+                    conversation_id=turn.conversation.id,
+                    reply_id=turn.assistant_id,
+                    earlier=earlier,
+                    goal=goal,
+                    entitled=is_nh_student(turn.user, self.settings),
+                )
+        except Exception:  # noqa: BLE001 - the bank never fails a turn: the model answers instead
+            log.exception("bank turn failed", extra={"message_id": str(turn.assistant_id)})
+            return None
+        if served is not None:
+            log.info(
+                "bank turn",
+                extra={
+                    "message_id": str(turn.assistant_id),
+                    "status": served.bank.get("status"),
+                    "questions": len(served.question_ids),
+                    "find_ms": (served.bank.get("timing") or {}).get("findMs"),
+                    "pick_ms": (served.bank.get("timing") or {}).get("pickMs"),
+                },
+            )
+        return served
+
+    async def _with_bank(self, session: AsyncSession, turn: PreparedTurn, metadata: dict) -> dict:
+        """The bank test's practice set, opened in the reply's own transaction, and its record (keys inside,
+        shown to a client only per question once final)."""
+        served = turn.served
+        set_id = await bank_tests.open_set(session, turn.user.id, turn.assistant_id, served.batch)
+        record = {
+            **served.record,
+            "source": {
+                "kind": "question_bank",
+                "netsec": True,
+                "keys": True,
+                "setId": str(set_id),
+                "topicIds": served.bank.get("topicIds") or [],
+                "questionIds": list(served.question_ids),
+            },
+        }
+        log.info(
+            "assessment created",
+            extra={"message_id": str(turn.assistant_id), "questions": record["total"], "source": "question_bank"},
+        )
+        return {**metadata, "assessments": [record], "bank": {**served.bank, "setId": str(set_id)}}
+
     async def _with_test(
         self,
         session: AsyncSession,
@@ -1347,7 +1425,15 @@ class ChatService:
     async def _finalize(self, turn, content, status, metadata, latency_ms, ttft_ms, usage):
         async with self.db.sessionmaker() as session:
             bank = None
-            if status == "complete":
+            served = turn.served
+            if status == "complete" and served is not None and served.batch is not None:  # the bank's own test
+                tested = await self._side_effect(
+                    session, "bank_test", turn, lambda: self._with_bank(session, turn, metadata)
+                )
+                metadata = (
+                    tested if tested is not None else {**metadata, "assessmentError": {"code": "bank_unavailable"}}
+                )
+            elif status == "complete" and served is None:
                 if self.settings.question_bank_tests:  # the test's questions come from the bank
                     filled = await self._side_effect(
                         session,
@@ -1392,6 +1478,8 @@ class ChatService:
                 await self._supersede_replaced(session, turn)  # K-47d: only now that the new reply is complete
             if bank is not None and final_status != "complete":  # the cancel won: its test can't be answered
                 await chat_tests.close(session, turn.user.id, bank.set_id)
+            if (metadata.get("bank") or {}).get("setId") and final_status != "complete":
+                await bank_tests.close(session, turn.user.id, uuid.UUID(metadata["bank"]["setId"]))
             # A fully answered, meaningful question makes its day a learning day (app/progress/learning.py);
             # a message the study scope turned away (STUDY_SCOPE on) never does, and never names the chat.
             learning = None
@@ -1401,6 +1489,7 @@ class ChatService:
                 and turn.user_message is not None
                 and is_meaningful(turn.user_message.content)
                 and not turned_away
+                and served is None  # asking for a quiz is not learning; its answers are (record_practice)
             ):
                 learning = await self._side_effect(
                     session, "learning_day", turn, lambda: record_learning(session, turn.user.id, now(), turn.asked_at)
@@ -1420,7 +1509,7 @@ class ChatService:
                     outcome=final_status or status,  # a cancel that won is recorded as cancelled
                 )
             )
-            if final_status == "complete" and turn.user_message is not None:
+            if final_status == "complete" and turn.user_message is not None and served is None:
                 await self._side_effect(
                     session,
                     "memory_job",

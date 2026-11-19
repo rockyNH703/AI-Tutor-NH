@@ -331,7 +331,7 @@ HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
-HEAD = "0025_knowledge_canonical"
+HEAD = "0026_qbank_certification"
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -789,8 +789,42 @@ def test_migration_0025_adds_the_canonical_knowledge_tables_and_refuses_to_drop_
         alembic("downgrade", KNOWLEDGE_LIFECYCLE)
         assert run(_snapshot(CANONICAL_TABLES)) == before  # nothing outside the new tables changed
         alembic("upgrade", KNOWLEDGE_CANONICAL)
-        alembic("upgrade", "head")  # repeated: a no-op
-        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == KNOWLEDGE_CANONICAL
+        alembic("upgrade", "head")  # the later revisions on top
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == HEAD
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+QBANK_CERTIFICATION = "0026_qbank_certification"
+
+
+def test_migration_0026_keeps_cbse_rows_valid_and_refuses_to_drop_the_certification_bank():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", KNOWLEDGE_CANONICAL)
+        alembic("upgrade", QBANK_CERTIFICATION)
+        assert run(_query("SELECT count(*) AS n FROM pg_extension WHERE extname = 'pg_trgm'"))[0]["n"] == 1
+        run(
+            _query(
+                "INSERT INTO qb_syllabus_versions (code, curriculum, academic_session, title, source_url) "
+                "VALUES ('netsec-2026', 'netsec', '2026_27', 'NetSec', 'https://example.com/')"
+            )
+        )
+        assert run(_refused("INSERT INTO qb_syllabus_versions VALUES ('x', 'other', '2026_28', 't', 'u')"))
+        process = subprocess.run(
+            [sys.executable, "-m", "alembic", "-x", f"url={URL}", "downgrade", KNOWLEDGE_CANONICAL],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode != 0 and "0026 downgrade refused" in process.stderr
+        run(_query("DELETE FROM qb_syllabus_versions"))
+        alembic("downgrade", KNOWLEDGE_CANONICAL)
+        assert run(_query("SELECT to_regprocedure('qb_options_valid(jsonb, text[], text)') AS f"))[0]["f"] is None
+        assert run(_query("SELECT count(*) AS n FROM pg_extension WHERE extname = 'pg_trgm'"))[0]["n"] == 1  # kept
+        alembic("upgrade", "head")
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 

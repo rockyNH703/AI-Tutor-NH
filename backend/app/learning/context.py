@@ -115,6 +115,11 @@ def _names(entries: tuple[catalog.Entry, ...], codes: Iterable[str] | None) -> t
     return tuple(name for code in codes or () if (name := _name(entries, code)))
 
 
+def certification_code(name: str | None) -> str | None:
+    """A certification goal's catalog code from the name a StudentContext carries (the bank's track ids)."""
+    return next((entry.code for entry in catalog.CERTIFICATIONS if entry.name == name), None) if name else None
+
+
 def subject_name(code: str | None) -> str | None:
     """A subject's name from its catalog code; None for a code the catalog doesn't have (app/study)."""
     entry = catalog.lookup(catalog.SUBJECTS, code)

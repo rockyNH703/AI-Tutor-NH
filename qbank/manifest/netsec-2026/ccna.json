@@ -1,0 +1,1182 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ccna",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "CCNA",
+  "edition": "200-301 v1.1"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CCNA-D1",
+   "chapter_number": 1,
+   "title": "Network Fundamentals",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNA-D1-T01",
+     "topic_number": 1,
+     "title": "Network topology architectures",
+     "aliases": [
+      "topologies",
+      "topology",
+      "spine leaf",
+      "spine-leaf",
+      "two-tier",
+      "three-tier",
+      "collapsed core",
+      "wan",
+      "soho",
+      "on-premises and cloud",
+      "campus design",
+      "access distribution core"
+     ],
+     "paraphrases": [
+      "network topology architectures such as two-tier, three-tier and spine-leaf",
+      "small office home office and WAN designs"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Network topology architectures such as two-tier, three-tier and spine-leaf."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T02",
+     "topic_number": 2,
+     "title": "Physical interface and cabling types",
+     "aliases": [
+      "cabling",
+      "cables",
+      "fiber",
+      "copper",
+      "single-mode",
+      "multimode",
+      "utp",
+      "ethernet cables",
+      "shared media",
+      "point-to-point",
+      "poe"
+     ],
+     "paraphrases": [
+      "single-mode and multimode fiber versus copper cabling",
+      "connections, Ethernet shared media and point-to-point"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Single-mode and multimode fiber versus copper cabling."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T03",
+     "topic_number": 3,
+     "title": "Interface and cable issues (collisions, errors, duplex, speed)",
+     "aliases": [
+      "interface errors",
+      "collisions",
+      "duplex",
+      "duplex mismatch",
+      "speed mismatch",
+      "crc errors",
+      "runts",
+      "giants",
+      "late collisions",
+      "interface issues"
+     ],
+     "paraphrases": [
+      "identify interface and cable issues: collisions, errors, mismatched duplex and speed"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Identify interface and cable issues: collisions, errors, mismatched duplex and speed."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T04",
+     "topic_number": 4,
+     "title": "TCP and UDP",
+     "aliases": [
+      "tcp",
+      "udp",
+      "transport layer",
+      "three-way handshake",
+      "port numbers",
+      "windowing",
+      "connection-oriented",
+      "connectionless"
+     ],
+     "paraphrases": [
+      "compare TCP to UDP",
+      "transmission control protocol and user datagram protocol"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Compare TCP to UDP."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T05",
+     "topic_number": 5,
+     "title": "IPv4 addressing and subnetting",
+     "aliases": [
+      "subnetting",
+      "ipv4 addressing",
+      "subnet mask",
+      "cidr",
+      "vlsm",
+      "ipv4 subnets",
+      "subnet",
+      "ip addressing"
+     ],
+     "paraphrases": [
+      "configure and verify IPv4 addressing and subnetting",
+      "calculate subnets, hosts and masks"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify IPv4 addressing and subnetting."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T06",
+     "topic_number": 6,
+     "title": "Private IPv4 addressing",
+     "aliases": [
+      "private ip",
+      "private addresses",
+      "rfc 1918",
+      "rfc1918",
+      "private ipv4"
+     ],
+     "paraphrases": [
+      "the need for private IPv4 addressing (RFC 1918 ranges)"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The need for private IPv4 addressing (RFC 1918 ranges)."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T07",
+     "topic_number": 7,
+     "title": "IPv6 addressing and prefix",
+     "aliases": [
+      "ipv6",
+      "ipv6 prefix",
+      "ipv6 addressing",
+      "ipv6 notation",
+      "ipv6 address"
+     ],
+     "paraphrases": [
+      "configure and verify IPv6 addressing and prefix",
+      "IPv6 address notation and abbreviation"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify IPv6 addressing and prefix."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T08",
+     "topic_number": 8,
+     "title": "IPv6 address types",
+     "aliases": [
+      "ipv6 address types",
+      "global unicast",
+      "link-local",
+      "link local",
+      "unique local",
+      "anycast",
+      "multicast",
+      "eui-64",
+      "eui 64",
+      "modified eui-64",
+      "slaac"
+     ],
+     "paraphrases": [
+      "describe IPv6 address types: unicast, anycast, multicast and modified EUI-64"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Describe IPv6 address types: unicast, anycast, multicast and modified EUI-64."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T09",
+     "topic_number": 9,
+     "title": "Wireless principles (channels, SSID, RF, encryption)",
+     "aliases": [
+      "wireless principles",
+      "wifi",
+      "wi-fi",
+      "wlan",
+      "ssid",
+      "rf",
+      "radio frequency",
+      "channels",
+      "nonoverlapping channels",
+      "wireless channels",
+      "802.11"
+     ],
+     "paraphrases": [
+      "wireless principles: nonoverlapping Wi-Fi channels, SSID, RF and encryption"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Wireless principles: nonoverlapping Wi-Fi channels, SSID, RF and encryption."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T10",
+     "topic_number": 10,
+     "title": "Virtualization fundamentals (servers, containers, VRFs)",
+     "aliases": [
+      "virtualization",
+      "virtual machines",
+      "vm",
+      "containers",
+      "vrf",
+      "vrfs",
+      "hypervisor",
+      "server virtualization"
+     ],
+     "paraphrases": [
+      "virtualization fundamentals: server virtualization, containers and VRFs"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Virtualization fundamentals: server virtualization, containers and VRFs."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D1-T11",
+     "topic_number": 11,
+     "title": "Switching concepts (MAC learning, flooding, MAC address table)",
+     "aliases": [
+      "switching",
+      "switching concepts",
+      "mac learning",
+      "mac address table",
+      "cam table",
+      "flooding",
+      "mac aging",
+      "frame switching",
+      "unknown unicast"
+     ],
+     "paraphrases": [
+      "switching concepts: MAC learning and aging, frame switching, frame flooding and the MAC address table"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Switching concepts: MAC learning and aging, frame switching, frame flooding and the MAC address table."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNA-D2",
+   "chapter_number": 2,
+   "title": "Network Access",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNA-D2-T01",
+     "topic_number": 1,
+     "title": "VLANs",
+     "aliases": [
+      "vlan",
+      "vlans",
+      "virtual lan",
+      "virtual lans",
+      "access ports",
+      "data vlan",
+      "voice vlan",
+      "default vlan",
+      "inter-vlan",
+      "vlan configuration"
+     ],
+     "paraphrases": [
+      "configure and verify VLANs spanning multiple switches",
+      "access ports for data and voice"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify VLANs spanning multiple switches."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D2-T02",
+     "topic_number": 2,
+     "title": "Interswitch connectivity (trunk ports, 802.1Q, native VLAN)",
+     "aliases": [
+      "trunk",
+      "trunks",
+      "trunking",
+      "trunk ports",
+      "802.1q",
+      "dot1q",
+      "native vlan",
+      "allowed vlans",
+      "dtp",
+      "interswitch connectivity"
+     ],
+     "paraphrases": [
+      "configure and verify interswitch connectivity: trunk ports, 802.1Q and native VLAN"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify interswitch connectivity: trunk ports, 802.1Q and native VLAN."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D2-T03",
+     "topic_number": 3,
+     "title": "Layer 2 discovery protocols (CDP, LLDP)",
+     "aliases": [
+      "cdp",
+      "lldp",
+      "discovery protocols",
+      "neighbor discovery",
+      "cisco discovery protocol",
+      "link layer discovery protocol"
+     ],
+     "paraphrases": [
+      "configure and verify Layer 2 discovery protocols CDP and LLDP"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify Layer 2 discovery protocols CDP and LLDP."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D2-T04",
+     "topic_number": 4,
+     "title": "EtherChannel (LACP)",
+     "aliases": [
+      "etherchannel",
+      "lacp",
+      "port channel",
+      "port-channel",
+      "link aggregation",
+      "pagp",
+      "bundle"
+     ],
+     "paraphrases": [
+      "configure and verify Layer 2/Layer 3 EtherChannel with LACP"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify Layer 2/Layer 3 EtherChannel with LACP."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D2-T05",
+     "topic_number": 5,
+     "title": "Rapid PVST+ Spanning Tree Protocol",
+     "aliases": [
+      "stp",
+      "spanning tree",
+      "spanning-tree",
+      "rstp",
+      "rapid pvst",
+      "rapid pvst+",
+      "pvst",
+      "root bridge",
+      "root port",
+      "portfast",
+      "bpdu guard",
+      "port states",
+      "port roles",
+      "root bridge election"
+     ],
+     "paraphrases": [
+      "the need for and basic operation of Rapid PVST+ Spanning Tree Protocol",
+      "root port, root bridge, port states and PortFast"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The need for and basic operation of Rapid PVST+ Spanning Tree Protocol."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D2-T06",
+     "topic_number": 6,
+     "title": "Cisco wireless architectures and AP modes",
+     "aliases": [
+      "ap modes",
+      "access point modes",
+      "wlc",
+      "wireless lan controller",
+      "lightweight ap",
+      "autonomous ap",
+      "capwap",
+      "flexconnect",
+      "wireless architectures",
+      "cloud-based ap"
+     ],
+     "paraphrases": [
+      "Cisco wireless architectures and AP modes",
+      "lightweight versus autonomous access points and controllers"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Cisco wireless architectures and AP modes."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNA-D3",
+   "chapter_number": 3,
+   "title": "IP Connectivity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNA-D3-T01",
+     "topic_number": 1,
+     "title": "Components of the routing table",
+     "aliases": [
+      "routing table",
+      "route table",
+      "show ip route",
+      "routing protocol code",
+      "prefix",
+      "next hop",
+      "gateway of last resort",
+      "routing table components"
+     ],
+     "paraphrases": [
+      "interpret the components of the routing table: protocol code, prefix, mask, next hop, AD and metric"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Interpret the components of the routing table: protocol code, prefix, mask, next hop, AD and metric."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D3-T02",
+     "topic_number": 2,
+     "title": "Router forwarding decision (longest prefix match, administrative distance, metric)",
+     "aliases": [
+      "longest prefix match",
+      "administrative distance",
+      "ad",
+      "metric",
+      "forwarding decision",
+      "route selection",
+      "best path"
+     ],
+     "paraphrases": [
+      "how a router makes a forwarding decision by default: longest prefix match, administrative distance, metric"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a router makes a forwarding decision by default: longest prefix match, administrative distance, metric."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D3-T03",
+     "topic_number": 3,
+     "title": "IPv4 and IPv6 static routing",
+     "aliases": [
+      "static routing",
+      "static routes",
+      "static route",
+      "default route",
+      "floating static",
+      "floating static route",
+      "host route",
+      "network route",
+      "ipv6 static"
+     ],
+     "paraphrases": [
+      "configure and verify IPv4 and IPv6 static routing: default, network, host and floating static"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify IPv4 and IPv6 static routing: default, network, host and floating static."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D3-T04",
+     "topic_number": 4,
+     "title": "Single area OSPFv2",
+     "aliases": [
+      "ospf",
+      "ospfv2",
+      "open shortest path first",
+      "ospf neighbors",
+      "ospf adjacency",
+      "dr bdr",
+      "designated router",
+      "router id",
+      "ospf areas",
+      "single area ospf",
+      "lsa",
+      "hello timer"
+     ],
+     "paraphrases": [
+      "configure and verify single area OSPFv2: neighbor adjacencies, point-to-point, broadcast DR/BDR, router ID"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify single area OSPFv2: neighbor adjacencies, point-to-point, broadcast DR/BDR, router ID."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D3-T05",
+     "topic_number": 5,
+     "title": "First hop redundancy protocols",
+     "aliases": [
+      "fhrp",
+      "hsrp",
+      "vrrp",
+      "glbp",
+      "first hop redundancy",
+      "default gateway redundancy"
+     ],
+     "paraphrases": [
+      "the purpose, functions and concepts of first hop redundancy protocols"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The purpose, functions and concepts of first hop redundancy protocols."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNA-D4",
+   "chapter_number": 4,
+   "title": "IP Services",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNA-D4-T01",
+     "topic_number": 1,
+     "title": "Inside source NAT (static and pools)",
+     "aliases": [
+      "nat",
+      "network address translation",
+      "pat",
+      "nat overload",
+      "static nat",
+      "dynamic nat",
+      "nat pool",
+      "inside source nat"
+     ],
+     "paraphrases": [
+      "configure and verify inside source NAT using static and pools"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify inside source NAT using static and pools."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T02",
+     "topic_number": 2,
+     "title": "NTP client and server mode",
+     "aliases": [
+      "ntp",
+      "network time protocol",
+      "time synchronization",
+      "clock",
+      "stratum"
+     ],
+     "paraphrases": [
+      "configure and verify NTP operating in client and server mode"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify NTP operating in client and server mode."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T03",
+     "topic_number": 3,
+     "title": "DHCP and DNS",
+     "aliases": [
+      "dns",
+      "dhcp",
+      "domain name system",
+      "dynamic host configuration protocol",
+      "dora",
+      "name resolution"
+     ],
+     "paraphrases": [
+      "the role of DHCP and DNS within the network"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The role of DHCP and DNS within the network."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T04",
+     "topic_number": 4,
+     "title": "SNMP",
+     "aliases": [
+      "snmp",
+      "simple network management protocol",
+      "mib",
+      "traps",
+      "snmpv3",
+      "community string"
+     ],
+     "paraphrases": [
+      "the function of SNMP in network operations"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The function of SNMP in network operations."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T05",
+     "topic_number": 5,
+     "title": "Syslog facilities and severity levels",
+     "aliases": [
+      "syslog",
+      "logging",
+      "severity levels",
+      "log levels",
+      "facilities"
+     ],
+     "paraphrases": [
+      "the use of syslog features including facilities and severity levels"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The use of syslog features including facilities and severity levels."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T06",
+     "topic_number": 6,
+     "title": "DHCP client and relay",
+     "aliases": [
+      "dhcp relay",
+      "ip helper-address",
+      "helper address",
+      "dhcp client",
+      "relay agent",
+      "dhcp",
+      "dhcp server"
+     ],
+     "paraphrases": [
+      "configure and verify DHCP client and relay"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify DHCP client and relay."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T07",
+     "topic_number": 7,
+     "title": "QoS per-hop behavior",
+     "aliases": [
+      "qos",
+      "quality of service",
+      "phb",
+      "per-hop behavior",
+      "per hop behaviour",
+      "classification",
+      "marking",
+      "queuing",
+      "congestion",
+      "policing",
+      "shaping",
+      "dscp"
+     ],
+     "paraphrases": [
+      "the forwarding per-hop behavior for QoS: classification, marking, queuing, congestion, policing, shaping"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The forwarding per-hop behavior for QoS: classification, marking, queuing, congestion, policing, shaping."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T08",
+     "topic_number": 8,
+     "title": "Remote access with SSH",
+     "aliases": [
+      "ssh",
+      "secure shell",
+      "ssh configuration",
+      "remote access"
+     ],
+     "paraphrases": [
+      "configure network devices for remote access using SSH"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure network devices for remote access using SSH."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D4-T09",
+     "topic_number": 9,
+     "title": "TFTP and FTP",
+     "aliases": [
+      "tftp",
+      "ftp",
+      "file transfer",
+      "trivial file transfer protocol",
+      "file transfer protocol"
+     ],
+     "paraphrases": [
+      "the capabilities and functions of TFTP and FTP in the network"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The capabilities and functions of TFTP and FTP in the network."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNA-D5",
+   "chapter_number": 5,
+   "title": "Security Fundamentals",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNA-D5-T01",
+     "topic_number": 1,
+     "title": "Key security concepts (threats, vulnerabilities, exploits, mitigation)",
+     "aliases": [
+      "security concepts",
+      "threats",
+      "vulnerabilities",
+      "exploits",
+      "mitigation",
+      "attacks",
+      "network security"
+     ],
+     "paraphrases": [
+      "define key security concepts: threats, vulnerabilities, exploits and mitigation techniques"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Define key security concepts: threats, vulnerabilities, exploits and mitigation techniques."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T02",
+     "topic_number": 2,
+     "title": "Network device management access (console, Telnet, SSH, HTTPS, TACACS+/RADIUS)",
+     "aliases": [
+      "device access control",
+      "local passwords",
+      "management access",
+      "console",
+      "telnet",
+      "https",
+      "enable secret",
+      "vty",
+      "device management access"
+     ],
+     "paraphrases": [
+      "configure and verify device access control using local passwords",
+      "securing management access to devices"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify device access control using local passwords."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T03",
+     "topic_number": 3,
+     "title": "Security password policies (MFA, certificates, biometrics)",
+     "aliases": [
+      "password policies",
+      "mfa",
+      "multifactor authentication",
+      "multi-factor",
+      "certificates",
+      "biometrics",
+      "password complexity"
+     ],
+     "paraphrases": [
+      "security password policy elements: management, complexity and alternatives such as MFA, certificates, biometrics"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Security password policy elements: management, complexity and alternatives such as MFA, certificates, biometrics."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T04",
+     "topic_number": 4,
+     "title": "IPsec remote access and site-to-site VPNs",
+     "aliases": [
+      "vpn",
+      "vpns",
+      "ipsec",
+      "site-to-site",
+      "remote access vpn",
+      "tunnels"
+     ],
+     "paraphrases": [
+      "describe IPsec remote access and site-to-site VPNs"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Describe IPsec remote access and site-to-site VPNs."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T05",
+     "topic_number": 5,
+     "title": "Access control lists",
+     "aliases": [
+      "acl",
+      "acls",
+      "access list",
+      "access lists",
+      "access control list",
+      "standard acl",
+      "extended acl",
+      "wildcard mask"
+     ],
+     "paraphrases": [
+      "configure and verify access control lists"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify access control lists."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T06",
+     "topic_number": 6,
+     "title": "Layer 2 security (DHCP snooping, DAI, port security)",
+     "aliases": [
+      "port security",
+      "dhcp snooping",
+      "dai",
+      "dynamic arp inspection",
+      "layer 2 security",
+      "sticky mac",
+      "violation mode"
+     ],
+     "paraphrases": [
+      "configure and verify Layer 2 security features: DHCP snooping, dynamic ARP inspection and port security"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configure and verify Layer 2 security features: DHCP snooping, dynamic ARP inspection and port security."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T07",
+     "topic_number": 7,
+     "title": "AAA (authentication, authorization, accounting)",
+     "aliases": [
+      "aaa",
+      "authentication",
+      "authorization",
+      "accounting",
+      "radius",
+      "tacacs+",
+      "tacacs"
+     ],
+     "paraphrases": [
+      "compare authentication, authorization and accounting concepts"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Compare authentication, authorization and accounting concepts."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D5-T08",
+     "topic_number": 8,
+     "title": "Wireless security protocols (WPA, WPA2, WPA3)",
+     "aliases": [
+      "wpa",
+      "wpa2",
+      "wpa3",
+      "wireless security",
+      "psk",
+      "wpa2-psk",
+      "802.1x",
+      "wireless lan security"
+     ],
+     "paraphrases": [
+      "wireless security protocols WPA, WPA2 and WPA3",
+      "configure a WLAN using WPA2 PSK"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Wireless security protocols WPA, WPA2 and WPA3."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNA-D6",
+   "chapter_number": 6,
+   "title": "Automation and Programmability",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNA-D6-T01",
+     "topic_number": 1,
+     "title": "AI and machine learning in network operations",
+     "aliases": [
+      "ai",
+      "machine learning",
+      "ml",
+      "generative ai",
+      "predictive ai",
+      "aiops",
+      "artificial intelligence"
+     ],
+     "paraphrases": [
+      "AI (generative and predictive) and machine learning in network operations"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "AI (generative and predictive) and machine learning in network operations."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D6-T02",
+     "topic_number": 2,
+     "title": "Controller-based and software-defined networking",
+     "aliases": [
+      "sdn",
+      "software defined networking",
+      "software-defined networking",
+      "controller",
+      "controller-based",
+      "sd-access",
+      "underlay",
+      "overlay",
+      "fabric",
+      "dna center",
+      "catalyst center",
+      "northbound",
+      "southbound"
+     ],
+     "paraphrases": [
+      "controller-based, software-defined architecture: overlay, underlay and fabric",
+      "traditional versus controller-based networking"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Controller-based, software-defined architecture: overlay, underlay and fabric."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D6-T03",
+     "topic_number": 3,
+     "title": "REST-based APIs",
+     "aliases": [
+      "rest",
+      "rest api",
+      "rest apis",
+      "restful",
+      "api",
+      "apis",
+      "crud",
+      "http verbs",
+      "authentication types"
+     ],
+     "paraphrases": [
+      "characteristics of REST-based APIs: authentication types, CRUD, HTTP verbs and data encoding"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Characteristics of REST-based APIs: authentication types, CRUD, HTTP verbs and data encoding."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D6-T04",
+     "topic_number": 4,
+     "title": "Configuration management (Ansible, Terraform)",
+     "aliases": [
+      "ansible",
+      "terraform",
+      "configuration management",
+      "puppet",
+      "chef",
+      "infrastructure as code",
+      "iac",
+      "playbooks"
+     ],
+     "paraphrases": [
+      "the capabilities of configuration management mechanisms such as Ansible and Terraform"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The capabilities of configuration management mechanisms such as Ansible and Terraform."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNA-D6-T05",
+     "topic_number": 5,
+     "title": "JSON encoded data",
+     "aliases": [
+      "json",
+      "javascript object notation",
+      "json data",
+      "data encoding"
+     ],
+     "paraphrases": [
+      "recognize components of JSON-encoded data"
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recognize components of JSON-encoded data."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

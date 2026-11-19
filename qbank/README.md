@@ -76,8 +76,40 @@ python scripts/import_questions.py ../qbank --apply    # one transaction, all or
 python scripts/qbank_coverage.py                       # real counts, statuses and shortfalls
 ```
 
+## The NetSec certification bank (curriculum `netsec`)
+
+```
+manifest/netsec-2026/<track>.json                one track: its exam domains (chapters), canonical topics
+                                                 (aliases, paraphrases, NHprep lessons), concepts
+content/<track>/<domain>/questions.jsonl         one question per line
+vocabulary/netsec.json                           terms that name one thing (acronym and expansions),
+                                                 merged into topic aliases at import
+```
+
+A question:
+
+```json
+{"question_id": "CCNA-D3-T04-001", "chapter_id": "CCNA-D3", "topic_id": "CCNA-D3-T04", "concept_tag": "core",
+ "difficulty": "medium", "format": "multi_select", "competency": "application",
+ "stem": "Which two ... (Choose two)", "options": ["...", "...", "...", "..."], "correct": ["A", "C"],
+ "explanation": "...", "marks": 1, "source": {"kind": "nhprep_lesson", "ref": "<lesson id>"},
+ "lesson_ref": "<NHprep lesson external id>", "key_origin": "authored",
+ "verification": {"notes": "agree", "closed_book": "agree", "single_defensible": true, "by": "...", "at": "..."},
+ "review": {"status": "needs_review"}, "active": true}
+```
+
+**Rules** (`backend/app/qbank/netsec.py`):
+- 2–8 distinct options, distinct correct letters;
+- an `mcq` has one key; a `multi_select` has 2 ≤ keys < options, and its stem says "(Choose N)";
+- an `authored` key is served only when the blind check agreed three ways;
+- NHprep's own questions (`source.kind: nhprep_quiz`) keep their text and are exempt from the written-style rules
+  (no "all/none of the above", explanations of 40+ characters);
+- an inactive question says why (`inactive_reason`);
+- titles carry no newline, fence or markup.
+
 ## What is here (2026-11-19)
-- **Nothing yet.** PadhAI's NCERT content (the CBSE 2026-27 inventory and the Chapter 9 questions) was deleted
+- **CCNA manifest** (`manifest/netsec-2026/ccna.json`): the 200-301 v1.1 domains and 44 canonical topics with aliases; no questions yet (they come from session 3's NHprep export).
+- **Before that:** PadhAI's NCERT content (the CBSE 2026-27 inventory and the Chapter 9 questions) was deleted
   on the owner's instruction; it remains in git history (commit e57652c and earlier). NetSec's production
   question-bank tables were already empty. The certification bank (domains and topics) is still to be written
   in the layout above.

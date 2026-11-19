@@ -31,7 +31,7 @@ from app.db.session import get_session
 from app.errors import Conflict, NotFound, RateLimited, ValidationFailed, error_body
 from app.logging import get_logger
 from app.progress.learning import StreakEvent, now, record_practice
-from app.qbank import chat_tests
+from app.qbank import bank_tests, chat_tests
 
 router = APIRouter(prefix="/v1", tags=["chat"])
 log = get_logger("app.assessments")
@@ -235,7 +235,14 @@ async def _bank_step(
     response = record["responses"][-1]
     position = response["question"] + 1  # the ledger counts served questions from 1
     answered = None
-    if response["status"] == "answered":
+    if response["status"] == "answered" and source.get("keys"):  # a certification-bank test (0026)
+        question = record["questions"][response["question"]]
+        chosen = response.get("answer") if question["kind"] == "multi" else [response["value"]]
+        letters = [bank_tests.LETTERS[index] for index in chosen]
+        answered = await bank_tests.answer_keys(db, user_id, set_id, position, letters)
+        if answered is not None and answered[1] != bool(response["earned"]):
+            log.warning("assessment key drift", extra={**extra, "set_id": str(set_id)})
+    elif response["status"] == "answered":
         letter = assessments.LETTERS[response["value"]]
         answered = await chat_tests.answer(db, user_id, set_id, position, letter)
         if answered is not None and answered[1] != bool(response["earned"]):

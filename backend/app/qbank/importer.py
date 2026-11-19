@@ -90,6 +90,10 @@ async def _write(session: AsyncSession, bank: Bank, report: ImportReport, retire
             "topic_number": topic["topic_number"],
             "title": topic["title"],
             "ncert_sections": topic.get("ncert_sections"),
+            "aliases": topic["aliases"],
+            "lessons": topic["lessons"],
+            "search_title": topic["search_title"],
+            "search_doc": topic["search_doc"],
         }
         for topic_id, topic in bank.topics.items()
     ]

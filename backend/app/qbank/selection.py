@@ -311,7 +311,8 @@ ADAPTIVE_PICK = text(
         FROM history ORDER BY question_id, answered_at DESC
     )
     SELECT q.question_id, q.topic_id, q.concept_tag, q.level, q.difficulty, q.stem, q.option_a, q.option_b,
-           q.option_c, q.option_d, q.correct_option, q.explanation, c.title AS case_title, c.body AS case_body,
+           q.option_c, q.option_d, q.correct_option, q.options, q.correct_keys, q.question_format, q.lesson_ref,
+           q.source_kind, q.explanation, c.title AS case_title, c.body AS case_body,
            count(*) OVER () AS available
     FROM qb_questions q
     CROSS JOIN LATERAL (SELECT q.topic_id || ' ' || q.concept_tag AS concept) k
@@ -324,12 +325,18 @@ ADAPTIVE_PICK = text(
       AND q.class_level = :class_level AND q.subject_code = :subject_code
       AND (CAST(:syllabus_version AS text) IS NULL OR q.syllabus_version = :syllabus_version)
       AND (CAST(:difficulty AS text) IS NULL OR q.difficulty = :difficulty)
+      AND (CAST(:entitled AS boolean) OR q.source_kind NOT LIKE 'nhprep%')
       AND (NOT CAST(:card AS boolean) OR (
           length(q.stem) + coalesce(length(c.title) + length(c.body) + 9, 0) <= 1000
-          AND greatest(length(q.option_a), length(q.option_b), length(q.option_c), length(q.option_d)) <= 400
+          AND CASE WHEN q.options IS NULL
+                   THEN greatest(length(q.option_a), length(q.option_b), length(q.option_c), length(q.option_d)) <= 400
+                   ELSE NOT EXISTS (SELECT 1 FROM jsonb_array_elements_text(q.options) o WHERE length(o) > 400) END
           AND length(q.explanation) <= 2000))
       AND NOT EXISTS (SELECT 1 FROM qb_set_items x WHERE x.set_id = :set_id AND x.question_id = q.question_id)
-    ORDER BY s.question_id IS NOT NULL,
+      AND NOT (q.question_id = ANY(CAST(:exclude AS text[])))
+      AND (CAST(:question_format AS text) IS NULL OR q.question_format = :question_format)
+    ORDER BY (CAST(:lesson_ref AS text) IS NOT NULL AND q.lesson_ref IS DISTINCT FROM :lesson_ref),
+             s.question_id IS NOT NULL,
              q.question_id IS NOT DISTINCT FROM t.previous,
              abs(q.level - t.level),
              k.concept IS DISTINCT FROM coalesce(t.same_concept, k.concept),
@@ -347,7 +354,9 @@ ADAPTIVE_PICK = text(
 class Pool:
     """Where the next question comes from: these topics of one class, subject and language (and one
     syllabus version and difficulty, when given). `card`: only questions the chat's quiz card can show
-    (app/assessments/state.py limits; the few longest case questions are left out)."""
+    (app/assessments/state.py limits; the few longest case questions are left out). `entitled`: whether
+    NHprep-derived questions may be served (a NetworkersHome student, app/access/students.py); every pick
+    checks it, so no path serves them to anyone else."""
 
     language: str
     class_level: int
@@ -356,6 +365,9 @@ class Pool:
     syllabus_version: str | None = None
     difficulty: str | None = None
     card: bool = False
+    entitled: bool = False
+    question_format: str | None = None  # e.g. 'multi_select' only
+    lesson_ref: str | None = None  # this NHprep lesson's questions first
 
 
 async def pick_next(
@@ -365,6 +377,7 @@ async def pick_next(
     seed: str,
     set_id: uuid.UUID | None = None,
     previous_position: int | None = None,
+    exclude: tuple[str, ...] = (),
 ) -> Any:
     """The question to serve next (ADAPTIVE_PICK) with its content and key, and how many the pool has
     left for the set (`available`); None when it has none. Only reads; never commits."""
@@ -383,6 +396,10 @@ async def pick_next(
                 "syllabus_version": pool.syllabus_version,
                 "difficulty": pool.difficulty,
                 "card": pool.card,
+                "entitled": pool.entitled,
+                "exclude": list(exclude),
+                "question_format": pool.question_format,
+                "lesson_ref": pool.lesson_ref,
             },
         )
     ).one_or_none()

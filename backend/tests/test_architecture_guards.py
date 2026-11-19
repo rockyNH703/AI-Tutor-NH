@@ -152,6 +152,7 @@ def test_the_question_bank_never_calls_a_model():
         *BACKEND.joinpath("app", "qbank").glob("*.py"),
         BACKEND / "scripts" / "import_questions.py",
         BACKEND / "scripts" / "qbank_coverage.py",
+        BACKEND / "scripts" / "eval_bank_finder.py",
     ]
     assert len(files) >= 6
     forbidden = ("app.llm", "app.rag", "app.chat", "app.assessments", "langchain", "langgraph", "openai", "httpx")

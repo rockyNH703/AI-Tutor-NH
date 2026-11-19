@@ -1890,9 +1890,9 @@ class AppSession(Base):
 # ------------------------------------------------------------------ question bank (app/qbank)
 QB_LANGUAGES = ("english", "hindi", "sanskrit")  # the language the content is written in
 QB_DIFFICULTIES = ("easy", "medium", "hard")
-QB_FORMATS = ("mcq", "assertion_reason", "case_based", "source_based")
+QB_FORMATS = ("mcq", "assertion_reason", "case_based", "source_based", "multi_select")  # 0026: multi_select
 QB_COMPETENCIES = ("knowledge_understanding", "application", "analysis_evaluation")
-QB_SOURCE_KINDS = ("original", "ncert_exercise", "cbse_official")
+QB_SOURCE_KINDS = ("original", "ncert_exercise", "cbse_official", "nhprep_quiz", "nhprep_lesson")  # 0026
 QB_REVIEW_STATUSES = ("draft", "needs_review", "approved", "rejected")
 QB_SET_MODES = ("adaptive", "test", "chat")  # 0017: "chat", a question-bank test in the chat
 QB_SERVABLE = "review_status IN ('approved', 'needs_review') AND is_active"  # 0016: practice serves unreviewed ones
@@ -1905,7 +1905,7 @@ class QbSyllabusVersion(Base):
     __tablename__ = "qb_syllabus_versions"
     __table_args__ = (
         UniqueConstraint("curriculum", "academic_session"),
-        CheckConstraint("curriculum IN ('cbse')", name="curriculum"),
+        CheckConstraint("curriculum IN ('cbse', 'netsec')", name="curriculum"),
     )
 
     code: Mapped[str] = mapped_column(Text, primary_key=True)
@@ -1921,8 +1921,13 @@ class QbBook(Base):
     __tablename__ = "qb_books"
     __table_args__ = (
         UniqueConstraint("book_id", "class_level", "subject_code", "language"),
-        CheckConstraint("curriculum IN ('cbse')", name="curriculum"),
-        CheckConstraint("class_level BETWEEN 6 AND 12", name="class_level"),
+        CheckConstraint("curriculum IN ('cbse', 'netsec')", name="curriculum"),
+        # 0026: a netsec book is a certification track and class_level its tier (1-3).
+        CheckConstraint(
+            "(curriculum = 'cbse' AND class_level BETWEEN 6 AND 12) "
+            "OR (curriculum = 'netsec' AND class_level BETWEEN 1 AND 3)",
+            name="class_level",
+        ),
         CheckConstraint(f"language IN {QB_LANGUAGES}", name="language"),
         CheckConstraint("subject_code ~ '^[a-z_]+$'", name="subject_code"),
     )
@@ -1944,7 +1949,7 @@ class QbChapter(Base):
     __table_args__ = (
         UniqueConstraint("book_id", "chapter_number"),
         UniqueConstraint("chapter_id", "book_id"),
-        CheckConstraint("max_questions BETWEEN 1 AND 1000", name="max_questions"),
+        CheckConstraint("max_questions BETWEEN 1 AND 5000", name="max_questions"),
         CheckConstraint("question_count BETWEEN 0 AND max_questions", name="question_count"),
     )
 
@@ -1959,14 +1964,41 @@ class QbChapter(Base):
 
 
 class QbTopic(Base):
+    """A topic; for the netsec bank (0026) also what the bank turn searches: aliases, the NHprep lessons that
+    map to it, and search_title/search_doc written by the importer (app/qbank/finder.py)."""
+
     __tablename__ = "qb_topics"
-    __table_args__ = (UniqueConstraint("chapter_id", "topic_number"), UniqueConstraint("topic_id", "chapter_id"))
+    __table_args__ = (
+        UniqueConstraint("chapter_id", "topic_number"),
+        UniqueConstraint("topic_id", "chapter_id"),
+        CheckConstraint("jsonb_typeof(lessons) = 'array'", name="lessons"),
+        Index("ix_qb_topics_search_tsv", "search_tsv", postgresql_using="gin"),
+        Index(
+            "ix_qb_topics_search_title_trgm",
+            "search_title",
+            postgresql_using="gin",
+            postgresql_ops={"search_title": "gin_trgm_ops"},
+        ),
+        Index("ix_qb_topics_aliases", "aliases", postgresql_using="gin"),
+    )
 
     topic_id: Mapped[str] = mapped_column(Text, primary_key=True)
     chapter_id: Mapped[str] = mapped_column(Text, ForeignKey("qb_chapters.chapter_id"), nullable=False)
     topic_number: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     title: Mapped[str] = mapped_column(Text, nullable=False)
     ncert_sections: Mapped[str | None] = mapped_column(Text)
+    aliases: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False, server_default=text("'{}'"))
+    lessons: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False, server_default=text("'[]'"))
+    search_title: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    search_doc: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    search_tsv: Mapped[Any] = mapped_column(
+        TSVECTOR,
+        Computed(
+            "setweight(to_tsvector('english'::regconfig, search_title), 'A') || "
+            "setweight(to_tsvector('english'::regconfig, search_doc), 'B')",
+            persisted=True,
+        ),
+    )
 
 
 class QbConcept(Base):
@@ -2032,6 +2064,19 @@ class QbQuestion(Base):
             name="approved",
         ),
         CheckConstraint("fingerprint ~ '^[0-9a-f]{64}$' AND content_hash ~ '^[0-9a-f]{64}$'", name="hashes"),
+        # 0026: one of two shapes (the CBSE A-D one, or options + correct_keys checked by qb_options_valid).
+        CheckConstraint(
+            "(options IS NULL AND correct_keys IS NULL AND option_a IS NOT NULL AND option_b IS NOT NULL "
+            "AND option_c IS NOT NULL AND option_d IS NOT NULL AND correct_option IS NOT NULL "
+            "AND question_format <> 'multi_select') OR (options IS NOT NULL AND correct_keys IS NOT NULL "
+            "AND option_a IS NULL AND option_b IS NULL AND option_c IS NULL AND option_d IS NULL "
+            "AND correct_option IS NULL AND qb_options_valid(options, correct_keys, question_format))",
+            name="shape",
+        ),
+        CheckConstraint("key_origin IN ('nhprep', 'authored')", name="key_origin"),
+        CheckConstraint("lesson_ref ~ '^[A-Za-z0-9][A-Za-z0-9_.:-]{0,119}$'", name="lesson_ref"),
+        CheckConstraint("length(btrim(explanation)) > 0", name="explanation"),
+        Index("ix_qb_questions_lesson_ref", "lesson_ref", postgresql_where=text("lesson_ref IS NOT NULL")),
         Index(
             "ix_qb_questions_select",
             "language",
@@ -2064,11 +2109,15 @@ class QbQuestion(Base):
     competency: Mapped[str] = mapped_column(Text, nullable=False)
     case_id: Mapped[str | None] = mapped_column(Text)
     stem: Mapped[str] = mapped_column(Text, nullable=False)
-    option_a: Mapped[str] = mapped_column(Text, nullable=False)
-    option_b: Mapped[str] = mapped_column(Text, nullable=False)
-    option_c: Mapped[str] = mapped_column(Text, nullable=False)
-    option_d: Mapped[str] = mapped_column(Text, nullable=False)
-    correct_option: Mapped[str] = mapped_column(CHAR(1), nullable=False)
+    option_a: Mapped[str | None] = mapped_column(Text)  # the CBSE shape (0026: or options + correct_keys)
+    option_b: Mapped[str | None] = mapped_column(Text)
+    option_c: Mapped[str | None] = mapped_column(Text)
+    option_d: Mapped[str | None] = mapped_column(Text)
+    correct_option: Mapped[str | None] = mapped_column(CHAR(1))
+    options: Mapped[list[str] | None] = mapped_column(JSONB(none_as_null=True))  # None is SQL NULL, not JSON null
+    correct_keys: Mapped[list[str] | None] = mapped_column(ARRAY(Text))
+    lesson_ref: Mapped[str | None] = mapped_column(Text)  # the NHprep lesson it was written from (no FK)
+    key_origin: Mapped[str | None] = mapped_column(Text)
     explanation: Mapped[str] = mapped_column(Text, nullable=False)
     marks: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("1"))
     source_kind: Mapped[str] = mapped_column(Text, nullable=False)
@@ -2125,7 +2174,13 @@ class QbSetItem(Base):
         CheckConstraint("position >= 1", name="position"),
         CheckConstraint("chosen IN ('A', 'B', 'C', 'D')", name="chosen"),
         CheckConstraint(
-            "(chosen IS NULL) = (answered_at IS NULL) AND (chosen IS NULL) = (is_correct IS NULL)", name="answer"
+            "((chosen IS NULL AND chosen_keys IS NULL) = (answered_at IS NULL)) "
+            "AND ((answered_at IS NULL) = (is_correct IS NULL)) AND (chosen IS NULL OR chosen_keys IS NULL)",
+            name="answer",
+        ),
+        CheckConstraint(
+            "cardinality(chosen_keys) BETWEEN 1 AND 8 AND chosen_keys <@ ARRAY['A','B','C','D','E','F','G','H']",
+            name="chosen_keys",
         ),
         CheckConstraint("answered_at IS NULL OR answered_at >= served_at", name="order"),
         Index("ix_qb_set_items_user_id_topic_id_answered_at", "user_id", "topic_id", "answered_at"),
@@ -2138,6 +2193,7 @@ class QbSetItem(Base):
     topic_id: Mapped[str] = mapped_column(Text, nullable=False)
     served_at: Mapped[datetime] = _created()
     chosen: Mapped[str | None] = mapped_column(CHAR(1))
+    chosen_keys: Mapped[list[str] | None] = mapped_column(ARRAY(Text))  # 0026: a new-shape question's answer
     hinted: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
     is_correct: Mapped[bool | None] = mapped_column(Boolean)
     answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

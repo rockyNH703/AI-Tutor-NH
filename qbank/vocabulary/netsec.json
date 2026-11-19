@@ -1,0 +1,416 @@
+{
+ "about": "Terms that name one thing: an acronym and its expansions. Merged into topic aliases at import.",
+ "groups": [
+  [
+   "ospf",
+   "open shortest path first"
+  ],
+  [
+   "eigrp",
+   "enhanced interior gateway routing protocol"
+  ],
+  [
+   "bgp",
+   "border gateway protocol"
+  ],
+  [
+   "rip",
+   "routing information protocol"
+  ],
+  [
+   "is-is",
+   "isis"
+  ],
+  [
+   "stp",
+   "spanning tree protocol",
+   "spanning tree"
+  ],
+  [
+   "rstp",
+   "rapid spanning tree"
+  ],
+  [
+   "vlan",
+   "virtual lan"
+  ],
+  [
+   "vlans",
+   "virtual lans"
+  ],
+  [
+   "acl",
+   "access control list",
+   "access list"
+  ],
+  [
+   "acls",
+   "access control lists",
+   "access lists"
+  ],
+  [
+   "nat",
+   "network address translation"
+  ],
+  [
+   "pat",
+   "port address translation",
+   "nat overload"
+  ],
+  [
+   "dhcp",
+   "dynamic host configuration protocol"
+  ],
+  [
+   "dns",
+   "domain name system"
+  ],
+  [
+   "ntp",
+   "network time protocol"
+  ],
+  [
+   "snmp",
+   "simple network management protocol"
+  ],
+  [
+   "ssh",
+   "secure shell"
+  ],
+  [
+   "tftp",
+   "trivial file transfer protocol"
+  ],
+  [
+   "ftp",
+   "file transfer protocol"
+  ],
+  [
+   "qos",
+   "quality of service"
+  ],
+  [
+   "phb",
+   "per-hop behavior"
+  ],
+  [
+   "fhrp",
+   "first hop redundancy protocol"
+  ],
+  [
+   "hsrp",
+   "hot standby router protocol"
+  ],
+  [
+   "vrrp",
+   "virtual router redundancy protocol"
+  ],
+  [
+   "glbp",
+   "gateway load balancing protocol"
+  ],
+  [
+   "cdp",
+   "cisco discovery protocol"
+  ],
+  [
+   "lldp",
+   "link layer discovery protocol"
+  ],
+  [
+   "lacp",
+   "link aggregation control protocol"
+  ],
+  [
+   "pagp",
+   "port aggregation protocol"
+  ],
+  [
+   "dtp",
+   "dynamic trunking protocol"
+  ],
+  [
+   "vtp",
+   "vlan trunking protocol"
+  ],
+  [
+   "aaa",
+   "authentication authorization accounting"
+  ],
+  [
+   "radius",
+   "remote authentication dial-in user service"
+  ],
+  [
+   "tacacs+",
+   "terminal access controller access-control system plus"
+  ],
+  [
+   "mfa",
+   "multifactor authentication",
+   "multi-factor authentication"
+  ],
+  [
+   "vpn",
+   "virtual private network"
+  ],
+  [
+   "ipsec",
+   "ip security"
+  ],
+  [
+   "dai",
+   "dynamic arp inspection"
+  ],
+  [
+   "wpa",
+   "wi-fi protected access"
+  ],
+  [
+   "wlc",
+   "wireless lan controller"
+  ],
+  [
+   "ap",
+   "access point"
+  ],
+  [
+   "capwap",
+   "control and provisioning of wireless access points"
+  ],
+  [
+   "ssid",
+   "service set identifier"
+  ],
+  [
+   "sdn",
+   "software defined networking",
+   "software-defined networking"
+  ],
+  [
+   "api",
+   "application programming interface"
+  ],
+  [
+   "rest",
+   "representational state transfer"
+  ],
+  [
+   "json",
+   "javascript object notation"
+  ],
+  [
+   "iac",
+   "infrastructure as code"
+  ],
+  [
+   "ai",
+   "artificial intelligence"
+  ],
+  [
+   "ml",
+   "machine learning"
+  ],
+  [
+   "vrf",
+   "virtual routing and forwarding"
+  ],
+  [
+   "vm",
+   "virtual machine"
+  ],
+  [
+   "tcp",
+   "transmission control protocol"
+  ],
+  [
+   "udp",
+   "user datagram protocol"
+  ],
+  [
+   "arp",
+   "address resolution protocol"
+  ],
+  [
+   "icmp",
+   "internet control message protocol"
+  ],
+  [
+   "mtu",
+   "maximum transmission unit"
+  ],
+  [
+   "poe",
+   "power over ethernet"
+  ],
+  [
+   "utp",
+   "unshielded twisted pair"
+  ],
+  [
+   "cidr",
+   "classless inter-domain routing"
+  ],
+  [
+   "vlsm",
+   "variable length subnet mask"
+  ],
+  [
+   "slaac",
+   "stateless address autoconfiguration"
+  ],
+  [
+   "mac",
+   "media access control"
+  ],
+  [
+   "ad",
+   "administrative distance"
+  ],
+  [
+   "lsa",
+   "link state advertisement"
+  ],
+  [
+   "dr",
+   "designated router"
+  ],
+  [
+   "bdr",
+   "backup designated router"
+  ],
+  [
+   "bpdu",
+   "bridge protocol data unit"
+  ],
+  [
+   "syslog",
+   "system logging"
+  ],
+  [
+   "dscp",
+   "differentiated services code point"
+  ],
+  [
+   "mpls",
+   "multiprotocol label switching"
+  ],
+  [
+   "ids",
+   "intrusion detection system"
+  ],
+  [
+   "ips",
+   "intrusion prevention system"
+  ],
+  [
+   "ngfw",
+   "next generation firewall"
+  ],
+  [
+   "siem",
+   "security information and event management"
+  ],
+  [
+   "soc",
+   "security operations center"
+  ],
+  [
+   "ddos",
+   "distributed denial of service"
+  ],
+  [
+   "dos",
+   "denial of service"
+  ],
+  [
+   "pki",
+   "public key infrastructure"
+  ],
+  [
+   "tls",
+   "transport layer security"
+  ],
+  [
+   "ssl",
+   "secure sockets layer"
+  ],
+  [
+   "http",
+   "hypertext transfer protocol"
+  ],
+  [
+   "https",
+   "http secure"
+  ],
+  [
+   "smtp",
+   "simple mail transfer protocol"
+  ],
+  [
+   "ldap",
+   "lightweight directory access protocol"
+  ],
+  [
+   "sase",
+   "secure access service edge"
+  ],
+  [
+   "ztna",
+   "zero trust network access"
+  ],
+  [
+   "sd-wan",
+   "software defined wan"
+  ],
+  [
+   "vxlan",
+   "virtual extensible lan"
+  ],
+  [
+   "evpn",
+   "ethernet vpn"
+  ],
+  [
+   "gre",
+   "generic routing encapsulation"
+  ],
+  [
+   "ike",
+   "internet key exchange"
+  ],
+  [
+   "esp",
+   "encapsulating security payload"
+  ],
+  [
+   "ah",
+   "authentication header"
+  ],
+  [
+   "eui-64",
+   "eui 64",
+   "extended unique identifier"
+  ],
+  [
+   "rfc 1918",
+   "rfc1918"
+  ],
+  [
+   "wan",
+   "wide area network"
+  ],
+  [
+   "lan",
+   "local area network"
+  ],
+  [
+   "soho",
+   "small office home office"
+  ],
+  [
+   "crud",
+   "create read update delete"
+  ]
+ ]
+}

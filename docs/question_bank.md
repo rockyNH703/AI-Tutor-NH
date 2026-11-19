@@ -15,6 +15,63 @@ The tutor's own practice blocks in chat (`app/assessments`) are separate and unc
 - Content: `qbank/` (see [qbank/README.md](../qbank/README.md))
 - Reference SQL: [question_bank_queries.sql](question_bank_queries.sql)
 
+## The NetSec certification bank (2026-11-19)
+
+The same tables hold NetSec's certification bank (migration 0026, curriculum `netsec`). The CBSE description
+below still applies to the CBSE shape, which nothing serves in NetSec (its content was deleted, 7a69002).
+
+**How the tables map:**
+
+| Table | Holds |
+|---|---|
+| `qb_books` | A certification track (a `catalog.CERTIFICATIONS` code: `ccna`, `ccnp_enterprise`, …), with `class_level` as its tier (1 associate, 2 professional, 3 expert) and `subject_code` as its family |
+| `qb_chapters` | An exam domain (CCNA 200-301 v1.1 has 6) |
+| `qb_topics` | A canonical topic that NHprep lessons map to, with `aliases`, `lessons`, and `search_title` / `search_doc`, written by the importer, plus a weighted `search_tsv` and trigram indexes |
+| `qb_questions` | Single-answer (`mcq`) or multiple-answer (`multi_select`) questions: `options` (2–8) and `correct_keys` (letters). The database checks the shape (`qb_options_valid`). `lesson_ref` names the NHprep lesson; `key_origin` says whether the key came from NHprep or was written |
+| `qb_set_items.chosen_keys` | An answer. The trigger grades it as a set: right means exactly the key's letters |
+
+**Who:**
+- NHprep-derived questions (`source_kind` `nhprep_*`) are served only to NetworkersHome students: verified emails at
+  `NHPREP_ALLOWED_EMAIL_DOMAINS` (`app/access/students.py`).
+- Every pick checks this (`selection.Pool.entitled`).
+- The model can't open the netsec bank: a `question-bank` block never names a netsec domain id.
+
+**The bank turn** (`QUESTION_BANK_TURN` off|qa|on, `app/chat/bank_turn.py`): **no model, embedding or search
+call**, decided before memory recall or any classifier runs.
+- **Parse** (`app/qbank/request.py`):
+  - a strict, verb-led request grammar: "quiz me on X", "give me 10 hard MCQs on X", "practice questions on X",
+    "CCNA questions on X", Hinglish, "next 5";
+  - questions *about* something, labs, exam logistics, flashcards and interview questions are left to the normal
+    turn.
+- **Find** (`app/qbank/finder.py`): one SQL round trip over the netsec topics.
+  - The candidates come from exact titles and aliases, lesson titles, full text (any word, with coverage) and
+    trigram similarity.
+  - Typos are corrected against the bank's own words: one edit, a transposition first.
+  - The result is confident, broad (several topics in one track, or an exam domain), ambiguous or none.
+  - "this / that" means the chat's last messages, then the last bank test.
+- **Pick** (`app/qbank/bank_tests.py`): a fixed batch, default 5, at most 30.
+  - Mix: the asked difficulty, else roughly 35% easy, 45% medium and 20% hard. It leans easier after a weak batch
+    and harder after a strong one.
+  - Unseen questions and the weakest concepts come first, and the named lesson's questions before others.
+- **Reply:** one fixed line plus a ```quiz block without keys. The keys are only in the stored record
+  (`app/assessments/bank.py`, a schemaVersion 2 practice test), shown per question once it is final.
+- **Saving:** `_finalize` opens the practice set in the reply's own transaction.
+- **Answers:** `_bank_step` records each answer in the ledger (`chosen_keys`), and the database grades it.
+- **"Next 5"** (the card's button, or the typed text) continues on the same topics without repeats.
+
+**Eval** (`scripts/eval_bank_finder.py`): session 1's frozen query set in `backend/evals/qbank_requests/`, with 420
+dev and 415 test cases and 360 negatives. On dev with the CCNA manifest (2026-11-19):
+- route accuracy 1.000, with 0 false triggers in 186 negatives;
+- topic hit 0.983, precision 0.976;
+- parse plus find p95 34 ms in WSL.
+
+The test split runs once, after the real manifest lands.
+
+**Content** (`qbank/`, below):
+- every NHprep quiz question, kept as written and flagged when disputed;
+- 5–10 questions per NHprep video, written by agents from the lesson's notes and served only after a three-way
+  blind check (from the notes, closed-book, one defensible answer).
+
 ## What it holds
 
 Each level of the hierarchy is a table:

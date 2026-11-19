@@ -32,6 +32,7 @@ from app.db.models import (
     QB_SOURCE_KINDS,
 )
 from app.learning.context import subject_name
+from app.qbank import netsec
 
 LETTERS = "ABCD"
 TARGET_PER_TOPIC = 5  # approved questions a topic needs (owner, 2026-10-15); fewer: underfilled
@@ -140,11 +141,14 @@ class Bank:
     rows: list[dict] = field(default_factory=list)  # qb_questions rows, once checked
     errors: list[str] = field(default_factory=list)
     notes: dict[str, str] = field(default_factory=dict)  # question_id -> why it goes to review
+    vocabulary: list[list[str]] = field(default_factory=list)  # netsec: groups of terms naming one thing
 
 
 def read_bank(root: Path) -> Bank:
     """Read every manifest and content file under root; parse errors are collected, not raised."""
     bank = Bank()
+    bank.vocabulary, errors = netsec.read_vocabulary(root)
+    bank.errors += errors
     for path in sorted(root.glob("manifest/*/*.json")):
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
@@ -171,8 +175,22 @@ def read_bank(root: Path) -> Bank:
                     _read_case(bank, record)
                 else:
                     bank.questions.append(record)
+    _search_fields(bank)
     _check_questions(bank)
     return bank
+
+
+def _search_fields(bank: Bank) -> None:
+    """Every topic's search columns (0026): a netsec topic's from its manifest and the vocabulary; a CBSE
+    topic's are empty (the bank turn never searches CBSE)."""
+    for topic_id, topic in bank.topics.items():
+        chapter = bank.chapters[topic["chapter_id"]]
+        book = bank.books[chapter["book_id"]]
+        if book.get("curriculum") != "netsec":
+            topic.update(aliases=[], lessons=[], search_title="", search_doc="")
+            continue
+        concepts = [concept for (owner, _), concept in bank.concepts.items() if owner == topic_id]
+        topic.update(netsec.topic_search(topic, chapter, book, concepts, bank.vocabulary))
 
 
 def _read_manifest(bank: Bank, data: Any, where: str) -> None:
@@ -184,28 +202,28 @@ def _read_manifest(bank: Bank, data: Any, where: str) -> None:
     if not isinstance(version, dict) or not _SLUG.match(str(version.get("code", ""))):
         errors.append(f"{where}: syllabus_version needs a code")
         return
-    if version.get("curriculum") != "cbse" or not _SESSION.match(str(version.get("academic_session", ""))):
-        errors.append(f"{where}: syllabus_version needs curriculum 'cbse' and an academic_session like 2026_27")
+    if version.get("curriculum") not in ("cbse", "netsec") or not _SESSION.match(
+        str(version.get("academic_session", ""))
+    ):
+        errors.append(f"{where}: syllabus_version needs curriculum cbse or netsec and an academic_session like 2026_27")
     if not _text(version.get("title"), 200) or not _text(version.get("source_url"), 500):
         errors.append(f"{where}: syllabus_version needs a title and its source_url")
     known = bank.syllabus_versions.setdefault(version["code"], version)
     if known != version:
         errors.append(f"{where}: syllabus version {version['code']} differs from another manifest's")
-    if not isinstance(book, dict) or not _SLUG.match(str(book.get("book_id", ""))):
-        errors.append(f"{where}: book needs a book_id like science-c10-en")
+    certification = isinstance(book, dict) and book.get("curriculum") == "netsec"
+    pattern = netsec.BOOK_ID if certification else _SLUG
+    if not isinstance(book, dict) or not pattern.match(str(book.get("book_id", ""))):
+        errors.append(f"{where}: book needs a book_id like science-c10-en (netsec: ccna, ccnp_enterprise)")
         return
     book_id = book["book_id"]
     if book_id in bank.books:
         errors.append(f"{where}: book {book_id} is in two manifests")
         return
-    if book.get("curriculum") != "cbse" or book.get("class_level") not in range(6, 13):
-        errors.append(f"{where}: book {book_id} needs curriculum 'cbse' and a class_level from 6 to 12")
-    if subject_name(book.get("subject_code")) is None:
-        errors.append(f"{where}: book {book_id} has subject_code {book.get('subject_code')!r}, not a catalog subject")
-    if book.get("language") not in QB_LANGUAGES:
-        errors.append(f"{where}: book {book_id} needs a language: {', '.join(QB_LANGUAGES)}")
-    if not _text(book.get("title"), 200) or not _text(book.get("edition"), 200):
-        errors.append(f"{where}: book {book_id} needs a title and an edition")
+    if certification:
+        errors += netsec.check_book(book, version, where)
+    else:
+        _check_cbse_book(book, version, where, errors)
     bank.books[book_id] = {**book, "syllabus_version": version["code"]}
     numbers: set[int] = set()
     for chapter in data.get("chapters") or []:
@@ -219,9 +237,11 @@ def _read_manifest(bank: Bank, data: Any, where: str) -> None:
         numbers.add(number)
         if not _text(chapter.get("title"), 200):
             errors.append(f"{where}: chapter {chapter_id} needs a title")
-        cap = chapter.get("max_questions", 1000)
-        if not isinstance(cap, int) or not 1 <= cap <= 1000:
-            errors.append(f"{where}: chapter {chapter_id} max_questions must be 1-1000")
+        cap, ceiling = chapter.get("max_questions", 1000), 5000 if certification else 1000
+        if not isinstance(cap, int) or not 1 <= cap <= ceiling:
+            errors.append(f"{where}: chapter {chapter_id} max_questions must be 1-{ceiling}")
+        if certification and not netsec.safe_title(chapter.get("title")):
+            errors.append(f"{where}: chapter {chapter_id} needs a title without newlines, fences or markup")
         bank.chapters[chapter_id] = {**chapter, "book_id": book_id, "max_questions": cap}
         topic_numbers: set[int] = set()
         for topic in chapter.get("topics") or []:
@@ -234,6 +254,8 @@ def _read_manifest(bank: Bank, data: Any, where: str) -> None:
             topic_numbers.add(topic.get("topic_number"))
             if not _text(topic.get("title"), 200):
                 errors.append(f"{where}: topic {topic_id} needs a title")
+            elif certification:
+                errors += netsec.check_topic(topic, where)
             bank.topics[topic_id] = {**topic, "chapter_id": chapter_id}
             for concept in topic.get("concepts") or []:
                 tag = concept.get("concept_tag") if isinstance(concept, dict) else None
@@ -243,6 +265,20 @@ def _read_manifest(bank: Bank, data: Any, where: str) -> None:
                 if not _text(concept.get("learning_objective"), 500):
                     errors.append(f"{where}: concept {topic_id}/{tag} needs a learning_objective")
                 bank.concepts[(topic_id, tag)] = concept
+
+
+def _check_cbse_book(book: dict, version: dict, where: str, errors: list[str]) -> None:
+    book_id = book["book_id"]
+    if book.get("curriculum") != "cbse" or book.get("class_level") not in range(6, 13):
+        errors.append(f"{where}: book {book_id} needs curriculum 'cbse' and a class_level from 6 to 12")
+    if version.get("curriculum") != "cbse":
+        errors.append(f"{where}: a cbse book needs a cbse syllabus_version")
+    if subject_name(book.get("subject_code")) is None:
+        errors.append(f"{where}: book {book_id} has subject_code {book.get('subject_code')!r}, not a catalog subject")
+    if book.get("language") not in QB_LANGUAGES:
+        errors.append(f"{where}: book {book_id} needs a language: {', '.join(QB_LANGUAGES)}")
+    if not _text(book.get("title"), 200) or not _text(book.get("edition"), 200):
+        errors.append(f"{where}: book {book_id} needs a title and an edition")
 
 
 def _read_case(bank: Bank, case: dict) -> None:
@@ -270,14 +306,17 @@ def _check_questions(bank: Bank) -> None:
             continue
         seen_ids.add(question_id)
         prefix = f"{where}: {question_id}"
-        unknown = set(question) - {*QUESTION_FIELDS, "review", "active", "_where"}
-        if unknown:
-            errors.append(f"{prefix}: unknown fields {sorted(unknown)}")
         chapter, topic = bank.chapters.get(question.get("chapter_id")), bank.topics.get(question.get("topic_id"))
         if chapter is None or topic is None or topic["chapter_id"] != question.get("chapter_id"):
             errors.append(f"{prefix}: chapter and topic must be in a manifest, the topic in that chapter")
             continue
         book = bank.books[chapter["book_id"]]
+        if book.get("curriculum") == "netsec":  # its own fields (netsec.FIELDS)
+            _check_netsec(bank, question, book, prefix, fingerprints, per_chapter, stems)
+            continue
+        unknown = set(question) - {*QUESTION_FIELDS, "review", "active", "_where"}
+        if unknown:
+            errors.append(f"{prefix}: unknown fields {sorted(unknown)}")
         if (question["topic_id"], question.get("concept_tag")) not in bank.concepts:
             errors.append(f"{prefix}: concept {question.get('concept_tag')!r} is not one of its topic's")
         if question.get("difficulty") not in QB_DIFFICULTIES:
@@ -370,6 +409,10 @@ def _check_questions(bank: Bank) -> None:
                 "option_c": options[2],
                 "option_d": options[3],
                 "correct_option": answer,
+                "options": None,
+                "correct_keys": None,
+                "lesson_ref": None,
+                "key_origin": None,
                 "explanation": explanation,
                 "marks": marks,
                 "source_kind": source["kind"],
@@ -389,3 +432,87 @@ def _check_questions(bank: Bank) -> None:
         limit = bank.chapters[chapter_id]["max_questions"]
         if count > limit:
             errors.append(f"{chapter_id}: {count} questions, over its limit of {limit}")
+
+
+def _check_netsec(
+    bank: Bank,
+    question: dict,
+    book: dict,
+    prefix: str,
+    fingerprints: dict[str, str],
+    per_chapter: dict[str, int],
+    stems: dict[str, list[tuple[str, set[str]]]],
+) -> None:
+    """A netsec question (app/qbank/netsec.py): checked, then one qb_questions row in the new shape."""
+    errors = bank.errors
+    question_id = question["question_id"]
+    if (question["topic_id"], question.get("concept_tag")) not in bank.concepts:
+        errors.append(f"{prefix}: concept {question.get('concept_tag')!r} is not one of its topic's")
+    if question.get("difficulty") not in QB_DIFFICULTIES:
+        errors.append(f"{prefix}: difficulty must be one of {', '.join(QB_DIFFICULTIES)}")
+    if question.get("competency") not in QB_COMPETENCIES:
+        errors.append(f"{prefix}: competency must be one of {', '.join(QB_COMPETENCIES)}")
+    marks = question.get("marks", 1)
+    if not isinstance(marks, int) or not 1 <= marks <= 5:
+        errors.append(f"{prefix}: marks must be 1-5")
+    fields, problems, hashed = netsec.check_question(question, book, prefix)
+    errors += problems
+    if fields is None:
+        return
+    if not language_matches("english", [question["stem"], *question["options"], question["explanation"]]):
+        errors.append(f"{prefix}: its text is not in english")
+    review = question.get("review") or {}
+    status = review.get("status", "needs_review")
+    if status not in QB_REVIEW_STATUSES:
+        errors.append(f"{prefix}: review.status must be one of {', '.join(QB_REVIEW_STATUSES)}")
+    if status == "approved" and (
+        not _text(review.get("by"), 200) or not _when(review.get("at")) or review.get("hash") != hashed
+    ):
+        errors.append(f"{prefix}: approved needs review.by, review.at and review.hash of exactly this content")
+    printed = fingerprint("english", question["stem"], question["options"])
+    if printed in fingerprints:
+        errors.append(f"{prefix}: the same question as {fingerprints[printed]}")
+    fingerprints[printed] = question_id
+    per_chapter[question["chapter_id"]] = per_chapter.get(question["chapter_id"], 0) + 1
+    tokens = _tokens(question["stem"])
+    for other_id, other in stems.setdefault(question["topic_id"], []):
+        if _jaccard(tokens, other) >= NEAR_DUPLICATE:
+            bank.notes[question_id] = f"near-duplicate of {other_id}: check before approving"
+            break
+    stems[question["topic_id"]].append((question_id, tokens))
+    if question_id in bank.notes and status not in ("approved", "rejected"):
+        status = "needs_review"
+    bank.rows.append(
+        {
+            "question_id": question_id,
+            "book_id": book["book_id"],
+            "class_level": book["class_level"],
+            "subject_code": book["subject_code"],
+            "language": "english",
+            "chapter_id": question["chapter_id"],
+            "topic_id": question["topic_id"],
+            "concept_tag": question["concept_tag"],
+            "syllabus_version": book["syllabus_version"],
+            "difficulty": question["difficulty"],
+            "question_format": question["format"],
+            "competency": question["competency"],
+            "case_id": None,
+            "stem": question["stem"],
+            "option_a": None,
+            "option_b": None,
+            "option_c": None,
+            "option_d": None,
+            "correct_option": None,
+            "explanation": question["explanation"],
+            "marks": marks,
+            **fields,
+            "review_status": status,
+            "reviewed_by": review.get("by") if status == "approved" else None,
+            "reviewed_at": datetime.fromisoformat(review["at"]) if status == "approved" else None,
+            "reviewed_hash": review.get("hash") if status == "approved" else None,
+            "review_note": bank.notes.get(question_id) or review.get("note") or question.get("inactive_reason"),
+            "is_active": question.get("active", True),
+            "fingerprint": printed,
+            "content_hash": hashed,
+        }
+    )

@@ -298,6 +298,14 @@ class Settings(BaseSettings):
     # every question is chosen when the test is set (a fixed-length test), still recorded as practice.
     # A kill switch, no rollback needed (docs/question_bank.md).
     adaptive_chat_tests: bool = True
+    # The certification bank turn (app/chat/service.py _app_turn, app/qbank/request.py, finder.py): a message that
+    # clearly asks for a quiz is answered with stored questions by the app itself, with no model or embedding call.
+    # Rollout off -> qa (only QUESTION_BANK_QA_EMAILS) -> on; off until the bank's content is imported.
+    question_bank_turn: Literal["off", "qa", "on"] = "off"
+    question_bank_qa_emails: str = ""
+    # NetworkersHome students: verified emails at these domains (comma-separated, exact, case-folded) get the
+    # NHprep-derived bank and NHprep content (app/access/students.py). Empty: nobody (fails closed).
+    nhprep_allowed_email_domains: str = "networkershome.com"
 
     @field_validator("default_timezone")
     @classmethod
@@ -342,6 +350,16 @@ class Settings(BaseSettings):
     @property
     def voice_qa_list(self) -> frozenset[str]:
         return frozenset(email.strip().lower() for email in self.voice_qa_emails.split(",") if email.strip())
+
+    @property
+    def question_bank_qa_list(self) -> frozenset[str]:
+        return frozenset(e.strip().lower() for e in self.question_bank_qa_emails.split(",") if e.strip())
+
+    def question_bank_turn_allows(self, email: str) -> bool:
+        """QUESTION_BANK_TURN for this account: `on` everyone, `qa` only the listed accounts, `off` nobody."""
+        if self.question_bank_turn == "on":
+            return True
+        return self.question_bank_turn == "qa" and email.strip().lower() in self.question_bank_qa_list
 
     def voice_rollout_allows(self, email: str) -> bool:
         """VOICE_MODE for this account: `on` everyone, `qa` only the listed accounts, `off` nobody."""
@@ -484,6 +502,8 @@ class Settings(BaseSettings):
             problems.append("VOICE_MODE needs OLLALINK_API_KEY")
         if self.voice_mode == "qa" and not self.voice_qa_list:
             problems.append("VOICE_MODE=qa needs VOICE_QA_EMAILS")
+        if self.question_bank_turn == "qa" and not self.question_bank_qa_list:
+            problems.append("QUESTION_BANK_TURN=qa needs QUESTION_BANK_QA_EMAILS")
         if not (self.ollalink_stt_url.startswith("https://") and self.ollalink_tts_url.startswith("https://")):
             problems.append("OLLALINK_STT_URL and OLLALINK_TTS_URL must be https:// (the key travels with every call)")
         tracing_names = ("LANGCHAIN_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_TRACING")

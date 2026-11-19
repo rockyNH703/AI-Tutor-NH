@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access.students import is_nh_student
 from app.assessments import state as assessments
 from app.auth.dependencies import Principal, get_principal
 from app.conversations.repository import ConversationRepository
@@ -30,7 +31,32 @@ def conversation_out(c: Conversation) -> ConversationOut:
     return ConversationOut(id=c.id, title=c.title, created_at=c.created_at, updated_at=c.updated_at)
 
 
-def message_out(m: Message, attachments=(), withdrawn: frozenset[str] = frozenset()) -> MessageOut:
+HIDDEN_REPLY = "This reply isn't available."
+
+
+def nhprep_derived(metadata: dict | None) -> bool:
+    """Whether a reply shows NHprep content: NHprep's own cards, or a bank test with NHprep questions."""
+    metadata = metadata or {}
+    bank = metadata.get("bank") if isinstance(metadata.get("bank"), dict) else {}
+    return "nhprep" in metadata or bank.get("source") == "NHprep"
+
+
+def message_out(
+    m: Message, attachments=(), withdrawn: frozenset[str] = frozenset(), *, entitled: bool = True
+) -> MessageOut:
+    """A message as its reader may see it. `entitled`: the reader is a NetworkersHome student
+    (app/access/students.py); for anyone else an NHprep-derived reply is one neutral line, with no test or cards."""
+    if not entitled and m.role == "assistant" and nhprep_derived(m.metadata_):
+        return MessageOut(
+            id=m.id,
+            conversation_id=m.conversation_id,
+            role=m.role,
+            content=HIDDEN_REPLY,
+            status=m.status,
+            created_at=m.created_at,
+            metadata={},
+            attachments=[],
+        )
     metadata = public_metadata(m.metadata_, m.id, m.status, m.content if m.role == "assistant" else "")
     if withdrawn and metadata.get("citations"):
         metadata["citations"] = [_redacted(citation, withdrawn) for citation in metadata["citations"]]
@@ -74,6 +100,16 @@ def public_metadata(
     records = assessments.records_for(metadata, content, status or "") if message_id is not None else []
     if records:
         public["assessments"] = [test for record in records if (test := _shown(record, message_id, status))]
+    bank = (metadata or {}).get("bank")
+    if isinstance(bank, dict):  # the certification bank's reply: what a client shows beside its test, never keys
+        public["bank"] = {
+            "status": bank.get("status"),
+            "title": bank.get("title"),
+            "topics": [topic.get("title") for topic in bank.get("topics") or [] if isinstance(topic, dict)],
+            "choices": bank.get("choices"),
+            "source": bank.get("source"),
+            "next": bool(bank.get("setId")),
+        }
     return public
 
 
@@ -150,6 +186,7 @@ async def delete_conversation(
 @router.get("/{conversation_id}/messages", response_model=MessagePage)
 async def list_messages(
     conversation_id: uuid.UUID,
+    request: Request,
     limit: int = Query(50, ge=1, le=200),
     before: str | None = Query(None, max_length=200),
     principal: Principal = Depends(get_principal),
@@ -160,4 +197,6 @@ async def list_messages(
     rows, older = await repo.messages_page(conversation_id, limit, before)
     attachments = await repo.attachments([m.id for m in rows if m.role == "user"])
     withdrawn = await repo.withdrawn_documents(_cited_documents(rows))
-    return MessagePage(items=[message_out(m, attachments.get(m.id, ()), withdrawn) for m in rows], next_cursor=older)
+    entitled = is_nh_student(principal.user, request.app.state.settings)
+    items = [message_out(m, attachments.get(m.id, ()), withdrawn, entitled=entitled) for m in rows]
+    return MessagePage(items=items, next_cursor=older)

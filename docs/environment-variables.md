@@ -402,6 +402,9 @@ their vectors from recall until they are recreated or re-embedded.
 | `TUTOR_TEACHING_POLICY` | true/false | `False` | Coaching defaults (app/chat/teaching.py: direct answers when asked, mistakes diagnosed before they are corrected, one hint at a time when stuck); the user's own settings still come first. Off until the owner turns it on; it costs prompt characters on every turn. |
 | `QUESTION_BANK_TESTS` | true/false | `True` | Practice tests in the chat come only from the question bank (app/qbank/chat_tests.py; its content is still PadhAI's until the certification bank arrives): the model names a domain (the bank's chapter id), the app sets stored questions, and a practice block the model writes itself is never shown as a test. The owner's decision, 2026-10-16. |
 | `ADAPTIVE_CHAT_TESTS` | true/false | `True` | A bank test chooses each next question from the answer before it (app/qbank/chat_tests.py). Off: every question is chosen when the test is set (a fixed-length test), still recorded as practice. A kill switch, no rollback needed (docs/question_bank.md). |
+| `QUESTION_BANK_TURN` | off/qa/on | `off` | The certification bank's own chat turn (app/chat/bank_turn.py): a message that clearly asks for a quiz ("quiz me on OSPF", "5 hard MCQs on VLANs", "next 5") is answered by the app with stored questions, with no model, embedding or search call. `qa`: only `QUESTION_BANK_QA_EMAILS`. Off until the bank's content is imported (docs/question_bank.md). |
+| `QUESTION_BANK_QA_EMAILS` | comma-separated emails | empty | The accounts `QUESTION_BANK_TURN=qa` serves. `qa` without any is refused in production. |
+| `NHPREP_ALLOWED_EMAIL_DOMAINS` | comma-separated domains | `networkershome.com` | NetworkersHome students: a verified email whose domain (ASCII, after the last `@`, exact) is listed gets NHprep-derived bank questions and NHprep content (app/access/students.py). Empty: nobody. |
 
 ## What the production template lists
 

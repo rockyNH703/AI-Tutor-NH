@@ -15,7 +15,17 @@ function TestBlock({ source, onError, single }: WidgetProps & { single: boolean 
   const { tests, record, waiting } = useRecord(source, onError, "test");
   if (waiting) return <Preparing noun="test" />;
   if (!record || !tests) return null;
-  return <TestCard test={record} single={single} tests={tests} onError={onError} />;
+  return <TestCard test={record} single={single} tests={tests} onError={onError} bank={isBankBatch(source)} />;
+}
+
+/** A certification-bank batch: the server writes `"bank":true` in its block (app/assessments/bank.py). */
+export function isBankBatch(source: string): boolean {
+  try {
+    const spec: unknown = JSON.parse(source);
+    return typeof spec === "object" && spec !== null && (spec as { bank?: unknown }).bank === true;
+  } catch {
+    return false;
+  }
 }
 
 /** ```mcq: one multiple-choice question. */

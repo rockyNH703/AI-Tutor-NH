@@ -29,9 +29,11 @@ Honest state (2026-10-29):
 - **The knowledge base is empty and will be provided by the owner.** The pgvector pipeline and
   `backend/scripts/ingest_documents.py` (repeatable `--metadata key=value`, e.g. vendor, platform, version, topic)
   are ready. The NCERT client (`backend/app/rag/ncert.py`) is PadhAI-only and dormant unless `NCERT_KB_*` is set.
-- **The question bank is empty** (PadhAI's NCERT content was deleted from `qbank/` on 2026-11-19; production's
-  `qb_*` tables were already empty); a certification bank is pending
-  ([ROADMAP.md](ROADMAP.md)).
+- **The certification question bank** (2026-11-19, docs/question_bank.md):
+  - built: the schema (0026: tracks, multi-select, set grading), the importer, the CCNA manifest (44 topics), and the
+    bank turn (`QUESTION_BANK_TURN`, off; no model call), its finder and eval;
+  - pending: questions. They come from the NHprep export (session 3) plus agent-written ones. NHprep-derived
+    questions are for NetworkersHome students only (`NHPREP_ALLOWED_EMAIL_DOMAINS`).
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.
 

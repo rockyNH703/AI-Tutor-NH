@@ -512,6 +512,7 @@ async def test_choosing_and_answering_are_fast_on_a_full_chapter(sessions, tmp_p
         timings.append(time.perf_counter() - started)
     params = {"user_id": user, "set_id": set_id, "seed": str(set_id), "topic_ids": ["C10-SCI-EN-CH01-T5"], **FILTERS}
     params |= {"previous_position": None, "difficulty": None, "card": False}  # next_item's pick (pick_next)
+    params |= {"entitled": False, "exclude": [], "question_format": None, "lesson_ref": None}  # 0026's filters
     async with sessions() as db:  # TIMING OFF: per-row clock reads would dominate on a slow virtual clock
         plan = await db.scalar(
             text("EXPLAIN (ANALYZE, TIMING OFF, FORMAT JSON) " + selection.ADAPTIVE_PICK.text), params

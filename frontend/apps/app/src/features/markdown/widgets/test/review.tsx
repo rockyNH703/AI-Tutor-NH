@@ -2,8 +2,8 @@
 
 import { Button } from "@v1/ui/button";
 import { cn } from "@v1/ui/utils";
-import { MessageSquareText } from "lucide-react";
-import { type Ref, useState } from "react";
+import { type LucideIcon, MessageSquareText } from "lucide-react";
+import { type ReactNode, type Ref, useState } from "react";
 
 import type { Assessment, AssessmentQuestion } from "@/lib/api/types";
 import type { TestState } from "../../context";
@@ -114,12 +114,34 @@ function FeedbackButton({
   index: number;
   ask: NonNullable<TestState["ask"]>;
 }) {
+  return (
+    <AskButton ask={ask} message={feedbackMessage(test, question, index)} icon={MessageSquareText}>
+      Get feedback
+    </AskButton>
+  );
+}
+
+/**
+ * A button that sends `message` as the user's next message in this chat (TestState.ask), with its state read out
+ * beside it: Get feedback, and a bank test's "Next 5 questions".
+ */
+export function AskButton({
+  ask,
+  message,
+  icon: Icon,
+  children,
+}: {
+  ask: NonNullable<TestState["ask"]>;
+  message: string;
+  icon: LucideIcon;
+  children: ReactNode;
+}) {
   const [state, setState] = useState<keyof typeof ASKED>("idle");
   const send = async () => {
     if (state === "sending") return;
     setState("sending");
     try {
-      setState(await ask(feedbackMessage(test, question, index)));
+      setState(await ask(message));
     } catch {
       setState("refused");
     }
@@ -133,8 +155,8 @@ function FeedbackButton({
         className="aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
         onClick={() => void send()}
       >
-        <MessageSquareText aria-hidden className="h-4 w-4" />
-        Get feedback
+        <Icon aria-hidden className="h-4 w-4" />
+        {children}
       </Button>
       <span role="status" className="text-xs text-text-secondary">
         {ASKED[state]}

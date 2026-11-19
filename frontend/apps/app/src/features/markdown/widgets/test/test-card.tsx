@@ -3,7 +3,17 @@
 import { Button } from "@v1/ui/button";
 import { ConfirmDialog } from "@v1/ui/confirm-dialog";
 import { cn } from "@v1/ui/utils";
-import { ChevronLeft, ChevronRight, ClipboardCheck, Eraser, Eye, ListChecks, SkipForward, Trophy } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  Eraser,
+  Eye,
+  ListChecks,
+  ListPlus,
+  SkipForward,
+  Trophy,
+} from "lucide-react";
 import { type Ref, type RefObject, useContext, useEffect, useId, useRef, useState } from "react";
 
 import { focusLost } from "@/features/navigation/route-focus";
@@ -18,7 +28,7 @@ import { Navigator } from "./navigator";
 import type { KindModule, TestMode } from "./question-props";
 import { ListingView } from "./questions/listing";
 import { Preparing, failure } from "./record";
-import { ResultList, isV2, progressLine, questionList, resultLine, scoreLine } from "./review";
+import { AskButton, ResultList, isV2, progressLine, questionList, resultLine, scoreLine } from "./review";
 import { ScenarioPanel } from "./scenario";
 
 /** What the block says (with its source) when a kind's code would not load, or the record names an unknown kind. */
@@ -99,11 +109,14 @@ export function TestCard({
   single,
   tests,
   onError,
+  bank = false,
 }: {
   test: Assessment;
   single: boolean;
   tests: TestState;
   onError: (note?: string) => void;
+  /** A certification-bank batch (its block says so): once done it offers the next batch. */
+  bank?: boolean;
 }) {
   const state = cardState(useKinds(test), test);
   useEffect(() => {
@@ -114,7 +127,7 @@ export function TestCard({
   return isV2(test) && test.mode === "exam" ? (
     <ExamCard test={test} tests={tests} />
   ) : (
-    <PracticeCard test={test} single={single} tests={tests} />
+    <PracticeCard test={test} single={single} tests={tests} bank={bank} />
   );
 }
 
@@ -202,7 +215,17 @@ function QuestionGroup({
 
 type Acted = { question: number; tries: number; used: Element | null };
 
-function PracticeCard({ test, single, tests }: { test: Assessment; single: boolean; tests: TestState }) {
+function PracticeCard({
+  test,
+  single,
+  tests,
+  bank = false,
+}: {
+  test: Assessment;
+  single: boolean;
+  tests: TestState;
+  bank?: boolean;
+}) {
   const release = useContext(ReleaseScrollContext);
   const scenario = useScenario(test);
   const [saving, setSaving] = useState(false);
@@ -339,6 +362,11 @@ function PracticeCard({ test, single, tests }: { test: Assessment; single: boole
           />
         ) : null}
       </div>
+      {bank && current === null && tests.ask && (
+        <AskButton ask={tests.ask} message="next 5" icon={ListPlus}>
+          Next 5 questions
+        </AskButton>
+      )}
       <p
         role="status"
         className={cn(
