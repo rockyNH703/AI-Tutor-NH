@@ -2,7 +2,7 @@
 
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@v1/ui/sheet";
 import { cn } from "@v1/ui/utils";
-import { Menu, Plus, Trophy } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, Plus, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, type RefObject, useEffect, useRef, useState } from "react";
@@ -43,7 +43,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   useFocusOnArrival(() => heading.current);
 
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-background bg-[radial-gradient(ellipse_at_58%_0%,hsl(var(--foreground)/0.035),transparent_48%)] dark:bg-[radial-gradient(ellipse_at_58%_0%,hsl(var(--foreground)/0.06),transparent_50%)]">
+    // The page's own ground (body, globals.css) shows through: one background, not two.
+    <div className="app-frame">
       {/* Desktop rail. Not rendered below md (the drawer below is the only copy there). */}
       <aside className="hidden h-full shrink-0 md:block">
         <SidebarContent collapsed={collapsed} />
@@ -70,8 +71,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-const iconButton =
-  "focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-xl text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground";
 
 /** What the page is (the `h1`), a line about it, and the sidebar controls. */
 function useHeading(pathname: string | null): { title: string; subtitle: string } {
@@ -115,9 +114,9 @@ function Header({
   const { title, subtitle } = useHeading(pathname);
 
   return (
-    <header className="z-10 flex h-16 shrink-0 items-center gap-2 border-b border-border/70 bg-background/80 px-2 backdrop-blur-xl sm:gap-3 sm:px-5">
+    <header className="z-10 flex h-header shrink-0 items-center gap-2 border-b border-border bg-background px-2 sm:gap-3 sm:px-4">
       <SheetTrigger asChild>
-        <button type="button" aria-label="Open menu" className={`${iconButton} md:hidden`}>
+        <button type="button" aria-label="Open menu" className="icon-button md:hidden">
           <Menu aria-hidden className="h-5 w-5" />
         </button>
       </SheetTrigger>
@@ -125,9 +124,9 @@ function Header({
         type="button"
         onClick={onToggleCollapse}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className={`${iconButton} hidden md:grid`}
+        className="icon-button hidden md:grid"
       >
-        <Menu aria-hidden className="h-5 w-5" />
+        {collapsed ? <PanelLeftOpen aria-hidden className="h-5 w-5" /> : <PanelLeftClose aria-hidden className="h-5 w-5" />}
       </button>
 
       <div className="min-w-0 flex-1 px-1">
@@ -174,7 +173,7 @@ function Header({
         <ThemeMenu />
       </div>
 
-      <Link href="/" aria-label="New chat" className={`${iconButton} md:hidden`}>
+      <Link href="/" aria-label="New chat" className="icon-button md:hidden">
         <Plus aria-hidden className="h-5 w-5" />
       </Link>
     </header>

@@ -97,7 +97,7 @@ export function needsFullWidth(content: string): boolean {
 /** The reply as plain text until the renderer is here: a test's answers never show (assessment.ts). */
 function PlainReply({ content, tests, streaming }: { content: string; tests: TestState | null; streaming: boolean }) {
   return (
-    <div className="min-w-0 whitespace-pre-wrap break-words text-[0.9375rem] leading-7 text-foreground">
+    <div className="min-w-0 max-w-measure whitespace-pre-wrap break-words text-[0.9375rem] leading-7 text-foreground">
       {maskExamFences(content, tests?.assessments, streaming || Boolean(tests?.streaming))}
     </div>
   );

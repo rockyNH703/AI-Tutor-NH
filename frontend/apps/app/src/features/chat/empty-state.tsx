@@ -21,15 +21,16 @@ export function ChatEmptyState({ chatKey }: { chatKey: string }) {
   useLayoutEffect(() => setGreeting(pickGreeting(chatKey)), [chatKey]);
   const ref = useLineGradient(greeting);
 
-  // Wider than the chat column (57rem, message-list.tsx): at 57rem a long greeting is shrunk to one line
-  // only when the web font arrives, and its height change moves the page (a layout shift).
+  // Wider than the chat column (.chat-column): in the column a long greeting is shrunk to one line only
+  // when the web font arrives, and its height change moves the page (a layout shift). 24px above the
+  // composer's own 8px: 32px from the greeting to the box.
   return (
-    <div className="mx-auto flex w-full flex-1 flex-col justify-end px-5 pb-6 pt-10 sm:px-6 lg:w-[min(100%,clamp(42.5rem,75%,72rem))]">
+    <div className="mx-auto flex w-full flex-1 flex-col justify-end px-4 pb-6 pt-10 sm:px-6 lg:w-[min(100%,clamp(42.5rem,75%,72rem))]">
       <h2
         key={greeting ?? ""}
         ref={ref}
         data-greeting=""
-        className="text-balance text-center font-display text-[length:clamp(1.5rem,1.05rem+2.2vw,2.25rem)] font-semibold leading-[1.2] tracking-tight text-foreground"
+        className="text-balance text-center font-display text-display font-semibold text-foreground"
       >
         {greeting === null ? (
           <span className="invisible">&nbsp;</span>

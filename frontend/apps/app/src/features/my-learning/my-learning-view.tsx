@@ -595,7 +595,7 @@ export function MyLearningView() {
       aria-label="Skills & Certifications"
       className="scrollbar-subtle focus-ring-inset h-full overflow-y-auto"
     >
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-6 sm:px-6">
+      <div className="page-container flex flex-col gap-5">
         <Panel id="learning-plan" title="Today's plan">
           <Loaded resource={plan} what="your plan">
             {(data) => <Plan plan={data} subjectName={subjectName} />}

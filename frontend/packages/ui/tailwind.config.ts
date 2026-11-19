@@ -176,11 +176,26 @@ const config = {
         lg: ["1.0625rem", { lineHeight: "1.4" }],
         xl: ["1.25rem", { lineHeight: "1.35" }],
         "2xl": ["1.5rem", { lineHeight: "1.3" }],
+        // A new chat's greeting: fluid between phone and desktop, never under 28px.
+        display: [
+          "clamp(1.75rem, 1.2rem + 2vw, 2.5rem)",
+          { lineHeight: "1.2", letterSpacing: "-0.02em" },
+        ],
       },
       maxWidth: {
-        // One comfortable measure for conversation, used by the chat column so
-        // text never runs the full width of a large monitor.
-        prose: "42.5rem", // 680px: the reading width (660-700px)
+        // A description's or a short block's reading width.
+        prose: "42.5rem", // 680px
+        // The composition (globals.css, "layout"): the app frame, the chat column, a
+        // reply's prose measure, the page containers.
+        frame: "var(--frame-max)",
+        chat: "var(--chat-max)",
+        measure: "var(--measure)",
+        page: "var(--page-max)",
+        "page-narrow": "var(--page-max-narrow)",
+      },
+      // The app bar and the sidebar's brand row share one height, so their hairlines meet.
+      spacing: {
+        header: "var(--header-h)",
       },
       // Motion tokens (globals.css, "motion"). DEFAULT retunes every bare `transition*`;
       // tailwindcss-animate derives its durations and easings from these too.

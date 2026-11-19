@@ -56,7 +56,7 @@ function MessageTime({ value, className }: { value: string; className?: string }
 }
 
 /** The rise-in's length: --motion-base. */
-const ARRIVAL_MS = 220;
+const ARRIVAL_MS = 200;
 /** When each message began to arrive, for this page's lifetime. */
 const arrivals = new Map<string, number>();
 let lastSent: { content: string; at: number } | null = null;
@@ -208,7 +208,8 @@ function AssistantMessage({
       <BrandMark size={28} className="mt-0.5 rounded-lg" />
       <div className="min-w-0 flex-1">
         {(text || revealing || phase === "stopping" || message.status === "cancelled" || elsewhere) && (
-          <div className={cn("max-w-full pt-0.5", needsFullWidth(text) ? "w-full" : "w-fit")}>
+          // data-reply: the reply's prose reads at the measure (globals.css); code and widgets keep the column.
+          <div data-reply="" className={cn("max-w-full pt-0.5", needsFullWidth(text) ? "w-full" : "w-fit")}>
             {text ? (
               <>
                 <MessageContent

@@ -18,7 +18,6 @@ import {
   FolderOpen,
   LogOut,
   type LucideIcon,
-  MessageSquare,
   Pencil,
   Plus,
   Search,
@@ -208,12 +207,13 @@ export function SidebarContent({
   return (
     <div
       className={cn(
-        "flex h-full flex-col border-r border-border/70 bg-surface transition-[width] duration-slow ease-standard",
+        "flex h-full flex-col border-r border-border bg-surface transition-[width] duration-slow ease-standard",
         collapsed ? "w-20" : "w-72 max-w-full",
       )}
     >
-      {/* Outside the scrolling list: the brand stays in view, and a scrollbar never narrows the slogan's line. */}
-      <div className={cn("flex shrink-0 items-center border-b border-border/70", collapsed ? "justify-center p-4" : "px-3 py-5")}>
+      {/* Outside the scrolling list: the brand stays in view, and a scrollbar never narrows the slogan's line.
+          The header's height, so this hairline and the header's are one line. */}
+      <div className={cn("flex h-header shrink-0 items-center border-b border-border", collapsed ? "justify-center" : "px-3")}>
         <Link href="/" onClick={onNavigate} className="focus-ring rounded-2xl">
           {collapsed ? (
             <>
@@ -228,7 +228,7 @@ export function SidebarContent({
 
       <div ref={scroller} className="scrollbar-subtle flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 
-        <div className={cn("shrink-0", collapsed ? "flex justify-center px-3 py-4" : "px-4 py-4")}>
+        <div className={cn("shrink-0 px-3 py-4", collapsed && "flex justify-center")}>
           <RailTip label="New chat" collapsed={collapsed}>
             <Link
               href="/"
@@ -313,14 +313,14 @@ export function SidebarContent({
               </h2>
             </div>
             {list.items.length > 5 && (
-              <div className="relative mx-4 mb-2">
-                <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-secondary" />
+              <div className="relative mx-3 mb-2">
+                <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Search chats"
                   aria-label="Search chats"
-                  className="focus-field h-9 w-full rounded-xl border border-border bg-card pl-8 pr-2 text-sm transition-colors placeholder:text-text-secondary hover:border-text-secondary/40"
+                  className="focus-field h-9 w-full rounded-xl border border-input bg-card pl-9 pr-2 text-sm transition-colors placeholder:text-text-secondary"
                 />
               </div>
             )}
@@ -362,9 +362,8 @@ export function SidebarContent({
                           href={`/c/${item.id}`}
                           onClick={onNavigate}
                           aria-current={isActive ? "page" : undefined}
-                          className="focus-ring-inset flex h-9 min-w-0 flex-1 items-center gap-2.5 rounded-xl px-3 text-sm"
+                          className="focus-ring-inset flex h-9 min-w-0 flex-1 items-center rounded-xl px-3 text-sm"
                         >
-                          <MessageSquare aria-hidden className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-brand" : "text-text-secondary")} />
                           <MarqueeTitle title={item.title} />
                         </Link>
                         {/* Always visible on touch; on hover/focus with a pointer. */}
@@ -407,7 +406,7 @@ export function SidebarContent({
       </div>
 
       {/* Only the account here: Settings and Log out are in its menu. */}
-      <div className={cn("shrink-0 border-t border-border/70 bg-surface p-2", collapsed && "px-2")}>
+      <div className="shrink-0 border-t border-border bg-surface p-2">
         <DropdownMenu modal={false}>
           <RailTip label={name} collapsed={collapsed}>
             <DropdownMenuTrigger asChild>

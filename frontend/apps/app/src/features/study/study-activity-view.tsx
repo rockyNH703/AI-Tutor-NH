@@ -150,8 +150,9 @@ export function StudySummaryContent({
   }
   if (!shown) {
     return (
+      // As tall as the summary card it stands for: a shorter one let the page jump when it arrived.
       <SkeletonGroup label="Loading your lab activity" className="space-y-3">
-        <Skeleton className="h-28 w-full rounded-2xl" />
+        <Skeleton className="h-72 w-full rounded-2xl" />
         <Skeleton className="h-56 w-full rounded-2xl" />
       </SkeletonGroup>
     );
@@ -320,7 +321,7 @@ export function StudyActivityView() {
       aria-label="Lab Activity"
       className="scrollbar-subtle focus-ring-inset h-full overflow-y-auto"
     >
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-5 px-4 py-6 sm:px-6">
+      <div className="page-container flex flex-col gap-5">
         <Panel id="study-session" title="Current session">
           <StudySessionPanel />
         </Panel>

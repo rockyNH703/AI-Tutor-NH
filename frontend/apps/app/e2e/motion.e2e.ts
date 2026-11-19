@@ -45,21 +45,22 @@ test("one set of tokens; nothing transitions `all`", async ({ page, account: _ }
       root.getPropertyValue(name).replace(/\s+/g, ""),
     );
   });
+  // 150/200/250ms and ONE curve: enter and exit keep their names and resolve to it.
   expect(tokens).toEqual([
-    "180ms",
-    "300ms",
-    "300ms",
-    "cubic-bezier(0.25,0.1,0.25,1)",
-    "cubic-bezier(0.22,1,0.36,1)",
-    "cubic-bezier(0.4,0,1,1)",
+    "150ms",
+    "200ms",
+    "250ms",
+    "cubic-bezier(0.2,0,0,1)",
+    "cubic-bezier(0.2,0,0,1)",
+    "cubic-bezier(0.2,0,0,1)",
   ]);
   // A bare `transition` resolves to the tokens.
   const send = await page.getByRole("button", { name: "Send message" }).evaluate((button) => {
     const style = getComputedStyle(button);
     return [style.transitionDuration.split(",")[0]?.trim(), style.transitionTimingFunction.split("),")[0]?.trim()];
   });
-  expect(send[0]).toBe("0.18s");
-  expect(send[1]).toContain("cubic-bezier(0.25, 0.1, 0.25, 1");
+  expect(send[0]).toBe("0.15s");
+  expect(send[1]).toContain("cubic-bezier(0.2, 0, 0, 1");
 
   expect(await transitionsOnAll(page)).toEqual([]);
   await page.goto(`/c/${id}`);

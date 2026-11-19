@@ -19,7 +19,7 @@ export function KnowledgeLibraryView() {
   }, []);
 
   if (state === "loading") {
-    return <p className="mx-auto max-w-4xl px-5 py-10 text-sm text-text-secondary">Checking operator access…</p>;
+    return <p className="page-container text-sm text-text-secondary">Checking operator access…</p>;
   }
   if (state === "denied") {
     return (
@@ -41,7 +41,7 @@ export function KnowledgeLibraryView() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6">
+    <div className="page-container">
       <div className="rounded-2xl border border-border bg-card p-6 elev-1">
         <div className="flex items-start gap-4">
           <div className="rounded-xl bg-brand/10 p-3 text-brand">

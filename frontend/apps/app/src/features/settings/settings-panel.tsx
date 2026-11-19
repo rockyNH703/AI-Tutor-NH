@@ -79,13 +79,14 @@ export function SettingsPanel({ variant }: { variant: "panel" | "list" }) {
   return (
     <div className={cn("flex min-h-0 flex-col", variant === "panel" ? "h-full" : "gap-1")}>
       {variant === "panel" && (
-        <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-4 pt-5">
+        // The header's height, so this hairline and the workspace header's are one line.
+        <div className="flex h-header shrink-0 items-center justify-between gap-3 border-b border-border px-4">
           <BrandLockup compact />
           <CloseSettings href={closeHref} />
         </div>
       )}
 
-      <div className={cn("shrink-0", variant === "panel" ? "px-4 pb-3" : "pb-3")}>
+      <div className={cn("shrink-0", variant === "panel" ? "px-4 py-3" : "pb-3")}>
         <label htmlFor={searchId} className="sr-only">
           Search settings
         </label>

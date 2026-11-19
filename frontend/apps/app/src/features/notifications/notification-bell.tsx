@@ -127,9 +127,9 @@ export function NotificationBell() {
         <button
           type="button"
           aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
-          className="focus-ring relative grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border bg-card text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground"
+          className="icon-button relative"
         >
-          <Bell aria-hidden className="h-4 w-4" />
+          <Bell aria-hidden className="h-5 w-5" />
           {badge && (
             <span
               aria-hidden

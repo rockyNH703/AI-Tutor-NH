@@ -67,7 +67,11 @@ export function PromptDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        // No description: say so, or Radix warns that the dialog has none.
+        {...(description ? {} : { "aria-describedby": undefined })}
+      >
         <form
           onSubmit={(event) => {
             event.preventDefault();

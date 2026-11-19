@@ -145,7 +145,7 @@ export function LibraryView() {
 
   return (
     <div
-      className={cn("mx-auto w-full max-w-3xl px-5 py-6 sm:px-6", dragging && "rounded-2xl ring-2 ring-brand/40")}
+      className={cn("page-container", dragging && "rounded-2xl ring-2 ring-brand/40")}
       onDragOver={(event) => {
         if (!Array.from(event.dataTransfer.types).includes("Files")) return;
         event.preventDefault();

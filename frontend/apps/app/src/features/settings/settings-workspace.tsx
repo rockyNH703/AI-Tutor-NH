@@ -130,7 +130,7 @@ export function SettingsWorkspace({ children }: { children: ReactNode }) {
 
   return (
     <WorkspaceContext.Provider value={workspace}>
-      <div className="flex h-dvh w-full overflow-hidden bg-background">
+      <div className="app-frame bg-background">
         <aside
           aria-label="Settings"
           className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-card md:flex lg:w-72"
@@ -139,7 +139,7 @@ export function SettingsWorkspace({ children }: { children: ReactNode }) {
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="z-10 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-card/90 px-2 backdrop-blur-md sm:gap-3 sm:px-4 md:px-6">
+          <header className="z-10 flex h-header shrink-0 items-center gap-2 border-b border-border bg-card px-2 sm:gap-3 sm:px-4 md:px-6">
             {!onList && (
               <Link href={LIST} scroll={false} aria-label="All settings" className={cn(iconButton, "md:hidden")}>
                 <ChevronLeft aria-hidden className="h-5 w-5" />
@@ -164,7 +164,7 @@ export function SettingsWorkspace({ children }: { children: ReactNode }) {
             tabIndex={-1}
             className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto overscroll-contain outline-none"
           >
-            <div className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 md:py-10 lg:px-10">{children}</div>
+            <div className="page-container">{children}</div>
           </main>
         </div>
       </div>

@@ -78,25 +78,47 @@
 
     --radius: 0.5rem;
 
+    /* ---- layout ----
+       The composition, in one place (Tailwind: max-w-frame|chat|measure|page|page-narrow,
+       h-header; classes .app-frame, .chat-column, .page-container below).
+         frame    the app (sidebar + header + page + composer) from 1440px up: 70% of a 1920
+                  screen, never under 80rem, never over 100rem. Full width below 1440px.
+         header   the app bar AND the sidebar's brand row, so their hairlines meet.
+         chat     the chat column, gutters included: room for code, tables and widgets.
+         measure  a reply's prose (paragraphs, lists, headings, study cards): 65-75
+                  characters a line. rem, so the reading size setting keeps the count.
+         page     Skills & Certifications, File Library, Lab Activity, Settings; narrow: Help.
+       Rhythm is Tailwind's 4px scale: 8/12 inside a group, 16/24 between groups, 32/40 for
+       sections. Edges: `border` for structure, `input` for fields (3:1), `ring` for focus;
+       depth: .elev-1..3. Radii by role: menu items md, tooltips lg, controls xl, cards 2xl,
+       the composer 3xl. */
+    --frame-max: clamp(80rem, 70vw, 100rem);
+    --header-h: 4rem;
+    --chat-max: 52rem;
+    --measure: 36rem;
+    --page-max: 56rem;
+    --page-max-narrow: 48rem;
+
     /* ---- motion ----
        One small system for every normal movement (Tailwind: duration-fast|base|slow,
        ease-standard|enter|exit; the bare `transition` classes use fast + standard, and
        tailwindcss-animate's enter/exit read the same scale).
          fast  hover, press, focus, colour, menus, tooltips, and every exit
          base  dialogs, arrivals, badges, toggles
-         slow  the phone drawer and the sidebar collapse: large surfaces
-       Enter decelerates (arrives fast, lands softly); exit accelerates away; standard is a
-       state changing in place. Only transform and opacity move, except the sidebar's width.
+         slow  the phone drawer, the sidebar collapse and the greeting: large surfaces
+       ONE curve, a quick start that lands softly; enter and exit keep their names but use
+       it too. Only transform and opacity move, except the sidebar's width.
        Deliberate exceptions: the transcript follows a streaming reply instantly; the composer
        grows instantly; Settings panes swap instantly; the skeleton, the streaming caret and
-       the typing dots breathe (opacity, gone with their element); toasts (sonner) and the
-       calendar library animate themselves. Reduced motion (below) removes all of it. */
-    --motion-fast: 180ms;
-    --motion-base: 300ms;
-    --motion-slow: 300ms;
-    --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
-    --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
-    --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+       the typing dots breathe (opacity, gone with their element); the sign-in screens' light
+       drifts slowly; toasts (sonner) and the calendar library animate themselves. Reduced
+       motion (below) removes all of it. */
+    --motion-fast: 150ms;
+    --motion-base: 200ms;
+    --motion-slow: 250ms;
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-enter: var(--ease-standard);
+    --ease-exit: var(--ease-standard);
 
     /* ---- semantic layer ----
        `surface` is a well inside a card (list rows, code); `surface-2` is one step deeper, for
@@ -201,7 +223,7 @@
     --destructive-foreground: 240 9.1% 4.3%;
 
     --border: 231.4 7.7% 17.8%; /* #2A2B31 */
-    --input: 240 3.7% 31%;
+    --input: 240 3.7% 42%; /* a field's edge: 3.3:1 on a card, 3.6:1 on the page (WCAG 1.4.11) */
     --ring: 240 5.3% 96.3%;
 
     /* A lighter, softer slate blue with DARK text on it: 7.85:1 as text, 6.35:1 on its soft,
@@ -310,6 +332,74 @@
   label {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+  }
+}
+
+/* The composition (tokens: "layout" above). Screens use these classes, never their own widths. */
+@layer components {
+  /* The app and the Settings workspace: sidebar, header, page and composer share its edges. */
+  .app-frame {
+    display: flex;
+    height: 100dvh;
+    width: 100%;
+    margin-inline: auto;
+    overflow: hidden;
+  }
+  @media (min-width: 90rem) {
+    .app-frame {
+      max-width: var(--frame-max);
+      border-inline: 1px solid hsl(var(--border));
+    }
+  }
+  /* Every icon-only control in an app bar (menu, sidebar, bell, theme, new chat): one size, one
+     shape, a 20px icon, the same hover, press, open and focus states. */
+  .icon-button {
+    @apply focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-full text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground active:bg-border data-[state=open]:bg-surface-2 data-[state=open]:text-foreground;
+  }
+  /* The chat's column: transcript, skeleton and composer, so their edges match. */
+  .chat-column {
+    width: 100%;
+    max-width: var(--chat-max);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 40rem) {
+    .chat-column {
+      padding-inline: 1.5rem;
+    }
+  }
+  /* A sidebar place or a Settings section; -narrow for reading pages (Help, About). */
+  .page-container,
+  .page-container-narrow {
+    width: 100%;
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: 1.5rem 1rem;
+  }
+  .page-container-narrow {
+    max-width: var(--page-max-narrow);
+  }
+  @media (min-width: 40rem) {
+    .page-container,
+    .page-container-narrow {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 48rem) {
+    .page-container,
+    .page-container-narrow {
+      padding-block: 2.5rem;
+    }
+  }
+  /* A chat reply's own prose reads at the measure; code, tables, cheat sheets and drawn widgets
+     keep the whole column. Only the reply's top-level blocks: .message-content is reused inside
+     widgets (flashcards, test cards) and on Skills & Certifications, where it must not apply. */
+  [data-reply] > .message-content > :is(p, ul, ol, blockquote, h3, h4, h5, h6) {
+    max-width: var(--measure);
+  }
+  /* A study card's text at the measure: the card adds its own padding and border. */
+  [data-reply] > .message-content > [data-card]:not([data-card="cheatsheet"]) {
+    max-width: calc(var(--measure) + 2rem + 2px);
   }
 }
 
@@ -506,7 +596,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: word-in 480ms var(--ease-enter) both;
+    animation: word-in var(--motion-slow) var(--ease-enter) both;
     animation-delay: calc(var(--word, 0) * 70ms);
   }
   @media (forced-colors: active) {
@@ -637,7 +727,7 @@
     }
   }
   .animate-auth-shake {
-    animation: auth-shake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    animation: auth-shake var(--motion-slow) cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   }
   /* Their main button's soft glow, in the ink colour: dark on white, light on dark. */
   .auth-glow {
@@ -647,7 +737,7 @@
     box-shadow: 0 0 20px hsl(var(--foreground) / 0.15);
   }
   .stagger > * {
-    animation: settle-in 420ms var(--ease-enter) both;
+    animation: settle-in var(--motion-slow) var(--ease-enter) both;
   }
   .stagger > *:nth-child(1) {
     animation-delay: 0ms;

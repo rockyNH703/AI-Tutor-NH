@@ -26,12 +26,12 @@ export function ThemeMenu({ className }: { className?: string } = {}) {
           aria-label="Colour theme"
           title="Colour theme"
           className={cn(
-            "focus-ring grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border bg-card text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground data-[state=open]:bg-surface-2 data-[state=open]:text-foreground",
+            "icon-button",
             className,
           )}
         >
           {/* No icon until mounted: the server can't know the theme, and a wrong one would flash. */}
-          {shown ? <ThemeIcon theme={shown} className="h-4 w-4" /> : <span className="h-4 w-4" />}
+          {shown ? <ThemeIcon theme={shown} className="h-5 w-5" /> : <span className="h-5 w-5" />}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={6} collisionPadding={8} className="min-w-[9.5rem] p-1">

@@ -137,10 +137,10 @@ export function Composer({
   };
 
   return (
-    <div className="scrollbar-subtle shrink-0 overflow-hidden bg-background pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 [scrollbar-gutter:stable]">
+    <div className="scrollbar-subtle shrink-0 overflow-hidden pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 [scrollbar-gutter:stable] sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       {/* The chat column (message-list.tsx): the side padding is inside it, and the same scrollbar
           gutter as the transcript is reserved above, so the composer's edges match the messages'. */}
-      <div className="mx-auto w-full px-5 sm:px-6 lg:w-[min(100%,clamp(42.5rem,75%,57rem))]">
+      <div className="chat-column">
         {error && (
           <div
             role="alert"
@@ -198,7 +198,7 @@ export function Composer({
             addFiles(event.dataTransfer.files);
           }}
           className={cn(
-            "composer-focus elev-1 flex flex-col gap-2 rounded-[1.35rem] border border-border/90 bg-card p-2.5 transition-[border-color,box-shadow] duration-base",
+            "composer-focus elev-1 flex flex-col gap-2 rounded-3xl border border-border bg-card p-2.5 transition-[border-color,box-shadow] duration-base",
             dragging && "border-brand/60 ring-2 ring-brand/25",
           )}
         >
@@ -220,7 +220,7 @@ export function Composer({
               onClick={() => fileInput.current?.click()}
               aria-label="Attach files"
               title="Attach files (PDF, Word, PowerPoint, Excel, CSV, text, images)"
-              className="focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-2 text-text-secondary transition-colors hover:bg-border hover:text-foreground sm:h-10 sm:w-10"
+              className="focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-full text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground active:bg-border sm:h-10 sm:w-10"
             >
               <Paperclip aria-hidden className="h-5 w-5" />
             </button>
@@ -269,7 +269,7 @@ export function Composer({
                 className={cn(
                   "focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-full transition-colors disabled:opacity-60 sm:h-10 sm:w-10",
                   dictation.state === "idle"
-                    ? "bg-surface-2 text-text-secondary hover:bg-border hover:text-foreground"
+                    ? "text-text-secondary hover:bg-surface-2 hover:text-foreground active:bg-border"
                     : "bg-brand-soft text-brand",
                 )}
               >
@@ -306,7 +306,7 @@ export function Composer({
                 disabled={stream.phase !== "streaming"}
                 aria-label={stream.phase === "stopping" ? "Stopping" : "Stop generating"}
                 className={cn(
-                  "grid h-11 w-11 shrink-0 place-items-center rounded-full bg-foreground text-background transition hover:brightness-110 active:scale-[0.97] disabled:opacity-50 sm:h-10 sm:w-10",
+                  "focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-full bg-foreground text-background transition hover:brightness-110 active:scale-[0.97] disabled:opacity-50 sm:h-10 sm:w-10",
                   swapIn,
                 )}
               >
@@ -318,7 +318,7 @@ export function Composer({
                 disabled={!canSend}
                 aria-label="Send message"
                 className={cn(
-                  "elev-1 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-foreground text-background transition hover:opacity-90 active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-text-secondary disabled:shadow-none sm:h-10 sm:w-10",
+                  "focus-ring elev-1 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-foreground text-background transition hover:opacity-90 active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-text-secondary disabled:shadow-none sm:h-10 sm:w-10",
                   swapIn,
                 )}
               >

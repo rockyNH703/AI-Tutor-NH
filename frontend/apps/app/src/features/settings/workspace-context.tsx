@@ -21,8 +21,8 @@ export function useWorkspace(): Workspace {
   return value;
 }
 
-export const iconButton =
-  "focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-xl text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground";
+/** The app bar's icon control (globals.css `.icon-button`), shared with the app's header. */
+export const iconButton = "icon-button";
 
 export function CloseSettings({ href, className }: { href: string; className?: string }) {
   return (

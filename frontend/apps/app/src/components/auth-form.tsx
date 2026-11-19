@@ -59,7 +59,7 @@ const label = "text-sm font-medium uppercase tracking-widest text-slate-500 dark
 const bigInput =
   "w-full border-b border-black/45 bg-transparent pb-2 text-center text-xl font-semibold tracking-tight text-slate-900 caret-blue-500 outline-none transition-colors placeholder:text-slate-300 focus:border-blue-500 disabled:opacity-50 sm:text-2xl dark:border-white/40 dark:text-white dark:placeholder:text-white/20 dark:focus:border-blue-400";
 const primaryPill = cn(
-  "auth-glow group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3 font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-80 disabled:hover:scale-100",
+  "auth-glow group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3 font-semibold text-white transition-[color,background-color,box-shadow,transform,opacity] duration-base hover:scale-105 active:scale-95 disabled:opacity-80 disabled:hover:scale-100",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   "dark:bg-white dark:text-black",
   EASE,
@@ -86,7 +86,7 @@ function Swap({ shown, children, className }: { shown: boolean; children: ReactN
       inert={!shown || undefined}
       aria-hidden={!shown || undefined}
       className={cn(
-        "absolute flex flex-col items-center transition-all duration-500",
+        "absolute flex flex-col items-center transition-[opacity,transform] duration-slow",
         EASE,
         shown ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0",
         className,
@@ -421,7 +421,7 @@ export function AuthForm({
   const status = (hint?: string) => (
     <div className="mt-6 flex min-h-[2.75rem] w-full max-w-md flex-col items-center gap-3 text-center">
       {showCaptcha && (
-        <div className="w-full animate-in fade-in-0 duration-500">
+        <div className="w-full animate-in fade-in-0 duration-slow">
           <Turnstile
             key={captcha.round}
             siteKey={turnstileSiteKey}
@@ -538,7 +538,7 @@ export function AuthForm({
                   input.current?.focus();
                 }}
                 className={cn(
-                  "rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
+                  "rounded-full px-5 py-2 text-sm font-medium transition-[color,background-color,box-shadow] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
                   tab === value
                     ? "bg-white text-slate-900 shadow-sm dark:bg-white dark:text-black"
                     : "text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white",
@@ -569,7 +569,7 @@ export function AuthForm({
                   onClick={() => void withGoogle()}
                   disabled={pending}
                   className={cn(
-                    "group flex items-center gap-3 rounded-full border border-slate-900/10 bg-slate-900/5 px-6 py-3 font-medium text-slate-700 transition-all duration-300 hover:scale-105 hover:border-slate-900/20 hover:bg-slate-900/10 hover:text-slate-900 active:scale-95 disabled:opacity-50 disabled:hover:scale-100",
+                    "group flex items-center gap-3 rounded-full border border-slate-900/10 bg-slate-900/5 px-6 py-3 font-medium text-slate-700 transition-[color,background-color,border-color,transform,opacity] duration-base hover:scale-105 hover:border-slate-900/20 hover:bg-slate-900/10 hover:text-slate-900 active:scale-95 disabled:opacity-50 disabled:hover:scale-100",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
                     "dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white",
                     EASE,
@@ -797,7 +797,7 @@ export function AuthForm({
 
   return (
     // The ground is the theme's own (pure white; the app's near-black), opaque over the page's wash.
-    <div className="relative isolate flex min-h-dvh w-full flex-col bg-background text-slate-900 transition-colors duration-700 dark:text-white">
+    <div className="relative isolate flex min-h-dvh w-full flex-col bg-background text-slate-900 transition-colors duration-slow dark:text-white">
       {/* Dark only: two slow pools of light. The white theme stays pure white. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden overflow-hidden dark:block">
         <div className="animate-auth-drift absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-blue-600/10 blur-[120px]" />
@@ -813,7 +813,7 @@ export function AuthForm({
             inert={!previous || undefined}
             aria-label="Go back"
             className={cn(
-              "rounded-full p-2 text-slate-900 transition-all duration-300 hover:bg-slate-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:text-white/90 dark:hover:bg-white/10",
+              "rounded-full p-2 text-slate-900 transition-colors duration-base hover:bg-slate-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:text-white/90 dark:hover:bg-white/10",
               previous ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0",
             )}
           >
@@ -821,7 +821,7 @@ export function AuthForm({
           </button>
           <div
             className={cn(
-              "flex items-center gap-3 text-slate-900 transition-transform duration-300 dark:text-white/90",
+              "flex items-center gap-3 text-slate-900 transition-transform duration-base dark:text-white/90",
               EASE,
               previous ? "translate-x-0" : "-translate-x-12",
             )}
@@ -848,7 +848,7 @@ export function AuthForm({
             // Named only while shown, so the hidden badge never answers to "email" next to the field.
             aria-label={showBadge ? `Change email address (${email.trim()})` : undefined}
             className={cn(
-              "flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-slate-900/10 bg-slate-900/5 px-4 py-2 backdrop-blur-md transition-all duration-500 hover:bg-slate-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
+              "flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-slate-900/10 bg-slate-900/5 px-4 py-2 backdrop-blur-md transition-colors duration-base hover:bg-slate-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
               EASE,
               showBadge ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "-translate-y-8 scale-95 opacity-0",
             )}
@@ -866,11 +866,11 @@ export function AuthForm({
               key={step}
               inert={leaving || undefined}
               className={cn(
-                "flex w-full justify-center transition-[opacity,transform] duration-500",
+                "flex w-full justify-center transition-[opacity,transform] duration-slow",
                 EASE,
                 leaving
                   ? cn("scale-95 opacity-0", back ? "translate-y-12" : "-translate-y-12")
-                  : cn("animate-in fade-in-0 zoom-in-95 duration-500", back ? "slide-in-from-top-12" : "slide-in-from-bottom-12"),
+                  : cn("animate-in fade-in-0 zoom-in-95 duration-slow", back ? "slide-in-from-top-12" : "slide-in-from-bottom-12"),
               )}
             >
               {panel}
