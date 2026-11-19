@@ -141,6 +141,22 @@ _CUES = [
     ),
     re.compile(r"\b" + _ITEMS + r"\s+(?:do|dedo|de\s+do|chahiye|pucho|puchho|lo|le\s+lo|karo|karwao|kara\s+do)\b"),
 ]
+# A request frame anywhere before a quiz word: "how about some MCQs on X", "check my X with a quiz", "I want to be
+# tested on X", "time for questions on X", "I'll take 10 questions on X". Structural, so a new wording of the same
+# request needs no new pattern (session 1's holdout 2 showed listing wordings doesn't converge). The precision
+# guards still apply: _BLOCKED, then (for a weak cue) _ASKING/_QUESTIONING, then the finder must be sure.
+_QUIZ_WORD = r"(?:quiz(?:zes)?|mcqs?|questions?|tested|(?:mock|practice|exam)\s+(?:tests?|exams?))"
+_FRAME = (
+    r"\b(?:i\s+(?:want|need|wanna)|i'?d\s+(?:like|love|take|want)|i\s+would\s+(?:like|love|take)|i'?ll\s+take"
+    r"|(?:can|could|would|will)\s+you|how\s+about|what\s+about|time\s+for|let\s+me|let'?s|lets|set\s+me"
+    r"|check\s+(?:my|how\s+(?:well\s+)?i)|drill\s+me|fire\s+away|hit\s+me|challenge\s+me|(?:i'?m\s+)?ready\s+for)\b"
+)
+_CUES.append(re.compile(_FRAME + r".*\b" + _QUIZ_WORD + r"\b"))
+# Frames that leave no doubt: the rest of the message needn't be checked for a question.
+_SURE_FRAME = re.compile(
+    r"\b(?:set\s+me|drill\s+me|fire\s+away|hit\s+me|challenge\s+me|be\s+tested|time\s+for)\b"
+    r"|\b(?:how|what)\s+about\s+(?:a\s+|an\s+|some\s+|\d{1,3}\s+|a\s+few\s+)?" + _LEVEL + _KIND + _ASKED
+)
 _NEXT = re.compile(
     r"^(?:(?:ok(?:ay)?|now|so|please|pls|then|great|nice|cool|sure)\s+)*(?:give\s+me\s+|send\s+me\s+|ask\s+me\s+)?"
     r"(?:(?:the\s+)?next(?:\s+"
@@ -158,16 +174,22 @@ _BLOCKED = re.compile(
     r"|practice\s+lab|lab\s+practice|exam\s+(?:date|fee|fees|voucher|registration|pattern|format|center|centre|policy|cost|duration|syllabus|topics|blueprint|tips|strategy)"
     r"|interview\s+(?:questions?|prep)|flash\s*cards?|cheat\s*sheets?|example|best\s+practices?|i\s+have\s+(?:some\s+|a\s+few\s+)?questions?"
     r"|i'?ve\s+got\s+(?:some\s+)?questions?|my\s+questions?|your\s+questions?|questions?\s+(?:i|we)\s+(?:have|had)"
-    r"|(?:quiz|test)\s+(?:me|us)\s+(?:later|tomorrow|afterwards|after|next\s+time)|interviewers?)\b"
+    r"|(?:quiz|test)\s+(?:me|us)\s+(?:later|tomorrow|afterwards|after|next\s+time)|interviewers?"
+    r"|questions?\s+(?:answered|resolved|cleared|clarified|(?:i|we)\s+(?:wrote|made|created|prepared|found|got))"
+    r"|(?:ask|asking)\s+(?:you|u)|answer\s+(?:a\s+few\s+|some\s+|my\s+|these\s+|the\s+)?questions?"
+    # "a quick question on NTP: is it stateful?" asks one; "can you check my answers to these questions" grades one
+    r"|(?:a|one|another)\s+(?:quick\s+|short\s+|small\s+|simple\s+|silly\s+|basic\s+)?question\s+(?:on|about|regarding|re|for)"
+    r"|check\s+my\s+answers?|answers?\s+to\s+(?:these|those|the|my|this))\b"
 )
 _ASKING = re.compile(
-    r"^(?:what|how|why|when|where|which|who|whom|whose|is|are|was|were|does|do|did|should|would|will|explain|define|"
-    r"describe|difference|compare|tell\s+me\s+about|help\s+me\s+(?:understand|with))\b"
+    r"^(?:what(?!\s+about)|how(?!\s+about)|why|when|where|which|who|whom|whose|is|are|was|were|does|do|did|should"
+    r"|would|will|explain|define|describe|difference|compare|tell\s+me\s+about|help\s+me\s+(?:understand|with))\b"
 )
 # A weak cue ("practice questions on X", "quiz on X") in a message that is really asking or reporting something
 # ("questions on my mind: why is OSPF stuck in EXSTART?") is left to the model.
 _QUESTIONING = re.compile(
-    r"\b(?:why|how|what|explain|can'?t|cannot|isn'?t|doesn'?t|won'?t|stuck|confused|useless|help)\b"
+    r"\b(?:why|how(?!\s+(?:about|well))|what(?!\s+(?:about|you|we))|which|explain|review|can'?t|cannot|isn'?t"
+    r"|doesn'?t|won'?t|stuck|confused|useless|help|know\s+which)\b"
 )
 _STRONG = re.compile(r"\b(?:quiz|test)\s+(?:me|us)\b|\btest\s+my\s+knowledge\b|\b(?:give|ask|send)\s+(?:me|us)\b")
 _MULTI = re.compile(
@@ -191,10 +213,17 @@ _STOP = {
     "mini", "full", "random", "throw", "fire", "at", "upar", "lo", "le", "karo", "karwao", "kara", "skill", "skills",
     "drill", "examine", "generate", "make", "create", "prepare",
     "problems", "problem", "quizzes", "tests", "one", "by", "let", "lets", "let's", "i", "be", "tested",
+    # interjections and request frames: "cool, now quiz me on it", "how about", "check how well I know X"
+    "cool", "great", "nice", "alright", "awesome", "sure", "hey", "hi", "thanks", "thank", "yes", "yeah", "yep",
+    "right", "perfect", "good", "fine", "wow", "how", "what", "check", "well", "know", "practise",
+    "away", "hit", "wanna", "love", "ready", "go", "ahead", "i'm", "im", "i'll", "challenge", "couple", "style",
+    "just", "explained", "said",
 }  # fmt: skip
 _WATCHED = re.compile(
     r"\b(?:the|this|that)\s+(?:video|lesson|class|session)\s+(?:i|we)\s+(?:just\s+)?"
     r"(?:watched|saw|finished|completed|did|attended)\b"
+    r"|\bwhat\s+(?:you|we)\s+(?:just\s+)?(?:explained|said|covered|discussed|taught|told\s+me|went\s+over"
+    r"|talked\s+about)\b|\byour\s+(?:last\s+)?(?:answer|explanation|reply)\b"
 )
 _QUOTED = re.compile(r"[\"“”']([^\"“”']{3,120})[\"“”']")
 _NAMED = re.compile(r"\b(?:the\s+)?(?:lesson|video|session|class)\s+(?:called\s+|named\s+|titled\s+|on\s+)?(.+)$")
@@ -215,10 +244,28 @@ class Request:
     strong: bool = True
 
 
+_NOT_TYPOS = {"best", "rest", "text", "jest", "nest", "pest", "west", "vest", "zest", "set", "quit", "tests", "teas"}
+
+
+def _one_edit(a: str, b: str) -> bool:
+    """a and b differ by one insertion, deletion, substitution or swap of neighbours."""
+    if a == b or abs(len(a) - len(b)) > 1:
+        return False
+    if len(a) == len(b):
+        diff = [i for i in range(len(a)) if a[i] != b[i]]
+        return len(diff) == 1 or (len(diff) == 2 and diff[1] == diff[0] + 1 and a[diff[0]] == b[diff[1]])
+    short, long = sorted((a, b), key=len)
+    return any(long[:i] + long[i + 1 :] == short for i in range(len(long)))
+
+
 def normalise(message: str) -> str:
     text = message.casefold().replace("’", "'").replace("`", "'")
     text = re.sub(r"[?!.,;:]+(?=\s|$)", " ", text)
+    text = re.sub(r"-(?:style|type|like|level)\b", " ", text)  # "ccna-style questions", "exam-type mcqs"
     words = [_TYPOS.get(word, word) for word in text.split()]
+    for i, word in enumerate(words[:-1]):  # "tst me", "qiz me": a one-letter slip in the verb before me/us
+        if words[i + 1] in ("me", "us") and word not in _NOT_TYPOS:
+            words[i] = next((verb for verb in ("quiz", "test") if _one_edit(word, verb)), word)
     return " ".join(words).strip()
 
 
@@ -263,6 +310,7 @@ def _topic(text: str) -> tuple[str, bool]:
 
 
 def _clean(text: str) -> str:
+    text = re.sub(r"\btime\s+for\b", " ", text)  # the frame, not the word: "network time protocol" keeps "time"
     # The count goes ("5 hard questions"); a number that is part of the topic stays ("layer 2", "rfc 1918").
     text = re.sub(r"\b\d{1,3}\b(?=\s+(?:more\s+)?(?:[a-z+-]+\s+){0,3}?" + _ITEMS + r"\b)", " ", text)
     for word in _DIFFICULTY:
@@ -284,14 +332,22 @@ def parse(message: str) -> Request | None:
         return None
     if not any(cue.search(text) for cue in _CUES):
         return None
-    strong = bool(_STRONG.search(text))
+    strong = bool(_STRONG.search(text) or _SURE_FRAME.search(text))
     if not strong and (_ASKING.match(text) or _QUESTIONING.search(_QUOTED.sub(" ", text))):
         return None
     track, rest = _track(text)
     topic, lesson = _topic(rest)
-    refers = not topic or bool(_CHAT.match(topic)) or bool(_WATCHED.search(text))
-    if refers and topic in {"", "it"} and not re.search(r"\b(?:this|that|it|above|same|discussed|covered)\b", rest):
+    watched = bool(_WATCHED.search(text))
+    refers = not topic or bool(_CHAT.match(topic)) or watched
+    if (
+        refers
+        and not watched
+        and topic in {"", "it"}
+        and not re.search(r"\b(?:this|that|it|above|same|discussed|covered)\b", rest)
+    ):
         refers = False  # "quiz me" / "quiz me on CCNA": no topic, nothing in the chat named
+    if track and not topic and not refers:
+        strong = True  # "I want CCNA mock questions": the track is the whole request
     return Request(
         "bank",
         count=_count(text),

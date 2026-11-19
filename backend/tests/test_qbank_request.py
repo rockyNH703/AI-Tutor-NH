@@ -4,7 +4,16 @@ quiz request. Pure: no database, no model."""
 
 import pytest
 
+from app.qbank.finder import corrected
 from app.qbank.request import parse
+
+
+def test_a_short_word_is_corrected_only_when_its_letters_are_swapped():
+    # "cool" is not "pool" (a NAT pool): holdout 2 served NAT for "cool, now quiz me on it". "opsf" is ospf.
+    known = frozenset({"pool", "ospf", "bgp", "nat", "vlan"})
+    assert corrected(["cool", "opsf", "bpg", "vlna", "nta"], known) == ["cool", "ospf", "bgp", "vlan", "nat"]
+    assert corrected(["spannning"], frozenset({"spanning"})) == ["spanning"]
+
 
 ORDINARY = [
     "create a test VLAN for the lab",
@@ -56,6 +65,19 @@ ORDINARY = [
     "test case: R1 cannot reach 8.8.8.8",
     "show me the questions from yesterday's exam",
     "quiz me later, first explain OSPF areas",
+    # Guards for the request frames (2026-11-19, holdout 2): a frame plus a question word is not always a quiz.
+    "let me ask you some questions about BGP",
+    "can you review the questions I wrote for my team",
+    "set me up a lab for OSPF",
+    "can you explain the questions on the exam",
+    "how about we look at the OSPF config first",
+    "what about NAT overload, how does it work",
+    "I need my questions about VPNs cleared up",
+    "could you answer a few questions on IPsec for me",
+    "I want to know which questions are on the CCNA exam",
+    "best me at this",
+    "a quick question on syslog levels: is it stateful?",
+    "can you check my answers to these vlan questions: 1 is B, 2 is D",
 ]
 
 QUIZ_REQUESTS = [
@@ -87,7 +109,38 @@ QUIZ_REQUESTS = [
     "Security+ practice questions",
     "select-all-that-apply questions on acls",
     "test me on the video I just watched",
+    # Request frames (session 1's holdout 2, 2026-11-19), in this file's own words: a quiz word plus a request frame.
+    "what about a few mcqs on dhcp",
+    "check how well I know ospf with a quiz",
+    "I'd like to be tested on spanning tree",
+    "time for some questions on acls",
+    "could you set me a quiz about nat",
+    "fire away, questions on ipv6 please",
+    "let me practise vlans with a couple of questions",
+    "I need an etherchannel quiz",
+    "I'll take 10 questions on wireless",
+    "set me 4 tricky mcqs on hsrp",
+    "exam-style questions on qos",
+    "I want CCNA mock questions",
+    "let's do some questions on what you just explained",
+    "tset me on vlans",
+    "qiz me on ospf pls",
 ]
+
+
+@pytest.mark.parametrize(
+    "message, refers, topic",
+    [
+        ("cool, now quiz me on it", True, ""),
+        ("great, test me on this one", True, ""),
+        ("let's do some questions on what you just explained", True, ""),
+        ("check how well I know ospf with a quiz", False, "ospf"),
+        ("I'd like to be tested on spanning tree", False, "spanning tree"),
+    ],
+)
+def test_a_frame_request_reads_its_topic_or_the_chat(message, refers, topic):
+    request = parse(message)
+    assert request is not None and request.refers_to_chat is refers and request.topic == topic
 
 
 @pytest.mark.parametrize("message", ORDINARY)

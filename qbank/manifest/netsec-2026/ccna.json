@@ -532,6 +532,8 @@
      "title": "Router forwarding decision (longest prefix match, administrative distance, metric)",
      "aliases": [
       "longest prefix match",
+      "longest prefix matching",
+      "longest match",
       "administrative distance",
       "ad",
       "metric",
@@ -1046,7 +1048,10 @@
       "wireless lan security",
       "wifi security",
       "wi-fi security",
-      "wlan security"
+      "wlan security",
+      "wireless encryption",
+      "wifi encryption",
+      "wireless encryption standards"
      ],
      "paraphrases": [
       "wireless security protocols WPA, WPA2 and WPA3",
@@ -1109,7 +1114,11 @@
       "dna center",
       "catalyst center",
       "northbound",
-      "southbound"
+      "southbound",
+      "control plane",
+      "data plane",
+      "control plane and data plane",
+      "management plane"
      ],
      "paraphrases": [
       "controller-based, software-defined architecture: overlay, underlay and fabric",

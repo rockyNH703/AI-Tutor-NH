@@ -188,6 +188,8 @@ def corrected(words: list[str], known: frozenset[str]) -> list[str]:
         close = {
             other for other in known if abs(len(other) - len(word)) <= limit and _edits(word, other, limit) <= limit
         }
+        if len(word) <= 4:  # a short word only by swapped letters ("opsf"): "cool" is no NAT "pool" (holdout 2)
+            close = {other for other in close if sorted(other) == sorted(word)}
         if len(close) > 1:  # the same letters, then the fewest edits
             close = {other for other in close if sorted(other) == sorted(word)} or close
         if len(close) > 1:

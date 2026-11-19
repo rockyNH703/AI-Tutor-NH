@@ -84,6 +84,46 @@ read as quiz requests. The grammar now needs an asked item followed by a topic o
 and a weak cue that finds no topic goes to the model. `tests/test_qbank_request.py` keeps the 49 probes and
 `tests/test_qbank_redteam.py` the runtime checks. A fresh held-out set is needed before the next measured claim.
 
+Two fresh held-out sets from session 1 followed, each run once and then committed as spent:
+- **`holdout.jsonl`** (442 cases, run on 741cddc):
+  - route 0.867, with 0 false triggers in 176;
+  - hit 0.947, precision 0.935;
+  - positive recall about 0.78.
+- **`holdout2.jsonl`** (422 cases, sha256 b9a2dcf7…7c95, run on 06b9896):
+  - route 0.725, with 0 false triggers in 165;
+  - hit 0.887, precision 0.883;
+  - positive recall 0.559;
+  - p95 39.7 ms.
+
+What holdout 2 showed:
+- **Recall:** every new wording family was missed ("how about some MCQs on X", "time for a quiz on X", "I want to be tested on X", "tst me"). Each set had fixed the families of the one before, so a grammar that lists wordings does not converge.
+- **A confident wrong topic:** "cool, now quiz me on it" was served NAT questions, because the typo step turned "cool" into "pool".
+- **Two missing aliases:** "longest prefix matching" and "wireless encryption".
+- **Track-only requests** for tracks the bank does not hold were scored as misses, even when the answer "none yet" was correct.
+
+**The fix (2026-11-19):**
+- **Request frames:** the grammar now also accepts a quiz word after a request frame ("I want/need/'d like/'ll take", "can/could you", "how/what about", "time for", "let me/let's", "set me", "check my", "fire away"). It is structural, not a list of wordings.
+- **Guards kept:** the precision guards stay. Blocked phrases now also include "questions answered/I wrote", "ask you" and "answer … questions". A weak cue still needs the finder to be sure.
+- **Typos:** one-letter slips in the verb are accepted ("tst me").
+- **The NAT bug:** leading interjections are dropped, and a word of four letters or fewer is corrected only by swapping its letters.
+- **Aliases:** both added.
+- **Eval scoring:** the eval now scores "none" as correct for a track the bank has no questions for.
+
+**After the fix** (WSL, the CCNA manifest):
+
+| Set | Route | False triggers | Hit / precision | p95 |
+|---|---|---|---|---|
+| dev | 1.000 | 0 of 186 | 1.000 / 0.994 | 19.5 ms |
+| test | 1.000 | 0 of 184 | 0.996 / 0.989 | 22.1 ms |
+| holdout 1 | 1.000 | 0 of 176 | 0.996 / 0.994 | 21.7 ms |
+| holdout 2 | 1.000 | 0 of 165 | 0.988 / 0.965 | 25.3 ms |
+
+The first post-fix run surfaced two problems, now fixed:
+- **10 false triggers:** "a quick question on X: is it stateful?" had been read as a quiz request since 06b9896, and "can you check my answers to these … questions" by the new frames. Both are blocked now.
+- **A stop-word regression:** "network time protocol" lost "time". Only the phrase "time for" is dropped now.
+
+These numbers are measured on sets that are now spent (holdout 2 was also tuned on). The next honest recall figure needs a fourth fresh set.
+
 **Content** (`qbank/`, below):
 - every NHprep quiz question, kept as written and flagged when disputed;
 - 5–10 questions per NHprep video, written by agents from the lesson's notes and served only after a three-way

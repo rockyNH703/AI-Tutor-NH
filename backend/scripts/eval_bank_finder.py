@@ -32,6 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from sqlalchemy import text  # noqa: E402
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine  # noqa: E402
 
 from app.qbank import finder  # noqa: E402
@@ -62,6 +63,7 @@ async def run(args: argparse.Namespace) -> int:
     timings: list[float] = []
     async with sessions() as session:
         await finder.find(session, "warm up", need_questions=False)
+        books = set(await session.scalars(text("SELECT book_id FROM qb_books WHERE curriculum = 'netsec'")))
         for case in cases:
             expect, category = case["expect"], case["category"]
             started = time.perf_counter()
@@ -87,7 +89,11 @@ async def run(args: argparse.Namespace) -> int:
             wanted = set(expect["topics"])
             titles = [t.title for t in found.topics]
             counter["status_" + found.status] += 1
-            if not wanted:  # a whole track: any found topic of the right track
+            if not wanted and expect["track"] is not None and expect["track"] not in books:
+                ok = not titles  # a track the bank has no questions for: the right answer is "none yet"
+                counter["hit"] += ok
+                counter["precision_sum_x1000"] += 1000 if ok else 0
+            elif not wanted:  # a whole track: any found topic of the right track
                 ok = bool(titles) and (expect["track"] is None or found.book_id == expect["track"])
                 counter["hit"] += ok
                 counter["precision_sum_x1000"] += 1000 if ok else 0
