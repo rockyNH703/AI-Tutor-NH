@@ -90,7 +90,7 @@
        depth: .elev-1..3. Radii by role: menu items md, tooltips lg, controls xl, cards 2xl,
        the composer 3xl. */
     --header-h: 4rem;
-    --chat-max: 84rem; /* 70% of a 1920 pane holds at every text size; it binds only on wider screens */
+    --chat-max: 51rem; /* ChatGPT's reading width: 48rem of text + the 1.5rem gutters; 70% of the pane below it */
     --page-max: 56rem;
     --page-max-narrow: 48rem;
 
