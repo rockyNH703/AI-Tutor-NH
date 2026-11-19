@@ -48,6 +48,7 @@ export async function openSession(options: SessionOptions) {
   const writesAllowed = new Map<string, number>();
   const jsonListeners: JsonListener[] = [];
   const videoUrlsSeen = new Set<string>();
+  const staticCache = new Map<string, { status: number; headers: Record<string, string>; body: Buffer }>();
   const state = { loggingIn: false, probe: false };
 
   const takeWrite = (key: string): boolean => {
@@ -97,6 +98,22 @@ export async function openSession(options: SessionOptions) {
         return route.abort();
       }
       videoUrlsSeen.add(url.pathname);
+    }
+    // Routing turns the browser's HTTP cache off, so each page would fetch every script again. Next's static files are
+    // content-hashed (immutable): fetch each once, paced like any request, then serve it from memory.
+    if (method === "GET" && url.pathname.startsWith("/_next/static/")) {
+      const hit = staticCache.get(url.href);
+      if (hit) {
+        tally("static from memory");
+        return route.fulfill(hit);
+      }
+      pacedAt.push(await pace());
+      const response = await route.fetch();
+      // The body comes back decoded: its encoding and length headers would no longer be true.
+      const headers = Object.fromEntries(Object.entries(response.headers()).filter(([name]) => !/^content-(encoding|length)$/i.test(name)));
+      const entry = { status: response.status(), headers, body: await response.body() };
+      if (response.ok()) staticCache.set(url.href, entry);
+      return route.fulfill(entry);
     }
     const key = `${method} ${url.pathname}${headers["next-action"] ? " (server action)" : ""}`;
     if (method !== "GET" && method !== "HEAD") {
