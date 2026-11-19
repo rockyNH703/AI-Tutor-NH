@@ -331,7 +331,7 @@ HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
-HEAD = "0026_qbank_certification"
+HEAD = "0027_nhprep_video_courses"
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -825,6 +825,80 @@ def test_migration_0026_keeps_cbse_rows_valid_and_refuses_to_drop_the_certificat
         assert run(_query("SELECT to_regprocedure('qb_options_valid(jsonb, text[], text)') AS f"))[0]["f"] is None
         assert run(_query("SELECT count(*) AS n FROM pg_extension WHERE extname = 'pg_trgm'"))[0]["n"] == 1  # kept
         alembic("upgrade", "head")
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+NHPREP = "0027_nhprep_video_courses"
+NHPREP_TABLES = (
+    "nhprep_sync_runs",
+    "nhprep_courses",
+    "nhprep_trainers",
+    "nhprep_course_trainers",
+    "nhprep_lessons",
+    "nhprep_lesson_items",
+    "nhprep_search_chunks",
+)
+
+
+def test_migration_0027_adds_the_nhprep_tables_and_refuses_to_drop_imports():
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
+    assert ScriptDirectory.from_config(Config(str(ROOT / "alembic.ini"))).get_heads() == [HEAD]  # one head
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", QBANK_CERTIFICATION)
+        run(_query("INSERT INTO users (email, password_hash, display_name) VALUES ('nh-0027@example.com', 'x', 'N')"))
+        before = run(_snapshot(NHPREP_TABLES))
+
+        alembic("upgrade", NHPREP)
+        assert run(_snapshot(NHPREP_TABLES)) == before  # nothing outside the new tables changed
+        embedding = run(
+            _query(
+                "SELECT format_type(atttypid, atttypmod) AS t FROM pg_attribute "
+                "WHERE attrelid = 'nhprep_search_chunks'::regclass AND attname = 'embedding'"
+            )
+        )
+        assert embedding[0]["t"] == "vector(1536)"
+        generated = run(
+            _query(
+                "SELECT attname, attgenerated FROM pg_attribute WHERE attname IN ('content_tsv', 'video_embed_url') "
+                "AND attrelid IN ('nhprep_search_chunks'::regclass, 'nhprep_lessons'::regclass)"
+            )
+        )
+        assert {(row["attname"], row["attgenerated"]) for row in generated} == {
+            ("content_tsv", "s"),
+            ("video_embed_url", "s"),
+        }
+        indexes = {
+            row["indexname"]: row["indexdef"]
+            for row in run(_query("SELECT indexname, indexdef FROM pg_indexes WHERE tablename LIKE 'nhprep%'"))
+        }
+        assert "USING hnsw (embedding vector_cosine_ops)" in indexes["ix_nhprep_search_chunks_embedding_hnsw"]
+        assert "gin_trgm_ops" in indexes["ix_nhprep_lessons_title_trgm"]
+        assert "gin_trgm_ops" in indexes["ix_nhprep_lesson_items_chapter_title_trgm"]
+
+        run(_query("INSERT INTO nhprep_trainers (normalized_name, display_name) VALUES ('ajay', 'Ajay')"))
+        process = subprocess.run(
+            [sys.executable, "-m", "alembic", "-x", f"url={URL}", "downgrade", QBANK_CERTIFICATION],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode != 0 and "0027 downgrade refused" in process.stderr
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == NHPREP
+
+        run(_query("DELETE FROM nhprep_trainers"))
+        alembic("downgrade", QBANK_CERTIFICATION)
+        for table in NHPREP_TABLES:
+            assert run(_query("SELECT to_regclass($1) AS t", table))[0]["t"] is None
+        assert run(_query("SELECT count(*) AS n FROM pg_extension WHERE extname = 'pg_trgm'"))[0]["n"] == 1  # kept
+        assert run(_snapshot(NHPREP_TABLES)) == before
+        alembic("upgrade", "head")
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == HEAD
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
 

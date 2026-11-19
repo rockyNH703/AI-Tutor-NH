@@ -2199,3 +2199,269 @@ class QbSetItem(Base):
     answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # The question's content_hash when it was served, set by the trigger (0017); NULL before 0017.
     served_hash: Mapped[str | None] = mapped_column(Text)
+
+
+# ------------------------------------------------------------------ NHprep video courses (app/nhprep, 0027)
+# Imported by scripts/nhprep_import.py and read only through app/nhprep: never in the shared knowledge store.
+# Course ── CourseTrainer ── Trainer;  Course ── Lesson ─┬─ LessonItem;  Lesson ── SearchChunk (derived, vectors)
+NHPREP_TRACKS = ("ccna", "ccnp", "ccie", "security", "cloud", "ai", "other")
+NHPREP_ITEM_KINDS = ("note", "chapter", "flashcard", "cheat_sheet", "interview_question", "other")
+NHPREP_CHUNK_KINDS = ("lesson", "note", "flashcard", "cheat_sheet", "interview_question", "other")
+NHPREP_VIDEO_PROVIDERS = ("nhprep-mp4", "bunny")
+NHPREP_TRAINER_PROVENANCES = ("api", "title", "description", "slug")
+NHPREP_SYNC_KINDS = ("import", "purge")
+NHPREP_SYNC_STATUSES = ("running", "succeeded", "failed", "interrupted")
+NHPREP_SLUG = "^[a-z0-9]+(-[a-z0-9]+)*$"
+NHPREP_ITEM_KEY = "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,99}$"
+NHPREP_SHA256 = "^[0-9a-f]{64}$"
+NHPREP_BUNNY_EMBED = "https://player.mediadelivery.net/embed/"
+
+
+class NhprepSyncRun(Base):
+    """One --apply or --purge of scripts/nhprep_import.py (a dry run writes nothing); never deleted: the audit."""
+
+    __tablename__ = "nhprep_sync_runs"
+    __table_args__ = (
+        CheckConstraint(f"kind IN {NHPREP_SYNC_KINDS}", name="kind"),
+        CheckConstraint(f"status IN {NHPREP_SYNC_STATUSES}", name="status"),
+        CheckConstraint("(status = 'running') = (finished_at IS NULL)", name="finished"),
+        CheckConstraint("operator ~ '^[a-z0-9][a-z0-9_.-]{0,79}$'", name="operator"),
+        CheckConstraint(
+            "kind <> 'import' OR (complete IS NOT NULL AND manifest_sha256 IS NOT NULL "
+            f"AND manifest_sha256 ~ '{NHPREP_SHA256}' AND exporter_version IS NOT NULL "
+            "AND schema_version IS NOT NULL AND access_basis IS NOT NULL)",
+            name="import",
+        ),
+        CheckConstraint("kind <> 'purge' OR reason IS NOT NULL", name="purge"),
+        CheckConstraint("embedding_model IS NULL OR egress_basis IS NOT NULL", name="egress_basis"),
+        CheckConstraint("jsonb_typeof(report) = 'object'", name="report"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    kind: Mapped[str] = mapped_column(String(10), nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False, server_default=text("'running'"))
+    operator: Mapped[str] = mapped_column(String(80), nullable=False)
+    complete: Mapped[bool | None] = mapped_column(Boolean)
+    manifest_sha256: Mapped[str | None] = mapped_column(CHAR(64))
+    exporter_version: Mapped[str | None] = mapped_column(String(40))
+    schema_version: Mapped[int | None] = mapped_column(SmallInteger)
+    embedding_model: Mapped[str | None] = mapped_column(String(200))
+    access_basis: Mapped[str | None] = mapped_column(String(500))
+    egress_basis: Mapped[str | None] = mapped_column(String(500))
+    reason: Mapped[str | None] = mapped_column(String(500))
+    report: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    started_at: Mapped[datetime] = _created()
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class NhprepCourse(Base):
+    """A video course; external_id is NHprep's course slug (export v1 has no other id)."""
+
+    __tablename__ = "nhprep_courses"
+    __table_args__ = (
+        UniqueConstraint("external_id"),
+        CheckConstraint(f"slug ~ '{NHPREP_SLUG}'", name="slug"),
+        CheckConstraint(f"track IN {NHPREP_TRACKS}", name="track"),
+        CheckConstraint(f"content_hash ~ '{NHPREP_SHA256}'", name="content_hash"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    external_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    slug: Mapped[str] = mapped_column(String(200), nullable=False)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    track: Mapped[str | None] = mapped_column(String(20))
+    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class NhprepTrainer(Base):
+    """A trainer resolved through the owner-confirmable alias table (app/nhprep/normalize.py), never "Admin"."""
+
+    __tablename__ = "nhprep_trainers"
+    __table_args__ = (
+        UniqueConstraint("normalized_name"),
+        CheckConstraint("normalized_name ~ '^[a-z][a-z .-]{0,119}$'", name="normalized_name"),
+        CheckConstraint("cardinality(aliases) <= 20", name="aliases"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    normalized_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    aliases: Mapped[list[str]] = mapped_column(ARRAY(String(120)), nullable=False, server_default=text("'{}'"))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class NhprepCourseTrainer(Base):
+    """Who teaches a course, and which export hint said so."""
+
+    __tablename__ = "nhprep_course_trainers"
+    __table_args__ = (
+        CheckConstraint(f"provenance IN {NHPREP_TRAINER_PROVENANCES}", name="provenance"),
+        Index("ix_nhprep_course_trainers_trainer_id", "trainer_id"),
+    )
+
+    course_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("nhprep_courses.id", ondelete="CASCADE"), primary_key=True
+    )
+    trainer_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("nhprep_trainers.id", ondelete="CASCADE"), primary_key=True
+    )
+    provenance: Mapped[str] = mapped_column(String(20), nullable=False)
+
+
+class NhprepLesson(Base):
+    """A video lesson. external_id is NHprep's lesson uuid (the question bank's lesson_ref). The video is a stable
+    reference only; video_embed_url is generated (Bunny only), so no signed URL or token can ever be stored."""
+
+    __tablename__ = "nhprep_lessons"
+    __table_args__ = (
+        UniqueConstraint("external_id"),
+        UniqueConstraint("id", "course_id"),
+        CheckConstraint("position >= 1", name="position"),
+        CheckConstraint("source_day BETWEEN 0 AND 999", name="source_day"),
+        CheckConstraint(f"slug ~ '{NHPREP_SLUG}'", name="slug"),
+        CheckConstraint("duration_seconds >= 0", name="duration"),
+        CheckConstraint(f"video_provider IN {NHPREP_VIDEO_PROVIDERS}", name="video_provider"),
+        CheckConstraint(
+            "(video_provider IS NULL) = (video_id IS NULL) "
+            "AND (video_library_id IS NOT NULL) = (video_provider IS NOT DISTINCT FROM 'bunny')",
+            name="video",
+        ),
+        CheckConstraint("video_library_id > 0", name="video_library_id"),
+        CheckConstraint("jsonb_typeof(availability) = 'object'", name="availability"),
+        CheckConstraint(f"content_hash ~ '{NHPREP_SHA256}'", name="content_hash"),
+        Index("ix_nhprep_lessons_course_id_position", "course_id", "position"),
+        Index(
+            "ix_nhprep_lessons_title_trgm", "title", postgresql_using="gin", postgresql_ops={"title": "gin_trgm_ops"}
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    external_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    course_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("nhprep_courses.id", ondelete="CASCADE"), nullable=False
+    )
+    position: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    source_day: Mapped[int | None] = mapped_column(SmallInteger)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    slug: Mapped[str] = mapped_column(String(200), nullable=False)
+    duration_seconds: Mapped[int | None] = mapped_column(Integer)
+    video_provider: Mapped[str | None] = mapped_column(Text)
+    video_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    video_library_id: Mapped[int | None] = mapped_column(Integer)
+    video_embed_url: Mapped[str | None] = mapped_column(
+        Text,
+        Computed(
+            f"CASE WHEN video_provider = 'bunny' THEN '{NHPREP_BUNNY_EMBED}' || video_library_id::text "
+            "|| '/' || video_id::text END",
+            persisted=True,
+        ),
+    )
+    availability: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class NhprepLessonItem(Base):
+    """One study aid of a lesson: a note, chapter (start_seconds), flashcard, cheat-sheet row or interview question;
+    item_key is NHprep's item id. Replaced with its lesson's export (a kind NHprep reports unavailable is kept)."""
+
+    __tablename__ = "nhprep_lesson_items"
+    __table_args__ = (
+        UniqueConstraint("lesson_id", "kind", "item_key"),
+        UniqueConstraint("id", "lesson_id"),
+        CheckConstraint(f"kind IN {NHPREP_ITEM_KINDS}", name="kind"),
+        CheckConstraint(f"item_key ~ '{NHPREP_ITEM_KEY}'", name="item_key"),
+        CheckConstraint("position >= 0", name="position"),
+        CheckConstraint(
+            "start_seconds IS NULL OR (kind = 'chapter' AND start_seconds BETWEEN 0 AND 86400)", name="start_seconds"
+        ),
+        CheckConstraint("length(body_md) <= 200000", name="body_md"),
+        CheckConstraint("jsonb_typeof(data) = 'object'", name="data"),
+        CheckConstraint(f"content_hash ~ '{NHPREP_SHA256}'", name="content_hash"),
+        Index(
+            "ix_nhprep_lesson_items_chapter_title_trgm",
+            "title",
+            postgresql_using="gin",
+            postgresql_ops={"title": "gin_trgm_ops"},
+            postgresql_where=text("kind = 'chapter'"),
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    lesson_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("nhprep_lessons.id", ondelete="CASCADE"), nullable=False
+    )
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)
+    item_key: Mapped[str] = mapped_column(String(100), nullable=False)
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[str] = mapped_column(String(300), nullable=False, server_default=text("''"))
+    body_md: Mapped[str] = mapped_column(Text, nullable=False, server_default=text("''"))
+    start_seconds: Mapped[int | None] = mapped_column(Integer)
+    data: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
+    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class NhprepSearchChunk(Base):
+    """Search text derived from one lesson (kind 'lesson') or a run of its items (item_id: the first), with its
+    vector. NHprep's own index: never in document_chunks or knowledge_passages, never read by normal chat. Keyed by
+    content (sha256 of the embedded text), so a re-import keeps it and embeds nothing."""
+
+    __tablename__ = "nhprep_search_chunks"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["lesson_id", "course_id"],
+            ["nhprep_lessons.id", "nhprep_lessons.course_id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+        ),
+        ForeignKeyConstraint(
+            ["item_id", "lesson_id"], ["nhprep_lesson_items.id", "nhprep_lesson_items.lesson_id"], ondelete="CASCADE"
+        ),
+        UniqueConstraint("lesson_id", "content_hash"),
+        CheckConstraint(f"kind IN {NHPREP_CHUNK_KINDS}", name="kind"),
+        CheckConstraint("(kind = 'lesson') = (item_id IS NULL)", name="item"),
+        CheckConstraint("ordinal >= 0", name="ordinal"),
+        CheckConstraint("length(title) BETWEEN 1 AND 700", name="title"),
+        CheckConstraint("length(content) BETWEEN 1 AND 4000", name="content"),
+        CheckConstraint(f"content_hash ~ '{NHPREP_SHA256}'", name="content_hash"),
+        Index(
+            "ix_nhprep_search_chunks_embedding_hnsw",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
+        Index("ix_nhprep_search_chunks_content_tsv_gin", "content_tsv", postgresql_using="gin"),
+        Index("ix_nhprep_search_chunks_course_id_kind", "course_id", "kind"),
+        Index("ix_nhprep_search_chunks_item_id", "item_id", postgresql_where=text("item_id IS NOT NULL")),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    lesson_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    course_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    item_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)
+    ordinal: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    content_tsv: Mapped[Any] = mapped_column(
+        TSVECTOR,
+        Computed(
+            "setweight(to_tsvector('english'::regconfig, title), 'A') || "
+            "setweight(to_tsvector('english'::regconfig, content), 'B')",
+            persisted=True,
+        ),
+        nullable=False,
+    )
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(200), nullable=False)
+    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    created_at: Mapped[datetime] = _created()

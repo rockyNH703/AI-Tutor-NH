@@ -162,6 +162,54 @@ def test_the_question_bank_never_calls_a_model():
         assert not bad, (path.name, bad)
 
 
+def test_nhprep_stays_out_of_the_shared_knowledge_store_the_model_and_the_chat():
+    """NHprep text is for entitled students only (owner decision Q2): app/nhprep never reaches the shared knowledge
+    store, a model, the chat or an HTTP client (embeddings arrive injected); its scripts never write the shared store;
+    other domains reach it only through its public modules."""
+    app_dir = BACKEND / "app"
+    files = list(app_dir.joinpath("nhprep").glob("*.py"))
+    assert files
+    for path in files:
+        imports = _imports(path)
+        bad = {
+            m
+            for m in imports
+            if m.startswith(("app.chat", "app.llm", "app.knowledge", "langchain", "langgraph", "openai", "httpx"))
+        }
+        bad |= {m for m in imports if m.startswith("app.rag") and m not in {"app.rag.errors", "app.rag.lexical"}}
+        assert not bad, (path.name, bad)
+    scripts = list(BACKEND.joinpath("scripts").glob("nhprep_*.py"))
+    assert len(scripts) >= 2
+    forbidden = (
+        "app.rag.store",
+        "app.rag.ingestion",
+        "app.rag.retriever",
+        "app.rag.graph",
+        "app.knowledge",
+        "app.chat",
+    )
+    for path in scripts:
+        assert not {m for m in _imports(path) if m.startswith(forbidden)}, path.name
+    for module in app_dir.rglob("*.py"):
+        if app_dir / "nhprep" in module.parents:
+            continue
+        reached = {m for m in _imports(module) if m.startswith("app.nhprep")}
+        allowed = {"app.nhprep.chat"} if app_dir / "chat" in module.parents else set()
+        if module.name == "main.py":
+            allowed = {"app.nhprep.router", "app.nhprep.service", "app.nhprep.chat"}  # finalised with L4
+        assert reached <= allowed, (module.relative_to(app_dir), reached - allowed)
+
+
+def test_advisory_lock_keys_are_unique_across_the_app():
+    """A key reused by two features would make one wait on (or refuse because of) the other."""
+    owners: dict[str, set[str]] = {}
+    for path in BACKEND.joinpath("app").rglob("*.py"):
+        for key in re.findall(r"\b7_216_094_\d{3}\b", path.read_text(encoding="utf-8")):
+            owners.setdefault(key, set()).add(path.name)
+    assert {key: files for key, files in owners.items() if len(files) > 1} == {}
+    assert owners.get("7_216_094_260") == {"repository.py"}
+
+
 async def test_embedding_dimension_matches_everywhere(database):
     assert Settings(_env_file=None).embedding_dimensions == EMBEDDING_DIMENSIONS == 1536
     engine = create_async_engine(database)
@@ -173,7 +221,7 @@ async def test_embedding_dimension_matches_everywhere(database):
                     f"where attrelid = '{table}'::regclass and attname = 'embedding'"
                 )
             )
-            for table in ("document_chunks", "file_chunks")
+            for table in ("document_chunks", "file_chunks", "nhprep_search_chunks")
         }
     await engine.dispose()
     assert columns == {table: f"vector({EMBEDDING_DIMENSIONS})" for table in columns}
