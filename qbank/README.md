@@ -107,6 +107,25 @@ A question:
 - an inactive question says why (`inactive_reason`);
 - titles carry no newline, fence or markup.
 
+**NHprep's own quiz questions** come from session 3's export (export v1: `export.jsonl` + `manifest.json`), through
+`backend/scripts/nhprep_quiz_to_bank.py` (`app/qbank/nhprep_quiz.py`):
+
+```sh
+python scripts/nhprep_quiz_to_bank.py <export run folder> ../qbank            # dry run on a copy
+python scripts/nhprep_quiz_to_bank.py <export run folder> ../qbank --write    # rewrite qbank/content
+```
+
+- **What NHprep lacks per question** comes from `nhprep/quiz-map/<category>.json`: the topic, the difficulty and
+  any missing explanation, plus an optional `competency`, `concept_tag` and `dispute`. That file is written offline.
+- **Kept as served:** the text, the options in NHprep's order and the key (`key_origin: nhprep`). The id is
+  `NHQ-<CATEGORY>-<ID>`.
+- **Gates:**
+  - every exported question must be mapped, or the run fails;
+  - a format other than one-of-N, or a key that disagrees with itself, is an error;
+  - an exact duplicate is written once;
+  - a question NHprep drops is retired only when its category's coverage says every question was seen;
+  - a review is kept only while the question is unchanged.
+
 ## What is here (2026-11-19)
 - **CCNA manifest** (`manifest/netsec-2026/ccna.json`): the 200-301 v1.1 domains and 44 canonical topics with aliases; no questions yet (they come from session 3's NHprep export).
 - **Before that:** PadhAI's NCERT content (the CBSE 2026-27 inventory and the Chapter 9 questions) was deleted
