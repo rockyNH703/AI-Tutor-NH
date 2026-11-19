@@ -1,7 +1,9 @@
 """Measure the bank turn's request parser and topic finder on the frozen query set (evals/qbank_requests/).
 
     python scripts/eval_bank_finder.py --database-url postgresql+asyncpg://.../netsec_qbank_eval_test \
-        [--root ../qbank] [--split dev] [--import] [--show 20]
+        [--root ../qbank] [--split dev | --file <cases.jsonl>] [--import] [--show 20]
+
+`--file`: a case file outside the repository (a held-out set run once by session 1; it is not read while tuning).
 
 The database must be a *_test one: with --import, the bank's manifests are imported into it first (questions
 too, if any). No model is called. Topics are matched by title against each case's set of acceptable titles.
@@ -53,7 +55,7 @@ async def run(args: argparse.Namespace) -> int:
         if report.errors:
             print("import refused:", *report.errors[:10], sep="\n  ")
             return 1
-    split = ROOT / "evals" / "qbank_requests" / f"{args.split}.jsonl"
+    split = Path(args.file) if args.file else ROOT / "evals" / "qbank_requests" / f"{args.split}.jsonl"
     cases = [json.loads(line) for line in split.read_text(encoding="utf-8").splitlines() if line.strip()]
     stats: dict[str, Counter] = defaultdict(Counter)
     misses: list[tuple] = []
@@ -102,7 +104,7 @@ async def run(args: argparse.Namespace) -> int:
     total = Counter()
     for counter in stats.values():
         total.update(counter)
-    print(f"split={args.split} cases={total['cases']}")
+    print(f"split={args.file or args.split} cases={total['cases']}")
     for category in sorted(stats):
         c = stats[category]
         line = f"  {category:16} cases={c['cases']:3} route={c['route_ok'] / c['cases']:.3f}"
@@ -131,6 +133,7 @@ def main() -> int:
     parser.add_argument("--database-url", required=True)
     parser.add_argument("--root", default=str(ROOT.parent / "qbank"))
     parser.add_argument("--split", default="dev", choices=("dev", "test"))
+    parser.add_argument("--file", help="a case file in the same line format, instead of a split")
     parser.add_argument("--import", dest="do_import", action="store_true")
     parser.add_argument("--show", type=int, default=25)
     return asyncio.run(run(parser.parse_args()))
