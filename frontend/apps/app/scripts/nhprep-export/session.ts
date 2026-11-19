@@ -39,10 +39,16 @@ export type Session = Awaited<ReturnType<typeof openSession>>;
 export async function openSession(options: SessionOptions) {
   const gapMs = Math.max(500, options.gapMs ?? MIN_GAP_MS);
   const sanitize = (text: string): string => text.replace(SECRETISH, "$1<redacted>");
-  const log = (kind: string, data: Record<string, unknown> = {}): void =>
-    appendFileSync(options.logFile, `${sanitize(JSON.stringify({ t: new Date().toISOString(), kind, ...data }))}\n`);
   const tallies = new Map<string, number>();
   const tally = (key: string): void => void tallies.set(key, (tallies.get(key) ?? 0) + 1);
+  // A log line that cannot be written (a full disk on 2026-11-19) must not leave a request unanswered: count it instead.
+  const log = (kind: string, data: Record<string, unknown> = {}): void => {
+    try {
+      appendFileSync(options.logFile, `${sanitize(JSON.stringify({ t: new Date().toISOString(), kind, ...data }))}\n`);
+    } catch {
+      tally("log write failed");
+    }
+  };
   const pacedAt: number[] = [];
   const pace = createPacer(gapMs);
   const writesAllowed = new Map<string, number>();
@@ -259,6 +265,8 @@ export async function openSession(options: SessionOptions) {
     allowWrite: (key: string, n: number) => writesAllowed.set(key, n),
     allowedWrites: () => Object.fromEntries(writesAllowed),
     onJson: (listener: JsonListener) => jsonListeners.push(listener),
+    /** A new lesson visit: its player may ask for its video once more (a retry after a failed visit must see it). */
+    forgetVideoUrls: () => videoUrlsSeen.clear(),
     close: async () => {
       log("stats", stats());
       await context.close();

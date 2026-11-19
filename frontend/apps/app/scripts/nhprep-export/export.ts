@@ -113,6 +113,7 @@ async function readLesson(session: Session, courseSlug: string, lessonSlug: stri
   const path = `/course/${courseSlug}/lesson/${lessonSlug}`;
   seen.artifacts = null;
   seen.videoId = null;
+  session.forgetVideoUrls();
   // `$=`: the sidebar's links may be absolute; a click is an in-app change (~4 requests), a goto a full load (~30).
   const link = page.locator(`a[href$="${path}"]`).first();
   const before = { requests: session.stats().paced, at: Date.now() };
