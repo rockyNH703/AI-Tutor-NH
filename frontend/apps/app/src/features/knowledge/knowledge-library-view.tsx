@@ -23,7 +23,7 @@ export function KnowledgeLibraryView() {
   }
   if (state === "denied") {
     return (
-      <div className="mx-auto max-w-2xl px-5 py-12">
+      <div className="page-container">
         <h1 className="text-2xl font-bold">Knowledge Library</h1>
         <p className="mt-3 text-text-secondary">
           This area is available only to an explicitly granted Knowledge Library operator.
@@ -33,7 +33,7 @@ export function KnowledgeLibraryView() {
   }
   if (state === "error") {
     return (
-      <div className="mx-auto max-w-2xl px-5 py-12">
+      <div className="page-container">
         <h1 className="text-2xl font-bold">Knowledge Library unavailable</h1>
         <p className="mt-3 text-text-secondary">Operator access could not be checked. No import action was enabled.</p>
       </div>

@@ -185,10 +185,8 @@ const config = {
       maxWidth: {
         // A description's or a short block's reading width.
         prose: "42.5rem", // 680px
-        // The composition (globals.css, "layout"): the chat column, the page containers.
-        chat: "var(--chat-max)",
-        page: "var(--page-max)",
-        "page-narrow": "var(--page-max-narrow)",
+        // The one content width (globals.css, "layout"): chat and every page.
+        content: "var(--content-max)",
       },
       // The app bar and the sidebar's brand row share one height, so their hairlines meet.
       spacing: {

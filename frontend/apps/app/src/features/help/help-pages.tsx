@@ -20,7 +20,7 @@ function inline(href: string, text: string) {
 export function PageFrame({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
   return (
     <div className="h-full overflow-y-auto">
-      <article className="page-container-narrow flex flex-col gap-6">
+      <article className="page-container flex flex-col gap-6">
         <header>
           <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h2>
           <p className="mt-1 max-w-prose text-sm leading-relaxed text-text-secondary">{intro}</p>

@@ -79,20 +79,20 @@
     --radius: 0.5rem;
 
     /* ---- layout ----
-       The composition, in one place (Tailwind: max-w-chat|page|page-narrow,
-       h-header; classes .app-frame, .chat-column, .page-container below).
+       The composition, in one place (Tailwind: max-w-content, h-header; classes .app-frame,
+       .chat-column, .page-container below).
          header   the app bar AND the sidebar's brand row, so their hairlines meet.
-         chat     the cap on the chat column (~70% of the chat pane from 1024px, gutters included).
-                  A reply's text, user bubbles and the composer all use the column's full width.
-         page     Skills & Certifications, File Library, Lab Activity, Settings; narrow: Help.
+         content  ONE width for every screen's content: the chat (greeting, messages, composer)
+                  and every page (Skills & Certifications, File Library, Lab Activity, Knowledge,
+                  Help, About, every Settings section). Full width with padding below 1024px;
+                  from there ~70% of the space beside the sidebar (or the Settings panel),
+                  centred; it follows the sidebar collapsing. The cap binds only past ~1920px.
        Rhythm is Tailwind's 4px scale: 8/12 inside a group, 16/24 between groups, 32/40 for
        sections. Edges: `border` for structure, `input` for fields (3:1), `ring` for focus;
        depth: .elev-1..3. Radii by role: menu items md, tooltips lg, controls xl, cards 2xl,
        the composer 3xl. */
     --header-h: 4rem;
-    --chat-max: 51rem; /* ChatGPT's reading width: 48rem of text + the 1.5rem gutters; 70% of the pane below it */
-    --page-max: 56rem;
-    --page-max-narrow: 48rem;
+    --content-max: 84rem; /* 70% of a 1920 window's content area holds at every text size */
 
     /* ---- motion ----
        One small system for every normal movement (Tailwind: duration-fast|base|slow,
@@ -344,46 +344,34 @@
   .icon-button {
     @apply focus-ring grid h-10 w-10 shrink-0 place-items-center rounded-full text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground active:bg-border data-[state=open]:bg-surface-2 data-[state=open]:text-foreground;
   }
-  /* The chat's column: greeting, transcript, skeleton and composer, so their edges match. Full width
-     with padding below 1024px; from there ~70% of the chat pane (not the window), centred, capped
-     at --chat-max. The scroll area and its scrollbar stay the pane's full width. */
-  .chat-column {
+  /* The one content width (token "content" above). .chat-column: the chat's greeting, transcript,
+     skeleton and composer; .page-container: every other screen, plus its vertical padding. Both are a
+     percentage of their scrolling pane, so the scroll area and its scrollbar stay the pane's width. */
+  .chat-column,
+  .page-container {
     width: 100%;
     margin-inline: auto;
     padding-inline: 1rem;
   }
-  @media (min-width: 40rem) {
-    .chat-column {
-      padding-inline: 1.5rem;
-    }
-  }
-  @media (min-width: 64rem) {
-    .chat-column {
-      width: 70%;
-      max-width: var(--chat-max);
-    }
-  }
-  /* A sidebar place or a Settings section; -narrow for reading pages (Help, About). */
-  .page-container,
-  .page-container-narrow {
-    width: 100%;
-    max-width: var(--page-max);
-    margin-inline: auto;
-    padding: 1.5rem 1rem;
-  }
-  .page-container-narrow {
-    max-width: var(--page-max-narrow);
+  .page-container {
+    padding-block: 1.5rem;
   }
   @media (min-width: 40rem) {
-    .page-container,
-    .page-container-narrow {
+    .chat-column,
+    .page-container {
       padding-inline: 1.5rem;
     }
   }
   @media (min-width: 48rem) {
-    .page-container,
-    .page-container-narrow {
+    .page-container {
       padding-block: 2.5rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .chat-column,
+    .page-container {
+      width: 70%;
+      max-width: var(--content-max);
     }
   }
 }
