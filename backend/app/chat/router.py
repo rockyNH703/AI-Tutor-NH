@@ -10,6 +10,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access.students import is_nh_student
 from app.assessments import state as assessments
 from app.auth.dependencies import Principal, get_principal
 from app.chat.schemas import (
@@ -24,7 +25,7 @@ from app.chat.schemas import (
 from app.chat.service import ChatService, PreparedTurn, collect
 from app.chat.streams import sse_body
 from app.conversations.repository import ConversationRepository
-from app.conversations.router import conversation_out, message_out
+from app.conversations.router import conversation_out, message_out, nhprep_derived
 from app.conversations.schemas import ConversationOut, MessageOut
 from app.db.models import MessageFeedback
 from app.db.session import get_session
@@ -303,6 +304,8 @@ async def respond_to_assessment(
     message = await ConversationRepository(db).get_message(principal.user.id, message_id, lock=True)
     if message is None or message.role != "assistant":
         raise NotFound("Message not found.")
+    if nhprep_derived(message.metadata_) and not is_nh_student(principal.user, request.app.state.settings):
+        raise NotFound("Message not found.")  # hidden from a reader who isn't a NetworkersHome student
     # Stored, or (a reply saved before its kind of block was recorded) built from its text exactly as
     # the client was shown it; this first answer stores it.
     stored = bool((message.metadata_ or {}).get("assessments"))

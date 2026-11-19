@@ -113,8 +113,8 @@ def _title(found: finder.Found) -> str:
 
 
 def _none_text(found: finder.Found, request: Request) -> str:
-    asked = f" on “{plain(request.topic)}”" if request.topic else ""
-    line = f"I don't have stored practice questions{asked} yet."
+    # The user's own words are never echoed into the reply: only titles from the manifest are.
+    line = f"I don't have stored practice questions on {'that topic' if request.topic else 'this'} yet."
     if found.closest:
         offers = "\n".join(f"- Quiz me on {plain(title)}" for title in found.closest)
         return f"{line} The closest topics I do have:\n\n{offers}"
@@ -158,6 +158,8 @@ async def answer(
         found = await _topics(session, request, earlier=earlier, last=last, goal=goal, entitled=entitled)
     timing = {"findMs": round((time.perf_counter() - started) * 1000, 1), **found.timings}
     base = {"version": 1, "status": found.status, "timing": timing}
+    if not request.strong and found.status in ("none", "ambiguous"):
+        return None  # "practice questions on my mind": a weak cue with no clear topic is the model's to answer
     if found.status == "none" or not found.topics:
         text = _none_text(found, request) if entitled or found.closest else NOT_ENTITLED
         return Served(text, {**base, "status": "none"})

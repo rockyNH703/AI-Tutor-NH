@@ -376,3 +376,11 @@ async def test_an_nhprep_derived_test_is_hidden_from_a_reader_who_is_not_a_stude
     app.state.settings.nhprep_allowed_email_domains = "example.org"  # the account is no longer a student
     hidden = (await client.get(f"/v1/conversations/{conversation}/messages", headers=headers)).json()["items"][-1]
     assert hidden["content"] == "This reply isn't available." and hidden["metadata"] == {}
+
+
+async def test_a_weak_cue_without_a_topic_is_left_to_the_model(client, app, fake_llm, bank):
+    headers = await _student(client, app)
+    _, events = await stream_chat(client, headers, "practice questions on bgp")  # weak cue, no BGP topic
+    assert len(fake_llm.calls) == 1 and "assessments" not in events[-1][1]["message"]["metadata"]
+    _, events = await stream_chat(client, headers, "quiz me on bgp")  # asked in so many words: the bank says so
+    assert len(fake_llm.calls) == 1 and "don't have stored practice questions" in events[-1][1]["message"]["content"]

@@ -299,7 +299,8 @@
       "flooding",
       "mac aging",
       "frame switching",
-      "unknown unicast"
+      "unknown unicast",
+      "layer 2"
      ],
      "paraphrases": [
       "switching concepts: MAC learning and aging, frame switching, frame flooding and the MAC address table"
@@ -334,7 +335,9 @@
       "voice vlan",
       "default vlan",
       "inter-vlan",
-      "vlan configuration"
+      "vlan configuration",
+      "layer 2",
+      "switching"
      ],
      "paraphrases": [
       "configure and verify VLANs spanning multiple switches",
@@ -362,7 +365,9 @@
       "native vlan",
       "allowed vlans",
       "dtp",
-      "interswitch connectivity"
+      "interswitch connectivity",
+      "layer 2",
+      "switching"
      ],
      "paraphrases": [
       "configure and verify interswitch connectivity: trunk ports, 802.1Q and native VLAN"
@@ -385,7 +390,8 @@
       "discovery protocols",
       "neighbor discovery",
       "cisco discovery protocol",
-      "link layer discovery protocol"
+      "link layer discovery protocol",
+      "layer 2"
      ],
      "paraphrases": [
       "configure and verify Layer 2 discovery protocols CDP and LLDP"
@@ -409,7 +415,9 @@
       "port-channel",
       "link aggregation",
       "pagp",
-      "bundle"
+      "bundle",
+      "layer 2",
+      "switching"
      ],
      "paraphrases": [
       "configure and verify Layer 2/Layer 3 EtherChannel with LACP"
@@ -440,7 +448,9 @@
       "bpdu guard",
       "port states",
       "port roles",
-      "root bridge election"
+      "root bridge election",
+      "layer 2",
+      "switching"
      ],
      "paraphrases": [
       "the need for and basic operation of Rapid PVST+ Spanning Tree Protocol",
@@ -502,7 +512,8 @@
       "prefix",
       "next hop",
       "gateway of last resort",
-      "routing table components"
+      "routing table components",
+      "routing"
      ],
      "paraphrases": [
       "interpret the components of the routing table: protocol code, prefix, mask, next hop, AD and metric"
@@ -526,7 +537,8 @@
       "metric",
       "forwarding decision",
       "route selection",
-      "best path"
+      "best path",
+      "routing"
      ],
      "paraphrases": [
       "how a router makes a forwarding decision by default: longest prefix match, administrative distance, metric"
@@ -552,7 +564,8 @@
       "floating static route",
       "host route",
       "network route",
-      "ipv6 static"
+      "ipv6 static",
+      "routing"
      ],
      "paraphrases": [
       "configure and verify IPv4 and IPv6 static routing: default, network, host and floating static"
@@ -581,7 +594,8 @@
       "ospf areas",
       "single area ospf",
       "lsa",
-      "hello timer"
+      "hello timer",
+      "routing"
      ],
      "paraphrases": [
       "configure and verify single area OSPFv2: neighbor adjacencies, point-to-point, broadcast DR/BDR, router ID"
@@ -604,7 +618,8 @@
       "vrrp",
       "glbp",
       "first hop redundancy",
-      "default gateway redundancy"
+      "default gateway redundancy",
+      "routing"
      ],
      "paraphrases": [
       "the purpose, functions and concepts of first hop redundancy protocols"
@@ -978,7 +993,8 @@
       "dynamic arp inspection",
       "layer 2 security",
       "sticky mac",
-      "violation mode"
+      "violation mode",
+      "layer 2"
      ],
      "paraphrases": [
       "configure and verify Layer 2 security features: DHCP snooping, dynamic ARP inspection and port security"

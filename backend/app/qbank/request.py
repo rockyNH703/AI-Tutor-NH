@@ -43,6 +43,7 @@ _TRACKS = (
     ("ccnp data center", "ccnp_data_center"),
     ("ccie security", "ccie_security"), ("ccie enterprise", "ccie_enterprise"), ("ccie", "ccie_enterprise"),
     ("encor", "ccnp_enterprise"), ("enarsi", "ccnp_enterprise"), ("ccnp", "ccnp_enterprise"), ("scor", "ccnp_security"),
+    ("aws saa", "aws_saa"), ("saa", "aws_saa"), ("solutions architect", "aws_saa"),
     ("ccna", "ccna"), ("jncia", "jncia"), ("jncis", "jncis"), ("pcnse", "pcnse"), ("palo alto", "pcnse"),
     ("fortinet", "fortinet_fcp"), ("fortigate", "fortinet_fcp"), ("network+", "comptia_network"),
     ("security+", "comptia_security"), ("cysa+", "comptia_cysa"), ("pentest+", "comptia_pentest"), ("ceh", "ceh"),
@@ -58,12 +59,21 @@ _KIND = (
     r"|multiple[- ](?:select|correct|choice)|multi[- ]?select|single[- ](?:correct|choice))\s+)*"
 )
 _TRACK_WORDS = r"(?:" + "|".join(re.escape(word) for word, _ in _TRACKS) + r")\s+"
+# What a request asks for. A bare "test" is not one: "create a test VLAN", "run a test from R1" (session 1's red team,
+# 2026-11-19). A practice, mock or exam test is.
+_ASKED = (
+    r"(?:questions?|mcqs?|quiz(?:zes)?|problems?|multiple[- ]choice(?: questions?)?"
+    r"|(?<=practice )tests?|(?<=mock )tests?|(?<=exam )tests?|(?<=mock )exams?|(?<=practice )exams?)"
+)
+# ...and what follows it: a topic ("on/about/for/from ...") or nothing. "give me the questions an interviewer asks",
+# "I need questions answered about NAT" and "send me the test script" are not requests.
+_THEN = r"(?=\s+(?:on|about|for|from|regarding|covering|related\s+to|in)\b|\s*$)"
 _CUES = [
     re.compile(r"\b(?:quiz|test|examine|drill)\s+(?:me|us)\b"),
     re.compile(r"\btest\s+my\s+(?:knowledge|understanding|skills?)\b"),
     re.compile(
-        r"\b(?:give|ask|send|show|share|throw|fire|generate|make|create|prepare|set|get|want|need)\s+"
-        r"(?:me\s+|us\s+)?(?:a\s+|an\s+|the\s+)?(?:"
+        r"\b(?:give|ask|send|throw|fire|generate|make|create|prepare)\s+"
+        r"(?:me\s+|us\s+)?(?:a\s+|an\s+|the\s+|some\s+)?(?:"
         + _COUNTW
         + r"\s+)?(?:more\s+)?"
         + _LEVEL
@@ -73,8 +83,24 @@ _CUES = [
         + r")?"
         + _LEVEL
         + _KIND
-        + _ITEMS
-        + r"\b"
+        + _ASKED
+        + _THEN
+    ),
+    re.compile(  # "I want / need 10 questions on X", "I want practice questions on X": a count or a practice word
+        r"\b(?:want|need)\s+(?:(?:"
+        + _COUNTW
+        + r")\s+"
+        + _LEVEL
+        + _KIND
+        + r"|(?:some\s+)?"
+        + _LEVEL
+        + r"(?:practice|mock|exam|mcq|certification)\s+"
+        + _KIND
+        + r")(?:"
+        + _TRACK_WORDS
+        + r")?"
+        + _ASKED
+        + _THEN
     ),
     re.compile(
         r"^(?:(?:ok(?:ay)?|now|so|please|pls|then|great|nice|cool|sure|hey|hi)\s+)*(?:"
@@ -87,11 +113,14 @@ _CUES = [
         + r")?"
         + _LEVEL
         + _KIND
-        + _ITEMS
-        + r"\s+(?:on|about|for|from|regarding|in|of|covering|related to)\b"
+        + _ASKED
+        + r"\s+(?:on|about|for|from|regarding|in|covering|related to)\b"
     ),
-    re.compile(
-        r"\b(?:start|begin|take|do|run|launch|try)\s+(?:a\s+|an\s+|the\s+)?" + _LEVEL + _KIND + r"(?:quiz|test)\b"
+    re.compile(  # "start a quiz / mock test (on X)": a bare test is "run a test from R1 to R2"
+        r"\b(?:start|begin|take|do|launch|try)\s+(?:a\s+|an\s+|the\s+)?"
+        + _LEVEL
+        + r"(?:quiz|(?:mock|practice)\s+(?:test|exam))"
+        + _THEN
     ),
     re.compile(
         r"\b(?:pe|par|ke|ka|ki)\s+(?:" + _COUNTW + r"\s+)?" + _ITEMS + r"\s+(?:do|dedo|de\s+do|chahiye|pucho|puchho)\b"
@@ -114,11 +143,17 @@ _BLOCKED = re.compile(
     r"|(?:pen(?:etration)?|unit|ping|speed|load|stress|a/b|smoke|regression|integration|lab|bandwidth|throughput)\s+tests?"
     r"|practice\s+lab|lab\s+practice|exam\s+(?:date|fee|fees|voucher|registration|pattern|format|center|centre|policy|cost|duration|syllabus|topics|blueprint|tips|strategy)"
     r"|interview\s+(?:questions?|prep)|flash\s*cards?|cheat\s*sheets?|example|best\s+practices?|i\s+have\s+(?:some\s+|a\s+few\s+)?questions?"
-    r"|i'?ve\s+got\s+(?:some\s+)?questions?|my\s+questions?|your\s+questions?|questions?\s+(?:i|we)\s+(?:have|had))\b"
+    r"|i'?ve\s+got\s+(?:some\s+)?questions?|my\s+questions?|your\s+questions?|questions?\s+(?:i|we)\s+(?:have|had)"
+    r"|(?:quiz|test)\s+(?:me|us)\s+(?:later|tomorrow|afterwards|after|next\s+time)|interviewers?)\b"
 )
 _ASKING = re.compile(
     r"^(?:what|how|why|when|where|which|who|whom|whose|is|are|was|were|does|do|did|should|would|will|explain|define|"
     r"describe|difference|compare|tell\s+me\s+about|help\s+me\s+(?:understand|with))\b"
+)
+# A weak cue ("practice questions on X", "quiz on X") in a message that is really asking or reporting something
+# ("questions on my mind: why is OSPF stuck in EXSTART?") is left to the model.
+_QUESTIONING = re.compile(
+    r"\b(?:why|how|what|explain|can'?t|cannot|isn'?t|doesn'?t|won'?t|stuck|confused|useless|help)\b"
 )
 _STRONG = re.compile(r"\b(?:quiz|test)\s+(?:me|us)\b|\btest\s+my\s+knowledge\b|\b(?:give|ask|send)\s+(?:me|us)\b")
 _MULTI = re.compile(
@@ -155,6 +190,9 @@ class Request:
     topic: str = ""
     refers_to_chat: bool = False
     lesson_named: bool = False
+    # "quiz me", "test me", "give/ask me ...": the student asked for a quiz in so many words. A weaker cue is answered
+    # by the bank only when it finds a topic (app/chat/bank_turn.py); otherwise the model answers.
+    strong: bool = True
 
 
 def normalise(message: str) -> str:
@@ -205,7 +243,8 @@ def _topic(text: str) -> tuple[str, bool]:
 
 
 def _clean(text: str) -> str:
-    text = re.sub(r"\b\d{1,3}\b", " ", text)
+    # The count goes ("5 hard questions"); a number that is part of the topic stays ("layer 2", "rfc 1918").
+    text = re.sub(r"\b\d{1,3}\b(?=\s+(?:more\s+)?(?:[a-z+-]+\s+){0,3}?" + _ITEMS + r"\b)", " ", text)
     for word in _DIFFICULTY:
         text = re.sub(r"\b" + word + r"\b", " ", text)
     text = _MULTI.sub(" ", text)
@@ -225,7 +264,8 @@ def parse(message: str) -> Request | None:
         return None
     if not any(cue.search(text) for cue in _CUES):
         return None
-    if _ASKING.match(text) and not _STRONG.search(text):
+    strong = bool(_STRONG.search(text))
+    if not strong and (_ASKING.match(text) or _QUESTIONING.search(_QUOTED.sub(" ", text))):
         return None
     track, rest = _track(text)
     topic, lesson = _topic(rest)
@@ -241,4 +281,5 @@ def parse(message: str) -> Request | None:
         topic="" if refers else topic,
         refers_to_chat=refers,
         lesson_named=lesson,
+        strong=strong,
     )

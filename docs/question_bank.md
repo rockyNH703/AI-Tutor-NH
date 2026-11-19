@@ -64,8 +64,25 @@ dev and 415 test cases and 360 negatives. On dev with the CCNA manifest (2026-11
 - route accuracy 1.000, with 0 false triggers in 186 negatives;
 - topic hit 0.983, precision 0.976;
 - parse plus find p95 34 ms in WSL.
+- the whole bank turn, from request to `done` (warm, in-process, WSL, 30 turns): p50 232 ms, p95 294 ms;
+  the bank's own find + pick p95 37 ms. The target is p95 ≤ 500 ms; the host is not measured yet.
 
-The test split runs once, after the real manifest lands.
+The held-out test split ran once (session 1, on a83df21; it is spent):
+- route 0.998, 0 false triggers in 184;
+- topic hit 0.942 and precision 0.925, under the 0.95 targets.
+
+The weak spots it showed were fixed on dev only:
+- track words (AWS SAA);
+- exact domain names;
+- "layer 2" / "routing" / "switching" aliases;
+- an alias outranking fuzzy similarity ("HSRP configuration");
+- numbers that belong to the topic ("layer 2");
+- ip6 / "ipv 6".
+
+Session 1's red team also found ordinary engineering messages ("create a test VLAN", "questions on my mind: why …")
+read as quiz requests. The grammar now needs an asked item followed by a topic or nothing, a bare "test" is never one,
+and a weak cue that finds no topic goes to the model. `tests/test_qbank_request.py` keeps the 49 probes and
+`tests/test_qbank_redteam.py` the runtime checks. A fresh held-out set is needed before the next measured claim.
 
 **Content** (`qbank/`, below):
 - every NHprep quiz question, kept as written and flagged when disputed;

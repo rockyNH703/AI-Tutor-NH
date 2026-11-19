@@ -36,7 +36,7 @@ from app.chat.assistant import AssistantConfig, resolve_assistant_config
 from app.chat.streams import ActiveGenerations, ChatEvent, Generation
 from app.chat.titles import topic_title
 from app.conversations.repository import DEFAULT_TITLE, ConversationRepository
-from app.conversations.router import conversation_out, message_out
+from app.conversations.router import HIDDEN_REPLY, conversation_out, message_out, nhprep_derived
 from app.db.models import Conversation, MemoryCommandReceipt, Message, MessageAttachment, UsageEvent, User
 from app.db.session import Database
 from app.errors import Conflict, NotFound, RateLimited, ServiceUnavailable, ValidationFailed
@@ -596,7 +596,9 @@ class ChatService:
         generation.task = asyncio.create_task(self._generate(turn, generation))
         return generation
 
-    async def _conversation(self, session: AsyncSession, conversation_id: uuid.UUID) -> list[ChatMessage]:
+    async def _conversation(
+        self, session: AsyncSession, conversation_id: uuid.UUID, *, hide_nhprep: bool = False
+    ) -> list[ChatMessage]:
         """The last CHAT_HISTORY_MAX_MESSAGES usable messages, oldest first.
 
         No size trimming here: the graph's context budget (app/rag/context.py) decides
@@ -614,7 +616,7 @@ class ChatService:
                 .limit(self.settings.chat_history_max_messages)
             )
         )
-        return _history(list(reversed(rows)))
+        return _history(list(reversed(rows)), hide_nhprep=hide_nhprep)
 
     async def _cancel_requested(self, message_id: uuid.UUID) -> bool:
         """Stopped elsewhere, or gone with its deleted chat (MISS-chat-3). Bounded (MISS-chat-2): a database that
@@ -1006,7 +1008,9 @@ class ChatService:
         query = turn.user_message.content if turn.user_message is not None else ""
         try:
             async with self.db.sessionmaker() as session:
-                conversation = await self._conversation(session, turn.conversation.id)
+                conversation = await self._conversation(
+                    session, turn.conversation.id, hide_nhprep=not is_nh_student(turn.user, self.settings)
+                )
             if turn.replaces_message_id is not None:  # the replies being regenerated stay until it completes (K-47d)
                 while conversation and conversation[-1].role == "assistant":
                     conversation.pop()  # but the model answers the question afresh, without them
@@ -1629,11 +1633,12 @@ STOPPED_MARK = "\n\n[This reply was stopped before it was finished.]"
 NO_REPLY = "[No reply was given to this message.]"
 
 
-def _history(rows: list[Message]) -> list[ChatMessage]:
+def _history(rows: list[Message], *, hide_nhprep: bool = False) -> list[ChatMessage]:
     """What the model is shown of the earlier turns, oldest first (MISS-chat-5): a stopped reply says it was
     stopped, a failed one leaves no two questions in a row, and of several replies to one question (a
     regeneration) the latest complete one stays. A reply's own fill-in-the-blanks answers stay out of the
-    model's view (assessments.for_model)."""
+    model's view (assessments.for_model). `hide_nhprep`: the reader is not a NetworkersHome student, so an
+    NHprep-derived reply is the same neutral line they are shown (conversations/router.py)."""
     history: list[ChatMessage] = []
     last_complete = False  # whether the trailing assistant entry came from a complete reply
     for row in rows:
@@ -1647,6 +1652,8 @@ def _history(rows: list[Message]) -> list[ChatMessage]:
         if row.status == "error" or not row.content:
             continue
         content = assessments.for_model(row.content) + (STOPPED_MARK if row.status == "cancelled" else "")
+        if hide_nhprep and nhprep_derived(row.metadata_):
+            content = HIDDEN_REPLY
         if history and history[-1].role == "assistant":
             if row.status == "complete" or not last_complete:
                 history[-1] = ChatMessage("assistant", content)

@@ -290,7 +290,8 @@ def _decide(
     domain = max(t.domain for t in candidates)
     named = max(t.named for t in candidates)
     domains = {t.chapter_id for t in candidates if t.domain == domain}
-    if domain >= DOMAIN_SIMILARITY and len(domains) == 1 and named <= 1:  # "network access", "automation"
+    exact_domain = any(normal(t.chapter_title) == " ".join(words) for t in candidates)  # "network fundamentals"
+    if domain >= DOMAIN_SIMILARITY and len(domains) == 1 and (named <= 1 or exact_domain):  # "automation"
         chapters = [t for t in candidates if t.domain == domain]
         chosen = _choose_track(chapters, track, goal)
         best = sorted((t for t in chapters if t.book_id == chosen), key=lambda t: t.topic_id)
@@ -299,10 +300,14 @@ def _decide(
     if loose:
         most = max(t.covered for t in candidates)
         whole = most if most * 2 >= len(words) else whole
-    good = [t for t in candidates if t.covered >= whole or t.similar >= GOOD_SIMILARITY]
-    if not good:  # a stray word ("vrfs lite"): the topic one of the words names as an alias still counts
-        most = max(t.named for t in candidates)
-        good = [t for t in candidates if most >= 2 and t.named == most]
+    # Every word covered first; else a topic one of the words names as an alias ("vrfs lite", "HSRP configuration"
+    # is the FHRP topic, not configuration management); only then fuzzy similarity.
+    good = [t for t in candidates if t.covered >= whole]
+    most = max(t.named for t in candidates)
+    if not good and most >= 2:
+        good = [t for t in candidates if t.named == most]
+    if not good:
+        good = [t for t in candidates if t.similar >= GOOD_SIMILARITY]
     if not good:
         closest = tuple(t.title for t in sorted(candidates, key=_strength, reverse=True)[:3])
         return Found("none", closest=closest, words=tuple(words), timings=timings)

@@ -411,6 +411,19 @@
   [
    "crud",
    "create read update delete"
+  ],
+  [
+   "ipv6",
+   "ip6",
+   "ipv 6",
+   "ip v6",
+   "internet protocol version 6"
+  ],
+  [
+   "ipv4",
+   "ip4",
+   "ipv 4",
+   "internet protocol version 4"
   ]
  ]
 }
