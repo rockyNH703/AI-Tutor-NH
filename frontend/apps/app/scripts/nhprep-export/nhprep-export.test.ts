@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import { parseCredentials } from "./credentials";
 import { carriesPassword, createPacer, describeUrl, maxInWindow, shapeOf } from "./gate";
+import { categoryDone, durationSeconds, keyedQuestions, lessonRow, sourceDay, stripSourceRefs, trainerHints } from "./parse";
 import { assertOutsideAnyRepo } from "./paths";
 
 describe("assertOutsideAnyRepo", () => {
@@ -55,6 +56,46 @@ describe("the pacing gate", () => {
   test("maxInWindow counts the busiest second", () => {
     expect(maxInWindow([0, 100, 900, 1000, 1500, 3000])).toBe(3);
     expect(maxInWindow([])).toBe(0);
+  });
+});
+
+describe("export v1 parsing", () => {
+  test("durations, lesson rows and the slug's day", () => {
+    expect([durationSeconds("1h 12m"), durationSeconds("34m 22s"), durationSeconds("45s"), durationSeconds("video"), durationSeconds("")]).toEqual([4320, 2062, 45, null, null]);
+    expect(lessonRow("day-01-intromp4", ["2", "CCNP Routing Intro: Metrics, AD", "video", "1h 12m", "Free Preview"])).toEqual({
+      slug: "day-01-intromp4",
+      position: 2,
+      title: "CCNP Routing Intro: Metrics, AD",
+      type: "video",
+      durationSeconds: 4320,
+    });
+    expect([sourceDay("day-07-eigrp-basicsmp4"), sourceDay("3mp4"), sourceDay("8file-directorymp4")]).toEqual([7, null, null]);
+  });
+  test("trainer hints stay raw", () => {
+    expect(trainerHints("ccna-by-mrajay", "CCNA Complete Course", "Learn 8 CCNA BY Mr.AJAY through lessons")).toEqual({ titleParens: null, aboutBy: "Mr.AJAY", slugToken: "mrajay" });
+    expect(trainerHints("tamil-ccna", "CCNA Course (Tamil)", "")).toEqual({ titleParens: "Tamil", aboutBy: null, slugToken: "ccna" });
+  });
+  test("study aids lose sourceRefs and nothing else", () => {
+    expect(stripSourceRefs({ notes: { items: [{ id: "n1", markdown: "x", sourceRefs: [{ id: "s", start: 1 }] }], reason: null } })).toEqual({ notes: { items: [{ id: "n1", markdown: "x" }], reason: null } });
+  });
+  test("keyed questions: the index of the key, and unkeyed ones dropped", () => {
+    const body = {
+      questions: [
+        { id: "q1", question: "Class B mask?", options: ["255.255.255.0", "255.255.0.0"], correctOption: "255.255.0.0", explanation: "16 bits" },
+        { id: "q2", question: "no key", options: ["a", "b"], correctOption: "" },
+        { id: "q3", question: "key not an option", options: ["a", "b"], correctOption: "c" },
+      ],
+    };
+    const keyed = keyedQuestions("ccna", "CCNA", body);
+    expect(keyed.map((q) => [q.id, q.correctIndex])).toEqual([
+      ["q1", 1],
+      ["q3", null],
+    ]);
+    expect(keyed[0]).toMatchObject({ type: "quiz_question", schema: 1, format: "single", difficulty: null, lessonExternalId: null, explanation: "16 bits" });
+    expect(keyedQuestions("ccna", "CCNA", null)).toEqual([]);
+  });
+  test("a category stops when all reported are seen, or after 3 attempts with nothing new", () => {
+    expect([categoryDone(40, 40, 0), categoryDone(39, 40, 2), categoryDone(39, 40, 3), categoryDone(0, null, 0)]).toEqual([true, false, true, false]);
   });
 });
 
