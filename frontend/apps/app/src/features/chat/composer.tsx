@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@v1/ui/utils";
-import { AudioLines, Mic, Paperclip, Send, Square, X } from "lucide-react";
+import { AudioLines, ListChecks, Mic, Paperclip, Send, Square, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { AttachmentChip } from "@/features/files/attachment-chip";
@@ -14,6 +14,7 @@ import { ATTACHMENTS_MAX, MESSAGE_MAX } from "@/lib/api/types";
 import { useAttachments, useChatEntry, useStores } from "./chat-context";
 import { appendTranscript } from "./dictation";
 import { shouldSubmit } from "./keyboard";
+import { quizMeAction, useQuizMeOffered } from "./quiz-me";
 import { useDictation } from "./use-dictation";
 
 const MAX_HEIGHT_PX = 200;
@@ -36,6 +37,8 @@ const COUNTER_FROM = MESSAGE_MAX - 1000;
  *     the draft, never sent by itself); it is shown only where the browser can do it
  *   - Voice opens voice mode over this chat (features/voice): only where the API offers it and the
  *     browser can record and play; filled while the box is empty, quieter once Send has something
+ *   - Quiz me (quiz-me.ts): only where the API says the certification bank answers this student; asks about
+ *     this chat at once, or puts "Quiz me on " in the box for a topic. Never while a reply is streaming.
  *   - 16 px text on phones: iOS zooms the page when a focused field is smaller
  *   - no placeholder and no lines under it: its name ("Message NetSec AI") and the keys are
  *     for assistive technology; only the character count shows, near the limit
@@ -51,6 +54,7 @@ export function Composer({
 }) {
   const { chat, attachments } = useStores();
   const voiceOffered = useVoiceOffered();
+  const quizOffered = useQuizMeOffered();
   const entry = useChatEntry(chatKey);
   const chips = useAttachments(chatKey);
   const [value, setValue] = useState(() => chat.getDraft(chatKey));
@@ -121,6 +125,25 @@ export function Composer({
   };
 
   const stop = () => void chat.stop(chatKey);
+
+  const hasMessages = (entry?.order.length ?? 0) > 0;
+  const quizMe = () => {
+    const action = quizMeAction({ draft: value, hasMessages, hasFiles: chips.length > 0 });
+    abortDictation();
+    setNotice(null);
+    if (action.kind === "send") {
+      onSent?.();
+      void chat.send(chatKey, action.text, attachments.take(chatKey));
+      return;
+    }
+    setValue(action.text);
+    chat.setDraft(chatKey, action.text);
+    const element = textarea.current;
+    if (!element) return;
+    element.focus();
+    // After React has put the text in: the caret at its end, where the topic goes.
+    requestAnimationFrame(() => element.setSelectionRange(action.text.length, action.text.length));
+  };
 
   const addFiles = (files: FileList | null) => {
     if (!files?.length) return;
@@ -258,6 +281,19 @@ export function Composer({
               aria-invalid={tooLong || undefined}
               className="max-h-[200px] min-h-[2.75rem] min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base font-normal leading-normal text-foreground outline-none"
             />
+            {quizOffered && (
+              <button
+                type="button"
+                onClick={quizMe}
+                disabled={Boolean(stream)}
+                aria-label={hasMessages ? "Quiz me on this chat" : "Quiz me on a topic"}
+                title={hasMessages ? "Quiz me on this chat" : "Quiz me on a topic"}
+                className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center gap-1.5 rounded-full text-sm font-medium text-text-secondary transition-colors hover:bg-surface-2 hover:text-foreground active:bg-border disabled:opacity-50 sm:h-10 sm:w-auto sm:px-3"
+              >
+                <ListChecks aria-hidden className="h-5 w-5" />
+                <span className="hidden sm:inline">Quiz me</span>
+              </button>
+            )}
             {dictation.supported && (
               <button
                 type="button"

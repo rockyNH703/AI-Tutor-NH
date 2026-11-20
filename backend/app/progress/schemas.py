@@ -310,6 +310,14 @@ class PracticeSubjectOut(ApiModel):
     books: list[PracticeBookOut]
 
 
+class BankAccessOut(ApiModel):
+    enabled: bool = Field(
+        description="Whether a quiz request in the chat is answered from the stored certification question bank "
+        "for this student (QUESTION_BANK_TESTS, QUESTION_BANK_TURN and the NHprep audience). For the web app's "
+        "Quiz me button only: every chat turn checks the same itself."
+    )
+
+
 class PracticeTopicsOut(ApiModel):
     available: bool
     reason: Literal["no_class", "no_questions"] | None

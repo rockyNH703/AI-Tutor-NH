@@ -886,6 +886,9 @@ export const ATTACHMENTS_MAX = CONTRACT.ChatRequest.attachmentIds.maxItems;
  * words itself (`serverSpeech`: the stream's `speech` events).
  */
 export type VoiceAvailability = { enabled: boolean; ack?: boolean; serverSpeech?: boolean };
+
+/** GET /v1/progress/bank: whether the chat answers this student's quiz requests from the certification bank. */
+export type BankAccess = { enabled: boolean };
 /** POST /v1/voice/transcriptions: what was said; "" when nothing was heard. */
 export type VoiceTranscript = { text: string; seconds: number | null };
 /** The audio a browser decodes, smallest first: Ogg Opus, ADTS AAC, MP3. */

@@ -5,12 +5,14 @@ import datetime as dt
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.access.students import is_nh_student
 from app.auth.dependencies import Principal, get_principal
 from app.db.session import get_session
 from app.errors import AppError, RateLimited
 from app.progress import learning, practice
 from app.progress.schemas import (
     ActivityOut,
+    BankAccessOut,
     GoalsOut,
     LearningDayOut,
     LearningDaysOut,
@@ -130,6 +132,19 @@ async def get_practice_topics(principal: Principal = Depends(get_principal), db:
     """The bank's chapters and topics the student can practise: their class (6-12), in their medium,
     and the language subjects."""
     return await practice.practice_topics(db, principal.user.id)
+
+
+@router.get("/bank", response_model=BankAccessOut)
+async def get_bank_access(request: Request, principal: Principal = Depends(get_principal)):
+    """Whether the chat answers this student's quiz requests from the stored certification question bank. For the
+    web app's Quiz me button; every chat turn checks the same itself (app/chat/service.py)."""
+    settings = request.app.state.settings
+    user = principal.user
+    return BankAccessOut(
+        enabled=settings.question_bank_tests
+        and settings.question_bank_turn_allows(user.email or "")
+        and is_nh_student(user, settings)
+    )
 
 
 @router.post("/activity", response_model=ActivityOut)

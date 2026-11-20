@@ -109,6 +109,7 @@ export const ROUTES = {
   "GET /v1/progress/mistakes": { auth: true, query: ["limit"] },
   "GET /v1/progress/practice-tests": { auth: true, query: ["limit"] },
   "GET /v1/progress/practice-topics": { auth: true },
+  "GET /v1/progress/bank": { auth: true },
   "GET /v1/study/session": { auth: true },
   "POST /v1/study/session": { auth: true, body: "StudyStartIn" },
   "PATCH /v1/study/session/{session_id}": { auth: true, body: "StudyContextChangeIn" },

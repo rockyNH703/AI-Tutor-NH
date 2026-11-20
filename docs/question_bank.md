@@ -165,6 +165,30 @@ The first run of this fix found four false triggers from the noun-alone cue in h
 
 **Honest reading:** holdouts 2 and 3 were tuned on. On fresh sets, recall of new wordings has stayed around 0.5–0.8, because every set brings wording families no rule has seen. False triggers have stayed at or under 0.02. A missed request is not an error: the model answers it as an ordinary message. Students who use the app's own practice buttons send fixed wordings that always parse.
 
+**`holdout4.jsonl`** (488 cases, sha256 9b9ed1d8…aca, run once on 90c8687; spent, not tuned on):
+
+| Metric | Result |
+|---|---|
+| Route | 0.641 |
+| False triggers | 2 of 214 (0.009) |
+| Hit / precision | 0.885 / 0.855 |
+| Positive recall | 0.39 |
+| p95 | 39.1 ms |
+
+Each fresh set brought new wording families: "grill me on X", "pop/revision quiz", "can I be quizzed", "shoot me some questions", "prep questions", "X questions, ccna level". It also showed topic gaps: "inside global addresses", "ike phase 1", "esp and ah", "rogue dhcp servers", "two-factor authentication".
+
+Recall on unseen wordings across the four fresh sets was 0.78, 0.56, 0.52 and 0.39, while false triggers stayed at 0.02 or below.
+
+**Decision (owner, 2026-11-20):**
+- **The rules stay as they are:** precision first. A missed request goes to the model as an ordinary message.
+- **The sure way in is a Quiz me button** in the chat composer (`frontend/apps/app/src/features/chat/quiz-me.ts`):
+  - in a chat with messages, an empty box and no files, it sends "Quiz me on this", which quizzes on what was just discussed;
+  - otherwise it puts "Quiz me on " before what is in the box for the student to finish.
+- **Who sees it:** only where `GET /v1/progress/bank` says `enabled`, which needs `QUESTION_BANK_TESTS` on, `QUESTION_BANK_TURN` allowing the account, and a NetworkersHome student. Each chat turn checks the same itself.
+- **Rejected:** a classifier fallback (INTENT_ROUTER). It would be a model call at query time, which the owner's rule excludes.
+
+The grammar is not tuned on holdout 4. Its topic gaps are aliases to add when the CCNA content is mapped.
+
 **Content** (`qbank/`, below):
 - every NHprep quiz question, kept as written and flagged when disputed;
 - 5–10 questions per NHprep video, written by agents from the lesson's notes and served only after a three-way

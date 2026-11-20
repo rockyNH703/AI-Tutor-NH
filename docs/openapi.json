@@ -1153,6 +1153,20 @@
         "title": "AvatarOut",
         "type": "object"
       },
+      "BankAccessOut": {
+        "properties": {
+          "enabled": {
+            "description": "Whether a quiz request in the chat is answered from the stored certification question bank for this student (QUESTION_BANK_TESTS, QUESTION_BANK_TURN and the NHprep audience). For the web app's Quiz me button only: every chat turn checks the same itself.",
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "BankAccessOut",
+        "type": "object"
+      },
       "CancelOut": {
         "properties": {
           "status": {
@@ -10512,6 +10526,28 @@
           }
         },
         "summary": "Report Activity",
+        "tags": [
+          "progress"
+        ]
+      }
+    },
+    "/v1/progress/bank": {
+      "get": {
+        "description": "Whether the chat answers this student's quiz requests from the stored certification question bank. For the\nweb app's Quiz me button; every chat turn checks the same itself (app/chat/service.py).",
+        "operationId": "get_bank_access_v1_progress_bank_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankAccessOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Bank Access",
         "tags": [
           "progress"
         ]

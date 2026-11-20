@@ -345,6 +345,20 @@ async def test_next_five_continues_the_test_with_new_questions(client, app, fake
     assert not any("(Choose" in text for text in ids(first) | ids(second))
 
 
+async def test_the_quiz_me_button_shows_only_where_the_bank_answers(client, app):
+    # GET /v1/progress/bank: the web app's "Quiz me" button. Every chat turn still checks for itself.
+    student = await _student(client, app)
+    other = (await register(client, app))["headers"]  # example.com: NHprep's questions are for students only
+    assert (await client.get("/v1/progress/bank", headers=student)).json() == {"enabled": True}
+    assert (await client.get("/v1/progress/bank", headers=other)).json() == {"enabled": False}
+    app.state.settings.question_bank_turn = "off"
+    assert (await client.get("/v1/progress/bank", headers=student)).json() == {"enabled": False}
+    app.state.settings.question_bank_turn = "on"
+    app.state.settings.question_bank_tests = False
+    assert (await client.get("/v1/progress/bank", headers=student)).json() == {"enabled": False}
+    assert (await client.get("/v1/progress/bank")).status_code == 401
+
+
 async def test_someone_who_is_not_a_student_gets_no_nhprep_questions(client, app, fake_llm, bank):
     headers = (await register(client, app))["headers"]  # example.com
     _, events = await stream_chat(client, headers, "quiz me on ospf neighbor states")

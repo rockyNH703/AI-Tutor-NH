@@ -3,6 +3,7 @@
 import { callRoute } from "./http";
 import type {
   ActivityReport,
+  BankAccess,
   LearningDays,
   LearningStreak,
   Mastery,
@@ -74,6 +75,11 @@ export function getPracticeTests(limit = 20, signal?: AbortSignal): Promise<Prac
 /** The chapters and topics the bank can test the student on (their class and medium). */
 export function getPracticeTopics(signal?: AbortSignal): Promise<PracticeTopics> {
   return callRoute("GET /v1/progress/practice-topics", { signal });
+}
+
+/** Whether the chat answers this student's quiz requests from the certification bank (the Quiz me button). */
+export function getBankAccess(signal?: AbortSignal): Promise<BankAccess> {
+  return callRoute("GET /v1/progress/bank", { signal });
 }
 
 /** The bell: newest first, never more than 30. */
