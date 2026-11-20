@@ -1,0 +1,22 @@
+{
+  "rrf_k": 60,
+  "weights": {"dense": 1.0, "lexical": 1.0, "title": 1.5, "day": 3.0, "course": 0.5},
+  "dense_k": 200,
+  "lexical_k": 200,
+  "lexical_all_kinds": false,
+  "title_k": 50,
+  "limit": 20,
+  "max_tokens": 8,
+  "ef_search": 200,
+  "title_floor": 0.35,
+  "embed_share": 0.6,
+  "statement_timeout_ms": 1500,
+  "exact_title_sim": 0.9,
+  "min_title_sim": 0.75,
+  "min_suggest_sim": 0.5,
+  "min_suggest_coverage": 0.6,
+  "min_cosine": 0.55,
+  "min_margin": 0.1,
+  "min_coverage": 1.0,
+  "max_options": 6
+}
