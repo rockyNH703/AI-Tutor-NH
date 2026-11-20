@@ -85,10 +85,13 @@ function useLineGradient(greeting: string | null) {
         const first = words[0];
         const last = words[words.length - 1];
         if (!first || !last) continue;
-        const width = last.offsetLeft + last.offsetWidth - first.offsetLeft;
+        // Sub-pixel x (the arrival transform only moves words vertically): offset* round to whole pixels, which
+        // left the line's last fraction of a pixel outside the gradient (unpainted glyph edges, < 4.5:1).
+        const left = first.getBoundingClientRect().left;
+        const width = last.getBoundingClientRect().right - left;
         for (const word of words) {
           word.style.backgroundSize = `${width}px 100%`;
-          word.style.backgroundPosition = `${first.offsetLeft - word.offsetLeft}px 0`;
+          word.style.backgroundPosition = `${left - word.getBoundingClientRect().left}px 0`;
         }
       }
     };
