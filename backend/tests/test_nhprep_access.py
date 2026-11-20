@@ -11,7 +11,7 @@ import pytest
 from app.nhprep.access import nhprep_allows
 from tests.conftest import make_settings
 
-QA = "qa@networkershome.com, Lead@NetworkersHome.com"
+QA = "qa@networkershome.com, Lead@NetworkersHome.com, kumar@networkershome.com"
 
 
 @pytest.mark.parametrize(
@@ -33,6 +33,9 @@ QA = "qa@networkershome.com, Lead@NetworkersHome.com"
         ("lead@networkershome.com", True, "qa", True),  # the list is case-insensitive too
         ("a@networkershome.com", True, "qa", False),  # not listed
         ("qa@example.com", True, "qa", False),  # qa narrows, never widens
+        ("kumar@networkershome.com", True, "qa", True),
+        ("Kumar@networkershome.com", True, "qa", False),  # KELVIN SIGN would lowercase into the listed address
+        ("Kumar@networkershome.com", True, "on", True),  # on: the domain decides; the local part is theirs
     ],
 )
 def test_nhprep_allows(email, verified, mode, allowed):

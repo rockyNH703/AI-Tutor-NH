@@ -14,5 +14,9 @@ def nhprep_allows(user: Any, settings: Settings) -> bool:
     NHPREP_ALLOWED_EMAIL_DOMAINS, app/access/students.py); qa narrows that to NHPREP_QA_EMAILS, never widens it."""
     if settings.nhprep_mode == "off" or not is_nh_student(user, settings):
         return False
-    # is_nh_student checked the address is ASCII, so lowercasing can't fold a lookalike into a listed address.
-    return settings.nhprep_mode == "on" or user.email.strip().lower() in settings.nhprep_qa_list
+    # is_nh_student checks only the domain is ASCII: require the whole address to be, so lowercasing can't fold a
+    # lookalike ("Kumar@…", KELVIN SIGN) into a listed address.
+    if settings.nhprep_mode == "on":
+        return True
+    email = user.email.strip()
+    return email.isascii() and email.lower() in settings.nhprep_qa_list

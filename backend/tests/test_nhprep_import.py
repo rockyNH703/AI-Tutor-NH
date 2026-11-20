@@ -93,6 +93,18 @@ def test_normalisation_neutralises_widgets_directives_invisible_characters_and_n
 
 
 @pytest.mark.parametrize(
+    "disguised",
+    ["https://nhprep%2Ecom/course/x", "https://nhprep。com/x", "https://ｎhprep.com/x", "https://nhprep%252Ecom/x"],
+)
+def test_a_disguised_nhprep_link_is_text_as_a_link_and_as_a_bare_url(disguised):
+    # A browser reads all of these as nhprep.com; the import keeps only text (security review LOW-1, 2026-11-20).
+    found: Counter[str] = Counter()
+    out = clean(f"[Watch]({disguised}) and {disguised} but https://example.com/ok", found)
+    assert out.startswith("Watch and ") and "https://example.com/ok" in out
+    assert "http" not in out.replace("https://example.com/ok", "") and found["nhprep_url"] == 2
+
+
+@pytest.mark.parametrize(
     ("hints", "expected"),
     [
         ({"titleParens": "Tamil", "aboutBy": "Mr.AJAY", "slugToken": "x"}, ("Ajay", "description")),

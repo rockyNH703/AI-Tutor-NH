@@ -14,9 +14,11 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import unicodedata
 from collections import Counter
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import unquote
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -89,8 +91,14 @@ NHPREP_URL = re.compile(r"(?i)(?:[a-z][a-z0-9+.-]*:)?(?://)?(?:[a-z0-9-]+\.)*nhp
 SCHEME = re.compile(r"(?i)^(?:[a-z][a-z0-9+.-]*:)?(?://)?(?:www\.)?")
 
 
+BARE_URL = re.compile(r"(?i)(?:[a-z][a-z0-9+.-]*://|www\.)[^\s<>()\[\]\"']+")
+# A browser reads "nhprep%2Ecom", "ｎｈｐｒｅｐ.com" and "nhprep。com" as nhprep.com: decide on the host it will use.
+_DOTS = str.maketrans({"。": ".", "｡": ".", "．": "."})
+
+
 def _is_nhprep(url: str) -> bool:
-    return NHPREP_URL.search(url) is not None
+    decoded = unicodedata.normalize("NFKC", unquote(unquote(url))).translate(_DOTS)
+    return NHPREP_URL.search(url) is not None or NHPREP_URL.search(decoded) is not None
 
 
 def clean(value: str, counts: Counter[str]) -> str:
@@ -138,9 +146,16 @@ def clean(value: str, counts: Counter[str]) -> str:
         counts["nhprep_url"] += plain != match.group(0)
         return plain
 
+    def disguised(match: re.Match[str]) -> str:
+        if not _is_nhprep(match.group(0)):
+            return match.group(0)
+        counts["nhprep_url"] += 1
+        return SCHEME.sub("", match.group(0))  # without its scheme or www., GFM does not autolink it
+
     value = MD_LINK.sub(link, value)
     value = AUTOLINK.sub(autolink, value)
-    return NHPREP_URL.sub(bare, value)
+    value = NHPREP_URL.sub(bare, value)
+    return BARE_URL.sub(disguised, value)
 
 
 def content_hash(value: Any) -> str:
