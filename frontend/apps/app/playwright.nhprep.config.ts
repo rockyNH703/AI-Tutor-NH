@@ -76,6 +76,9 @@ export default defineConfig({
         CHAT_GENERATIONS_PER_DAY: "100000",
         NHPREP_MODE: "on",
         NHPREP_ALLOWED_EMAIL_DOMAINS: STUDENT_DOMAIN,
+        // The suite checks behaviour, not speed: WSL's database behind Windows' port forward runs the finder's three
+        // legs in ~1.5 s, over the 1.0 s production budget (measured on the host instead, plan G4).
+        NHPREP_FIND_TIMEOUT_S: "5",
         AUTH_INTERNAL_TOKEN: INTERNAL_TOKEN,
         PYTHONUTF8: "1",
       },
