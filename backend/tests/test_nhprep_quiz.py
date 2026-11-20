@@ -186,5 +186,34 @@ def test_a_rerun_changes_nothing(root, tmp_path):
     assert {path: path.read_bytes() for path in root.rglob("questions.jsonl")} == before
 
 
+def _manifest(folder: Path, **changes) -> None:
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8")) | changes
+    (folder / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+
+def test_the_real_exporters_per_part_complete_is_accepted_only_when_the_run_finished(root, tmp_path):
+    # session 3's exporter writes complete: {lessons, quiz}; quiz false = some categories not fully seen
+    quiz_map(root, mapped(1))
+    folder = export(tmp_path / "run", [_quiz(1)])
+    _manifest(folder, complete={"lessons": True, "quiz": False})
+    assert convert(folder, root).ok
+    _manifest(folder, complete={"lessons": True})
+    with pytest.raises(ExportError, match="complete"):
+        convert(folder, root)
+
+
+def test_a_category_seen_in_several_runs_counts_its_fullest_coverage(root, tmp_path):
+    quiz_map(root, mapped(1, 2))
+    convert(export(tmp_path / "run1", [_quiz(1), _quiz(2)]), root)
+    folder = export(tmp_path / "run2", [_quiz(1)])  # its own coverage line: seen 1 of 1, complete
+    lines = (folder / "export.jsonl").read_text(encoding="utf-8").splitlines()
+    early = {"type": "quiz_coverage", "schema": 1, "category": "ccna", "attempts": 1, "seen": 1, "reported": 2}
+    data = ("\n".join([*lines[:-1], lines[-1], json.dumps(early)]) + "\n").encode("utf-8")
+    (folder / "export.jsonl").write_bytes(data)
+    _manifest(folder, sha256=hashlib.sha256(data).hexdigest())
+    # the later, smaller line must not hide the full one (and the full one says 1 of 1: q002 is gone)
+    assert convert(folder, root).retired == 1
+
+
 def test_question_ids_are_permanent_bank_ids():
     assert question_id("ccna", "cl9x-Ab_12") == "NHQ-CCNA-CL9X-AB-12"

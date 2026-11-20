@@ -62,6 +62,11 @@ def question_id(category: str, nhprep_id: Any) -> str:
     return "NHQ-" + re.sub(r"[^A-Z0-9]+", "-", f"{category}-{nhprep_id}".upper()).strip("-")
 
 
+def _fullness(record: dict) -> tuple[int, int]:
+    seen, attempts = record.get("seen"), record.get("attempts")
+    return (seen if isinstance(seen, int) else -1, attempts if isinstance(attempts, int) else -1)
+
+
 def read_export(folder: Path) -> tuple[list[dict], dict[str, dict]]:
     """The quiz questions and per-category coverage of a complete export whose bytes match its manifest."""
     try:
@@ -69,7 +74,11 @@ def read_export(folder: Path) -> tuple[list[dict], dict[str, dict]]:
         data = (folder / "export.jsonl").read_bytes()
     except (OSError, ValueError) as error:
         raise ExportError(f"unreadable export bundle ({error})") from error
-    if not isinstance(manifest, dict) or manifest.get("schema") != 1 or manifest.get("complete") is not True:
+    complete = manifest.get("complete") if isinstance(manifest, dict) else None
+    # The exporter writes complete per part ({lessons, quiz}); a finished run states the quiz part either way
+    # (false: some categories not fully seen, which retirement reads per category from their coverage).
+    finished = complete is True or (isinstance(complete, dict) and isinstance(complete.get("quiz"), bool))
+    if not isinstance(manifest, dict) or manifest.get("schema") != 1 or not finished:
         raise ExportError("the export is not a complete schema 1 bundle")
     if hashlib.sha256(data).hexdigest() != manifest.get("sha256"):
         raise ExportError("export.jsonl does not match its manifest's sha256")
@@ -85,8 +94,10 @@ def read_export(folder: Path) -> tuple[list[dict], dict[str, dict]]:
             raise ExportError(f"export.jsonl:{number}: not an export v1 record")
         if record["type"] == "quiz_question":
             questions.append(record)
-        elif record["type"] == "quiz_coverage":
-            coverage[str(record.get("category"))] = record
+        elif record["type"] == "quiz_coverage":  # a category in several runs: its fullest line counts
+            category = str(record.get("category"))
+            if category not in coverage or _fullness(record) > _fullness(coverage[category]):
+                coverage[category] = record
     return questions, coverage
 
 
