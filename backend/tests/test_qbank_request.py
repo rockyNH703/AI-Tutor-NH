@@ -28,6 +28,20 @@ def test_the_students_goal_book_wins_when_it_has_a_credible_topic():
     assert _decide([other, mine], words, "wireless_networking", "ccna", {}).topics[0].topic_id == "WIRELESS-D1-T03"
 
 
+def test_a_broad_term_whose_best_topic_cannot_fill_a_batch_widens_to_the_book_that_covers_it():
+    # session 1's Quiz me check (2026-11-20): "quiz me on bgp" served one 3-question topic of Routing and Switching
+    # Essentials (an exact alias) while BGP in the Real World has 13 BGP topics.
+    words = ["bgp"]
+    small = _topic("routing_switching", "RS-D2-T01", covered=1, named=2, exact=True)
+    small = Topic(**{**small.__dict__, "available": 3})
+    deep = [_topic("bgp_real_world", f"BGP-D1-T{n:02d}", covered=1, named=2) for n in range(1, 14)]
+    found = _decide([small, *deep], words, None, None, {})
+    assert found.status == "broad" and {t.book_id for t in found.topics} == {"bgp_real_world"}
+    # a confident topic that can fill a batch stays confident
+    big = Topic(**{**small.__dict__, "available": 12})
+    assert _decide([big, *deep], words, None, None, {}).status == "confident"
+
+
 def test_a_goal_book_that_only_brushes_the_words_does_not_take_over():
     words = ["kubernetes", "networking"]
     other = _topic("kubernetes_networking", "K8S-D1-T01", covered=2, named=2)

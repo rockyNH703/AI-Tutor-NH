@@ -30,6 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.qbank.netsec import normal
 
 BROAD_MAX = 8  # topics in one mixed test
+MIN_BATCH = 5  # a confident topic with fewer servable questions widens to its siblings (_widen)
 GOOD_SIMILARITY = 0.6
 DOMAIN_SIMILARITY = 0.8  # the words name an exam domain ("ip connectivity"): a test over the domain
 DOMAIN_MAX = 12
@@ -314,8 +315,9 @@ def _decide(
     if exact:
         chosen = _choose_track(exact, track, goal)
         best = [t for t in exact if t.book_id == chosen]
-        status = "confident" if len(best) == 1 else "broad"
-        return Found(status, tuple(best[:BROAD_MAX]), words=tuple(words), timings=timings)
+        if len(best) == 1:
+            return _widen(best[0], candidates, words, loose, timings)
+        return Found("broad", tuple(best[:BROAD_MAX]), words=tuple(words), timings=timings)
     domain = max(t.domain for t in candidates)
     named = max(t.named for t in candidates)
     domains = {t.chapter_id for t in candidates if t.domain == domain}
@@ -343,10 +345,28 @@ def _decide(
     chosen = _choose_track(good, track, goal)
     best = sorted((t for t in good if t.book_id == chosen), key=_strength, reverse=True)
     if len(best) == 1 or _strength(best[0])[:2] > _strength(best[1])[:2]:
-        return Found("confident", (best[0],), words=tuple(words), timings=timings)
+        return _widen(best[0], candidates, words, loose, timings)
     if len(best) > BROAD_MAX and len({t.chapter_id for t in best}) > 2:
         return Found("ambiguous", tuple(best[:3]), words=tuple(words), timings=timings)
     return Found("broad", tuple(best[:BROAD_MAX]), words=tuple(words), timings=timings)
+
+
+def _widen(pick: Topic, candidates: list[Topic], words: list[str], loose: bool, timings: dict) -> Found:
+    """The confident topic, or (when it can't fill a batch: the real bank averages ~2 questions a topic) every topic
+    the same words name, in one book: the pick's book when its matches fill a batch, else the book whose matches
+    hold the most questions ("quiz me on bgp": BGP in the Real World's 13 topics, not one 3-question topic)."""
+    if pick.available >= MIN_BATCH:
+        return Found("confident", (pick,), words=tuple(words), timings=timings)
+    related = [t for t in candidates if t.exact or t.covered >= len(words) or (t.named >= 2 and not loose)]
+    books: dict[str, list[Topic]] = {}
+    for topic in related:
+        books.setdefault(topic.book_id, []).append(topic)
+    held = {book: sum(t.available for t in topics) for book, topics in books.items()}
+    book = pick.book_id if held.get(pick.book_id, 0) >= MIN_BATCH else max(sorted(held), key=held.get, default="")
+    topics = sorted(books.get(book, []), key=lambda t: (t.topic_id != pick.topic_id, *(-x for x in _strength(t))))
+    if len(topics) <= 1:
+        return Found("confident", (pick,), words=tuple(words), timings=timings)
+    return Found("broad", tuple(topics[:BROAD_MAX]), words=tuple(words), timings=timings)
 
 
 def _strength(topic: Topic) -> tuple[int, int, float, float]:
