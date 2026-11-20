@@ -44,11 +44,14 @@ def main() -> int:
         print(f"UNMAPPED {qid}")
     for note in report.duplicates:
         print(f"DUPLICATE {note}")
+    for note in report.unsupported:
+        print(f"UNSUPPORTED {note}")
     for error in report.errors:
         print(f"ERROR   {error}")
     print(
         f"exported {report.exported}, written {report.written}, retired {report.retired}, "
-        f"unmapped {len(report.unmapped)}, duplicates {len(report.duplicates)}, errors {len(report.errors)}"
+        f"unmapped {len(report.unmapped)}, duplicates {len(report.duplicates)}, "
+        f"unsupported {len(report.unsupported)}, errors {len(report.errors)}"
         + ("" if args.write else " (dry run: nothing written)")
     )
     return 0 if report.ok else 1

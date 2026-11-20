@@ -49,6 +49,7 @@ class Report:
     retired: int = 0
     unmapped: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
+    unsupported: list[str] = field(default_factory=list)  # NHprep's own data can't be stored (listed for trainers)
     errors: list[str] = field(default_factory=list)
     coverage: dict[str, dict] = field(default_factory=dict)
 
@@ -240,6 +241,14 @@ def convert(export: Path, root: Path) -> Report:
             continue
         exported.add(qid)
         entry = entries.get(str(question.get("id")))
+        options = question.get("options")
+        if (
+            isinstance(options, list)
+            and all(isinstance(o, str) for o in options)
+            and not netsec.distinct_options(options)
+        ):
+            report.unsupported.append(f"{qid}: two options are identical in NHprep's own data")
+            continue
         if book_id is None or not _ready(question, entry):
             report.unmapped.append(qid)
             continue

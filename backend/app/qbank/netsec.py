@@ -68,6 +68,12 @@ def safe_title(value: Any, limit: int = 200) -> bool:
     return _text(value, limit) and not UNSAFE_TITLE.search(value)
 
 
+def distinct_options(options: list[str]) -> bool:
+    """The database's own rule (qb_options_valid, 0026): no two options equal by lower(btrim(...)). Symbols,
+    newlines and inner spaces count: "{% for %}" and "{{ for }}", or YAML on one line and on two, differ."""
+    return len({option.strip(" ").lower() for option in options}) == len(options)
+
+
 def normal(text: str) -> str:
     return " ".join(re.sub(r"[^\w./+-]+", " ", text.casefold()).split())
 
@@ -205,7 +211,7 @@ def check_question(question: dict, book: dict, prefix: str) -> tuple[dict | None
     if not isinstance(options, list) or not 2 <= len(options) <= 8 or not all(_text(o, 500) for o in options):
         errors.append(f"{prefix}: 2-8 options, each 1-500 characters")
         return None, errors, ""
-    if len({normal(o) for o in options}) != len(options):
+    if not distinct_options(options):
         errors.append(f"{prefix}: two options are the same")
     keys = _keys(question, options, prefix, errors)
     if not _text(stem, 2000) or not _text(explanation, 3000):

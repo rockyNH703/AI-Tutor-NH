@@ -215,5 +215,22 @@ def test_a_category_seen_in_several_runs_counts_its_fullest_coverage(root, tmp_p
     assert convert(folder, root).retired == 1
 
 
+def test_code_options_that_differ_only_in_symbols_are_different_options(root, tmp_path):
+    # NHprep's Ansible/Terraform/Python items turn on syntax: "{% for %}" vs "{{ for }}", quoted vs unquoted
+    # The database's own rule (qb_options_valid): lower(btrim(option)) distinct; newlines and inner spaces count.
+    quiz_map(root, mapped(1, 2, 3))
+    code = ["{% for x in y %}", "{{ for x in y }}", "{% loop x in y %}", "{{ loop x in y }}"]
+    yaml = ["r1:\n  host: 10.0.0.1", "r1: host: 10.0.0.1", "r1: { host: 10.0.0.1 }", "r1: host = 10.0.0.1"]
+    same = ["Same answer", "same answer ", "Other", "Another"]  # NHprep's own data repeats an option
+    questions = [
+        _quiz(1, options=code, correctOption=code[1]),
+        _quiz(2, options=yaml, correctOption=yaml[2]),
+        _quiz(3, options=same, correctOption=same[3]),
+    ]
+    report = convert(export(tmp_path / "run", questions), root)
+    assert report.ok and report.written == 2 and read_bank(root).errors == []
+    assert len(report.unsupported) == 1 and question_id("ccna", "q003") in report.unsupported[0]
+
+
 def test_question_ids_are_permanent_bank_ids():
     assert question_id("ccna", "cl9x-Ab_12") == "NHQ-CCNA-CL9X-AB-12"

@@ -74,7 +74,9 @@ async def run(args: argparse.Namespace) -> int:
                 topic, loose = request.topic, request.lesson_named
                 if request.refers_to_chat and case.get("context"):
                     topic, loose = case["context"][-1], True
-                found = await finder.find(session, topic, track=request.track, need_questions=False, loose=loose)
+                found = await finder.find(
+                    session, topic, track=request.track, goal=args.goal, need_questions=False, loose=loose
+                )
             timings.append((time.perf_counter() - started) * 1000)
             counter = stats[category]
             counter["cases"] += 1
@@ -142,6 +144,7 @@ def main() -> int:
     parser.add_argument("--file", help="a case file in the same line format, instead of a split")
     parser.add_argument("--import", dest="do_import", action="store_true")
     parser.add_argument("--show", type=int, default=25)
+    parser.add_argument("--goal", help="the student's certification goal (a book id, e.g. ccna), as the chat passes it")
     return asyncio.run(run(parser.parse_args()))
 
 
