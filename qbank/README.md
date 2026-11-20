@@ -151,6 +151,21 @@ python scripts/nhprep_quiz_to_bank.py <export run folder> ../qbank --write    # 
     here.
 - **CCNA manifest** (`manifest/netsec-2026/ccna.json`): the 200-301 v1.1 domains and 44 canonical topics with
   aliases; the ccna category's 40 questions map onto it.
+- **Owner (2026-11-20): no trainer review.** The 182 disputed NHprep questions stay inactive for good;
+  `nhprep/review.json` is the record of why.
+- **Authored questions** (owner decision 2026-11-19: Claude agents offline with a blind check; written 2026-11-20).
+  - **Result:** 6,100 questions, ids `NHA-<lesson id>-<n>`, written from the notes of 856 of the export's 858
+    lessons that have notes. 5–9 per lesson, by the length of the notes.
+  - **Mix:** 1,756 easy, 2,659 medium and 1,685 hard; 1,768 multiple-correct ("Choose two/three").
+  - **Explanations** name the lesson and a chapter time. Source: `nhprep_lesson` (the lesson id);
+    `key_origin: authored`.
+  - **Blind check:** a different model (Claude Sonnet) answered every question without the keys, closed-book and from
+    the lesson notes, and judged whether exactly one answer is defensible. A question is kept only when both answers
+    equal the key and it is single-answer: 6,100 of 6,128 written (19 disagreed, 3 not single-answer, 6 duplicates).
+    In a few batches the checker recorded one answer for both passes.
+  - **Security courses** (bug bounty, CEH web attacks) are asked defensively: recognition, impact, detection and
+    mitigation, never working payloads.
+  - **The whole bank:** 7,582 active questions on 705 topics; 337 topics hold at least a 5-question batch.
 - **Before that:** PadhAI's NCERT content (the CBSE 2026-27 inventory and the Chapter 9 questions) was deleted
   on the owner's instruction; it remains in git history (commit e57652c and earlier). NetSec's production
   question-bank tables were already empty. The certification bank (domains and topics) is still to be written

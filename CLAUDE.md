@@ -29,11 +29,16 @@ Honest state (2026-10-29):
 - **The knowledge base is empty and will be provided by the owner.** The pgvector pipeline and
   `backend/scripts/ingest_documents.py` (repeatable `--metadata key=value`, e.g. vendor, platform, version, topic)
   are ready. The NCERT client (`backend/app/rag/ncert.py`) is PadhAI-only and dormant unless `NCERT_KB_*` is set.
-- **The certification question bank** (2026-11-19, docs/question_bank.md):
-  - built: the schema (0026: tracks, multi-select, set grading), the importer, the CCNA manifest (44 topics), and the
-    bank turn (`QUESTION_BANK_TURN`, off; no model call), its finder and eval;
-  - pending: questions. They come from the NHprep export (session 3) plus agent-written ones. NHprep-derived
-    questions are for NetworkersHome students only (`NHPREP_ALLOWED_EMAIL_DOMAINS`).
+- **The certification question bank** (docs/question_bank.md, qbank/README.md):
+  - **In production since 2026-11-20, with `QUESTION_BANK_TURN=on`:** a quiz request in the chat, or the composer's
+    Quiz me button, is answered from stored questions with no model call.
+  - **Content:**
+    - 54 books (NHprep's quiz categories plus the CCNA manifest), 713 topics;
+    - NHprep's 1,664 quiz questions, 182 of them inactive (disputed keys; no trainer review, owner);
+    - about 6,100 agent-written, blind-checked questions from the NHprep lesson notes.
+  - **Audience:** NHprep-derived questions are for NetworkersHome students only (`NHPREP_ALLOWED_EMAIL_DOMAINS`).
+  - **Host import:** `scripts/import_questions.py ../qbank --apply` through `systemd-run` with api.env
+    (docs/deployment.md), after a deploy that carries new `qbank/` content.
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.
 

@@ -215,10 +215,43 @@ Without a goal, dev is 0.861 / 0.855.
 - **Latency:** p95 rose from about 40 ms to about 220 ms with 16 times the topics. It is still under the 500 ms
   target. The typo step's edit distance over the larger vocabulary and the FIND query are the cost.
 
-**Before QUESTION_BANK_TURN goes on:**
-- a goal-first rule (prefer the student's goal book when it has a credible topic);
-- an eval set labelled for the multi-book bank (any book's matching topic);
-- a latency pass.
+**Done before QUESTION_BANK_TURN went on (2026-11-20):**
+- **Goal first (472fdbc):** the student's goal book decides when it has a credible topic.
+- **Latency (472fdbc):** one grouped count of servable questions in FIND; a letter-set prefilter in the typo step
+  (its p95 went from 52 to 10 ms).
+- **Widening (77b16b9):** a confident topic with fewer than 5 servable questions becomes a broad pick over the topics
+  the same words name, in one book. The real bank averages about 2 questions a topic.
+- **holdout5 root causes (6ae78e8):**
+  - the strongest topic picks the book, not the book with the most matches;
+  - a half-known request ("jinja2 templates") gets "none", not a wrong confident pick;
+  - a named course is its whole book;
+  - "a quiz on how …" routes;
+  - two false triggers from holdout4 are blocked.
+- **"Quiz me on this" (b86a3ae):** an earlier quiz request in the chat means its topic, or the last test, never its
+  words read as a sentence.
+
+**`holdout5.jsonl`**, the first multi-book set (389 cases, sha256 7dedffd3…01d6, run once on 77b16b9 by session 1;
+spent, and 6ae78e8 was tuned on it):
+
+| Metric | Result |
+|---|---|
+| Route | 0.997 |
+| False triggers | 0 of 161 |
+| Hit / precision | 0.853 / 0.815 |
+| Goal-first | 0.893 |
+| p95 | 213 ms |
+
+Topic accuracy on unseen wordings has not been measured since 77b16b9 (see below for the next set).
+
+**In production since 2026-11-20 (release b86a3ae, Status: MATCH):**
+- the bank is imported (54 books, 713 topics, 1,664 NHprep questions, 1,482 servable);
+- `QUESTION_BANK_TURN` went qa → on after a read-only live check of `bank_turn.answer()` on the production database:
+  - a student's "quiz me on ospf" served 5 stored questions in 423 ms (cold);
+  - "5 hard mcqs on bgp" served the 4 hard questions there are, in 74 ms;
+  - a non-student got the not-available copy in 57 ms;
+  - no model call in any of them.
+- **Owner (2026-11-20): no trainer review.** The 182 disputed NHprep questions stay inactive for good; the 21 split
+  verdicts stay active. `qbank/nhprep/review.json` is kept as the record of why.
 
 **Content** (`qbank/`, below):
 - every NHprep quiz question, kept as written and flagged when disputed;
