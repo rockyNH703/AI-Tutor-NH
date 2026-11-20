@@ -21,6 +21,7 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 from sqlalchemy import text
@@ -42,7 +43,12 @@ _STOPWORDS = {
 
 FIND = text(
     """
-    WITH terms AS (SELECT unnest(CAST(:words AS text[])) AS word)
+    WITH terms AS (SELECT unnest(CAST(:words AS text[])) AS word),
+    served AS (  -- one grouped scan, not a probe per candidate (54 books, 2026-11-20)
+        SELECT q.topic_id, count(*) AS available FROM qb_questions q
+         WHERE q.review_status IN ('approved', 'needs_review') AND q.is_active
+           AND (CAST(:entitled AS boolean) OR q.source_kind NOT LIKE 'nhprep%')
+         GROUP BY q.topic_id)
     SELECT t.topic_id, t.title, t.chapter_id, c.title AS chapter_title, b.book_id, b.title AS book_title,
            b.class_level, b.subject_code, b.language,
            (lower(t.title) = :phrase OR t.aliases @> ARRAY[CAST(:phrase AS text)]) AS exact,
@@ -55,12 +61,11 @@ FIND = text(
            CASE WHEN length(:phrase) >= 5 THEN word_similarity(:phrase, lower(c.title)) ELSE 0 END AS domain,
            ts_rank_cd(t.search_tsv, to_tsquery('english', :any_word), 32) AS rank,
            greatest(word_similarity(:phrase, t.search_title), similarity(:phrase, lower(t.title))) AS similar,
-           (SELECT count(*) FROM qb_questions q
-             WHERE q.topic_id = t.topic_id AND q.review_status IN ('approved', 'needs_review') AND q.is_active
-               AND (CAST(:entitled AS boolean) OR q.source_kind NOT LIKE 'nhprep%')) AS available
+           coalesce(s.available, 0) AS available
     FROM qb_topics t
     JOIN qb_chapters c ON c.chapter_id = t.chapter_id
     JOIN qb_books b ON b.book_id = c.book_id
+    LEFT JOIN served s ON s.topic_id = t.topic_id
     WHERE b.curriculum = 'netsec'
       AND (CAST(:track AS text) IS NULL OR b.book_id = :track)
       AND (lower(t.title) = :phrase
@@ -167,6 +172,11 @@ def _edits(a: str, b: str, limit: int) -> int:
     return previous[-1]
 
 
+@lru_cache(maxsize=20000)
+def _letters(word: str) -> frozenset[str]:
+    return frozenset(word)
+
+
 def corrected(words: list[str], known: frozenset[str]) -> list[str]:
     """The words as the bank knows them:
     - two words that are one known term ("ip sec" -> "ipsec") are joined;
@@ -185,8 +195,13 @@ def corrected(words: list[str], known: frozenset[str]) -> list[str]:
             out.append(word)
             continue
         limit = 2 if len(word) >= 7 else 1
+        letters = set(word)
         close = {
-            other for other in known if abs(len(other) - len(word)) <= limit and _edits(word, other, limit) <= limit
+            other
+            for other in known
+            if abs(len(other) - len(word)) <= limit
+            and len(letters.symmetric_difference(_letters(other))) <= 2 * limit  # an edit changes at most 2 letters
+            and _edits(word, other, limit) <= limit
         }
         if len(word) <= 4:  # a short word only by swapped letters ("opsf") or one missing letter ("jsn"), never a
             # changed one: "cool" is no NAT "pool" (holdout 2)
@@ -291,6 +306,10 @@ def _decide(
 ) -> Found:
     if not candidates:
         return Found("none", words=tuple(words), timings=timings)
+    if goal and not track:  # goal first (54 books, 2026-11-20): the student's own book when it has a credible topic
+        mine = [t for t in candidates if t.book_id == goal]
+        if any(t.exact or t.lesson or t.covered >= len(words) or (t.named >= 2 and not loose) for t in mine):
+            candidates = mine
     exact = [t for t in candidates if t.exact or t.lesson]
     if exact:
         chosen = _choose_track(exact, track, goal)

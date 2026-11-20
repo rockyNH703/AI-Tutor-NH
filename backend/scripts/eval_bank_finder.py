@@ -74,8 +74,9 @@ async def run(args: argparse.Namespace) -> int:
                 topic, loose = request.topic, request.lesson_named
                 if request.refers_to_chat and case.get("context"):
                     topic, loose = case["context"][-1], True
+                goal = case.get("goal", args.goal)  # a multi-book set states each case's goal (holdout5)
                 found = await finder.find(
-                    session, topic, track=request.track, goal=args.goal, need_questions=False, loose=loose
+                    session, topic, track=request.track, goal=goal, need_questions=False, loose=loose
                 )
             timings.append((time.perf_counter() - started) * 1000)
             counter = stats[category]
@@ -102,6 +103,9 @@ async def run(args: argparse.Namespace) -> int:
             else:
                 hit = bool(wanted & set(titles))
                 counter["hit"] += hit
+                if case.get("preferred"):  # the acceptable titles in the student's goal book: goal-first rate
+                    counter["goal_cases"] += 1
+                    counter["goal_first"] += bool(titles) and titles[0] in case["preferred"]
                 counter["precision_sum_x1000"] += (
                     round(1000 * sum(t in wanted for t in titles) / len(titles)) if titles else 0
                 )
@@ -128,6 +132,8 @@ async def run(args: argparse.Namespace) -> int:
     if total["bank_cases"]:
         precision = total["precision_sum_x1000"] / 1000 / total["bank_cases"]
         print(f"bank hit {total['hit'] / total['bank_cases']:.4f}  precision {precision:.4f}")
+    if total["goal_cases"]:
+        print(f"goal-first {total['goal_first'] / total['goal_cases']:.4f} of {total['goal_cases']} cases with a goal")
     ordered = sorted(timings)
     p95 = ordered[int(len(ordered) * 0.95) - 1]
     print(f"latency ms p50 {statistics.median(ordered):.1f}  p95 {p95:.1f}  max {ordered[-1]:.1f}")

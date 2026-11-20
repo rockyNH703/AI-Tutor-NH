@@ -4,8 +4,35 @@ quiz request. Pure: no database, no model."""
 
 import pytest
 
-from app.qbank.finder import corrected
+from app.qbank.finder import Topic, _decide, corrected
 from app.qbank.request import parse
+
+
+def _topic(book: str, topic_id: str, *, covered: int, named: int, exact: bool = False, similar: float = 0.3) -> Topic:
+    return Topic(
+        topic_id, f"title {topic_id}", topic_id.rsplit("-", 1)[0], "Domain", book, book.upper(), 1, "general",
+        "english", exact, False, covered, named, 0.0, 0.1, similar, 5,
+    )  # fmt: skip
+
+
+def test_the_students_goal_book_wins_when_it_has_a_credible_topic():
+    # 54 books (2026-11-20): "wifi channels" is an exact alias in the Wireless book, but a CCNA student's CCNA
+    # topic covers both words: the goal book answers.
+    words = ["wifi", "channels"]
+    other = _topic("wireless_networking", "WIRELESS-D1-T03", covered=2, named=4, exact=True)
+    mine = _topic("ccna", "CCNA-D1-T09", covered=2, named=4)
+    found = _decide([other, mine], words, None, "ccna", {})
+    assert found.status == "confident" and found.topics[0].topic_id == "CCNA-D1-T09"
+    # no goal, or a named track: the exact match stands
+    assert _decide([other, mine], words, None, None, {}).topics[0].topic_id == "WIRELESS-D1-T03"
+    assert _decide([other, mine], words, "wireless_networking", "ccna", {}).topics[0].topic_id == "WIRELESS-D1-T03"
+
+
+def test_a_goal_book_that_only_brushes_the_words_does_not_take_over():
+    words = ["kubernetes", "networking"]
+    other = _topic("kubernetes_networking", "K8S-D1-T01", covered=2, named=2)
+    mine = _topic("ccna", "CCNA-D6-T02", covered=1, named=1)  # "networking" in a title only
+    assert _decide([other, mine], words, None, "ccna", {}).topics[0].topic_id == "K8S-D1-T01"
 
 
 def test_a_short_word_is_corrected_only_when_its_letters_are_swapped():
