@@ -187,7 +187,8 @@ Recall on unseen wordings across the four fresh sets was 0.78, 0.56, 0.52 and 0.
 - **Who sees it:** only where `GET /v1/progress/bank` says `enabled`, which needs `QUESTION_BANK_TESTS` on, `QUESTION_BANK_TURN` allowing the account, and a NetworkersHome student. Each chat turn checks the same itself.
 - **Rejected:** a classifier fallback (INTENT_ROUTER). It would be a model call at query time, which the owner's rule excludes.
 
-The grammar is not tuned on holdout 4. Its topic gaps are aliases to add when the CCNA content is mapped.
+The grammar was not tuned on holdout 4 at the time. Its wording families were added on 2026-11-20, after holdouts
+6 and 7 showed the same families again (below). Its topic gaps are aliases to add when the CCNA content is mapped.
 
 **The real NHprep bank (2026-11-20).** Imported in WSL with `scripts/import_questions.py`:
 - 54 books, 202 domains, 713 topics, 1,664 questions (1,482 active);
@@ -241,7 +242,70 @@ spent, and 6ae78e8 was tuned on it):
 | Goal-first | 0.893 |
 | p95 | 213 ms |
 
-Topic accuracy on unseen wordings has not been measured since 77b16b9 (see below for the next set).
+**`holdout6.jsonl`** (400 cases, sha256 59892461…, written by session 2 with a generator; run once on b86a3ae's
+code, on the 1,664-question bank; spent):
+
+| Metric | Result |
+|---|---|
+| Route | 0.805 |
+| False triggers | 2 of 150 |
+| Hit / precision | 0.865 / 0.824 |
+| Goal-first | 0.915 |
+| p95 | 164 ms |
+
+Most misses were short requests the verb-led grammar did not read: "fhrp quiz please, intermediate level", "sql
+injection questions, 10 hard ones", "aur 5 do", "X course questions". A bare "quiz me" after a talk about a topic
+went to the student's goal instead of the chat.
+
+**The grammar, extended (2026-11-20).** Precision first still holds: every addition was checked against every
+negative in every eval set (0 of 1,574 parse).
+- **A topic, then the quiz noun, then only settings** (weak): "eigrp metric mcqs, tricky ones", "nat overload 6
+  questions", "ipv6 questions, ccna level", "dns record types quiz (a, aaaa, mx)". The words before the noun must
+  read as a topic: no subject, verb or question word ("I have so many bgp questions", "vlan questions came up in my
+  interview" are not requests), and nothing may follow but count, level, track and the like.
+- **Wording families from holdouts 4, 6 and 7:** "grill me", "can I be quizzed", "pop / revision quiz", "prep
+  questions", "shoot me some X questions", "I'd appreciate some questions", "N questions to check my X", "test
+  questions", "multiple-answer / choose-two questions", "u" for "you".
+- **"More":** "aur 5 do", "agla set do", "ek aur set", "nxt 5", "another round, 8 this time", "more like these, 4",
+  "give me more of those", "same topic, next few", "i want more". "continue", "keep going" and "again" stay with the
+  model: they can mean "go on explaining".
+- **"This":** a bare "quiz me" / "test me" reads the chat first (`referent()`), then falls back to the student's goal
+  track, else every track. The same fallback serves "quiz me on this" in a chat that names nothing (it used to say
+  "I don't have stored practice questions on this yet"). Hinglish "iske / iska / isi / is par", "the difference",
+  "this stuff", "tough ones" read as the chat.
+- **Blocked** (holdout 6 and 7's false triggers, all present in the grammar live at 7d86100): building something
+  that makes quizzes ("write a script that generates a random quiz", "have the model generate MCQs"), the student's
+  own questions ("I'd like to ask some questions about…", "questions about the labs: do I need…"), negation ("please
+  don't quiz me, just explain…"), recommendations ("recommend books with practice questions") and answer keys.
+
+**`holdout7.jsonl`** (400 cases, sha256 2592f57f…b385), written by an independent agent that did not see the grammar
+or the earlier sets. It was run once on the extended grammar before the holdout7 fixes, on the full 7,764-question
+bank; it is now spent:
+
+| Metric | Result |
+|---|---|
+| Route | 0.930 |
+| False triggers | 6 of 175 (0.034) |
+| Hit / precision | 0.854 / 0.799 |
+| Goal-first | 0.967 |
+| p95 | 162 ms |
+
+- **False triggers:** all 6 also trigger on the grammar live at 7d86100. The extension added none. All 6 are fixed
+  after this run (above).
+- **Parse recall on this fresh set:** 162 of 225 requests on the 7d86100 grammar, 203 with the extension.
+- **What is still weak:** "this" (hit 0.514). Within a subject, the chat's sentence often picks a neighbouring topic,
+  for example "Terraform workflow" instead of "terraform import". Of the "next" wordings, "continue", "keep going"
+  and "again" are left to the model on purpose.
+- The expected topics for multi-book cases are broad keyword lists, so precision on them is generous.
+
+**After the holdout7 fixes** (WSL, on a94a410 plus this change, the full bank):
+- 0 false triggers on all nine sets (dev, test, holdouts 1–7);
+- route 1.000 on dev, test and holdouts 1–3 and 5, 0.994 on holdout 4, 0.958 on holdout 6 and 0.968 on holdout 7
+  (tuned on);
+- topic hit/precision unchanged on dev through holdout 5;
+- p95 135–160 ms.
+
+A next fresh set is still the only honest measure of new wordings.
 
 **In production since 2026-11-20 (release b86a3ae, Status: MATCH):**
 - the bank is imported (54 books, 713 topics, 1,664 NHprep questions, 1,482 servable);
@@ -250,6 +314,9 @@ Topic accuracy on unseen wordings has not been measured since 77b16b9 (see below
   - "5 hard mcqs on bgp" served the 4 hard questions there are, in 74 ms;
   - a non-student got the not-available copy in 57 ms;
   - no model call in any of them.
+- **Authored questions (release 7d86100, Status: MATCH):** the host import added 6,100 questions (7,764 in all,
+  7,582 active). A read-only live check of `bank_turn.answer()` served authored questions for OSPF, Netmiko,
+  Ansible, VLAN trunking, Kubernetes and SQL-injection requests in 74–118 ms warm (378 ms cold).
 - **Owner (2026-11-20): no trainer review.** The 182 disputed NHprep questions stay inactive for good; the 21 split
   verdicts stay active. `qbank/nhprep/review.json` is kept as the record of why.
 

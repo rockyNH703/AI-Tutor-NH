@@ -114,7 +114,7 @@ async def _topics(
             )
             topics = tuple(finder._row(row) for row in rows if row.available)
             return finder.Found("broad" if len(topics) > 1 else "confident", topics) if topics else finder.Found("none")
-        return finder.Found("none")
+    # Nothing in the chat names a topic ("quiz me" in a new chat): the student's goal track, else every track.
     return await finder.find(session, "", track=request.track, goal=goal, entitled=entitled)
 
 
