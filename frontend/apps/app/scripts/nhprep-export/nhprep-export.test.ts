@@ -69,7 +69,7 @@ describe("export v1 parsing", () => {
       type: "video",
       durationSeconds: 4320,
     });
-    expect([sourceDay("day-07-eigrp-basicsmp4"), sourceDay("3mp4"), sourceDay("8file-directorymp4")]).toEqual([7, null, null]);
+    expect([sourceDay("day-07-eigrp-basicsmp4"), sourceDay("day_01_osi-modelmp4"), sourceDay("3mp4"), sourceDay("8file-directorymp4")]).toEqual([7, 1, null, null]);
   });
   test("trainer hints stay raw", () => {
     expect(trainerHints("ccna-by-mrajay", "CCNA Complete Course", "Learn 8 CCNA BY Mr.AJAY through lessons")).toEqual({ titleParens: null, aboutBy: "Mr.AJAY", slugToken: "mrajay" });

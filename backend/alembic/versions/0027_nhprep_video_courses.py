@@ -70,7 +70,7 @@ UPGRADE = (
         removed_at timestamptz,
         created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
         updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),
-        CONSTRAINT ck_nhprep_courses_slug CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+        CONSTRAINT ck_nhprep_courses_slug CHECK (slug ~ '^[a-z0-9]+([_-]+[a-z0-9]+)*$'),
         CONSTRAINT ck_nhprep_courses_track CHECK (track IN ('ccna', 'ccnp', 'ccie', 'security', 'cloud', 'ai', 'other')),
         CONSTRAINT ck_nhprep_courses_content_hash CHECK (content_hash ~ '^[0-9a-f]{64}$')
     )
@@ -121,7 +121,7 @@ UPGRADE = (
         CONSTRAINT uq_nhprep_lessons_id_course_id UNIQUE (id, course_id),
         CONSTRAINT ck_nhprep_lessons_position CHECK (position >= 1),
         CONSTRAINT ck_nhprep_lessons_source_day CHECK (source_day BETWEEN 0 AND 999),
-        CONSTRAINT ck_nhprep_lessons_slug CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+        CONSTRAINT ck_nhprep_lessons_slug CHECK (slug ~ '^[a-z0-9]+([_-]+[a-z0-9]+)*$'),
         CONSTRAINT ck_nhprep_lessons_duration CHECK (duration_seconds >= 0),
         CONSTRAINT ck_nhprep_lessons_video_provider CHECK (video_provider IN ('nhprep-mp4', 'bunny')),
         CONSTRAINT ck_nhprep_lessons_video CHECK ((video_provider IS NULL) = (video_id IS NULL)

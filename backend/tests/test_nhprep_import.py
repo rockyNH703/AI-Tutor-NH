@@ -148,6 +148,17 @@ def test_read_export_checks_bytes_counts_and_completeness_and_counts_rejects():
     assert export.rejects["lesson:slug"] == 1 and L2 in export.present_lesson_ids and not export.complete
 
 
+def test_an_underscore_upload_name_is_a_lesson_and_its_day_is_read_from_it():
+    # 40 real NHprep lessons were rejected for slugs like "day_01_osi-modelmp4" (export v1 left their day null).
+    rows = records()
+    lesson = next(row for row in rows if row["type"] == "lesson")
+    lesson["slug"], lesson["day"] = "day_03_static_routes-basicsmp4", None
+    export = bundle(rows)
+    assert export.rejects.get("lesson:slug", 0) == 0
+    planned = plan_lesson(next(item for item in export.lessons if item.slug == lesson["slug"]), Counter())
+    assert planned is not None and planned.values["source_day"] == 3
+
+
 def test_chunks_group_items_dedupe_and_key_the_exact_embedded_text():
     export = bundle(records())
     found: Counter[str] = Counter()

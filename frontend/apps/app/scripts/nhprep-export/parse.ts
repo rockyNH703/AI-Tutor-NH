@@ -27,9 +27,9 @@ export function lessonRow(slug: string, leaves: readonly string[]): LessonRow {
   return { slug, position: position ? Number(position) : null, title, type: type?.toLowerCase() ?? null, durationSeconds: duration ? durationSeconds(duration) : null };
 }
 
-/** "day-07-…" → 7; the slug's day is not the lesson's position (spec r2-nhprep-public-deep B5). */
+/** "day-07-…" or "day_07_…" → 7; the slug's day is not the lesson's position (spec r2-nhprep-public-deep B5). */
 export function sourceDay(slug: string): number | null {
-  const match = /^day-0*(\d{1,3})-/.exec(slug);
+  const match = /^day[-_]0*(\d{1,3})[-_]/.exec(slug);
   return match ? Number(match[1]) : null;
 }
 

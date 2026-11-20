@@ -24,6 +24,16 @@ from app.db.models import NHPREP_ITEM_KEY
 from app.nhprep.validate import CourseRecord, LessonRecord
 from app.nhprep.vectors import text_key
 
+# "day-07-…" and "day_07_…" (NHprep writes both); the export's own `day` (v1) knew only the hyphen form.
+_SLUG_DAY = re.compile(r"^day[-_]0*(\d{1,3})[-_]")
+
+
+def slug_day(slug: str) -> int | None:
+    """The day number an upload's file name starts with: not the lesson's position."""
+    match = _SLUG_DAY.match(slug)
+    return int(match.group(1)) if match else None
+
+
 # Owner-confirmable (spec B5): lowercase letters-only token -> trainer. Honorific forms included ("Mr.AJAY" -> mrajay).
 TRAINER_ALIASES = {
     "ajay": "Ajay",
@@ -346,7 +356,7 @@ def plan_lesson(record: LessonRecord, counts: Counter[str]) -> LessonPlan | None
     video = record.video
     values = {
         "position": record.position,
-        "source_day": record.day,
+        "source_day": record.day if record.day is not None else slug_day(record.slug),
         "title": title,
         "slug": record.slug,
         "duration_seconds": record.durationSeconds,
