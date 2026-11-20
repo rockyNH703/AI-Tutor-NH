@@ -257,6 +257,20 @@ def _choose_track(topics: list[Topic], named: str | None, goal: str | None) -> s
     return max(sorted(counts), key=lambda book: counts[book])
 
 
+BOOKS = text("SELECT book_id, title FROM qb_books WHERE curriculum = 'netsec'")
+_COURSE = re.compile(r"\s+(?:course|track|book|module|series|lessons|bank|quiz bank)$")
+_books: dict[str, Any] = {"at": 0.0, "titles": {}}
+
+
+async def _book_named(session: AsyncSession, topic: str) -> str | None:
+    """The book whose title the request names whole ("the OSPF Mastery course"), cached like the vocabulary."""
+    if time.monotonic() - _books["at"] > VOCABULARY_TTL_S:
+        rows = await session.execute(BOOKS)
+        _books.update(at=time.monotonic(), titles={normal(title): book for book, title in rows})
+    asked = _COURSE.sub("", normal(re.sub(r"^(?:the|a)\s+", "", topic.strip().lower())))
+    return _books["titles"].get(asked)
+
+
 async def find(
     session: AsyncSession,
     topic: str,
@@ -276,8 +290,13 @@ async def find(
     words = corrected(words_of(topic, sentence=loose), known) if topic else []
     # Words the bank has never heard of ("kuch", "alternatives", "lite") can't be covered by any topic: the
     # request is judged on the ones it knows. None known: nothing to search, the closest titles are offered.
-    words = [word for word in words if word in known or word.isdigit()] or words
+    kept = [word for word in words if word in known or word.isdigit()]
+    partial = bool(kept) and len(kept) < len(words)
+    words = kept or words
     timings = {"vocabularyMs": round((time.perf_counter() - started) * 1000, 2)}
+    book = await _book_named(session, topic) if topic and not track else None
+    if book:  # "quiz me on the OSPF Mastery course": that whole book (holdout5)
+        track, words = book, []
     if not words:
         rows = await session.execute(TRACK, {"track": track or goal, "entitled": entitled, "topic_ids": None})
         topics = [_row(row) for row in rows if row.available or not need_questions]
@@ -299,22 +318,46 @@ async def find(
     rows = await session.execute(FIND, params)
     timings["sqlMs"] = round((time.perf_counter() - started) * 1000, 2)
     candidates = [_row(row) for row in rows if row.available or not need_questions]
-    return _decide(candidates, words, track, goal, timings, loose)
+    return _decide(candidates, words, track, goal, timings, loose, partial=partial)
+
+
+def _strongest_book(topics: list[Topic], track: str | None, goal: str | None) -> str | None:
+    """The named track, else the goal's book, else the book of the single strongest topic (not the book with the
+    most matches: CCNA's broad aliases outnumbered a specialist book's topic named for the thing, holdout5)."""
+    if track:
+        return track
+    books = {topic.book_id for topic in topics}
+    if goal in books:
+        return goal
+    count = {book: sum(t.book_id == book for t in topics) for book in books}
+    return max(topics, key=lambda t: (_strength(t), count[t.book_id], t.book_id)).book_id if topics else None
 
 
 def _decide(
-    candidates: list[Topic], words: list[str], track: str | None, goal: str | None, timings: dict, loose: bool = False
+    candidates: list[Topic],
+    words: list[str],
+    track: str | None,
+    goal: str | None,
+    timings: dict,
+    loose: bool = False,
+    *,
+    partial: bool = False,
 ) -> Found:
+    """`partial`: some of the request's words are unknown to the bank and were left out; then only a topic the
+    remaining words name by an alias (or exactly) is trusted ("jinja2 templates" is not Panorama templates)."""
     if not candidates:
         return Found("none", words=tuple(words), timings=timings)
+    if partial and not any(t.exact or t.lesson or t.named >= 2 for t in candidates):
+        closest = tuple(t.title for t in sorted(candidates, key=_strength, reverse=True)[:3])
+        return Found("none", closest=closest, words=tuple(words), timings=timings)
     if goal and not track:  # goal first (54 books, 2026-11-20): the student's own book when it has a credible topic
         mine = [t for t in candidates if t.book_id == goal]
         if any(t.exact or t.lesson or t.covered >= len(words) or (t.named >= 2 and not loose) for t in mine):
             candidates = mine
     exact = [t for t in candidates if t.exact or t.lesson]
     if exact:
-        chosen = _choose_track(exact, track, goal)
-        best = [t for t in exact if t.book_id == chosen]
+        chosen = _strongest_book(exact, track, goal)  # an exact title outranks an exact alias (similar ~1.0)
+        best = sorted((t for t in exact if t.book_id == chosen), key=_strength, reverse=True)
         if len(best) == 1:
             return _widen(best[0], candidates, words, loose, timings)
         return Found("broad", tuple(best[:BROAD_MAX]), words=tuple(words), timings=timings)
@@ -342,7 +385,7 @@ def _decide(
     if not good:
         closest = tuple(t.title for t in sorted(candidates, key=_strength, reverse=True)[:3])
         return Found("none", closest=closest, words=tuple(words), timings=timings)
-    chosen = _choose_track(good, track, goal)
+    chosen = _strongest_book(good, track, goal)
     best = sorted((t for t in good if t.book_id == chosen), key=_strength, reverse=True)
     if len(best) == 1 or _strength(best[0])[:2] > _strength(best[1])[:2]:
         return _widen(best[0], candidates, words, loose, timings)

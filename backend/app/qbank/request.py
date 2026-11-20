@@ -210,6 +210,9 @@ _BLOCKED = re.compile(
     r"|check\s+my\s+answers?|answers?\s+to\s+(?:these|those|the|my|this)"
     # holdout 3: "questions to ask my ISP", "test my understanding by explaining", "not a quiz", "quiz results"
     r"|questions?\s+(?:to|i\s+should|we\s+should)\s+ask|by\s+explaining"
+    # holdout4: "I'd love a break from MCQs", "is this a valid exam question format?"
+    r"|(?:break|rest|pause)\s+from|tired\s+of|sick\s+of|no\s+more\s+(?:quiz|mcq|question)"
+    r"|questions?\s+(?:format|formats|style|template|templates|types?)\b"
     r"|(?:not|no|without|skip(?:\s+the)?|instead\s+of)\s+(?:a\s+|the\s+|any\s+)?(?:quiz(?:zes)?|tests?|mcqs?|questions?)"
     r"|(?:quiz|test|exam)\s+(?:results?|answers?|scores?|marks?|feature|option|mode|attempts?))\b"
 )
@@ -221,6 +224,8 @@ _ASKING = re.compile(
 # A weak cue ("practice questions on X", "quiz on X") in a message that is really asking or reporting something
 # ("questions on my mind: why is OSPF stuck in EXSTART?") is left to the model.
 _QUESTIONING = re.compile(
+    # "a quiz on how the root bridge is chosen": a question word right after on/about/of is the topic (holdout5)
+    r"(?<!\bon\s)(?<!\babout\s)(?<!\bof\s)"
     r"\b(?:why|how(?!\s+(?:about|well))|what(?!\s+(?:about|you|we|i))|which|explain(?:s|ing)?|(?<!you\s)(?<!just\s)explained"
     r"|review|can'?t|cannot"
     r"|isn'?t|doesn'?t|won'?t|stuck|confused|useless|(?<!would\s)help|know\s+which|weird|wrong|strange)\b"

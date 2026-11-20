@@ -42,6 +42,25 @@ def test_a_broad_term_whose_best_topic_cannot_fill_a_batch_widens_to_the_book_th
     assert _decide([big, *deep], words, None, None, {}).status == "confident"
 
 
+def test_with_no_goal_the_strongest_topic_decides_the_book_not_the_book_with_most_matches():
+    # holdout5 (2026-11-20): CCNA's broad aliases matched more topics, so "pat" went to CCNA's NAT topic although the
+    # NAT book has a topic named for it.
+    words = ["pat"]
+    ccna = [_topic("ccna", f"CCNA-D4-T0{n}", covered=1, named=2) for n in (1, 2)]
+    special = _topic("nat_deep_dive", "NAT-D2-T03", covered=1, named=3, similar=0.9)
+    found = _decide([*ccna, special], words, None, None, {})
+    assert found.topics[0].topic_id == "NAT-D2-T03"
+
+
+def test_a_request_the_bank_only_half_knows_does_not_get_a_confident_wrong_topic():
+    # "jinja2 templates": the bank has no "jinja2", so only "templates" was left and Panorama templates were served
+    weak = _topic("palo_alto", "PAN-D2-T04", covered=1, named=1)
+    assert _decide([weak], ["templates"], None, None, {}, partial=True).status == "none"
+    # an alias the student named is still enough
+    named = _topic("ansible_networks", "ANS-D2-T01", covered=1, named=2)
+    assert _decide([named], ["templates"], None, None, {}, partial=True).status != "none"
+
+
 def test_a_goal_book_that_only_brushes_the_words_does_not_take_over():
     words = ["kubernetes", "networking"]
     other = _topic("kubernetes_networking", "K8S-D1-T01", covered=2, named=2)
@@ -133,6 +152,8 @@ ORDINARY = [
     "the quiz portal on our LAN uses port 9443, allow it in the ACL",
     "those practice questions claim EIGRP is a link-state protocol, correct?",
     "build quiz software in Flask",
+    "honestly I need a rest from mcqs today",
+    "could you tell me if this is a good question format for my team",
 ]
 
 QUIZ_REQUESTS = [
@@ -196,6 +217,7 @@ QUIZ_REQUESTS = [
     "begin a CISSP practice test",
     "test what I learned just now",
     "a quiz on that would help now",
+    "can I get a quiz on how the root bridge is chosen?",
     "carry on, next 3",
     "next batch please",
     "3 more like these",
