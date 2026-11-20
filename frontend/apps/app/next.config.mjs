@@ -38,10 +38,14 @@ const KATEX = createRequire(import.meta.url).resolve("katex").replace(/katex\.js
  * its script and where it reports. Blocked, it was a console error on every page (2026-10-23).
  * And YouTube's privacy-enhanced player, framed only after Play is pressed on a ```video block
  * (features/markdown/widgets/video.tsx, sandboxed): the one frame host besides Turnstile.
+ * And NHprep's lesson videos (features/nhprep/video-player.tsx): a native <video> plays a short-lived
+ * https://videos.nhprep.com/{id}.mp4 link the API signs at Play, so media-src allows that one host (without
+ * media-src, media fell back to default-src 'self'). Nothing is framed for it.
  */
 const isDev = process.env.NODE_ENV !== "production";
 const TURNSTILE = "https://challenges.cloudflare.com";
 const YOUTUBE_NOCOOKIE = "https://www.youtube-nocookie.com";
+const NHPREP_VIDEOS = "https://videos.nhprep.com";
 const CF_INSIGHTS = { script: "https://static.cloudflareinsights.com", report: "https://cloudflareinsights.com" };
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -49,6 +53,7 @@ const contentSecurityPolicy = [
   `frame-src ${TURNSTILE} ${YOUTUBE_NOCOOKIE}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
+  `media-src 'self' ${NHPREP_VIDEOS}`,
   "font-src 'self' data:",
   `connect-src 'self' ${CF_INSIGHTS.report}${isDev ? " ws: wss:" : ""}`,
   "object-src 'none'",

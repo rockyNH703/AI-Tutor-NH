@@ -227,5 +227,8 @@ describe("buildPath / matchRoute", () => {
 
   test("buildPath refuses a non-UUID id", () => {
     expect(() => buildPath("DELETE /v1/conversations/{conversation_id}", { conversation_id: "../me" })).toThrow();
+    // NHprep URLs carry only NetSec's own lesson ids, never a slug or NHprep's ids.
+    expect(() => buildPath("GET /v1/nhprep/lessons/{lesson_id}", { lesson_id: "ospf-areas" })).toThrow();
+    expect(matchRoute("POST", `/v1/nhprep/lessons/${ID}/playback`)?.key).toBe("POST /v1/nhprep/lessons/{lesson_id}/playback");
   });
 });

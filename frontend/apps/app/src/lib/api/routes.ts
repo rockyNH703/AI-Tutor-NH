@@ -163,6 +163,13 @@ export const ROUTES = {
   "POST /v1/knowledge/imports": { auth: true, body: "CreateImportBatch" },
   "GET /v1/knowledge/files/{file_id}/content": { auth: true, file: KNOWLEDGE_PDF },
 
+  // NHprep video courses (features/nhprep): every route is a 404 for an account NHprep isn't for. `ids` is one
+  // comma-separated value (the BFF forwards only the first of a repeated parameter).
+  "GET /v1/nhprep/lessons": { auth: true, query: ["ids"] },
+  "GET /v1/nhprep/lessons/{lesson_id}": { auth: true },
+  "GET /v1/nhprep/lessons/{lesson_id}/items": { auth: true, query: ["kind"] },
+  "POST /v1/nhprep/lessons/{lesson_id}/playback": { auth: true },
+
   "GET /v1/voice": { auth: true },
   "POST /v1/voice/transcriptions": { auth: true, query: ["seconds"], upload: VOICE_UPLOAD, voice: true },
   "POST /v1/voice/speech": { auth: true, body: "SpeechRequest", file: VOICE_SPEECH, voice: true },

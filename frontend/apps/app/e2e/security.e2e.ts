@@ -11,6 +11,10 @@ test("pages are sent with the security headers", async ({ page }) => {
   expect(headers["content-security-policy"]?.split("; ").find((directive) => directive.startsWith("frame-src "))).toBe(
     "frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com",
   );
+  // Media: NHprep's lesson videos (a native <video>, never a frame), exactly this host.
+  expect(headers["content-security-policy"]?.split("; ").find((directive) => directive.startsWith("media-src "))).toBe(
+    "media-src 'self' https://videos.nhprep.com",
+  );
   expect(headers["x-frame-options"]).toBe("DENY");
   expect(headers["x-content-type-options"]).toBe("nosniff");
   expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");

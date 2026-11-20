@@ -14,7 +14,11 @@ import { EngineeringFields } from "@/features/settings/engineering-section";
 import { MAIN_GOAL_LABELS, PREFERENCES } from "@/features/settings/learning-labels";
 import { SETTINGS_SECTIONS } from "@/features/settings/sections";
 import { EMAIL_KINDS } from "@/features/unsubscribe/token";
+import NhprepPanel, { PANEL_COPY } from "@/features/nhprep/nhprep-panel";
+import { CARD, IDS, LESSON, prime } from "@/features/nhprep/test-data";
+import { COPY as NHPREP_VIDEO_COPY, VideoSection } from "@/features/nhprep/video-player";
 import { describeCode } from "@/lib/api/errors";
+import { clearNhprepCache } from "@/lib/api/nhprep";
 import { BRAND } from "@/lib/brand";
 import { GREETINGS } from "@/lib/greeting";
 
@@ -156,6 +160,25 @@ describe("user-visible copy has no school vocabulary", () => {
     const player = shownBy(renderToStaticMarkup(createElement(Video, { source: JSON.stringify(video), onError: () => {} })));
     expect(player).toContain("Jump to"); // the render reached the list, which is never called "Chapters"
     expect(offenders(player)).toEqual([]);
+  });
+
+  test("NHprep lesson cards: the lesson, its video, study aids and their names", async () => {
+    await prime();
+    const shownBy = (html: string) => [
+      ...visibleText(html),
+      ...[...html.matchAll(/aria-label="([^"]*)"/g)].map((match) => match[1] ?? ""),
+    ];
+    const card = shownBy(renderToStaticMarkup(createElement(NhprepPanel, { card: { ...CARD, status: "ambiguous" } })));
+    expect(card).toContain("Jump to"); // the render reached the sections, never called "Chapters"
+    expect(card).toContain("Other matching videos");
+    const unavailable = shownBy(
+      renderToStaticMarkup(
+        createElement(VideoSection, { lessonId: IDS.lesson, title: "x", video: "not_configured", sections: LESSON.chapters, matchedId: null }),
+      ),
+    );
+    expect(unavailable).toContain("In this video");
+    expect(offenders([...card, ...unavailable, ...Object.values(NHPREP_VIDEO_COPY), ...Object.values(PANEL_COPY)])).toEqual([]);
+    clearNhprepCache();
   });
 
   test("brand, emails and errors", () => {

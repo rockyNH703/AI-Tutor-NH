@@ -9,6 +9,7 @@ import { FileKindIcon } from "@/features/files/attachment-chip";
 import { fileTypeOf } from "@/lib/api/files";
 import type { TestState } from "@/features/markdown/context";
 import { MessageContent, needsFullWidth } from "@/features/markdown/lazy-message-content";
+import { NhprepSlot } from "@/features/nhprep/nhprep-slot";
 import type { ChatEntry, ChatMessage } from "./chat-store";
 import { useChatMessage, useStores } from "./chat-context";
 import { CONTINUE_PROMPT, cutOffNote } from "./cut-off";
@@ -208,7 +209,7 @@ function AssistantMessage({
       <BrandMark size={28} className="mt-0.5 rounded-lg" />
       <div className="min-w-0 flex-1">
         {(text || revealing || phase === "stopping" || message.status === "cancelled" || elsewhere) && (
-          <div className={cn("max-w-full pt-0.5", needsFullWidth(text) ? "w-full" : "w-fit")}>
+          <div className={cn("max-w-full pt-0.5", message.metadata?.nhprep || needsFullWidth(text) ? "w-full" : "w-fit")}>
             {text ? (
               <>
                 <MessageContent
@@ -223,6 +224,8 @@ function AssistantMessage({
             ) : revealing ? (
               <StreamingIndicator />
             ) : null}
+            {/* An NHprep lesson card under the reply's fixed text; the chat's latest reply loads it at once. */}
+            {message.metadata?.nhprep && !streaming ? <NhprepSlot card={message.metadata.nhprep} eager={canRegenerate} /> : null}
 
             {phase === "stopping" && <p className="mt-1 text-2xs text-text-secondary">Stopping…</p>}
             {message.status === "cancelled" && <p className="mt-1 text-2xs font-medium text-text-secondary">Stopped</p>}

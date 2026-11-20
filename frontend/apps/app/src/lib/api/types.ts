@@ -701,7 +701,58 @@ export type MessageMetadata = {
   expression?: string;
   /** Client-side, voice turns only (the stream's `speech`): the reply's first words, spoken by the server. */
   speech?: StreamSpeech;
+  /** An NHprep lesson card (features/nhprep): ids only; sent only to accounts NHprep is for. */
+  nhprep?: NhprepCard;
 };
+
+// ------------------------------------------------------------------ NHprep (features/nhprep)
+
+/** What one NHprep reply shows for its lesson, in order. */
+export type NhprepView = "video" | "chapters" | "notes" | "cheat_sheet" | "flashcards" | "interview";
+/** `metadata.nhprep`, pinned by backend/tests/fixtures/nhprep/cards.json: every key is always sent. */
+export type NhprepCard = {
+  version: number; // the client draws 1 only
+  views: NhprepView[];
+  status: "confident" | "ambiguous";
+  primaryLessonId: Uuid;
+  alternativeLessonIds: Uuid[]; // ≤5, ranked
+  /** A section (or item) the question named. */
+  matchedItemId: Uuid | null;
+};
+export type NhprepItemKind = "note" | "flashcard" | "cheat_sheet" | "interview_question";
+/** present: imported; absent: NHprep has none; unavailable/error: NHprep has some that couldn't be brought over. */
+export type NhprepAvailability = "present" | "absent" | "unavailable" | "error";
+/** Whether this lesson's video can play here (the URL itself only ever comes from POST …/playback). */
+export type NhprepVideoState = "ready" | "no_video" | "not_configured";
+export type NhprepLessonSummary = {
+  id: Uuid;
+  title: string;
+  course: { id: Uuid; title: string };
+  trainers: string[];
+  position: number;
+  lessonCount: number;
+  durationSeconds: number | null;
+};
+/** GET /v1/nhprep/lessons?ids=: in the order asked; a missing or removed lesson is left out. */
+export type NhprepLessonList = { items: NhprepLessonSummary[] };
+export type NhprepSection = { id: Uuid; title: string; startSeconds: number | null };
+export type NhprepLesson = NhprepLessonSummary & {
+  description: string | null;
+  chapters: NhprepSection[];
+  availability: Partial<Record<NhprepItemKind, NhprepAvailability>>;
+  previousLessonId: Uuid | null;
+  nextLessonId: Uuid | null;
+  video: NhprepVideoState;
+  /** Removed from NHprep since it was imported (the title is kept). */
+  removed?: boolean;
+};
+/** flashcard: title = front, bodyMd = back. interview_question: title = question, bodyMd = answer. */
+export type NhprepItem = { id: Uuid; kind: NhprepItemKind; title: string | null; bodyMd: string | null };
+export type NhprepItemList = { items: NhprepItem[] };
+/** POST …/playback (no-store): a short-lived https://videos.nhprep.com/{videoId}.mp4 link, or why not. */
+export type NhprepPlayback =
+  | { status: "ready"; src: string; expiresIn: number }
+  | { status: "unavailable"; reason: "not_configured" | "no_video" | "signing_failed" };
 
 // --------------------------------------------------------- practice tests
 
