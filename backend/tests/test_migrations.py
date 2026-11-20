@@ -867,8 +867,9 @@ def test_migration_0027_adds_the_nhprep_tables_and_refuses_to_drop_imports():
         assert embedding[0]["t"] == "vector(1536)"
         generated = run(
             _query(
-                "SELECT attname, attgenerated FROM pg_attribute WHERE attname IN ('content_tsv', 'video_embed_url') "
-                "AND attrelid IN ('nhprep_search_chunks'::regclass, 'nhprep_lessons'::regclass)"
+                # attgenerated is "char": asyncpg returns it as bytes, so compare its text
+                "SELECT attname, attgenerated::text AS attgenerated FROM pg_attribute "
+                "WHERE attname IN ('content_tsv', 'video_embed_url') AND attrelid IN ('nhprep_search_chunks'::regclass, 'nhprep_lessons'::regclass)"
             )
         )
         assert {(row["attname"], row["attgenerated"]) for row in generated} == {

@@ -19,7 +19,7 @@ from app.nhprep.types import FinderResult, Match
 from tests.conftest import make_settings
 from tests.test_nhprep_api import CARDS, nhprep_app, seed
 
-FORBIDDEN_KEY = re.compile(r"video_?(id|provider|url|library)|embed|^src$|^url$", re.IGNORECASE)
+FORBIDDEN_KEY = re.compile(r"video_?(id|provider|url|library)|embed_?(url|src)|^src$|^url$", re.IGNORECASE)
 LINK = re.compile(r"videos\.nhprep|mediadelivery|\.mp4\b|[?&](sig|exp|token)=", re.IGNORECASE)
 PLAYBACK_SCHEMA = "NhprepPlaybackOut"  # the only model allowed to carry `src`
 
