@@ -32,6 +32,18 @@ embeddings providers, the local security gate, Graphify, and NetSec's isolated d
    - **A lab block** (today `:::steps` and code Copy cover it).
    - **Video from the File Library.**
    - **Spaced repetition** for flashcards.
+9. **NHprep video courses** ([docs/nhprep.md](docs/nhprep.md); built on the `nhprep` branch 2026-11-19/20, not
+   released). Done: the exporter and a full export (59 courses, 914 lessons; quiz keys for the bank), schema 0027
+   and the importer, the cue parse and finder, `/v1/nhprep`, the chat card turn, the cards and native player.
+   Follow-ups:
+   - **Video signing:** the company chooses (A) NHprep's signing secret or (B) a signing endpoint; then the signer
+     (about 20 lines plus a pinned test vector) and live playback checks. Until then videos say they aren't
+     available.
+   - **Gate G4:** a frozen held-out split, the dense leg with real embeddings (offline embed on the host), and the
+     host latency run.
+   - **Release:** D4 (production disk) and an agreed window with the bank's release; then R1 (code, `NHPREP_MODE`
+     off), R2 (host import, `qa`), and `on`, each with the owner's authorization.
+   - Captions (none yet), and later NHprep sections (labs, other course types).
 
 ## Standing follow-ups
 

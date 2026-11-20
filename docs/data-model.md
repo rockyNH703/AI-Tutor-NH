@@ -114,6 +114,20 @@ no user column, or a `NULL` owner.
 | `qb_sets` | A practice set or test, including a test in the chat (mode `chat`) |
 | `qb_set_items` | A question served in a set, and the student's answer, graded by the database and final once given |
 
+**NHprep video courses** ([nhprep.md](nhprep.md); migration `0027_nhprep_video_courses`, 2026-11-20, not released)
+
+App-level content: no table references `users`. Written only by `scripts/nhprep_import.py`, read only by
+`app/nhprep`; NHprep text never goes into `document_chunks`.
+
+| Table | Holds |
+|---|---|
+| `nhprep_sync_runs` | One row per import `--apply` or `--purge` (a dry run records nothing): status, operator, manifest sha256, access and egress basis, a counts-only report. Never deleted |
+| `nhprep_courses` | A video course as exported (slug, title, description, optional track), with `content_hash` and `removed_at` |
+| `nhprep_trainers`, `nhprep_course_trainers` | Trainers resolved through the alias table, linked to their courses |
+| `nhprep_lessons` | A lesson: course, position, the upload's day, title, slug, duration, the video reference (`video_provider`, `video_id`; never a URL or signature), study-aid availability, `content_hash`, `removed_at` |
+| `nhprep_lesson_items` | A study aid: a note, chapter (with `start_seconds`), flashcard, cheat-sheet line or interview question |
+| `nhprep_search_chunks` | NHprep's own search index: text derived from a lesson or its items, with its embedding and a generated english `tsvector`. Derived data |
+
 ## Relationships (ER diagrams)
 
 Only keys and relationships are shown; `models.py` has every column.
@@ -181,6 +195,7 @@ erDiagram
 |---|---|---|---|
 | `document_chunks.embedding` | 1536 | HNSW, cosine (`ix_document_chunks_embedding_hnsw`), plus btree `(source_id, embedding_model)` and GIN on metadata | The knowledge base (when the NCERT service is not configured) |
 | `file_chunks.embedding` | 1536 | none: files are searched exactly, per file | A student's attached files |
+| `nhprep_search_chunks.embedding` | 1536 | HNSW, cosine (`ix_nhprep_search_chunks_embedding_hnsw`), plus GIN on `content_tsv` | The NHprep finder (`app/nhprep/search.py`), NetworkersHome students only |
 
 The dimension is fixed at **1536** in three places that a test keeps in sync:
 - `EMBEDDING_DIMENSIONS` in `models.py`;
@@ -239,6 +254,9 @@ different models never mix ([rag.md](rag.md), "Embeddings").
 | `0017_learning_engine` | the adaptive tests' ledger and the practice record |
 
 The "Adds" column summarises each migration from its name and the tables it creates; the files are the authority.
+Later revisions are not listed here yet; among them `0027_nhprep_video_courses` adds the `nhprep_*` tables above
+(after `0026_qbank_certification`; `pg_trgm` created if missing and never dropped; its downgrade refuses while
+NHprep rows exist).
 
 **Rules:**
 - Migrations are written by hand and must be **backward compatible**: production runs them before it switches to

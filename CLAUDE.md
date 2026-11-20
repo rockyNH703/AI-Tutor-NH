@@ -39,6 +39,9 @@ Honest state (2026-10-29):
   - **Audience:** NHprep-derived questions are for NetworkersHome students only (`NHPREP_ALLOWED_EMAIL_DOMAINS`).
   - **Host import:** `scripts/import_questions.py ../qbank --apply` through `systemd-run` with api.env
     (docs/deployment.md), after a deploy that carries new `qbank/` content.
+- **NHprep video courses** (2026-11-20, `nhprep` branch, not released; `NHPREP_MODE` off, no video signer yet):
+  lesson cards in the chat and `/v1/nhprep` for NetworkersHome students. Export, import, finder, playback,
+  runbooks: [docs/nhprep.md](docs/nhprep.md).
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.
 

@@ -17,6 +17,7 @@
 - [Commands](#commands)
 - [End-to-end tests](#end-to-end-tests)
 - [The learning suite](#the-learning-suite)
+- [NHprep](#nhprep)
 - [Model behaviour and production checks](#model-behaviour-and-production-checks)
 - [CI](#ci)
 - [Writing a test](#writing-a-test)
@@ -215,6 +216,20 @@ proven on 2026-11-18 (`stack.learning.ts`, a build run and a rerun).
   `C:\Users\test\Desktop\netsec-learning-evidence\runs\<UTC time>\` (`EVIDENCE_DIR` in `e2e/learning/env.ts`):
   `results\` holds videos, screenshots and traces on failure, and `report\` the HTML report
   (`bunx playwright show-report <dir>`). A `--list` run leaves an empty report folder; delete it.
+
+## NHprep
+
+NHprep video courses ([nhprep.md](nhprep.md#qa-and-tests), in the `nhprep` worktree, 2026-11-20) have their own
+lanes:
+- **Backend:** `tests/test_nhprep_*.py` plus the NHprep cases in `test_architecture_guards.py`,
+  `test_authorization.py` and `test_migrations.py`, in WSL on the databases `netsec_nhprep_*_test` (one per lane).
+- **Web app:** `src/features/nhprep/*.test.tsx` and `src/lib/api/nhprep.test.ts` in the usual `bun run test`; the
+  exporter's tests are separate: `bun test scripts/nhprep-export` from `frontend/apps/app`.
+- **End to end:** `playwright.nhprep.config.ts` (`e2e/nhprep/*.nhprep.ts`, headed, ports 3220/3221/4220, database
+  `netsec_nhprep_e2e_test`), run under Node: `node ../../node_modules/@playwright/test/cli.js test -c
+  playwright.nhprep.config.ts`. The default and learning configs list none of its files.
+- **Eval:** `backend/scripts/eval_nhprep.py` on `evals/nhprep/dev.jsonl` (the development split; the held-out split
+  does not exist yet).
 
 ## Model behaviour and production checks
 

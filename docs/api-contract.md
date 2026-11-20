@@ -299,7 +299,8 @@ A title the user set is never changed.
 | DELETE | `/v1/conversations/{id}` | 204; messages and feedback are deleted with it |
 | GET | `/v1/conversations/{id}/messages?limit=50&before=` | oldest-first page; `nextCursor` loads older messages |
 
-Message: `{id, conversationId, role: user|assistant, content, status, createdAt, metadata: {model?, errorCode?, finishReason?, citations?, assessments?, assessmentError?}}`.
+Message: `{id, conversationId, role: user|assistant, content, status, createdAt, metadata: {model?, errorCode?, finishReason?, citations?, assessments?, assessmentError?, nhprep?}}`.
+`nhprep`: an NHprep lesson card ([NHprep video courses](#nhprep-video-courses); additive, 2026-11-20).
 `assessments` and `assessmentError`: a reply's practice test (below, [Practice tests](#practice-tests); additive, 2026-10-01).
 `citations` (a reply whose prompt numbered sources or attached files; additive, 2026-09-30):
 `[{ref: "1" | "F1", kind: "source" | "file", title, fileId?}]`, what the reply's `[1]` and `[F1]`
@@ -558,6 +559,35 @@ and nothing is sent to OllaLink.
   8000 characters of speech per reply (429). OllaLink failing is 503 `voice_unavailable`.
 - Nothing is stored: not the audio, not the speech. Logs carry sizes and times only. A client that goes away
   cancels its OllaLink call.
+
+## NHprep video courses
+
+NHprep's video lessons and study aids (`app/nhprep`, [nhprep.md](nhprep.md); additive, 2026-11-20, not released).
+For NetworkersHome students only: a verified address at `NHPREP_ALLOWED_EMAIL_DOMAINS`, as `NHPREP_MODE` allows
+(`off`, `qa` with `NHPREP_QA_EMAILS`, `on`). For anyone else, and for everyone while `NHPREP_MODE=off`, every route
+is 404 `not_found` before any id, query or body is validated. Ids are NetSec's own UUIDs: no response carries an
+NHprep id or page URL, and only the playback POST carries a video link.
+
+**The card.** A typed chat message that asks for an NHprep lesson or its study aids (after the question bank's
+parse) can be answered by the server itself: the reply's `content` is a fixed line, and `metadata.nhprep` is the
+card, every key always present (pinned by `backend/tests/fixtures/nhprep/cards.json`):
+
+`{version: 1, views: ("video"|"chapters"|"notes"|"cheat_sheet"|"flashcards"|"interview")[], status: "confident"|"ambiguous", primaryLessonId, alternativeLessonIds (0-5), matchedItemId | null}`
+
+`metadata.nhprep` is sent only to a reader NHprep is for now (in `done` and in message lists). For a reader who is
+not a NetworkersHome student the whole reply is `content: "This reply isn't available."` with empty `metadata`. A
+client that sees another `version` shows a reload line. Regenerating a card reply runs the search again.
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/v1/nhprep/lessons?ids=` | – | `{items: [{id, title, course: {id, title}, trainers: [string], position, lessonCount, durationSeconds}]}`: `ids` is 1-10 comma-separated lesson ids in one value; in the order asked, a missing or removed lesson left out |
+| GET | `/v1/nhprep/lessons/{lesson_id}` | – | A summary plus `{description, chapters: [{id, title, startSeconds}], availability: {note, flashcard, cheat_sheet, interview_question: "present"\|"absent"\|"unavailable"\|"error"}, previousLessonId, nextLessonId, video: "ready"\|"no_video"\|"not_configured", removed}`. A removed lesson keeps its title, with no chapters and `video` not ready |
+| GET | `/v1/nhprep/lessons/{lesson_id}/items?kind=` | – | `{items: [{id, kind, title, bodyMd}]}` for `kind` `note`, `flashcard` (front, back), `cheat_sheet` or `interview_question` (question, then the model answer with its scenario first); Markdown; 404 for a removed lesson |
+| POST | `/v1/nhprep/lessons/{lesson_id}/playback` | – | `{status: "ready", src, expiresIn}` (seconds) or `{status: "unavailable", reason: "not_configured"\|"no_video"\|"signing_failed"}`; `Cache-Control: no-store`. `src` is always `https://videos.nhprep.com/{videoId}.mp4?…`, short-lived: ask again on Play, never store or log it. Until a signer is configured every video is `not_configured` |
+
+- Limits per student: 600 requests a minute on these routes, of which 20 playbacks (429 `rate_limited`).
+- Clients check `src`'s origin and path again before playing it, and on a playback error (an expired link answers
+  410) ask for one new link before showing a reload control.
 
 ## Health
 

@@ -141,7 +141,7 @@ which steps need the owner's approval?
 | `Status: MATCH` and a healthy `bun run status:netsec` after a deploy | **Mandatory** ([checklist](production-security-checklist.md#release-acceptance)) |
 | GitHub Actions CI | **Advisory, and not running** (the account is out of credit). Report it as NOT RUN |
 | Deploying to production, changing the host, running migrations outside a deploy | **Needs the owner's explicit approval** |
-| Turning on a switch in production (`MEMORY_RECALL_ENABLED`, `MEMORY_AUTOMATIC_PROPOSALS`, the jobs timer, `NOTIFICATIONS_MODE`, `INTENT_ROUTER`, `STUDY_SCOPE`, `VOICE_MODE`) | **Needs the owner's explicit approval** |
+| Turning on a switch in production (`MEMORY_RECALL_ENABLED`, `MEMORY_AUTOMATIC_PROPOSALS`, the jobs timer, `NOTIFICATIONS_MODE`, `INTENT_ROUTER`, `STUDY_SCOPE`, `VOICE_MODE`, `NHPREP_MODE` `qa` or `on`, `NHPREP_PLAYBACK` once a signer exists; [nhprep.md](../nhprep.md)) | **Needs the owner's explicit approval**. `NHPREP_MODE=off` is the NHprep kill switch (cards, turn and routes off after a restart) |
 | Deleting or restoring production data | **Needs the owner's explicit approval**, with a backup first |
 | Rotating a secret | **Needs the owner's explicit approval** ([how](production-security-checklist.md#rotating-a-key)) |
 | Using the gate override | **Needs the owner's explicit approval**; the reason goes in the release notes |

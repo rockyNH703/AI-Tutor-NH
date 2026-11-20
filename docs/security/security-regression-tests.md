@@ -18,6 +18,7 @@ the assertion, unless the property itself changed on purpose (and then update [T
 - [Secret masking and log hygiene](#secret-masking-and-log-hygiene)
 - [The assistant's behaviour](#the-assistants-behaviour)
 - [The BFF and the browser](#the-bff-and-the-browser)
+- [NHprep video courses](#nhprep-video-courses)
 - [Deploy scripts and tooling](#deploy-scripts-and-tooling)
 - [Known gaps](#known-gaps)
 
@@ -187,6 +188,29 @@ it if its name ended in `_test`.
 | `src/lib/api/sse.test.ts` | The SSE parser's framing (a reply cannot forge an event) | — |
 | `frontend/apps/app/e2e/security.e2e.ts` | In a browser: security headers, no redirect to another site after sign-in, the proxy refusing other origins, unknown routes and oversized bodies | Needs the e2e stack |
 
+## NHprep video courses
+
+Added 2026-11-20 on the `nhprep` branch (not released; [nhprep.md](../nhprep.md#qa-and-tests)). Backend files run in
+WSL on a `netsec_nhprep_*_test` database; the e2e files need the NHprep stack.
+
+| Test | What it proves | Evidence |
+|---|---|---|
+| `test_nhprep_access.py::test_nhprep_allows`, `::test_no_domain_list_means_nobody` | NHprep is for verified NetworkersHome students only, `qa` narrows to its list and never widens, no domain list means nobody | — |
+| `test_nhprep_api.py::test_every_route_is_a_404_before_validation_for_anyone_nhprep_is_not_for`, `::test_mode_off_and_qa_narrow_who_nhprep_is_for`, `::test_reads_are_limited_per_user_and_an_outsider_never_takes_a_slot`; `test_authorization.py::test_nhprep_is_a_404_for_an_account_it_is_not_for` | Every `/v1/nhprep` route is a 404 for anyone else, before any id, query or body is checked, and spends no rate-limit slot | — |
+| `test_nhprep_api.py::test_lesson_detail_has_its_course_neighbours_sections_and_study_aids_but_no_nhprep_ids_or_links`, `::test_a_removed_lesson_keeps_its_title_and_nothing_else` | No GET carries an NHprep id, page URL or video link; a removed lesson shows its title only | — |
+| `test_nhprep_playback.py::test_a_ready_link_is_sent_uncached_and_never_logged`, `::test_only_a_link_to_this_video_on_nhpreps_video_host_passes`, `::test_a_bad_or_failed_signature_is_signing_failed_never_a_500`, `::test_playbacks_have_their_own_lower_limit_per_user` | A video link leaves only as `https://videos.nhprep.com/{videoId}.mp4?…`, with `no-store`, never in a log; anything else is `signing_failed` | Fake signer only |
+| `test_nhprep_playback.py::test_no_signer_can_be_switched_on_before_it_exists`, `::test_qa_mode_needs_its_list_in_production` | Production refuses `NHPREP_PLAYBACK` other than `off`, and `qa` without a list | — |
+| `test_nhprep_chat.py::test_nhprep_is_never_asked_for_an_account_it_is_not_for`, `::test_the_card_is_shown_only_to_a_reader_nhprep_is_for`, `::test_the_bank_parse_comes_first`, `::test_only_a_typed_message_without_files_can_be_an_nhprep_turn` | The card turn and stored cards follow the same rule per reader; the bank decides first; voice and attachments never become a card turn | — |
+| `test_nhprep_chat.py::test_a_confident_match_is_a_fixed_line_and_the_cards_ids_with_no_model_call`, `::test_the_fixed_copy_is_plain_text_that_never_becomes_a_practice_test`, `::test_no_nhprep_log_line_holds_the_students_words` | A card reply is a fixed line plus ids, with no model call and no NHprep text; logs hold ids and codes only | — |
+| `test_nhprep_import.py::test_normalisation_neutralises_widgets_directives_invisible_characters_and_nhprep_links`, `::test_a_video_is_a_stable_reference_never_a_url_or_signature`, `::test_read_export_checks_bytes_counts_and_completeness_and_counts_rejects` | Imported text can't carry a widget, directive, invisible character or nhprep.com link; a video with a URL or signature is refused; the bytes must match the manifest | — |
+| `test_nhprep_import.py::test_a_second_import_waits_for_nobody_it_refuses_while_the_lock_is_held`, `::test_a_lost_lock_stops_the_run_marks_it_failed_and_a_rerun_completes`, `::test_removals_need_a_complete_export_and_a_mass_removal_needs_allow_removals`, `::test_refusals_capacity_and_egress_basis_write_nothing`, `::test_purge_deletes_the_catalogue_and_keeps_the_audit` | One import at a time; removals and mass removals are guarded; capacity and a missing egress basis refuse before any write; a purge keeps the audit | — |
+| `test_nhprep_schema.py::test_the_embed_url_is_generated_canonical_and_cannot_be_written`, `::test_no_nhprep_table_holds_user_data`; `test_migrations.py::test_migration_0027_adds_the_nhprep_tables_and_refuses_to_drop_imports` | No URL can be written into the catalogue; NHprep holds no user data; 0027 is additive and its downgrade refuses while imports exist | `test_migrations.py` needs a booked slot; not recorded as run in the branch's commits |
+| `test_architecture_guards.py::test_nhprep_stays_out_of_the_shared_knowledge_store_the_model_and_the_chat`, `::test_advisory_lock_keys_are_unique_across_the_app` | `app/nhprep` never imports the chat, a model, the shared knowledge store or an HTTP client; other modules reach it only through its public modules; the import lock key is its own | — |
+| `src/features/nhprep/nhprep-markdown.test.tsx` | Imported Markdown: links to nhprep.com and its subdomains (not lookalikes) stay text, `javascript:` dropped, images never loaded, raw HTML as text, widget fences stay code | — |
+| `src/features/nhprep/nhprep-panel.test.tsx` "the player's link check" | The client accepts only `https://videos.nhprep.com/{uuid}.mp4` | — |
+| `scripts/nhprep-export/nhprep-export.test.ts` | The exporter's pacing gate, a password in a URL is detected, URLs and JSON are recorded as names and shapes only, the output folder must be outside every git tree, credentials parse without echoing | 14 pass (2026-11-20) |
+| `e2e/security.e2e.ts` (`media-src`), `e2e/nhprep/video.nhprep.ts` | In a browser: media only from `videos.nhprep.com`, no new frame host; nothing loads before Play; the link never reaches the URL or storage | Headed, 14/14 for `e2e/nhprep` (commit `c7bc819`); live playback NOT TESTED |
+
 ## Deploy scripts and tooling
 
 | Test | What it proves | Evidence |
@@ -212,5 +236,7 @@ tests on their own.
 - **Avatar memory:** no peak-memory test with an 8000×5000 RGBA PNG (A-30's verifier suggested one).
 - **Upload slots:** the "body deadline" tests call `readBody` directly; no test shows a slow upload freeing its slot
   through `proxyRequest`.
+- **NHprep:** no signer exists, so no test vector pins one, and live playback against `videos.nhprep.com` is NOT
+  TESTED; the NHprep e2e suite stubs the API in the browser, so the finder is not exercised end to end there.
 - **Sandbox on the host:** `test_files.py` checks the unit's properties, not the host; only
   [`sandbox_probe.py`](../../backend/scripts/sandbox_probe.py), run on the host, proves them.

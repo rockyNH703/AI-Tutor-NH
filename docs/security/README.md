@@ -56,6 +56,7 @@ flowchart LR
     M[Email: SMTP or Ollastack]
     H[HIBP range API, Turnstile, Google]
     Y["YouTube privacy-enhanced player"]
+    V["NHprep video host<br/>(no signer yet)"]
   end
   D["Release workstation<br/>Windows + WSL"]
   B -->|HTTPS| CF --> W
@@ -71,12 +72,15 @@ flowchart LR
   A --> M
   W --> H
   B -.->|framed only after Play| Y
+  B -.->|media, only after Play| V
   D -->|SSH as root, deploy-netsec| Host
 ```
 
 | Boundary | What crosses it | What protects it |
 |---|---|---|
 | Browser → Cloudflare → web app | Everything a user does | HTTPS at Cloudflare's edge. The Quick Tunnel publishes only `127.0.0.1:4300` ([`netsecai-cloudflared.service`](../../deploy-netsec/systemd/netsecai-cloudflared.service)). `__Host-` cookies, CSP and security headers, `Origin` checks on mutations |
+| Browser → `videos.nhprep.com` (NHprep, 2026-11-20, not released) | After Play in an NHprep lesson card: the user's IP address, our origin as the referrer, a short-lived signed link | A native `<video>`, no frame; CSP `media-src 'self' https://videos.nhprep.com`; the link comes only from `POST /v1/nhprep/lessons/{id}/playback` for NetworkersHome students, is checked to be `https://videos.nhprep.com/{videoId}.mp4?…` by the server and again by the client, and is never logged or stored. No signer exists yet (`NHPREP_PLAYBACK=off`), so nothing plays ([THREAT_MODEL.md, B11-B13](THREAT_MODEL.md#trust-boundaries-and-entry-points); [nhprep.md](../nhprep.md)) |
+| Owner's PC → nhprep.com and → host (NHprep export and import) | The exporter's paced, owner-authorised session on the company account; the export bundle and search texts over SSH | Owner-run only; robots.txt override recorded; quiz submits the only writes, in a ledger; credentials read at run time, never in argv or logs; the import checks the bundle's sha256, validates and normalises it, and holds the advisory and deploy locks |
 | Browser → YouTube (2026-11-18) | After Play on a ```` ```video ````: the user's IP address, our origin as the referrer, the chosen video | CSP `frame-src` allows only `https://www.youtube-nocookie.com` besides Turnstile; nothing is fetched before Play; a sandboxed iframe; the id and parameters are validated and set through `URL` ([`video.tsx`](../../frontend/apps/app/src/features/markdown/widgets/video.tsx)). Dormant in production: the model is not taught the block |
 | Web app → API | Allowlisted `/v1` calls | Loopback only (`--host 127.0.0.1 --port 4400`, [`netsecai-api.service`](../../deploy-netsec/systemd/netsecai-api.service)); `Authorization: Bearer`, taken from a cookie whose HMAC is verified first; the API re-checks every request |
 | Better Auth → API | Code and security-notice requests | Loopback `/internal/auth/*`, the shared `AUTH_INTERNAL_TOKEN` compared in constant time ([`internal.py:55`](../../backend/app/auth/internal.py)), and checks that the rows named are real and fresh |
@@ -238,8 +242,9 @@ and [`middleware.ts`](../../frontend/apps/app/src/middleware.ts):
 - The files are `/etc/netsecai/{api,web,postgres,migration}.env`, mode 600, never touched by a deploy. Check the
   mode with `stat`, never by printing them ([production checklist](production-security-checklist.md#secrets-on-the-host)).
 - Nothing secret is ever committed. `.env` files and the key files in the repository root (`dummy_acc.txt`,
-  `git.txt`, `google_auth.txt`, `ollalink.txt`, `ollastack.txt`, `ollima.txt`, `openrouter.txt`) are git-ignored,
-  never opened by tools, and listed again in `.graphifyignore`. `bun run security` runs gitleaks over the tree and
+  `git.txt`, `google_auth.txt`, `NHprep.txt`, `nhprep_google_signin.txt`, `ollalink.txt`, `ollastack.txt`,
+  `ollima.txt`, `openrouter.txt`) are git-ignored, never opened by tools, and covered again by `.graphifyignore`
+  (`*.txt`). `bun run security` runs gitleaks over the tree and
   the whole history ([security-tools.md](security-tools.md)).
 - **Secrets never travel in process arguments**, which any local user can read in `ps` or `/proc/*/cmdline`. The
   deploy's smoke cookie is signed with the secret in Python's environment ([`lib.sh:177-188`](../../deploy-netsec/server/lib.sh),
@@ -435,4 +440,5 @@ The full list, with what each test proves and how to run it, is in
 | Log hygiene | `test_chat.py::test_logs_never_contain_the_question_or_document_text`, plus key checks in `test_intents.py`, `test_email.py`, `test_scope.py`, `test_voice.py`, `test_llm.py` |
 | The proxy, cookies, redirects, middleware and auth allowlist | `frontend/apps/app/src/lib/server/*.test.ts`, `src/lib/auth/*.test.ts`, `src/lib/safe-redirect.test.ts`, `src/middleware.test.ts` |
 | Browser-level protections | `frontend/apps/app/e2e/security.e2e.ts` |
+| NHprep: students only (404 otherwise), cards hidden per reader, video links checked and never logged, imported text neutralised, the package kept out of the model and the shared store | `test_nhprep_access.py`, `test_nhprep_api.py`, `test_nhprep_chat.py`, `test_nhprep_playback.py`, `test_nhprep_import.py`, `test_nhprep_schema.py`, `test_architecture_guards.py`; `nhprep-markdown.test.tsx`, `nhprep-panel.test.tsx`; `e2e/nhprep/*.nhprep.ts` ([nhprep.md](../nhprep.md#qa-and-tests)) |
 | Deploy: the gate receipt, secrets out of argv, namespace isolation, the legacy guard | `deploy-netsec/tests/*.test.mjs` |
