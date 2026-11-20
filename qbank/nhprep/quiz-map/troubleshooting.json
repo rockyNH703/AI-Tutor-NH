@@ -1,0 +1,168 @@
+{
+ "category": "troubleshooting",
+ "book_id": "troubleshooting",
+ "questions": {
+  "981a4665-9a9c-4e39-bb9f-ca6c9f9b8d11": {
+   "topic_id": "TROUBLESHOOTING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9c4b75a7-711a-45ec-af35-9e842e041f93": {
+   "topic_id": "TROUBLESHOOTING-D3-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "c5d487de-e537-494b-9be2-098c43cf0a50": {
+   "topic_id": "TROUBLESHOOTING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fb1babe3-bd3d-44c7-a209-31fa8c7a9e58": {
+   "topic_id": "TROUBLESHOOTING-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "1bafcee0-2cee-4d08-a750-0893d7a6e47c": {
+   "topic_id": "TROUBLESHOOTING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9fe359c5-fdd5-4584-aca9-f94e0632baba": {
+   "topic_id": "TROUBLESHOOTING-D2-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "efb290f5-7172-4ef2-ac36-d5a257a7ea71": {
+   "topic_id": "TROUBLESHOOTING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "682e45b3-f10f-4771-8614-a30b3027e57d": {
+   "topic_id": "TROUBLESHOOTING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "02bb7b2c-f40e-4a1e-b431-da4ba2d459b3": {
+   "topic_id": "TROUBLESHOOTING-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "e55c1e77-97ee-40c4-98a4-7f1cc4584b06": {
+   "topic_id": "TROUBLESHOOTING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "1ff946b5-3b77-4a37-b3e3-85a363fce989": {
+   "topic_id": "TROUBLESHOOTING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9b7118c2-58f0-4496-b08f-e61d1b467415": {
+   "topic_id": "TROUBLESHOOTING-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8c72d82f-d11d-4e08-b4b4-697bd774b075": {
+   "topic_id": "TROUBLESHOOTING-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): A cache entry goes stale because the record was updated while the cached copy was still valid (D); not querying recently does not cause staleness.; A cache entry is stale because the record changed (D) before its TTL expired; not querying"
+  },
+  "05dbf29f-22a1-4d9e-ba5c-95af490997d5": {
+   "topic_id": "TROUBLESHOOTING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "97f51946-1697-4fcb-9a08-3d21f84b6611": {
+   "topic_id": "TROUBLESHOOTING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "77689915-59dd-4776-95a7-728996ac0ae8": {
+   "topic_id": "TROUBLESHOOTING-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "dc6dfc67-6e85-4835-b1a8-dec7688cd25f": {
+   "topic_id": "TROUBLESHOOTING-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "0dac41eb-b3d2-4499-bf75-213fe1189066": {
+   "topic_id": "TROUBLESHOOTING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b8566564-eb5f-4020-9d40-ecec591dece9": {
+   "topic_id": "TROUBLESHOOTING-D3-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "097ed8e5-1f57-423e-8bce-505e31709d25": {
+   "topic_id": "TROUBLESHOOTING-D3-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "9cf7e9f4-3d67-4e3a-9c9d-9a00878b1511": {
+   "topic_id": "TROUBLESHOOTING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8e0f1f32-5e02-44e7-92ee-d85f9d578361": {
+   "topic_id": "TROUBLESHOOTING-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "fbc792fa-dd55-4508-b1fc-2befa26a2d8e": {
+   "topic_id": "TROUBLESHOOTING-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e6986789-73c2-479e-b94a-2afabfe4fc9c": {
+   "topic_id": "TROUBLESHOOTING-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9f6a27d8-8ee5-44ce-9576-35473951c738": {
+   "topic_id": "TROUBLESHOOTING-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "ea5aedc0-d646-47d9-8b81-e7c95dae59ac": {
+   "topic_id": "TROUBLESHOOTING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c210c784-36b9-4c47-986d-98e87fd53b9a": {
+   "topic_id": "TROUBLESHOOTING-D2-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "b22ef8d0-ec93-4176-b3af-e9314d6e0b6f": {
+   "topic_id": "TROUBLESHOOTING-D2-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "a4870024-0172-4c1a-8b25-0324bef90aee": {
+   "topic_id": "TROUBLESHOOTING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3866f3b9-315c-4e45-9c93-49e3b4a0cd0b": {
+   "topic_id": "TROUBLESHOOTING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fefabf45-9d5f-419a-b7b8-df4b4d964de6": {
+   "topic_id": "TROUBLESHOOTING-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Dirty connectors typically cause attenuation and intermittent errors (D) rather than a complete loss of light.; Dirty connectors usually add attenuation and cause errors or intermittent loss (D) more often than a complete loss of lig"
+  },
+  "47ad167f-0d20-405e-ac6c-d40cd9d93fa1": {
+   "topic_id": "TROUBLESHOOTING-D3-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

@@ -1,0 +1,165 @@
+{
+ "category": "security-interview",
+ "book_id": "security_interview",
+ "questions": {
+  "ce9626a3-f3cf-4a06-9b5f-785aa1c1de42": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2a7ff681-1a51-4ac1-b4a8-102f51f8f00f": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "29a389e9-8339-42fa-b205-55dbabc68177": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5c537ac4-3f11-4973-9425-21a425ecee2b": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "53c20b20-de97-4f56-8766-fc799656391d": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "1ca983c6-1caa-47c5-abb1-e520ab8047b1": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): ClientHello also carries a session ID, so B is equally correct.; ClientHello also carries the session ID (B) and, in TLS 1.3, the client's key_share (D)."
+  },
+  "cf8b38a1-b93e-469b-9d89-ab73f1688231": {
+   "topic_id": "SECURITY-INTERVIEW-D4-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): sestatus reports SELinux status at least as directly as getenforce.; sestatus reports the current SELinux status at least as directly as getenforce."
+  },
+  "f8e8f0ad-fa2b-4211-a778-d9c01d2e8cc4": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "c66e315b-1c3d-4547-b929-47a203cb5d27": {
+   "topic_id": "SECURITY-INTERVIEW-D4-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): getent passwd lists all users as well as (or more completely than) cat /etc/passwd.; getent passwd lists all users (including NSS/directory users) at least as well as cat /etc/passwd."
+  },
+  "1c49b44f-fbf8-468c-ab7a-e69360d5ef6c": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1799fa32-ab07-40d2-af65-d3b92ff145f4": {
+   "topic_id": "SECURITY-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "09c8853b-3074-4aaa-bfdd-d6ae87e89cf7": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "89df2e07-9db8-4fb8-ab4b-59b9adfaaac8": {
+   "topic_id": "SECURITY-INTERVIEW-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "27a8ae12-ee00-440f-b9c0-6cc6195a0d0d": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "084fd975-bb97-484e-84e1-7f379e707f55": {
+   "topic_id": "SECURITY-INTERVIEW-D4-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): The stem names no firewall, so iptables -L and firewall-cmd --state are equally valid.; The stem names no firewall, so firewall-cmd --state and iptables -L are as valid as ufw status."
+  },
+  "3992c84d-53fd-4e7d-87f6-801d4e10ab7b": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6758a2cf-b239-43e9-9c7e-65b95b00f106": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c6f0190b-a33c-4884-a301-d66d8587f7d9": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fac3cceb-e025-49ff-8cbc-ee35bfa838b2": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "aa8e16ae-6a76-47a7-8599-bdb710c84cae": {
+   "topic_id": "SECURITY-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "31d512be-0a1e-4619-bd3b-061cf2cd6964": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "84ed893f-2f39-4fa2-866d-5a1d1ce454d5": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e3f5a2aa-657d-4884-b7f7-1ab98420af11": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "db8b2035-917c-43e8-a38d-afefb78f5fb4": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "30fee3b6-b2b8-4098-8ff5-2512cbbc348c": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "150aa0df-a776-4070-a24b-9c4313659a58": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "26fa1c13-5fd9-4c0a-8b54-b2cbc720c16c": {
+   "topic_id": "SECURITY-INTERVIEW-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "59228f1a-d3da-43eb-8bb8-04ed71f7b8c3": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f8139209-4a76-4163-8b9e-3446532543b8": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "955017ee-59f8-4c44-aa1c-2b69ce27dbdd": {
+   "topic_id": "SECURITY-INTERVIEW-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2e8bd397-8a8a-4a73-99c4-286a4b3e7ee2": {
+   "topic_id": "SECURITY-INTERVIEW-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

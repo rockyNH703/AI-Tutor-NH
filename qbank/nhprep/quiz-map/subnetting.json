@@ -1,0 +1,167 @@
+{
+ "category": "subnetting",
+ "book_id": "subnetting",
+ "questions": {
+  "f504fa5a-dcf4-40c6-b6c8-315c154ed941": {
+   "topic_id": "SUBNETTING-D1-T01",
+   "difficulty": "easy",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): 00011111 equals 31 (option B), not 15.; 00011111 equals 31 (option B), not 15."
+  },
+  "69eb7f49-c32c-4763-a86a-ca644787c5af": {
+   "topic_id": "SUBNETTING-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "707883ae-cf6c-4dd7-b715-6df755ff0187": {
+   "topic_id": "SUBNETTING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "5b6c5a60-81b3-4b10-90b1-22d1d47ea99d": {
+   "topic_id": "SUBNETTING-D2-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "e79582e2-1eb2-4e33-92a3-87cafe2b7e3f": {
+   "topic_id": "SUBNETTING-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "12e70c24-5c7b-4804-8e3f-001b06cdf711": {
+   "topic_id": "SUBNETTING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a5896877-cc1c-40d7-b05e-41769f3c5b4c": {
+   "topic_id": "SUBNETTING-D2-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "4ad8d5f4-779a-4f76-b054-ceb93b4749ec": {
+   "topic_id": "SUBNETTING-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "fb707c03-f383-42ca-aa3a-d0fa07300851": {
+   "topic_id": "SUBNETTING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0b944b64-6112-48ec-93fd-dc1fb8cc6beb": {
+   "topic_id": "SUBNETTING-D2-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "62d79fb1-7967-401e-8751-6b43baedf8b5": {
+   "topic_id": "SUBNETTING-D2-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e956b3a6-8df0-492b-b698-839d8cc2fea8": {
+   "topic_id": "SUBNETTING-D2-T04",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): 172.16.10.25/20 is in 172.16.0.0/20, so the first usable host is 172.16.0.1 (option A).; 172.16.10.25/20 is in 172.16.0.0/20, so the first usable host is 172.16.0.1 (option A)."
+  },
+  "f1539ecc-c7ba-4bf2-9d0b-87bb362ecb71": {
+   "topic_id": "SUBNETTING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8f4476c5-08bf-4051-a313-ad655a3b7c67": {
+   "topic_id": "SUBNETTING-D3-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): A /30 provides exactly 2 usable hosts, so /30 is the right size, not /29.; A /30 gives exactly 2 usable hosts, so /30 (option A) is the right size."
+  },
+  "418e346f-61d2-48dc-ab30-2847863e59a5": {
+   "topic_id": "SUBNETTING-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "9b48120a-96ed-4e26-ba4a-2a5090aa7cba": {
+   "topic_id": "SUBNETTING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "13cbbd66-5bc4-411f-b93e-18f5b907c348": {
+   "topic_id": "SUBNETTING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6d9f167e-0003-42ce-bc5e-22be543c3832": {
+   "topic_id": "SUBNETTING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Both A and C give enough hosts for every department, so two options work.; Both A (/24,/26,/27,/28) and C (/24,/25,/26,/28) give enough hosts for every department."
+  },
+  "03567a95-c366-4f1f-9661-f85797703065": {
+   "topic_id": "SUBNETTING-D2-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "747c01d9-010a-4d7f-95d8-ce95b667763c": {
+   "topic_id": "SUBNETTING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "71ee73e1-d946-4a91-b8a0-216e21549078": {
+   "topic_id": "SUBNETTING-D2-T04",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "845061e5-e0b6-4b1a-89f4-d2c5c8201e94": {
+   "topic_id": "SUBNETTING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): 11001001 equals 201 (option A), not 157.; 11001001 equals 201 (option A), not 157."
+  },
+  "6f03bc6d-309c-4a54-8a90-f4e40b4b2eaf": {
+   "topic_id": "SUBNETTING-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "5ea9f8d5-d570-486e-8f31-8a2cce7d88c3": {
+   "topic_id": "SUBNETTING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c09858a5-aa7f-467b-b41e-93580e23e28c": {
+   "topic_id": "SUBNETTING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "98a55e77-cf97-4de7-b9cc-833e878adb37": {
+   "topic_id": "SUBNETTING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "97e303cb-35f9-41b5-9d70-388f69cfc914": {
+   "topic_id": "SUBNETTING-D2-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): The 2^n-2 trick gives 30 hosts for a /27 (option C), as the explanation itself says.; A /27 has 30 usable hosts (2^5-2, option C), as the explanation itself computes."
+  },
+  "922ff016-e5de-482b-ae6c-38578a4aa280": {
+   "topic_id": "SUBNETTING-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "86f29bd0-0749-48be-9033-8607045eed2f": {
+   "topic_id": "SUBNETTING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "207068e1-ae2f-4a6e-a0c1-b59c1b043583": {
+   "topic_id": "SUBNETTING-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "2242ad7a-6b74-4089-afac-63842a55706f": {
+   "topic_id": "SUBNETTING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

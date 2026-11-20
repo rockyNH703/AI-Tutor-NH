@@ -1,0 +1,256 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "compliance_frameworks",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Security Compliance and Frameworks",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "COMPLIANCE-FRAMEWORKS-D1",
+   "chapter_number": 1,
+   "title": "Security frameworks and standards",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T01",
+     "topic_number": 1,
+     "title": "ISO 27001 ISMS, risk treatment and Annex A controls",
+     "aliases": [
+      "iso 27001",
+      "iso/iec 27001",
+      "isms",
+      "information security management system",
+      "annex a",
+      "annex a controls",
+      "iso 27002",
+      "risk treatment plan",
+      "statement of applicability"
+     ],
+     "paraphrases": [
+      "The purpose of an ISO 27001 information security management system, its risk assessment and treatment process, and the Annex A control set."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The purpose of an ISO 27001 information security management system, its risk assessment and treatment process, and the Annex A control set."
+      }
+     ]
+    },
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T02",
+     "topic_number": 2,
+     "title": "NIST Cybersecurity Framework core functions",
+     "aliases": [
+      "nist csf",
+      "nist cybersecurity framework",
+      "identify protect detect respond recover",
+      "csf functions",
+      "csf 2.0",
+      "nist csf identify",
+      "nist csf protect",
+      "nist csf detect",
+      "govern function"
+     ],
+     "paraphrases": [
+      "What each NIST CSF function (Identify, Protect, Detect, Respond, Recover, and Govern in CSF 2.0) is responsible for and which activities belong to it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What each NIST CSF function (Identify, Protect, Detect, Respond, Recover, and Govern in CSF 2.0) is responsible for and which activities belong to it."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "COMPLIANCE-FRAMEWORKS-D2",
+   "chapter_number": 2,
+   "title": "Privacy and industry regulations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D2-T01",
+     "topic_number": 1,
+     "title": "GDPR data subject rights, lawful bases and breach notification",
+     "aliases": [
+      "gdpr",
+      "general data protection regulation",
+      "right to erasure",
+      "right to be forgotten",
+      "lawful basis",
+      "data subject rights",
+      "72 hour breach notification",
+      "gdpr breach notification",
+      "eu data protection"
+     ],
+     "paraphrases": [
+      "The rights GDPR gives individuals, the lawful bases for processing personal data, and the deadline for notifying a supervisory authority of a breach."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The rights GDPR gives individuals, the lawful bases for processing personal data, and the deadline for notifying a supervisory authority of a breach."
+      }
+     ]
+    },
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D2-T02",
+     "topic_number": 2,
+     "title": "PCI DSS requirements for protecting cardholder data",
+     "aliases": [
+      "pci dss",
+      "pci-dss",
+      "payment card industry data security standard",
+      "cardholder data",
+      "chd",
+      "pci requirements",
+      "12 pci requirements",
+      "card data protection"
+     ],
+     "paraphrases": [
+      "The PCI DSS requirements that organisations handling payment cards must meet to protect cardholder data."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The PCI DSS requirements that organisations handling payment cards must meet to protect cardholder data."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "COMPLIANCE-FRAMEWORKS-D3",
+   "chapter_number": 3,
+   "title": "Audit and assurance",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T01",
+     "topic_number": 1,
+     "title": "SOC 2 reports and trust services criteria",
+     "aliases": [
+      "soc 2",
+      "soc2",
+      "soc 2 type 1",
+      "soc 2 type 2",
+      "type i vs type ii",
+      "trust services criteria",
+      "tsc",
+      "aicpa soc 2",
+      "service organization control"
+     ],
+     "paraphrases": [
+      "How SOC 2 Type I and Type II reports differ, how their scope is set, and which trust services criteria they cover."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How SOC 2 Type I and Type II reports differ, how their scope is set, and which trust services criteria they cover."
+      }
+     ]
+    },
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T02",
+     "topic_number": 2,
+     "title": "Control testing and audit evidence preparation",
+     "aliases": [
+      "control testing",
+      "operating effectiveness",
+      "design effectiveness",
+      "audit evidence",
+      "audit preparation",
+      "audit readiness",
+      "compliance audit",
+      "evidence collection"
+     ],
+     "paraphrases": [
+      "How auditors test whether controls are designed and operating as intended, and why evidence is gathered when preparing for an audit."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How auditors test whether controls are designed and operating as intended, and why evidence is gathered when preparing for an audit."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "COMPLIANCE-FRAMEWORKS-D4",
+   "chapter_number": 4,
+   "title": "Risk management and security policy",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D4-T01",
+     "topic_number": 1,
+     "title": "Risk assessment methods and the likelihood and impact matrix",
+     "aliases": [
+      "risk assessment",
+      "qualitative risk assessment",
+      "quantitative risk assessment",
+      "risk matrix",
+      "likelihood impact matrix",
+      "heat map",
+      "risk prioritization",
+      "risk analysis"
+     ],
+     "paraphrases": [
+      "Qualitative and quantitative ways to assess risk and how a likelihood by impact matrix is used to prioritise risks."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Qualitative and quantitative ways to assess risk and how a likelihood by impact matrix is used to prioritise risks."
+      }
+     ]
+    },
+    {
+     "topic_id": "COMPLIANCE-FRAMEWORKS-D4-T02",
+     "topic_number": 2,
+     "title": "Security policy lifecycle",
+     "aliases": [
+      "security policy lifecycle",
+      "policy lifecycle",
+      "information security policy",
+      "policy review",
+      "policy creation",
+      "policy approval",
+      "policy management",
+      "security governance policy"
+     ],
+     "paraphrases": [
+      "The stages a security policy goes through, from creation and approval to distribution, enforcement and periodic review."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The stages a security policy goes through, from creation and approval to distribution, enforcement and periodic review."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

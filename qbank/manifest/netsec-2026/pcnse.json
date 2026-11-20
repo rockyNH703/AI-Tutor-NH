@@ -1,0 +1,373 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "pcnse",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Palo Alto Firewall Essentials",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "PCNSE-D1",
+   "chapter_number": 1,
+   "title": "Zones, interfaces, security policy and NAT",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PCNSE-D1-T01",
+     "topic_number": 1,
+     "title": "Security zones and interface modes (Layer 2, Layer 3, virtual wire, tap)",
+     "aliases": [
+      "security zones",
+      "palo alto zones",
+      "virtual wire",
+      "vwire",
+      "layer 2 interface",
+      "layer 3 interface",
+      "tap mode",
+      "interface modes",
+      "zone types"
+     ],
+     "paraphrases": [
+      "How Palo Alto firewalls group interfaces into zones and the behaviour of Layer 2, Layer 3, virtual wire and tap deployments."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Palo Alto firewalls group interfaces into zones and the behaviour of Layer 2, Layer 3, virtual wire and tap deployments."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D1-T02",
+     "topic_number": 2,
+     "title": "Security policy rules, rule order and default intrazone and interzone behaviour",
+     "aliases": [
+      "security policy",
+      "security rules",
+      "palo alto policy",
+      "rule shadowing",
+      "shadowed rule",
+      "intrazone default",
+      "interzone default",
+      "policy order",
+      "show running security-policy"
+     ],
+     "paraphrases": [
+      "How security policy rules are matched top to bottom, what shadowing means, the default intrazone and interzone rules and how to view the running policy."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How security policy rules are matched top to bottom, what shadowing means, the default intrazone and interzone rules and how to view the running policy."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D1-T03",
+     "topic_number": 3,
+     "title": "App-ID application identification and application override",
+     "aliases": [
+      "app-id",
+      "appid",
+      "application identification",
+      "application override",
+      "app override",
+      "application signatures",
+      "app-id decoders",
+      "app-id heuristics"
+     ],
+     "paraphrases": [
+      "How App-ID identifies applications with signatures, decoders and heuristics and when an application override is used."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How App-ID identifies applications with signatures, decoders and heuristics and when an application override is used."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D1-T04",
+     "topic_number": 4,
+     "title": "Palo Alto NAT: source NAT, destination NAT, U-turn NAT and rule order",
+     "aliases": [
+      "nat",
+      "palo alto nat",
+      "source nat",
+      "destination nat",
+      "dnat",
+      "snat",
+      "pat",
+      "u-turn nat",
+      "nat rule order",
+      "nat policy"
+     ],
+     "paraphrases": [
+      "How NAT policy rules are evaluated on a Palo Alto firewall and how source, destination and U-turn NAT translate addresses."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How NAT policy rules are evaluated on a Palo Alto firewall and how source, destination and U-turn NAT translate addresses."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PCNSE-D2",
+   "chapter_number": 2,
+   "title": "Threat prevention and decryption",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PCNSE-D2-T01",
+     "topic_number": 1,
+     "title": "Security profiles: antivirus, anti-spyware and file blocking",
+     "aliases": [
+      "security profiles",
+      "content filtering",
+      "antivirus profile",
+      "anti-spyware profile",
+      "anti spyware",
+      "file blocking profile",
+      "vulnerability protection",
+      "threat prevention"
+     ],
+     "paraphrases": [
+      "The security profiles attached to policy rules that detect viruses and spyware and block file types."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The security profiles attached to policy rules that detect viruses and spyware and block file types."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D2-T02",
+     "topic_number": 2,
+     "title": "WildFire cloud malware analysis",
+     "aliases": [
+      "wildfire",
+      "wild fire",
+      "sandbox analysis",
+      "malware sandbox",
+      "unknown file analysis",
+      "wildfire analysis profile"
+     ],
+     "paraphrases": [
+      "How WildFire sends unknown files to a cloud sandbox to detect new malware."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How WildFire sends unknown files to a cloud sandbox to detect new malware."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D2-T03",
+     "topic_number": 3,
+     "title": "Zone protection profiles and flood protection",
+     "aliases": [
+      "zone protection",
+      "zone protection profile",
+      "flood protection",
+      "dos protection",
+      "syn flood",
+      "packet based attack protection"
+     ],
+     "paraphrases": [
+      "How zone protection profiles defend a zone against floods and packet-based attacks."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How zone protection profiles defend a zone against floods and packet-based attacks."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D2-T04",
+     "topic_number": 4,
+     "title": "SSL/TLS decryption: inbound inspection, forward proxy and exclusions",
+     "aliases": [
+      "ssl decryption",
+      "tls decryption",
+      "ssl inbound inspection",
+      "ssl forward proxy",
+      "decryption policy",
+      "decryption exclusion",
+      "decryption certificates"
+     ],
+     "paraphrases": [
+      "How the firewall decrypts SSL/TLS traffic for inspection and how traffic is excluded from decryption."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the firewall decrypts SSL/TLS traffic for inspection and how traffic is excluded from decryption."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PCNSE-D3",
+   "chapter_number": 3,
+   "title": "Remote access and user identification",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PCNSE-D3-T01",
+     "topic_number": 1,
+     "title": "GlobalProtect VPN: gateways, portal and split tunneling",
+     "aliases": [
+      "globalprotect",
+      "global protect",
+      "gp vpn",
+      "remote access vpn",
+      "globalprotect gateway",
+      "globalprotect portal",
+      "split tunneling",
+      "split tunnel"
+     ],
+     "paraphrases": [
+      "How GlobalProtect provides remote access VPN, how split tunneling works and how to check gateway status."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How GlobalProtect provides remote access VPN, how split tunneling works and how to check gateway status."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D3-T02",
+     "topic_number": 2,
+     "title": "User-ID and captive portal authentication",
+     "aliases": [
+      "user-id",
+      "userid",
+      "user id agent",
+      "user mapping",
+      "captive portal",
+      "authentication portal",
+      "ip to user mapping"
+     ],
+     "paraphrases": [
+      "How the firewall maps users to IP addresses with User-ID and authenticates users through a captive portal."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the firewall maps users to IP addresses with User-ID and authenticates users through a captive portal."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PCNSE-D4",
+   "chapter_number": 4,
+   "title": "High availability, management and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PCNSE-D4-T01",
+     "topic_number": 1,
+     "title": "Palo Alto high availability: HA1, HA2 and session synchronization",
+     "aliases": [
+      "high availability",
+      "ha",
+      "palo alto ha",
+      "ha1",
+      "ha2",
+      "ha links",
+      "session synchronization",
+      "active passive",
+      "failover"
+     ],
+     "paraphrases": [
+      "How a Palo Alto HA pair uses its control and data links, synchronizes sessions and is checked from the CLI."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a Palo Alto HA pair uses its control and data links, synchronizes sessions and is checked from the CLI."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D4-T02",
+     "topic_number": 2,
+     "title": "Panorama centralized management: templates, device groups and log collectors",
+     "aliases": [
+      "panorama",
+      "template stack",
+      "templates",
+      "device groups",
+      "log collector",
+      "centralized management"
+     ],
+     "paraphrases": [
+      "How Panorama manages many firewalls with templates, template stacks, device groups and log collectors."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Panorama manages many firewalls with templates, template stacks, device groups and log collectors."
+      }
+     ]
+    },
+    {
+     "topic_id": "PCNSE-D4-T03",
+     "topic_number": 3,
+     "title": "PAN-OS CLI show commands for sessions and configuration",
+     "aliases": [
+      "pan-os cli",
+      "palo alto cli",
+      "show session all",
+      "show commands",
+      "session troubleshooting",
+      "show running config",
+      "palo alto troubleshooting"
+     ],
+     "paraphrases": [
+      "Using PAN-OS CLI show commands to view active sessions and the running configuration while troubleshooting."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using PAN-OS CLI show commands to view active sessions and the running configuration while troubleshooting."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

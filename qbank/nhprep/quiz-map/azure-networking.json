@@ -1,0 +1,154 @@
+{
+ "category": "azure-networking",
+ "book_id": "azure_networking",
+ "questions": {
+  "2d2ebb22-c766-49e1-9686-c03f7c8c736a": {
+   "topic_id": "AZURE-NETWORKING-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "45b81536-9b4d-4475-ad07-68da8982e237": {
+   "topic_id": "AZURE-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9645c914-5a93-4203-8324-7fbb10983ce2": {
+   "topic_id": "AZURE-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "084908c8-5dde-4f1d-a09a-a29775f9e0c7": {
+   "topic_id": "AZURE-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "da6f2d18-b704-4469-ae21-4471f4c332e8": {
+   "topic_id": "AZURE-NETWORKING-D4-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "f997b2f0-a929-4737-9a73-45959e6ada60": {
+   "topic_id": "AZURE-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "528b3f3c-e495-4a32-85c8-ba2df3979f9e": {
+   "topic_id": "AZURE-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bc15ffb7-9410-4660-b88f-1c9def3b3426": {
+   "topic_id": "AZURE-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "40a1010c-a1af-46cf-a721-b7ee3229057e": {
+   "topic_id": "AZURE-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "29ab4260-b46c-4437-92bc-5335f1313e23": {
+   "topic_id": "AZURE-NETWORKING-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): An endpoint for the wrong service (D) or an unavailable service (C) breaks it as surely as a disabled one.; A service missing from the region or an endpoint for the wrong service are as valid causes as a disabled endpoint."
+  },
+  "e0eea275-46ce-484d-b33f-a48ee7172dd9": {
+   "topic_id": "AZURE-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "df974f02-9668-4f7e-8b94-b94d4d76a018": {
+   "topic_id": "AZURE-NETWORKING-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0bff59b5-48c7-41cc-9d75-b232a2313755": {
+   "topic_id": "AZURE-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "89ef4624-f909-4eb7-b54a-4adc4c5e9244": {
+   "topic_id": "AZURE-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): NSG default rules cannot be deleted but are overridden by higher-priority custom rules; no option is correct.; NSG default rules cannot be deleted, but custom rules with higher priority override them."
+  },
+  "8bd33766-8160-4c7a-8b1e-86057dcd3171": {
+   "topic_id": "AZURE-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "073f0b50-a834-4223-91b5-1fe2aea6a8e3": {
+   "topic_id": "AZURE-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "063d8b53-46f6-43c8-8ee7-240bf1872da1": {
+   "topic_id": "AZURE-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "169abf6d-fe19-4a06-9697-25ae00876284": {
+   "topic_id": "AZURE-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ad02cd4b-0caf-4b4d-a7c8-988e053951e7": {
+   "topic_id": "AZURE-NETWORKING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4ef7979f-5f4b-4899-94dc-cd5b90c3acb5": {
+   "topic_id": "AZURE-NETWORKING-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "77c7a299-a6ee-4597-8bd8-8d9a6f1b817e": {
+   "topic_id": "AZURE-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a44b4851-9626-496d-ba4a-f12a239eb765": {
+   "topic_id": "AZURE-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bd238abe-18ea-4950-8193-66684f63c0b0": {
+   "topic_id": "AZURE-NETWORKING-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "5a75d19e-4548-4144-bb98-6e8938f92a48": {
+   "topic_id": "AZURE-NETWORKING-D4-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): The keyed command does not exist; flow logs use az network watcher flow-log create.; There is no 'az network watcher nsg' subgroup; flow logs use 'az network watcher flow-log create/configure'."
+  },
+  "3d4fd1be-ce30-4b55-b268-260d80c5e6a4": {
+   "topic_id": "AZURE-NETWORKING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a7db6424-d1a5-44eb-9821-0995fdeee492": {
+   "topic_id": "AZURE-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "6650ef6d-f157-49f0-8793-618aa2622531": {
+   "topic_id": "AZURE-NETWORKING-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b63c492d-b0d3-4124-823f-cd2471507fb5": {
+   "topic_id": "AZURE-NETWORKING-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "564f5f9e-9242-433b-8f54-702007be8d7d": {
+   "topic_id": "AZURE-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

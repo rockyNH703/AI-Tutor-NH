@@ -189,6 +189,37 @@ Recall on unseen wordings across the four fresh sets was 0.78, 0.56, 0.52 and 0.
 
 The grammar is not tuned on holdout 4. Its topic gaps are aliases to add when the CCNA content is mapped.
 
+**The real NHprep bank (2026-11-20).** Imported in WSL with `scripts/import_questions.py`:
+- 54 books, 202 domains, 713 topics, 1,664 questions (1,482 active);
+- details in `qbank/README.md`, "What is here".
+
+The eval sets were written for the CCNA-only bank, so their expected topics are CCNA titles. On the 54-book bank,
+route accuracy and false triggers are unchanged (route 1.000 and 0 false triggers on dev, test and holdouts 1–3).
+Topic hit/precision, with `--goal ccna` (a CCNA student, as the chat passes the goal):
+
+| Set | Hit / precision | p95 |
+|---|---|---|
+| dev | 0.979 / 0.972 | 194 ms |
+| test | 0.960 / 0.954 | 226 ms |
+| holdout 1 | 0.895 / 0.895 | 214 ms |
+| holdout 2 | 0.852 / 0.842 | 226 ms |
+| holdout 3 | 0.669 / 0.669 | 219 ms |
+| holdout 4 | 0.606 / 0.591 | 207 ms |
+
+Without a goal, dev is 0.861 / 0.855.
+
+**What the misses are:**
+- **Mostly** another book's topic for the same subject that the CCNA-only labels do not accept ("wifi channels" →
+  the Wireless book's Wi-Fi channels topic; "tcp vs udp" → the TCP/IP book's).
+- **Some** are wrong picks ("autonomous vs lightweight aps" → REST APIs).
+- **Latency:** p95 rose from about 40 ms to about 220 ms with 16 times the topics. It is still under the 500 ms
+  target. The typo step's edit distance over the larger vocabulary and the FIND query are the cost.
+
+**Before QUESTION_BANK_TURN goes on:**
+- a goal-first rule (prefer the student's goal book when it has a credible topic);
+- an eval set labelled for the multi-book bank (any book's matching topic);
+- a latency pass.
+
 **Content** (`qbank/`, below):
 - every NHprep quiz question, kept as written and flagged when disputed;
 - 5–10 questions per NHprep video, written by agents from the lesson's notes and served only after a three-way

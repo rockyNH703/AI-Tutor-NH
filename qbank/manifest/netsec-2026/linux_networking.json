@@ -1,0 +1,423 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "linux_networking",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "linux",
+  "language": "english",
+  "title": "Linux for Network Engineers",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "LINUX-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "Interface, addressing and routing configuration",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "LINUX-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "Interface and IP address management with ip addr and ip link",
+     "aliases": [
+      "ip addr",
+      "ip link",
+      "ip address",
+      "iproute2",
+      "interface up down",
+      "add ip address linux",
+      "delete ip address",
+      "ip addr show",
+      "ifconfig"
+     ],
+     "paraphrases": [
+      "Viewing, adding and removing IP addresses on Linux interfaces and bringing interfaces up or down with the ip command."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Viewing, adding and removing IP addresses on Linux interfaces and bringing interfaces up or down with the ip command."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "Linux routing table and default routes",
+     "aliases": [
+      "ip route",
+      "routing table",
+      "default route",
+      "default gateway",
+      "netstat -rn",
+      "route -n",
+      "static route linux",
+      "ip route add"
+     ],
+     "paraphrases": [
+      "Reading the kernel routing table with ip route or netstat -rn and adding a default route through a gateway."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading the kernel routing table with ip route or netstat -rn and adding a default route through a gateway."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "ARP and neighbor table with ip neigh",
+     "aliases": [
+      "ip neigh",
+      "arp table",
+      "arp cache",
+      "neighbor table",
+      "neighbour table",
+      "arp -a",
+      "ip to mac mapping"
+     ],
+     "paraphrases": [
+      "Inspecting the ARP neighbor cache that maps IP addresses to MAC addresses on a Linux host."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Inspecting the ARP neighbor cache that maps IP addresses to MAC addresses on a Linux host."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D1-T04",
+     "topic_number": 4,
+     "title": "NetworkManager connections with nmcli",
+     "aliases": [
+      "nmcli",
+      "networkmanager",
+      "network manager",
+      "nmcli connection",
+      "nmcli connection edit",
+      "nmtui"
+     ],
+     "paraphrases": [
+      "Managing and editing NetworkManager connection profiles from the command line with nmcli."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Managing and editing NetworkManager connection profiles from the command line with nmcli."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D1-T05",
+     "topic_number": 5,
+     "title": "Name resolution with /etc/resolv.conf and /etc/hosts",
+     "aliases": [
+      "resolv.conf",
+      "/etc/resolv.conf",
+      "/etc/hosts",
+      "hosts file",
+      "dns resolver",
+      "nameserver",
+      "local hostname resolution",
+      "dns client config"
+     ],
+     "paraphrases": [
+      "How a Linux host finds DNS servers in resolv.conf and resolves names locally through the hosts file."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a Linux host finds DNS servers in resolv.conf and resolves names locally through the hosts file."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "LINUX-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Network troubleshooting and packet capture",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "LINUX-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "Listening ports and sockets with ss and lsof",
+     "aliases": [
+      "ss",
+      "ss -tlnp",
+      "ss -s",
+      "lsof -i",
+      "netstat",
+      "listening ports",
+      "open ports",
+      "which process uses port",
+      "socket statistics"
+     ],
+     "paraphrases": [
+      "Finding listening ports, socket statistics and the process bound to a port with ss, lsof and netstat."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Finding listening ports, socket statistics and the process bound to a port with ss, lsof and netstat."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "tcpdump capture files: writing and reading pcap",
+     "aliases": [
+      "tcpdump -w",
+      "tcpdump -r",
+      "pcap file",
+      "save capture",
+      "read pcap",
+      "packet capture file",
+      "wireshark file"
+     ],
+     "paraphrases": [
+      "Saving tcpdump captures to a pcap file and reading them back for offline analysis."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Saving tcpdump captures to a pcap file and reading them back for offline analysis."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D2-T03",
+     "topic_number": 3,
+     "title": "tcpdump BPF capture filters by host and port",
+     "aliases": [
+      "tcpdump filter",
+      "bpf",
+      "berkeley packet filter",
+      "tcpdump host",
+      "tcpdump port",
+      "capture filter",
+      "tcpdump -i",
+      "packet sniffing"
+     ],
+     "paraphrases": [
+      "Using Berkeley Packet Filter expressions in tcpdump to capture only traffic for a given host, port or interface."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Berkeley Packet Filter expressions in tcpdump to capture only traffic for a given host, port or interface."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D2-T04",
+     "topic_number": 4,
+     "title": "Testing HTTP connectivity with curl",
+     "aliases": [
+      "curl",
+      "curl -v",
+      "curl verbose",
+      "http test",
+      "web request test",
+      "http headers check"
+     ],
+     "paraphrases": [
+      "Using curl with verbose output to inspect an HTTP request and response when testing a web service."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using curl with verbose output to inspect an HTTP request and response when testing a web service."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "LINUX-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Firewall and secure remote access",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "LINUX-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "iptables firewall chains, rules, NAT and saving rules",
+     "aliases": [
+      "iptables",
+      "input chain",
+      "iptables rules",
+      "iptables-save",
+      "masquerade",
+      "iptables nat",
+      "source nat linux",
+      "linux firewall",
+      "netfilter",
+      "allow ssh port 22"
+     ],
+     "paraphrases": [
+      "Building iptables rules in the INPUT chain, source NAT with MASQUERADE, and saving the active rule set."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Building iptables rules in the INPUT chain, source NAT with MASQUERADE, and saving the active rule set."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "SSH key authentication and client configuration",
+     "aliases": [
+      "ssh",
+      "ssh-keygen",
+      "ssh-copy-id",
+      "ssh keys",
+      "public key authentication",
+      "passwordless ssh",
+      "ssh config",
+      "~/.ssh/config",
+      "authorized_keys"
+     ],
+     "paraphrases": [
+      "Generating SSH key pairs, installing a public key on a remote server and setting client options and host aliases in the SSH config file."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Generating SSH key pairs, installing a public key on a remote server and setting client options and host aliases in the SSH config file."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D3-T03",
+     "topic_number": 3,
+     "title": "Linux file permissions with chmod",
+     "aliases": [
+      "chmod",
+      "chmod 755",
+      "file permissions",
+      "octal permissions",
+      "rwx",
+      "linux permissions"
+     ],
+     "paraphrases": [
+      "Reading and setting owner, group and other read, write and execute permissions with numeric chmod modes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading and setting owner, group and other read, write and execute permissions with numeric chmod modes."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "LINUX-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "Services, processes and scheduling",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "LINUX-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "systemd services and journalctl logs",
+     "aliases": [
+      "systemctl",
+      "systemd",
+      "systemctl start",
+      "journalctl",
+      "journalctl -u",
+      "journalctl -f",
+      "service logs",
+      "linux logs"
+     ],
+     "paraphrases": [
+      "Starting services with systemctl and reading or following their logs with journalctl."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Starting services with systemctl and reading or following their logs with journalctl."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "Linux processes and signals with ps and kill",
+     "aliases": [
+      "ps aux",
+      "ps",
+      "kill",
+      "kill -9",
+      "sigkill",
+      "signals",
+      "process list",
+      "grep process"
+     ],
+     "paraphrases": [
+      "Listing and filtering running processes with ps and terminating them with kill signals such as SIGKILL."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Listing and filtering running processes with ps and terminating them with kill signals such as SIGKILL."
+      }
+     ]
+    },
+    {
+     "topic_id": "LINUX-NETWORKING-D4-T03",
+     "topic_number": 3,
+     "title": "Scheduling jobs with cron and crontab",
+     "aliases": [
+      "cron",
+      "crontab",
+      "crontab -e",
+      "cron expression",
+      "cron job",
+      "scheduled tasks linux",
+      "cron syntax"
+     ],
+     "paraphrases": [
+      "Editing a user crontab and reading cron schedule expressions for recurring jobs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Editing a user crontab and reading cron schedule expressions for recurring jobs."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

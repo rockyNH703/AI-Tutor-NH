@@ -1,0 +1,213 @@
+{
+ "category": "network-fundamentals",
+ "book_id": "network_fundamentals",
+ "questions": {
+  "f2cdc954-e10a-44db-ba23-a26b5aa024ea": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "133ac459-b610-4b91-9cf3-75d08cb813b4": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a77bfc2b-a73a-41c4-b9b3-84c72e254191": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "53a2834f-c829-4acb-bf69-2758cc5c017e": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d00e6132-1ac4-4ea6-9df6-55661e872425": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5b063497-e736-444e-8124-e6cd2af2296b": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "28618af0-21d7-4d51-83a8-7ef559823685": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ef883543-bbde-4d86-a930-63041fcc1ae8": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9d3ead1b-424f-4a24-a7d6-69491a698358": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9e23973f-daac-46aa-9c77-530b79c08ec1": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3168684a-1c1e-4eec-96b7-70f5a761e45e": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9fbd0080-d199-435b-9d21-8607a55fc250": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a44fdc0f-1cc0-4132-87fe-4a4327d6660d": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "31ee315c-33f0-4b81-9c4a-1d573a68e070": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Data Link only detects errors; Transport (TCP) does the recovery, so both are defensible for detection and correction.; Data Link only detects (FCS) and drops; Transport (TCP) performs error recovery, so both fit 'detection and corre"
+  },
+  "df10e67d-e4fb-417c-a359-35ed7e554e94": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c8f4d3bb-b946-4d55-bd2d-609379822aba": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2c22162f-2f4b-4a33-bc67-26fd164bb690": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "8be41ff4-29da-4ce3-b223-9e2a3f56bd8c": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "428812c9-5c7b-4607-afac-16ca8f058a7a": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e9eb5ee3-a884-4334-9de6-da20278deb56": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8f69195a-12c7-4b65-b69f-9db94a3f0d2c": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "86c9aec1-1988-441b-ad5c-b44fc24803b7": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T06",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "44237fc1-e42d-40ab-95fd-e654f633419f": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "1d36fca1-eed6-4f95-94c4-4d88f6134595": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bdca3595-ab2c-4ffe-924c-15bc7f33d64f": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d022f649-8eb1-4ae7-94aa-034070a6998d": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "875c84e2-33c0-42e6-bfc1-79a5a9f022a5": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dd5ea847-c957-4583-b3e6-6e40986aabc5": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "17cb7c95-9471-4a1a-9388-54c6481c9a92": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "b9e5917a-5840-458c-96c9-3acfbb2d513f": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "8760b40c-5ab6-4e42-b643-9ee0f0fc95e1": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6a105910-40fe-4140-ba80-227247e2b15d": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): A /28 from a Class C gives 16 subnets (A), as the explanation itself says; 32 is wrong.; A /28 from a Class C gives 2^4 = 16 subnets (option A), as the explanation itself says; 32 is wrong."
+  },
+  "5dbda5b3-95f3-4b50-bde1-55f0056f79d8": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "b1ddba73-2e27-4e96-ae9f-62fc7291e1f5": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "97096e95-9bc0-4715-a70f-3fccdbad45bd": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eef5f766-4aca-4ef2-ac2b-fe201681d9d5": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5d367c35-a621-49fb-a9d8-eb20ad8ff726": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "cefd7e07-09d2-4d63-82e0-5770ad45f4dd": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "49df1ab5-a0ca-4db2-aefe-c92f65b812c7": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8abbea80-16dd-4930-b578-96ecd8cb3f41": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6b5ae542-3ebc-4dc7-9737-fa1d8570b647": {
+   "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  }
+ }
+}

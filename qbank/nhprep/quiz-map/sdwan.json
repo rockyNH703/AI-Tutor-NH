@@ -1,0 +1,175 @@
+{
+ "category": "sdwan",
+ "book_id": "sdwan",
+ "questions": {
+  "a9348066-4019-4afa-8002-e3982e5c28c8": {
+   "topic_id": "SDWAN-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f6aa36e6-2151-42a0-a10c-1bfdb319f56c": {
+   "topic_id": "SDWAN-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "2b79d3e2-e5b4-4765-8e9f-84ac436d3f17": {
+   "topic_id": "SDWAN-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): vBond authenticates and orchestrates the initial control connections, making it as defensible as vSmart.; vSmart owns the control plane, but Cisco describes vBond as authenticating and orchestrating the control connections, so C is e"
+  },
+  "e474c126-3745-417d-a528-cedf0c15e095": {
+   "topic_id": "SDWAN-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "282a9a2a-e6e8-47db-8906-c07bb6301ec3": {
+   "topic_id": "SDWAN-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "979ba9ce-e279-4237-ae76-f32fb34d4ef2": {
+   "topic_id": "SDWAN-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f7a84a9d-88aa-4d50-83ff-de1afe147c85": {
+   "topic_id": "SDWAN-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "99f8ce7e-cbd4-4c15-b21e-3e6ef5e8fb95": {
+   "topic_id": "SDWAN-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2513afb5-637a-4fef-bbc3-4b2dffc4705d": {
+   "topic_id": "SDWAN-D1-T05",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "d41a7587-2520-4492-b565-16072019f59a": {
+   "topic_id": "SDWAN-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "055e9e29-1d03-4521-bb85-8c89df258e9f": {
+   "topic_id": "SDWAN-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4f687ec6-da8e-40b3-93b1-6fed740a2b04": {
+   "topic_id": "SDWAN-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25892b33-54bf-40b2-83ad-52cbeadf40b7": {
+   "topic_id": "SDWAN-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "c25bfc49-e006-4c72-8da1-d15d74cd5db2": {
+   "topic_id": "SDWAN-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0971a27a-cb37-4096-8bdc-86f74163c819": {
+   "topic_id": "SDWAN-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0919d924-5d93-4edb-a68c-f08b6b0fe94b": {
+   "topic_id": "SDWAN-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "56ee6abf-aa80-4acc-8246-3e9a1c000b27": {
+   "topic_id": "SDWAN-D1-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ff3a5ce5-c608-4b70-8a40-1348099c36a4": {
+   "topic_id": "SDWAN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "03583310-91e0-41b1-bb6f-df6f7cbc4721": {
+   "topic_id": "SDWAN-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6449c7f0-c77c-4db3-a8bc-eb79cbada5a7": {
+   "topic_id": "SDWAN-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): vManage is the management plane; control-plane management is vSmart's role.; vManage is the management plane (NMS); control plane is vSmart, so B is incorrect."
+  },
+  "2c493c32-fce9-4bb4-9947-f963e7bbbbb7": {
+   "topic_id": "SDWAN-D4-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "1a2f3722-cfe7-4623-afe0-783e403108bd": {
+   "topic_id": "SDWAN-D3-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): set url-filtering is not a Cisco SD-WAN command; URL filtering is a vManage security policy.; 'set url-filtering' is not a Cisco SD-WAN command; URL filtering is a vManage security policy."
+  },
+  "234a0c02-1b11-4d83-9536-14177281c66c": {
+   "topic_id": "SDWAN-D1-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "bea17ff0-439e-4620-acfb-eb40760a5501": {
+   "topic_id": "SDWAN-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9d6ca5dd-d0bd-4bc4-8ad2-0bbd31d42912": {
+   "topic_id": "SDWAN-D1-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "869c4dfc-bc45-45b1-bb33-9aaa56285561": {
+   "topic_id": "SDWAN-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a9441fcf-d348-43b2-9401-517cfc7b90b7": {
+   "topic_id": "SDWAN-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): restrict prevents tunnels to TLOCs of other colors; it does not limit advertisement to sites.; TLOC 'restrict' stops tunnels to TLOCs of other colors; it does not limit advertisement to specific sites."
+  },
+  "c374dc13-2433-497c-95f6-e576982c145d": {
+   "topic_id": "SDWAN-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b5a626dd-0cd0-4eb4-b9a2-5454cc02ff6a": {
+   "topic_id": "SDWAN-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ba804118-c0e9-4599-846b-5b995847b135": {
+   "topic_id": "SDWAN-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7c8f4ce2-e934-4320-bb2c-9113fbc79514": {
+   "topic_id": "SDWAN-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "474dda00-a42f-46cd-9788-a5e517bf5cc9": {
+   "topic_id": "SDWAN-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "647eebf1-6564-448d-a47f-f40282dcf72b": {
+   "topic_id": "SDWAN-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

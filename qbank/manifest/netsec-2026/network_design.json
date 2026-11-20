@@ -1,0 +1,446 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "network_design",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Network Design and Architecture",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NETWORK-DESIGN-D1",
+   "chapter_number": 1,
+   "title": "Campus, data center and wireless architecture",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-D1-T01",
+     "topic_number": 1,
+     "title": "Three-tier campus design: access, distribution, core and collapsed core",
+     "aliases": [
+      "three tier",
+      "3-tier architecture",
+      "hierarchical design",
+      "access layer",
+      "distribution layer",
+      "core layer",
+      "collapsed core",
+      "poe",
+      "power over ethernet",
+      "oversubscription ratio",
+      "campus design"
+     ],
+     "paraphrases": [
+      "The roles of the access, distribution and core layers, collapsing core and distribution, PoE at the access edge and uplink oversubscription."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The roles of the access, distribution and core layers, collapsing core and distribution, PoE at the access edge and uplink oversubscription."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D1-T02",
+     "topic_number": 2,
+     "title": "Spine-leaf data center topology",
+     "aliases": [
+      "spine leaf",
+      "leaf spine",
+      "clos fabric",
+      "data center fabric",
+      "spine switch",
+      "leaf switch",
+      "east-west traffic"
+     ],
+     "paraphrases": [
+      "How every leaf connects to every spine and why that gives predictable latency and horizontal scaling compared with three-tier designs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How every leaf connects to every spine and why that gives predictable latency and horizontal scaling compared with three-tier designs."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D1-T03",
+     "topic_number": 3,
+     "title": "Underlay and overlay networks with VXLAN",
+     "aliases": [
+      "underlay",
+      "overlay",
+      "vxlan",
+      "virtual extensible lan",
+      "layer 2 over layer 3",
+      "network virtualization",
+      "encapsulation"
+     ],
+     "paraphrases": [
+      "The underlay routes and forwards traffic while overlays such as VXLAN carry Layer 2 segments across a Layer 3 network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The underlay routes and forwards traffic while overlays such as VXLAN carry Layer 2 segments across a Layer 3 network."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D1-T04",
+     "topic_number": 4,
+     "title": "Wireless site survey and 2.4 GHz channel planning",
+     "aliases": [
+      "site survey",
+      "wireless design",
+      "channel planning",
+      "ap placement",
+      "channels 1 6 11",
+      "2.4 ghz",
+      "channel reuse",
+      "rf design"
+     ],
+     "paraphrases": [
+      "Planning wireless coverage through AP placement and non-overlapping channel reuse such as channels 1, 6 and 11 in 2.4 GHz."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Planning wireless coverage through AP placement and non-overlapping channel reuse such as channels 1, 6 and 11 in 2.4 GHz."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D1-T05",
+     "topic_number": 5,
+     "title": "Controller-based versus autonomous access points",
+     "aliases": [
+      "autonomous ap",
+      "lightweight ap",
+      "controller-based ap",
+      "wlc",
+      "wireless lan controller",
+      "capwap",
+      "ap deployment models"
+     ],
+     "paraphrases": [
+      "The difference between access points managed by a central wireless controller and standalone autonomous access points."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between access points managed by a central wireless controller and standalone autonomous access points."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-DESIGN-D2",
+   "chapter_number": 2,
+   "title": "High availability, redundancy and disaster recovery",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-D2-T01",
+     "topic_number": 1,
+     "title": "Layer 2 redundancy with STP and EtherChannel",
+     "aliases": [
+      "stp",
+      "spanning tree",
+      "spanning tree protocol",
+      "loop prevention",
+      "etherchannel",
+      "link aggregation",
+      "lacp",
+      "port channel"
+     ],
+     "paraphrases": [
+      "Keeping redundant Layer 2 links loop-free with spanning tree and bundling parallel links with EtherChannel."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Keeping redundant Layer 2 links loop-free with spanning tree and bundling parallel links with EtherChannel."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D2-T02",
+     "topic_number": 2,
+     "title": "Gateway redundancy with HSRP and equal-cost multipath routing",
+     "aliases": [
+      "hsrp",
+      "hot standby router protocol",
+      "fhrp",
+      "first hop redundancy",
+      "vrrp",
+      "glbp",
+      "ecmp",
+      "equal cost multipath",
+      "virtual gateway"
+     ],
+     "paraphrases": [
+      "Providing a redundant default gateway with a first-hop redundancy protocol and using several equal-cost routed paths at once."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Providing a redundant default gateway with a first-hop redundancy protocol and using several equal-cost routed paths at once."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D2-T03",
+     "topic_number": 3,
+     "title": "High availability and single points of failure",
+     "aliases": [
+      "high availability",
+      "single point of failure",
+      "spof",
+      "dual power supplies",
+      "redundant hardware",
+      "network mapping",
+      "resiliency"
+     ],
+     "paraphrases": [
+      "Designing out single points of failure with redundant hardware such as dual power supplies and finding them by mapping the topology."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Designing out single points of failure with redundant hardware such as dual power supplies and finding them by mapping the topology."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D2-T04",
+     "topic_number": 4,
+     "title": "Disaster recovery: RTO, RPO and standby sites",
+     "aliases": [
+      "disaster recovery",
+      "dr plan",
+      "rto",
+      "recovery time objective",
+      "rpo",
+      "recovery point objective",
+      "hot standby",
+      "hot site",
+      "business continuity"
+     ],
+     "paraphrases": [
+      "Recovery time and recovery point objectives and standby options that keep services available after a disaster."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recovery time and recovery point objectives and standby options that keep services available after a disaster."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-DESIGN-D3",
+   "chapter_number": 3,
+   "title": "WAN design and quality of service",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-D3-T01",
+     "topic_number": 1,
+     "title": "SD-WAN, internet transport and dual ISP failover",
+     "aliases": [
+      "sd-wan",
+      "sdwan",
+      "software defined wan",
+      "internet wan",
+      "dual isp",
+      "isp failover",
+      "dual homing",
+      "encrypted overlay",
+      "wan design"
+     ],
+     "paraphrases": [
+      "Choosing WAN transports, the benefits of centrally managed SD-WAN with encrypted internet overlays, and failover between two ISPs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing WAN transports, the benefits of centrally managed SD-WAN with encrypted internet overlays, and failover between two ISPs."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D3-T02",
+     "topic_number": 2,
+     "title": "MPLS labels and label switching",
+     "aliases": [
+      "mpls",
+      "multiprotocol label switching",
+      "mpls labels",
+      "label switching",
+      "mpls wan",
+      "traffic engineering"
+     ],
+     "paraphrases": [
+      "How MPLS labels identify the forwarding path for packets across a provider or WAN network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How MPLS labels identify the forwarding path for packets across a provider or WAN network."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D3-T03",
+     "topic_number": 3,
+     "title": "QoS goals, trust boundaries and DSCP marking",
+     "aliases": [
+      "qos",
+      "quality of service",
+      "trust boundary",
+      "dscp",
+      "dscp 46",
+      "expedited forwarding",
+      "ef",
+      "marking",
+      "classification"
+     ],
+     "paraphrases": [
+      "What QoS is for, where the trust boundary sits and how voice is marked with DSCP 46 expedited forwarding."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What QoS is for, where the trust boundary sits and how voice is marked with DSCP 46 expedited forwarding."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D3-T04",
+     "topic_number": 4,
+     "title": "QoS queuing, shaping and policing",
+     "aliases": [
+      "llq",
+      "low latency queuing",
+      "cbwfq",
+      "priority queuing",
+      "traffic shaping",
+      "policing",
+      "voice priority",
+      "congestion management"
+     ],
+     "paraphrases": [
+      "Prioritising voice with low latency queuing and the difference between shaping, which buffers excess traffic, and policing, which drops it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Prioritising voice with low latency queuing and the difference between shaping, which buffers excess traffic, and policing, which drops it."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-DESIGN-D4",
+   "chapter_number": 4,
+   "title": "Network operations and lifecycle management",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-D4-T01",
+     "topic_number": 1,
+     "title": "Change management, CAB approval and rollback plans",
+     "aliases": [
+      "change management",
+      "change control",
+      "cab",
+      "change advisory board",
+      "rollback plan",
+      "change log",
+      "maintenance window"
+     ],
+     "paraphrases": [
+      "A formal change process with review by a change advisory board, documented change logs and a plan to roll back failed changes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "A formal change process with review by a change advisory board, documented change logs and a plan to roll back failed changes."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D4-T02",
+     "topic_number": 2,
+     "title": "IP address management (IPAM)",
+     "aliases": [
+      "ipam",
+      "ip address management",
+      "ip allocation",
+      "address tracking",
+      "ip address planning"
+     ],
+     "paraphrases": [
+      "Tools and practices for allocating and tracking IP addresses across a network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Tools and practices for allocating and tracking IP addresses across a network."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-D4-T03",
+     "topic_number": 3,
+     "title": "Network capacity planning and utilization trends",
+     "aliases": [
+      "capacity planning",
+      "utilization trends",
+      "growth forecasting",
+      "bandwidth planning",
+      "trend analysis"
+     ],
+     "paraphrases": [
+      "Watching utilization trends over time to forecast growth and plan future capacity."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Watching utilization trends over time to forecast growth and plan future capacity."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

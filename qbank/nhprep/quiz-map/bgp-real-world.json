@@ -1,0 +1,136 @@
+{
+ "category": "bgp-real-world",
+ "book_id": "bgp_real_world",
+ "questions": {
+  "af94db54-1011-472d-8bb7-6a43a6ea01c4": {
+   "topic_id": "BGP-REAL-WORLD-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b3a4886e-f005-4543-a4f1-040055ae4333": {
+   "topic_id": "BGP-REAL-WORLD-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): Stuck in active (an EIGRP concept) means waiting for query replies, which is B, not D.; 'Stuck in active' is an EIGRP route term (where B is right); for a BGP neighbor in Active, D is only loosely defensible."
+  },
+  "88abba8a-83d3-4393-8cd6-6943fef8f018": {
+   "topic_id": "BGP-REAL-WORLD-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dcdc3195-cc0f-4c89-b6ce-a481f504aa63": {
+   "topic_id": "BGP-REAL-WORLD-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4ba76fe4-5334-4b55-980a-b7ab72ce0f47": {
+   "topic_id": "BGP-REAL-WORLD-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d31edc51-8cfc-4ccf-9915-e5b188be723c": {
+   "topic_id": "BGP-REAL-WORLD-D1-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): show ip bgp neighbors also lists every neighbor and its state, so A is as defensible as B.; 'show ip bgp neighbors' also shows each neighbor's state, so A is as correct as B."
+  },
+  "7258a390-7bf7-4370-b604-1b9bb06df77b": {
+   "topic_id": "BGP-REAL-WORLD-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f724dfca-77d2-4f34-bb4e-26ac3b3cb2a6": {
+   "topic_id": "BGP-REAL-WORLD-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): The cluster ID's purpose is loop prevention via CLUSTER_LIST, so B is at least as defensible as A.; The cluster ID's purpose is loop prevention via CLUSTER_LIST (B), as the explanation itself admits."
+  },
+  "81807c6e-2e4d-4630-a952-2ff24bb99de1": {
+   "topic_id": "BGP-REAL-WORLD-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3770adce-3331-4fb7-b632-8e91c69d95b7": {
+   "topic_id": "BGP-REAL-WORLD-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "118d7c83-8b5b-4876-a0d3-3ed5e5c394aa": {
+   "topic_id": "BGP-REAL-WORLD-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "b84cfbf8-8628-44fe-b4da-0d717c759422": {
+   "topic_id": "BGP-REAL-WORLD-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "17f41316-a127-463f-b4e8-92a7b18757ab": {
+   "topic_id": "BGP-REAL-WORLD-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d28800b0-8219-4d9b-a6c6-be31d03b7d3a": {
+   "topic_id": "BGP-REAL-WORLD-D1-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): A firewall blocking TCP 179 is as classic a cause of Active as a wrong neighbor statement.; A firewall blocking TCP 179 leaves the session in Active just as commonly as a wrong neighbor address."
+  },
+  "572ed81a-0659-4d29-a608-606649dcdc03": {
+   "topic_id": "BGP-REAL-WORLD-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "9e404236-e916-4558-a267-4cafa62493c1": {
+   "topic_id": "BGP-REAL-WORLD-D3-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "192e3424-4f16-4d27-ac75-ce21197ff9e0": {
+   "topic_id": "BGP-REAL-WORLD-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "1a769e86-ea33-469f-a7bb-ed6e1308be69": {
+   "topic_id": "BGP-REAL-WORLD-D4-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "42ec4936-5127-4641-9121-1f28b92b7359": {
+   "topic_id": "BGP-REAL-WORLD-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4f611784-1b09-467c-96f4-40fffaad41da": {
+   "topic_id": "BGP-REAL-WORLD-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "87e052c0-fc3d-4511-87fd-75f30f812328": {
+   "topic_id": "BGP-REAL-WORLD-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4f3438bd-1213-48e6-bd31-3bc87c107af1": {
+   "topic_id": "BGP-REAL-WORLD-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fd582cf6-4e42-4213-8d10-9202eed09c7e": {
+   "topic_id": "BGP-REAL-WORLD-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e1d2120c-1e4c-46e0-a9e7-146b70ff6ee8": {
+   "topic_id": "BGP-REAL-WORLD-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): Best iBGP-learned routes are advertised to eBGP peers by default; the rule is iBGP split horizon.; Best iBGP-learned routes are advertised to eBGP peers by default; the rule is no iBGP-to-iBGP re-advertisement."
+  },
+  "f7f847b3-1c99-4468-b5fc-8c9593857be4": {
+   "topic_id": "BGP-REAL-WORLD-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

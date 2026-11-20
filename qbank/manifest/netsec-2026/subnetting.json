@@ -1,0 +1,270 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "subnetting",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Subnetting Mastery",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "SUBNETTING-D1",
+   "chapter_number": 1,
+   "title": "Binary and IPv4 addressing fundamentals",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SUBNETTING-D1-T01",
+     "topic_number": 1,
+     "title": "Binary to decimal conversion and powers of two",
+     "aliases": [
+      "binary",
+      "binary conversion",
+      "decimal to binary",
+      "binary to decimal",
+      "powers of two",
+      "powers of 2",
+      "bit values",
+      "octet binary",
+      "binary math"
+     ],
+     "paraphrases": [
+      "Converting octets between binary and decimal and using powers of two as the basis of subnet math."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Converting octets between binary and decimal and using powers of two as the basis of subnet math."
+      }
+     ]
+    },
+    {
+     "topic_id": "SUBNETTING-D1-T02",
+     "topic_number": 2,
+     "title": "Private, APIPA and loopback IPv4 address ranges",
+     "aliases": [
+      "private ip ranges",
+      "rfc 1918",
+      "rfc1918",
+      "apipa",
+      "169.254",
+      "link-local ipv4",
+      "loopback address",
+      "127.0.0.1",
+      "class b private range",
+      "special ipv4 addresses"
+     ],
+     "paraphrases": [
+      "Recognising the reserved IPv4 ranges such as RFC 1918 private space, APIPA link-local addresses and the loopback address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recognising the reserved IPv4 ranges such as RFC 1918 private space, APIPA link-local addresses and the loopback address."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SUBNETTING-D2",
+   "chapter_number": 2,
+   "title": "Subnet masks and subnet calculations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SUBNETTING-D2-T01",
+     "topic_number": 1,
+     "title": "CIDR prefix length and dotted decimal subnet masks",
+     "aliases": [
+      "cidr",
+      "cidr notation",
+      "prefix length",
+      "slash notation",
+      "subnet mask",
+      "dotted decimal mask",
+      "netmask",
+      "mask to prefix",
+      "255.255.255.240"
+     ],
+     "paraphrases": [
+      "Translating between a CIDR prefix length such as /28 and its dotted decimal subnet mask."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Translating between a CIDR prefix length such as /28 and its dotted decimal subnet mask."
+      }
+     ]
+    },
+    {
+     "topic_id": "SUBNETTING-D2-T02",
+     "topic_number": 2,
+     "title": "Usable hosts per subnet (2 to the n minus 2)",
+     "aliases": [
+      "usable hosts",
+      "number of hosts",
+      "host count",
+      "hosts per subnet",
+      "2^n - 2",
+      "host bits",
+      "how many hosts",
+      "hosts in a /24"
+     ],
+     "paraphrases": [
+      "Calculating how many usable host addresses a given prefix length provides from its host bits."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Calculating how many usable host addresses a given prefix length provides from its host bits."
+      }
+     ]
+    },
+    {
+     "topic_id": "SUBNETTING-D2-T03",
+     "topic_number": 3,
+     "title": "Magic number and block size method",
+     "aliases": [
+      "magic number",
+      "block size",
+      "256 minus mask",
+      "subnet increment",
+      "interesting octet",
+      "quick subnetting",
+      "subnetting shortcut"
+     ],
+     "paraphrases": [
+      "Using 256 minus the interesting mask octet to find the subnet block size and boundaries quickly."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using 256 minus the interesting mask octet to find the subnet block size and boundaries quickly."
+      }
+     ]
+    },
+    {
+     "topic_id": "SUBNETTING-D2-T04",
+     "topic_number": 4,
+     "title": "Network address, broadcast address and usable host range",
+     "aliases": [
+      "network address",
+      "broadcast address",
+      "subnet id",
+      "first usable host",
+      "last usable host",
+      "host range",
+      "which subnet",
+      "bitwise and",
+      "subnet boundaries"
+     ],
+     "paraphrases": [
+      "Finding the network ID, broadcast address and first and last usable hosts for an address and mask."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Finding the network ID, broadcast address and first and last usable hosts for an address and mask."
+      }
+     ]
+    },
+    {
+     "topic_id": "SUBNETTING-D2-T05",
+     "topic_number": 5,
+     "title": "Wildcard masks as the inverse of subnet masks",
+     "aliases": [
+      "wildcard mask",
+      "inverse mask",
+      "ospf wildcard",
+      "acl wildcard",
+      "0.0.0.3",
+      "network statement mask"
+     ],
+     "paraphrases": [
+      "Deriving wildcard masks by inverting the subnet mask, as used in OSPF network statements and ACLs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Deriving wildcard masks by inverting the subnet mask, as used in OSPF network statements and ACLs."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SUBNETTING-D3",
+   "chapter_number": 3,
+   "title": "VLSM design and route summarization",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SUBNETTING-D3-T01",
+     "topic_number": 1,
+     "title": "VLSM subnet allocation by host requirements",
+     "aliases": [
+      "vlsm",
+      "variable length subnet mask",
+      "variable length subnetting",
+      "subnet allocation",
+      "subnet design",
+      "efficient subnetting",
+      "subnetting scenario",
+      "addressing plan"
+     ],
+     "paraphrases": [
+      "Choosing the smallest prefix for each department or link by its host count and allocating subnets efficiently."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing the smallest prefix for each department or link by its host count and allocating subnets efficiently."
+      }
+     ]
+    },
+    {
+     "topic_id": "SUBNETTING-D3-T02",
+     "topic_number": 2,
+     "title": "Route summarization and supernetting",
+     "aliases": [
+      "route summarization",
+      "summary address",
+      "supernetting",
+      "route aggregation",
+      "summarize networks",
+      "summary route",
+      "cidr aggregation"
+     ],
+     "paraphrases": [
+      "Combining contiguous networks into the smallest single summary prefix that covers them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Combining contiguous networks into the smallest single summary prefix that covers them."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

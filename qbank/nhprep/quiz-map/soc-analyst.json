@@ -1,0 +1,199 @@
+{
+ "category": "soc-analyst",
+ "book_id": "soc_analyst",
+ "questions": {
+  "5f7ce678-5e72-40af-bd85-4adaf059f38f": {
+   "topic_id": "SOC-ANALYST-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "090f5fb3-4821-446c-98df-580bdcae1b99": {
+   "topic_id": "SOC-ANALYST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "16a1721d-7077-4311-863c-e808cabce86b": {
+   "topic_id": "SOC-ANALYST-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "336d6030-4b64-46cc-be3e-95c1fec1d2c4": {
+   "topic_id": "SOC-ANALYST-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "b0e50229-457c-4d87-b5bc-3da9ce0824de": {
+   "topic_id": "SOC-ANALYST-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4fd3abd2-f4a1-493d-bc4e-ad67a4f58f2c": {
+   "topic_id": "SOC-ANALYST-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ae083032-489b-433b-afbf-7fa6dd1c1333": {
+   "topic_id": "SOC-ANALYST-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b1e62ada-af0c-4041-a7ab-28d594606471": {
+   "topic_id": "SOC-ANALYST-D4-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): CVSS AV measures the attacker's remoteness/context, which the location option matches at least as well as delivery method.; AV reflects the context/remoteness of exploitation (N/A/L/P); 'location of the attack' fits at least as well"
+  },
+  "d4a07e35-8f70-4629-865c-de1ef5e89bbc": {
+   "topic_id": "SOC-ANALYST-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "60dfe43f-9291-4833-ac87-886c42e54e92": {
+   "topic_id": "SOC-ANALYST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a713dc35-afec-453b-807c-799a2b44df00": {
+   "topic_id": "SOC-ANALYST-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "49dcc0f1-d1a7-4abe-ab86-4c0efa0bf861": {
+   "topic_id": "SOC-ANALYST-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2326af3a-aafb-4675-93b1-7ff88b822648": {
+   "topic_id": "SOC-ANALYST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a0e59cb3-2856-45ec-881c-f91abfc138ee": {
+   "topic_id": "SOC-ANALYST-D4-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "5f371f35-7094-40b3-b55b-5d86a4b34b43": {
+   "topic_id": "SOC-ANALYST-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "06984adb-a01f-467a-8dd5-b01bd46b4722": {
+   "topic_id": "SOC-ANALYST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ba16cacf-9a33-40d1-848c-44050c0dae9d": {
+   "topic_id": "SOC-ANALYST-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "348fb9ed-7ab2-4b2b-bc6e-db65b681b5e0": {
+   "topic_id": "SOC-ANALYST-D2-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "8150064a-e5bd-44f4-8c8e-d11211fec886": {
+   "topic_id": "SOC-ANALYST-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f26726cf-a67a-48f3-b156-32c3186009ac": {
+   "topic_id": "SOC-ANALYST-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "05a3d58d-609f-4a7e-a007-4db9e219e719": {
+   "topic_id": "SOC-ANALYST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "46ab5bce-556c-44cc-a0d7-2b403adaad59": {
+   "topic_id": "SOC-ANALYST-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a92c9fd9-e146-412a-b82e-9352b95d0d2d": {
+   "topic_id": "SOC-ANALYST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "64a3b28d-b710-46f0-9681-786f765a4e32": {
+   "topic_id": "SOC-ANALYST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a29aaae3-7f59-46f3-9188-e1c51ea937a2": {
+   "topic_id": "SOC-ANALYST-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "29bb39fa-af6b-479e-a772-1c0fb148a955": {
+   "topic_id": "SOC-ANALYST-D2-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): The display filter that shows only HTTP is 'http'; tcp.port==80 is port-based and imprecise.; The Wireshark display filter for only HTTP is 'http'; tcp.port==80 includes non-HTTP packets and misses HTTP on other ports."
+  },
+  "3661e77c-75c2-4920-be26-5a90cc5663de": {
+   "topic_id": "SOC-ANALYST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b54f4901-1739-460b-984d-a60256a008c4": {
+   "topic_id": "SOC-ANALYST-D3-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ffcf97c9-7a4a-43e7-b201-8ec5e77a49ed": {
+   "topic_id": "SOC-ANALYST-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d695684e-a0a4-47f6-8957-c05bb28504ea": {
+   "topic_id": "SOC-ANALYST-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "9db2a104-f28a-4d39-a964-174e793c2a32": {
+   "topic_id": "SOC-ANALYST-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "4b87facc-daab-4525-b990-0364806d00cb": {
+   "topic_id": "SOC-ANALYST-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d69b22cb-2fc4-4f52-8512-76c298066061": {
+   "topic_id": "SOC-ANALYST-D4-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): EPSS estimates exploitation likelihood (A), and ranking by exploitability (C) is equally defensible.; EPSS estimates the probability of exploitation (A), which is used to rank vulnerabilities (C); both are defensible."
+  },
+  "050ec103-9d2b-4729-aeed-30a353cb51f4": {
+   "topic_id": "SOC-ANALYST-D3-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "592bb430-e23b-428b-818d-e70580eefcec": {
+   "topic_id": "SOC-ANALYST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0c7a6696-f248-47e4-958a-a5f6c866cb87": {
+   "topic_id": "SOC-ANALYST-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a7055769-6a5c-4d2c-96eb-1fc66d8bbf95": {
+   "topic_id": "SOC-ANALYST-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a202d2b7-5749-41f9-a075-158acabebb2a": {
+   "topic_id": "SOC-ANALYST-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

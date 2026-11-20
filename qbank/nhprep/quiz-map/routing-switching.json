@@ -1,0 +1,184 @@
+{
+ "category": "routing-switching",
+ "book_id": "routing_switching",
+ "questions": {
+  "0e17d5f7-d4b8-42fd-8c13-f559bb930acf": {
+   "topic_id": "ROUTING-SWITCHING-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "22ec19ee-b7d1-4cdb-92cf-94c5d7e5b2f2": {
+   "topic_id": "ROUTING-SWITCHING-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "220c5ee9-2fd3-421f-bfd3-239db23fed96": {
+   "topic_id": "ROUTING-SWITCHING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c6fadf29-3a6e-4f45-8a28-6c94de6ea6aa": {
+   "topic_id": "ROUTING-SWITCHING-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f4311312-802c-45a3-836a-42c19edd5849": {
+   "topic_id": "ROUTING-SWITCHING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9914d420-84f5-452c-aab5-0e2f7ba666fb": {
+   "topic_id": "ROUTING-SWITCHING-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d2187bc4-1720-4989-81ec-bb2fc9f97ec8": {
+   "topic_id": "ROUTING-SWITCHING-D3-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "b1294ab9-96c0-4e7a-8af2-caf83a58802e": {
+   "topic_id": "ROUTING-SWITCHING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4d8fc1ae-902b-4ea8-9b62-726508413be4": {
+   "topic_id": "ROUTING-SWITCHING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "3e2ddc33-aaff-4f73-a4e7-31104176126e": {
+   "topic_id": "ROUTING-SWITCHING-D3-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "4d7d5384-1b33-4c53-b041-036ef2d3480f": {
+   "topic_id": "ROUTING-SWITCHING-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "680926c6-6215-406d-b633-1f790a1f3a5a": {
+   "topic_id": "ROUTING-SWITCHING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "edd04c04-8e33-4cd7-a998-63f25ce1b6c6": {
+   "topic_id": "ROUTING-SWITCHING-D3-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d1db1a38-60cb-4a95-8dd5-9af52750f63b": {
+   "topic_id": "ROUTING-SWITCHING-D1-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "12b26077-fbce-498e-90b4-82901c99e4af": {
+   "topic_id": "ROUTING-SWITCHING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3d5bd8fe-bf15-4529-9c8e-ff2197ea7ef6": {
+   "topic_id": "ROUTING-SWITCHING-D4-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): AS-path length is compared before MED; option B gives the correct order.; BGP order is weight, local preference, locally originated, AS-path length, origin, then MED, so B is correct, not C."
+  },
+  "914935c4-fc71-45fc-8a49-77031866f907": {
+   "topic_id": "ROUTING-SWITCHING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b7d822a3-6274-48fc-a5f4-4102df58fb37": {
+   "topic_id": "ROUTING-SWITCHING-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "cea34a3c-851f-4156-9047-873f03bedd83": {
+   "topic_id": "ROUTING-SWITCHING-D3-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Interface-level ip ospf pid> area id> enables OSPF on an interface as validly as network.; Interface command 'ip ospf pid> area id>' (C) enables OSPF on an interface as directly as the network statement."
+  },
+  "9d13df53-e29b-4c0e-ae19-2b0b0e16f72d": {
+   "topic_id": "ROUTING-SWITCHING-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "dec57f07-47b8-4d5c-b0ca-d7e3463ef029": {
+   "topic_id": "ROUTING-SWITCHING-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d33fdd22-7be1-480a-9efa-1c063383edcc": {
+   "topic_id": "ROUTING-SWITCHING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c963115f-f61f-4cdc-bd90-15e098f59238": {
+   "topic_id": "ROUTING-SWITCHING-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2a871959-f5a8-44a2-8e71-b778810ceedd": {
+   "topic_id": "ROUTING-SWITCHING-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f94b2642-6c60-49e6-b580-8c1bf74c5349": {
+   "topic_id": "ROUTING-SWITCHING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9261592b-6075-4924-b1eb-417d7f58a0c6": {
+   "topic_id": "ROUTING-SWITCHING-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "74ac96ad-649a-432e-a946-9f99f94a9bff": {
+   "topic_id": "ROUTING-SWITCHING-D3-T04",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): Named mode is entered with router eigrp name>; eigrp named is not an IOS command.; Named mode is 'router eigrp name>'; 'eigrp named name>' is not an IOS command."
+  },
+  "03c072df-7e73-4206-80cc-be811b7f0a96": {
+   "topic_id": "ROUTING-SWITCHING-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5e13a936-7de7-444d-ae2e-c0f304158253": {
+   "topic_id": "ROUTING-SWITCHING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4f8be806-bb93-497d-a142-8a84af391a1d": {
+   "topic_id": "ROUTING-SWITCHING-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f21bb1e1-6abc-4831-96c5-b3622bfa9d28": {
+   "topic_id": "ROUTING-SWITCHING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ab6fad0e-f94b-4817-a3ab-bf2e32dbced9": {
+   "topic_id": "ROUTING-SWITCHING-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0c9f2955-31ea-4fe0-b158-cff207fcb9bf": {
+   "topic_id": "ROUTING-SWITCHING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9ee5e20d-68b1-401b-a862-4176fbbece1e": {
+   "topic_id": "ROUTING-SWITCHING-D3-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "6affb4f8-0996-4a6c-a7d9-5f6e8e058eb8": {
+   "topic_id": "ROUTING-SWITCHING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

@@ -1,0 +1,364 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "bgp_real_world",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "BGP in the Real World",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "BGP-REAL-WORLD-D1",
+   "chapter_number": 1,
+   "title": "BGP peering, sessions and verification",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "BGP-REAL-WORLD-D1-T01",
+     "topic_number": 1,
+     "title": "BGP neighbor states and session troubleshooting (Idle, Active, Established)",
+     "aliases": [
+      "bgp neighbor states",
+      "bgp fsm",
+      "bgp idle state",
+      "bgp active state",
+      "stuck in active",
+      "bgp session down",
+      "bgp peering troubleshooting",
+      "bgp established"
+     ],
+     "paraphrases": [
+      "The BGP finite state machine states and the usual reasons a session stays in Idle or Active instead of reaching Established."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The BGP finite state machine states and the usual reasons a session stays in Idle or Active instead of reaching Established."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D1-T02",
+     "topic_number": 2,
+     "title": "eBGP multihop and peering with non-directly connected neighbors",
+     "aliases": [
+      "ebgp multihop",
+      "ebgp-multihop",
+      "loopback peering",
+      "bgp ttl",
+      "update-source loopback",
+      "non directly connected ebgp"
+     ],
+     "paraphrases": [
+      "Why and how eBGP sessions are allowed to form across more than one hop, for example between loopback addresses."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why and how eBGP sessions are allowed to form across more than one hop, for example between loopback addresses."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D1-T03",
+     "topic_number": 3,
+     "title": "BGP verification commands (show ip bgp, show bgp summary)",
+     "aliases": [
+      "show ip bgp",
+      "show bgp summary",
+      "show ip bgp summary",
+      "show ip bgp neighbors",
+      "bgp table",
+      "bgp verification commands",
+      "bgp show commands"
+     ],
+     "paraphrases": [
+      "The show commands used to read the BGP table and check neighbors and their session states."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The show commands used to read the BGP table and check neighbors and their session states."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "BGP-REAL-WORLD-D2",
+   "chapter_number": 2,
+   "title": "BGP attributes and path selection",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "BGP-REAL-WORLD-D2-T01",
+     "topic_number": 1,
+     "title": "BGP best path selection with weight and local preference",
+     "aliases": [
+      "bgp best path selection",
+      "bgp path selection",
+      "bgp weight",
+      "local preference",
+      "local-preference",
+      "local pref",
+      "bgp attributes order",
+      "outbound traffic engineering"
+     ],
+     "paraphrases": [
+      "How the BGP best path algorithm ranks routes, starting with the Cisco weight and then local preference for outbound path choice."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the BGP best path algorithm ranks routes, starting with the Cisco weight and then local preference for outbound path choice."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D2-T02",
+     "topic_number": 2,
+     "title": "AS path loop prevention and AS numbers (2-byte and 4-byte ASN)",
+     "aliases": [
+      "as path",
+      "as-path",
+      "as path loop prevention",
+      "asn",
+      "autonomous system number",
+      "4-byte asn",
+      "32-bit asn",
+      "4 byte as number"
+     ],
+     "paraphrases": [
+      "What the AS_PATH attribute records and how it prevents loops, plus the size of the 2-byte and 4-byte AS number spaces."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the AS_PATH attribute records and how it prevents loops, plus the size of the 2-byte and 4-byte AS number spaces."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D2-T03",
+     "topic_number": 3,
+     "title": "BGP well-known communities (no-export, no-advertise)",
+     "aliases": [
+      "bgp communities",
+      "bgp community",
+      "no-export",
+      "no export",
+      "no-advertise",
+      "no advertise",
+      "well-known communities",
+      "community attribute"
+     ],
+     "paraphrases": [
+      "What the well-known no-export and no-advertise communities do to the propagation of a route."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the well-known no-export and no-advertise communities do to the propagation of a route."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D2-T04",
+     "topic_number": 4,
+     "title": "iBGP next hop and advertisement rules (next-hop-self)",
+     "aliases": [
+      "next-hop-self",
+      "next hop self",
+      "ibgp next hop",
+      "bgp next hop",
+      "ibgp split horizon",
+      "ibgp advertisement rules",
+      "ibgp to ebgp advertisement"
+     ],
+     "paraphrases": [
+      "How iBGP handles the next hop of routes and which peers iBGP-learned routes are passed on to."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How iBGP handles the next hop of routes and which peers iBGP-learned routes are passed on to."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "BGP-REAL-WORLD-D3",
+   "chapter_number": 3,
+   "title": "BGP route filtering and policy",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "BGP-REAL-WORLD-D3-T01",
+     "topic_number": 1,
+     "title": "BGP route filtering with prefix lists",
+     "aliases": [
+      "prefix list",
+      "prefix-list",
+      "ip prefix-list",
+      "bgp prefix filtering",
+      "prefix list deny",
+      "bgp route filtering"
+     ],
+     "paraphrases": [
+      "Defining ip prefix-list entries and how permit and deny statements filter BGP routes by prefix."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Defining ip prefix-list entries and how permit and deny statements filter BGP routes by prefix."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D3-T02",
+     "topic_number": 2,
+     "title": "AS path access lists and regular expression filtering",
+     "aliases": [
+      "as-path access-list",
+      "as path access list",
+      "as path filter",
+      "as path regex",
+      "bgp regular expressions",
+      "filter-list"
+     ],
+     "paraphrases": [
+      "Filtering BGP routes by the ASes in their AS path with an as-path access-list."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Filtering BGP routes by the ASes in their AS path with an as-path access-list."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D3-T03",
+     "topic_number": 3,
+     "title": "Applying route maps to BGP neighbors",
+     "aliases": [
+      "route map",
+      "route-map",
+      "neighbor route-map",
+      "bgp route map",
+      "bgp policy",
+      "inbound route map",
+      "outbound route map"
+     ],
+     "paraphrases": [
+      "Using route maps as BGP policy and attaching them to a neighbor in the inbound or outbound direction."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using route maps as BGP policy and attaching them to a neighbor in the inbound or outbound direction."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D3-T04",
+     "topic_number": 4,
+     "title": "BGP route flap dampening",
+     "aliases": [
+      "bgp dampening",
+      "route dampening",
+      "route flap dampening",
+      "flap damping",
+      "bgp flapping routes",
+      "dampening penalty"
+     ],
+     "paraphrases": [
+      "How bgp dampening penalises and suppresses flapping routes and how to turn it on."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How bgp dampening penalises and suppresses flapping routes and how to turn it on."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "BGP-REAL-WORLD-D4",
+   "chapter_number": 4,
+   "title": "Scaling iBGP",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "BGP-REAL-WORLD-D4-T01",
+     "topic_number": 1,
+     "title": "BGP route reflectors and cluster ID",
+     "aliases": [
+      "route reflector",
+      "route reflectors",
+      "bgp rr",
+      "rr client",
+      "cluster id",
+      "cluster-id",
+      "ibgp full mesh",
+      "route reflector design"
+     ],
+     "paraphrases": [
+      "How route reflectors remove the need for an iBGP full mesh, what the cluster ID is for, and design considerations for deploying them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How route reflectors remove the need for an iBGP full mesh, what the cluster ID is for, and design considerations for deploying them."
+      }
+     ]
+    },
+    {
+     "topic_id": "BGP-REAL-WORLD-D4-T02",
+     "topic_number": 2,
+     "title": "BGP confederations",
+     "aliases": [
+      "bgp confederation",
+      "bgp confederations",
+      "confederation",
+      "sub-as",
+      "member as",
+      "confederation identifier"
+     ],
+     "paraphrases": [
+      "Splitting a large AS into sub-ASes that appear as one AS to the outside, to simplify iBGP."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Splitting a large AS into sub-ASes that appear as one AS to the outside, to simplify iBGP."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

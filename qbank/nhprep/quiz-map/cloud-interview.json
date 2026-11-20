@@ -1,0 +1,134 @@
+{
+ "category": "cloud-interview",
+ "book_id": "cloud_interview",
+ "questions": {
+  "3207f6f9-9a22-4905-8b9f-e5a0be39726a": {
+   "topic_id": "CLOUD-INTERVIEW-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "278023c3-e438-4e76-9ffe-72b9b1b61585": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d5d5e0a5-a48f-42e2-a053-18ef3b1cc5e6": {
+   "topic_id": "CLOUD-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f6a231bd-2025-46a4-8441-c38a0fb156ac": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f2c4a293-5784-48a5-953f-a4cabbe195c6": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "9b417126-ba8b-48d5-b8a6-3fbb7db6a5cc": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): Inter-region VPC peering has been supported since 2017, so C is outdated and false.; AWS has supported inter-region VPC peering since 2017; the real limitation is no transitive routing."
+  },
+  "9dfd20a5-b92d-405e-954c-e3cabeaffe40": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "46a95f8e-ae89-4960-9cc8-7e6afbc59369": {
+   "topic_id": "CLOUD-INTERVIEW-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b51bf87e-e0f2-49ed-91ac-5b800ee36f6b": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fb1512ae-409f-4d67-bad6-08c5fe7194d2": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "641ec661-07db-4a53-9494-a53177414cc4": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "e2030872-4f71-43b8-b068-45e8b695840c": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "1c3e7274-6a22-474f-9a93-6bc197beae7a": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ac31c085-2cfc-4b73-8fd8-bde35b5e200e": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6e4d8d33-3baf-4d91-948b-3317ac6c1a15": {
+   "topic_id": "CLOUD-INTERVIEW-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "b6a3e68d-1290-422e-91ca-29e69d633aed": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): 50 is the default quota, but the adjustable maximum is 125, so the word maximum makes D defensible.; 50 is the default quota and 125 the adjustable maximum, so 'maximum' makes D equally defensible."
+  },
+  "2afbcbf5-7766-4b31-af72-0b9c12c301ec": {
+   "topic_id": "CLOUD-INTERVIEW-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5e04c1a8-dc2b-4931-ac91-4a90c3294895": {
+   "topic_id": "CLOUD-INTERVIEW-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "83dbe238-efeb-485f-ac9f-8d04c001c052": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2ce30e05-9af4-4fa8-8746-03bd68eb1043": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e33636c7-2046-45ae-bef2-477bafddd146": {
+   "topic_id": "CLOUD-INTERVIEW-D3-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): B is also true: security groups have only allow rules while NACLs have allow and deny rules.; B is also true: security groups have only allow rules while NACLs have allow and deny rules."
+  },
+  "d1180699-6ada-4f67-a9a7-fbd65367ed10": {
+   "topic_id": "CLOUD-INTERVIEW-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2599da9b-bc9d-4b93-95db-de32331b24ed": {
+   "topic_id": "CLOUD-INTERVIEW-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c72a3b65-9be5-4c9c-b6ab-43b4d4e79472": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "852b8ec0-ac12-45a2-a48f-e25d8240089d": {
+   "topic_id": "CLOUD-INTERVIEW-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

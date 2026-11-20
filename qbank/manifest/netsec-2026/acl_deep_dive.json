@@ -1,0 +1,279 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "acl_deep_dive",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "ACL Deep Dive",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "ACL-DEEP-DIVE-D1",
+   "chapter_number": 1,
+   "title": "ACL fundamentals",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ACL-DEEP-DIVE-D1-T01",
+     "topic_number": 1,
+     "title": "Standard vs extended ACLs and ACL number ranges",
+     "aliases": [
+      "standard acl",
+      "extended acl",
+      "acl number range",
+      "acl 1-99",
+      "acl 100-199",
+      "numbered acl",
+      "standard vs extended acl",
+      "access list types"
+     ],
+     "paraphrases": [
+      "What standard and extended ACLs match on, which number ranges identify them, and what a permit entry allows."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What standard and extended ACLs match on, which number ranges identify them, and what a permit entry allows."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D1-T02",
+     "topic_number": 2,
+     "title": "ACL processing order, first match and implicit deny",
+     "aliases": [
+      "implicit deny",
+      "first match",
+      "acl order",
+      "top down processing",
+      "acl processing",
+      "deny any any",
+      "acl default action"
+     ],
+     "paraphrases": [
+      "How a router evaluates ACL entries top down, stops at the first match and denies anything left unmatched."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a router evaluates ACL entries top down, stops at the first match and denies anything left unmatched."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D1-T03",
+     "topic_number": 3,
+     "title": "Wildcard masks in ACLs",
+     "aliases": [
+      "wildcard mask",
+      "inverse mask",
+      "acl wildcard",
+      "0.0.0.255",
+      "wildcard bits",
+      "host and any keywords"
+     ],
+     "paraphrases": [
+      "How wildcard masks select which address bits an ACL entry must match."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How wildcard masks select which address bits an ACL entry must match."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D1-T04",
+     "topic_number": 4,
+     "title": "Reflexive, time-based and IPv6 ACLs",
+     "aliases": [
+      "reflexive acl",
+      "time-based acl",
+      "time-range",
+      "ipv6 acl",
+      "ipv6 access-list",
+      "session filtering",
+      "dynamic acl"
+     ],
+     "paraphrases": [
+      "Special ACL types: reflexive ACLs that allow return traffic, time-range based ACLs and ACLs that filter IPv6."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Special ACL types: reflexive ACLs that allow return traffic, time-range based ACLs and ACLs that filter IPv6."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ACL-DEEP-DIVE-D2",
+   "chapter_number": 2,
+   "title": "ACL configuration and application",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ACL-DEEP-DIVE-D2-T01",
+     "topic_number": 1,
+     "title": "Configuring standard and extended ACL entries",
+     "aliases": [
+      "access-list command",
+      "acl syntax",
+      "acl configuration",
+      "permit tcp eq 80",
+      "acl remark",
+      "block http acl",
+      "allow ssh acl",
+      "named acl configuration"
+     ],
+     "paraphrases": [
+      "Writing ACL entries with the right IOS syntax, including protocol and port matches and remarks."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Writing ACL entries with the right IOS syntax, including protocol and port matches and remarks."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D2-T02",
+     "topic_number": 2,
+     "title": "Applying ACLs to interfaces and choosing direction",
+     "aliases": [
+      "ip access-group",
+      "acl direction",
+      "inbound acl",
+      "outbound acl",
+      "acl in vs out",
+      "apply acl to interface",
+      "remove acl from interface"
+     ],
+     "paraphrases": [
+      "Binding an ACL to an interface inbound or outbound, removing it, and avoiding the wrong direction."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Binding an ACL to an interface inbound or outbound, removing it, and avoiding the wrong direction."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D2-T03",
+     "topic_number": 3,
+     "title": "ACLs on VTY lines for remote management access",
+     "aliases": [
+      "vty acl",
+      "access-class",
+      "restrict ssh access",
+      "restrict telnet access",
+      "vty lines",
+      "management access acl"
+     ],
+     "paraphrases": [
+      "Using an ACL on VTY lines to control which hosts can reach the device remotely."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using an ACL on VTY lines to control which hosts can reach the device remotely."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ACL-DEEP-DIVE-D3",
+   "chapter_number": 3,
+   "title": "ACL verification and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ACL-DEEP-DIVE-D3-T01",
+     "topic_number": 1,
+     "title": "Verifying ACLs with show commands and hit counts",
+     "aliases": [
+      "show ip access-lists",
+      "show access-lists",
+      "acl hit count",
+      "acl match counters",
+      "verify acl",
+      "troubleshoot acl"
+     ],
+     "paraphrases": [
+      "Reading ACL configuration and per-entry match counters to see which rules traffic hits."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading ACL configuration and per-entry match counters to see which rules traffic hits."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D3-T02",
+     "topic_number": 2,
+     "title": "ACL logging",
+     "aliases": [
+      "acl log keyword",
+      "acl logging",
+      "log denied packets",
+      "deny log",
+      "acl log messages"
+     ],
+     "paraphrases": [
+      "Using the log keyword on ACL entries to record matching packets and watch traffic patterns."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using the log keyword on ACL entries to record matching packets and watch traffic patterns."
+      }
+     ]
+    },
+    {
+     "topic_id": "ACL-DEEP-DIVE-D3-T03",
+     "topic_number": 3,
+     "title": "Simulating traffic through ACLs with packet-tracer",
+     "aliases": [
+      "packet-tracer",
+      "packet tracer command",
+      "asa packet-tracer",
+      "simulate packet",
+      "acl simulation"
+     ],
+     "paraphrases": [
+      "Using a packet-tracer command to simulate a packet and see how ACLs treat it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using a packet-tracer command to simulate a packet and see how ACLs treat it."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

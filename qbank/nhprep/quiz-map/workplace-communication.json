@@ -1,0 +1,131 @@
+{
+ "category": "workplace-communication",
+ "book_id": "workplace_communication",
+ "questions": {
+  "9c671e83-9a32-4cf7-96c5-6289330c1216": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ddaeaca5-7e9a-4d86-b08f-654c12f83e9c": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2ed9e652-c013-4adc-b77a-99d4a0b99b85": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eeee482e-51e2-4949-b197-a9a389a84015": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "e9a3a9ec-4267-4208-97e3-a1e9a2dd7b0c": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2b2a9add-ee95-435d-92e9-b5e280925e1a": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "1b37ea5f-d39c-4213-9561-19f61d231736": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ea46316e-ed46-48a5-9abb-bfd13c5c8431": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "91a0cbc7-9807-46db-bd9e-d19bfed5d4a5": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d85078f1-b4e5-4081-8340-6b895a0de40d": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8f23281a-e132-4908-8b0f-9d37470c80ee": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6a129803-3db6-4791-9a67-bff2cfb1fd2d": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6dcc5b66-341e-4c69-98d6-6c99190cfbe3": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "86eeae54-6055-4362-8b7c-95409d208dcf": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3df37e4a-c5e1-4469-bd60-a5f74fb9980a": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ec208e3e-221d-4d92-9293-4fd3a909e151": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c3e84524-0741-456a-a66f-365e1db59993": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "99834635-f2df-4e6f-a424-f6574999cf25": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "968cedfc-d652-48da-b06f-ec5b34593341": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ce8ef385-02f2-42d6-8055-b94bdcaa659b": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "50df300b-d7bd-4c40-a5f4-9de546138e1c": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "7bd4d5f1-6776-4dd7-bfc5-e6a38c325a45": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "53117ee0-374d-4bc7-9275-f25cf41ce9fa": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "da7230f0-88b2-46f6-8579-2e9483bb7d81": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D3-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "2782f351-ecff-4a72-afd8-36f57965b614": {
+   "topic_id": "WORKPLACE-COMMUNICATION-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  }
+ }
+}

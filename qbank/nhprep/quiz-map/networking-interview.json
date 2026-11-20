@@ -1,0 +1,158 @@
+{
+ "category": "networking-interview",
+ "book_id": "networking_interview",
+ "questions": {
+  "2b808bf2-86a4-42eb-8828-51068458c2ef": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "504d2886-8638-4be6-85b1-5a3f365ef1a7": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "251475a6-adf4-4c93-9cf8-66f4d0f73c11": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fb6dc296-b198-4a29-9a7e-2b811fd02622": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f8ade536-89f9-459c-aa8e-6a03efb00cf7": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "867541a8-f32c-4b8f-a316-a3e31f0ec733": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Best path uses longest match, AD and metric; AD alone is partial and the shortest-path option is equally partial.; AD only selects between route sources; within a protocol the metric/shortest-path computation picks the best path, so"
+  },
+  "fe144583-2028-4ba4-859a-038c6b776ccf": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3ab26b2f-cf7e-42eb-a72a-674c1a07168c": {
+   "topic_id": "NETWORKING-INTERVIEW-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "53d62946-8a5c-4589-8e00-46c1c8c8917b": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cf639e6b-4672-49e7-ab36-74d4bd2b9d82": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "d3914461-f445-44d1-ab18-da57bf0b037b": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a33dfe30-f94b-4773-96e3-b7d7b11e0ad8": {
+   "topic_id": "NETWORKING-INTERVIEW-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e83af03c-32ad-4753-a8a2-a1b29fa1092f": {
+   "topic_id": "NETWORKING-INTERVIEW-D3-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): The browser checks its caches (including its DNS cache) before a DNS lookup, so B rivals C.; The browser checks its caches (including its DNS cache) before any DNS query, so B is at least as defensible as C."
+  },
+  "31686843-9365-4436-b50f-8bc654506505": {
+   "topic_id": "NETWORKING-INTERVIEW-D4-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4aa53605-c3bd-48a6-a36d-d50be9cf6794": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d2e3305d-2478-4792-98b8-a2add65dbd5e": {
+   "topic_id": "NETWORKING-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "630c4dbf-e157-488a-9df3-bcdd217f730c": {
+   "topic_id": "NETWORKING-INTERVIEW-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "dc2cb146-18d3-4ff4-be5b-f914ccd6988e": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fb478f2b-a4ed-4b48-a485-487bd666898d": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T05",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "95e2f09c-a879-4e61-bb33-f05a3ff1404c": {
+   "topic_id": "NETWORKING-INTERVIEW-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e174c86b-aba9-4360-a0d6-989a9003c79d": {
+   "topic_id": "NETWORKING-INTERVIEW-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3942529d-4661-4099-a9ab-93ae2bdc7840": {
+   "topic_id": "NETWORKING-INTERVIEW-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b078300f-fa47-4898-a073-041a2efcfb1d": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fdda92d8-6c08-4e3d-b329-69e5b4164ace": {
+   "topic_id": "NETWORKING-INTERVIEW-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25f1a557-fc43-4ac2-92a0-86bf82937a2a": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ed7e6a52-532b-4598-847a-6c34287c6759": {
+   "topic_id": "NETWORKING-INTERVIEW-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c9f0dcf9-321b-432d-8312-62c996e37868": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "e3545ef2-5c37-47ed-9ad6-5f2fdc70151e": {
+   "topic_id": "NETWORKING-INTERVIEW-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1a085b45-d335-4dad-ab22-9e090c61297b": {
+   "topic_id": "NETWORKING-INTERVIEW-D1-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "41051b14-e26d-44fd-b1eb-d108828a1966": {
+   "topic_id": "NETWORKING-INTERVIEW-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

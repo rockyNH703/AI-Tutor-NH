@@ -1,0 +1,155 @@
+{
+ "category": "checkpoint",
+ "book_id": "checkpoint",
+ "questions": {
+  "54ae093d-7786-4ee8-a9c6-11bf444dc198": {
+   "topic_id": "CHECKPOINT-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): fw stat shows the installed policy name and date per interface (A), not cluster status.; fw stat shows the installed policy name and install time per interface, not cluster status (cphaprob state)."
+  },
+  "50902f9a-0cd0-4064-af98-dc004bc7577a": {
+   "topic_id": "CHECKPOINT-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7f935ac0-2f4a-4a22-941d-db8402eda855": {
+   "topic_id": "CHECKPOINT-D4-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): fw ping is not a Check Point command; plain ping is the correct answer.; fw ping is not a Check Point command; plain ping, observed with fw monitor, is the standard test."
+  },
+  "7e0eccfa-330c-44f0-9d84-254ad00ea8ee": {
+   "topic_id": "CHECKPOINT-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8709aa91-f52d-4d12-994f-e46fd63b2ed6": {
+   "topic_id": "CHECKPOINT-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): Check Point documents up to 5 ClusterXL members; 8 is incorrect.; Check Point documents ClusterXL at up to 5 members, not 8."
+  },
+  "067bfbca-e521-4147-8305-854741a60775": {
+   "topic_id": "CHECKPOINT-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "90e5829c-2ef7-4d64-a1a3-9e1ef6f0a395": {
+   "topic_id": "CHECKPOINT-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "70afaa33-7028-4431-9f89-24bf1e700f9e": {
+   "topic_id": "CHECKPOINT-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "dcc8eb0c-aafb-4e4d-988d-655461b2cec2": {
+   "topic_id": "CHECKPOINT-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "005bcbf5-8158-4831-b1a0-51a600a1ab5f": {
+   "topic_id": "CHECKPOINT-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d62a502e-ebd3-4088-812d-b8a9b51a26c2": {
+   "topic_id": "CHECKPOINT-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1cd288ec-06da-4b30-95ae-69580af61299": {
+   "topic_id": "CHECKPOINT-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ed42587e-bf5e-489d-99be-1f36829b9a64": {
+   "topic_id": "CHECKPOINT-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "233987b5-3c37-4c44-8c18-a529e555ced6": {
+   "topic_id": "CHECKPOINT-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5e7286fd-2bc5-4f8b-a87b-8377f3305525": {
+   "topic_id": "CHECKPOINT-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "55cbbfeb-8256-4f81-b1db-c9ffe29c251e": {
+   "topic_id": "CHECKPOINT-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2ae9b4c5-4d9d-47dc-9c3c-9f3c88f92e7f": {
+   "topic_id": "CHECKPOINT-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0acfacd3-5670-4750-9b2f-c94795c5198d": {
+   "topic_id": "CHECKPOINT-D2-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "678851b8-9922-4aa7-ad82-084e68d0c25e": {
+   "topic_id": "CHECKPOINT-D2-T04",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "6420fbab-b3a0-46af-af40-3bca7451f83f": {
+   "topic_id": "CHECKPOINT-D2-T03",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): The documented IPS blade status command is ips stat (A).; The documented IPS status command on a Check Point gateway is ips stat."
+  },
+  "8fcfcbad-78c8-46cc-b128-92b8dec84249": {
+   "topic_id": "CHECKPOINT-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "12b7203a-5810-45d5-8542-c0d0c31f325a": {
+   "topic_id": "CHECKPOINT-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d8c07064-adf3-4fb8-beb7-25120b20125f": {
+   "topic_id": "CHECKPOINT-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a141abc2-d300-4bd6-a7f1-14412aa82333": {
+   "topic_id": "CHECKPOINT-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "31c95193-3637-46b3-b955-3699f418060d": {
+   "topic_id": "CHECKPOINT-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eaed1c55-1e0d-469e-ab80-19c71624eddb": {
+   "topic_id": "CHECKPOINT-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b49e88b6-c37c-4c0c-9897-96b2df4af993": {
+   "topic_id": "CHECKPOINT-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "02545302-bab2-4ac9-9ded-3c7b3698491d": {
+   "topic_id": "CHECKPOINT-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bee2d617-3279-4028-b9cf-b7e0b379562e": {
+   "topic_id": "CHECKPOINT-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  }
+ }
+}

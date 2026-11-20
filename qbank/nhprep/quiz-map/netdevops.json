@@ -1,0 +1,170 @@
+{
+ "category": "netdevops",
+ "book_id": "netdevops",
+ "questions": {
+  "ec61c33d-dff3-45c1-b29d-89345748e1b3": {
+   "topic_id": "NETDEVOPS-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "300f8e44-8ef9-4c0f-8548-50638907a3b6": {
+   "topic_id": "NETDEVOPS-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a309bf15-5a48-4879-9969-444194c411b6": {
+   "topic_id": "NETDEVOPS-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "842f4f78-bc0d-4bf6-9a30-4370a888083f": {
+   "topic_id": "NETDEVOPS-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "60086040-e34b-45ac-910d-47a5a537ddc7": {
+   "topic_id": "NETDEVOPS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f2337732-7ec8-4d9d-8cfd-7587cb5f09b0": {
+   "topic_id": "NETDEVOPS-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7a5c4f28-fe9c-4fe7-bbbc-f071d1537eb1": {
+   "topic_id": "NETDEVOPS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c1547e09-fc5e-4831-a367-9cddf05e1cd1": {
+   "topic_id": "NETDEVOPS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a987b17c-06a4-4e0d-a27e-50cb188d0bb7": {
+   "topic_id": "NETDEVOPS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2ee968ce-67ea-4c07-8e1f-79fa2e65380f": {
+   "topic_id": "NETDEVOPS-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0feb52d0-f81c-4b83-b016-1c94a18483a3": {
+   "topic_id": "NETDEVOPS-D2-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "ef272010-ed45-4839-b6e5-08db47ae3e8a": {
+   "topic_id": "NETDEVOPS-D3-T05",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): gNMI's Set RPC makes configuration changes as core a purpose as Subscribe telemetry.; gNMI covers both configuration (Get/Set) and streaming telemetry (Subscribe), so C is as defensible as B."
+  },
+  "fd0367b6-bd2f-4eb0-90aa-40895edc122c": {
+   "topic_id": "NETDEVOPS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6bdc6172-c828-4a00-93c5-ec00a36f4fac": {
+   "topic_id": "NETDEVOPS-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "96abc026-0d43-4acf-a4bc-1818c045db90": {
+   "topic_id": "NETDEVOPS-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): All four commands (including -G/--get without data and -X GET) send a GET request.; curl url, curl -X GET url, curl --get url and curl -G url all send a GET request."
+  },
+  "8e8da4ae-0d1e-4c3a-a17e-e8c4d5d529b2": {
+   "topic_id": "NETDEVOPS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c2825315-c5a0-4185-9177-10e90831dfe0": {
+   "topic_id": "NETDEVOPS-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0d3f0dbb-e292-46f2-b1b9-dd0902f7ae3d": {
+   "topic_id": "NETDEVOPS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8aa0208d-244c-406e-8172-8182d1c3d689": {
+   "topic_id": "NETDEVOPS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3507546a-b943-438e-b19d-09943a8a8edb": {
+   "topic_id": "NETDEVOPS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cb98027f-d62d-4c5a-a79c-3bc99904e4bb": {
+   "topic_id": "NETDEVOPS-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): YAML top-level key order is irrelevant, so every option describes an equally valid file.; YAML key order is irrelevant and top-level version is obsolete, so all four orderings are equally valid files."
+  },
+  "aa9e620d-aa31-4403-8fb6-a2c4b1103a22": {
+   "topic_id": "NETDEVOPS-D1-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "4be1508b-33d2-4b92-a7ba-7f7b2ede262b": {
+   "topic_id": "NETDEVOPS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e387163e-788c-4b5f-bb0c-ab899a6042da": {
+   "topic_id": "NETDEVOPS-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): PATCH also updates an existing resource and the stem does not specify full replacement.; PATCH also updates an existing resource and the stem does not specify full replacement."
+  },
+  "f1793bcc-2637-45c4-b8d5-21b7013d4c20": {
+   "topic_id": "NETDEVOPS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5fb44a50-195e-49d2-ad45-56bfd1ce57e2": {
+   "topic_id": "NETDEVOPS-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3f9d1062-c802-4fce-b57e-2de3b10d2823": {
+   "topic_id": "NETDEVOPS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "251b7055-831d-4b21-a9f3-099ecec3dd22": {
+   "topic_id": "NETDEVOPS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9827b363-9289-4bb7-8cba-f4b1d3cca0f0": {
+   "topic_id": "NETDEVOPS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "241ffcd4-98f7-4b61-8cd0-9a1e7906221e": {
+   "topic_id": "NETDEVOPS-D4-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "e7ad8dcd-d932-4abb-8ad8-4d5b211d6abb": {
+   "topic_id": "NETDEVOPS-D1-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "ff27f745-6fed-4b03-a895-58966c7d367e": {
+   "topic_id": "NETDEVOPS-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

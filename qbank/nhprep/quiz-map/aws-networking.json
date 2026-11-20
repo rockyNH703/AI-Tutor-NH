@@ -1,0 +1,171 @@
+{
+ "category": "aws-networking",
+ "book_id": "aws_networking",
+ "questions": {
+  "69a0297f-f447-43ce-8737-103dece17c97": {
+   "topic_id": "AWS-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "841b2dae-24ad-4fc3-a13f-294aafcceb0c": {
+   "topic_id": "AWS-NETWORKING-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f03a81e2-5266-460f-9b08-3cb54722b012": {
+   "topic_id": "AWS-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): The VPC default NACL allows all while a custom NACL denies all, so A and B both fit the unqualified stem.; The VPC's default NACL allows all inbound; only a new custom NACL denies all, so A and B both fit."
+  },
+  "4e2c6c9b-2e06-45c4-a57e-76133c4db996": {
+   "topic_id": "AWS-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "667f3f2b-5393-4b29-bb8e-7cd7d1c87109": {
+   "topic_id": "AWS-NETWORKING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): The AWS default quota is 50 routes per route table (option A), not 200.; AWS default quota is 50 routes per route table (adjustable up to 1000); 200 is not a documented value."
+  },
+  "eeb51930-56b8-4230-a85a-b9fabc2be1f8": {
+   "topic_id": "AWS-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): The default limit is 5 security groups per network interface (option A), as the explanation itself says.; The default is 5 security groups per network interface (option A), as the explanation itself says."
+  },
+  "72cf9c9a-911c-4ab0-8e2c-dc26b7528408": {
+   "topic_id": "AWS-NETWORKING-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3b8b2b10-55dd-4691-864f-74dd5b519a70": {
+   "topic_id": "AWS-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "73f8aa1c-d67b-4c73-b540-1b6d6cae8aac": {
+   "topic_id": "AWS-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "abc8abd2-5485-4bf6-a11c-8e632556e6fa": {
+   "topic_id": "AWS-NETWORKING-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): A public NAT gateway is placed in a public subnet, so D is as true as C.; A public NAT gateway sits in a public subnet, so D is also true, and private NAT gateways need no Elastic IP."
+  },
+  "37e8a12d-6d51-445f-ac26-9c9fc544dd61": {
+   "topic_id": "AWS-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "4e5d4b99-f68d-4867-a535-3ff32b1e9fba": {
+   "topic_id": "AWS-NETWORKING-D4-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "10beb097-f2a3-4060-b8a1-ce04ca0e3c73": {
+   "topic_id": "AWS-NETWORKING-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "28c1b217-07e1-43c6-b9c0-5cb2db8317e0": {
+   "topic_id": "AWS-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "10b8f46b-24d3-49e5-bbe2-2dc590f570da": {
+   "topic_id": "AWS-NETWORKING-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): 1 Gbps is only the dedicated minimum; hosted connections offer 100 Mbps (and from 50 Mbps), so C is also defensible.; 1 Gbps is the dedicated minimum, but hosted connections offer 50 and 100 Mbps, so C is also defensible."
+  },
+  "b4faedde-5ee5-4575-9b04-d0e9f8214f4a": {
+   "topic_id": "AWS-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "94bbcd0e-7dd5-4376-9b62-37ebc0b0c126": {
+   "topic_id": "AWS-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3bd73835-4acc-4ab3-af09-c98159a04771": {
+   "topic_id": "AWS-NETWORKING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Inter-region VPC peering is supported, so C is also a correct statement.; Inter-region VPC peering is supported, so C is as true as B."
+  },
+  "d635a428-e768-4020-893a-bfd7642f4477": {
+   "topic_id": "AWS-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "80c39988-5e5c-44e0-aa7e-4eb42fff95b0": {
+   "topic_id": "AWS-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9232d320-c750-40cd-be1f-d47604383e16": {
+   "topic_id": "AWS-NETWORKING-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): AWS does not replace routes on create; an identical destination errors and an overlapping prefix is kept alongside.; CreateRoute with an existing destination fails (RouteAlreadyExists) and an overlapping prefix is kept beside the old rout"
+  },
+  "9ee1676d-1edb-400d-b32c-36a8d573fef1": {
+   "topic_id": "AWS-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Every option is a valid /28 block, so nothing makes B the single answer.; Every option is a valid /28 network, so nothing makes B the single answer."
+  },
+  "8641d23d-c48a-4a98-a865-c1983d2ffc02": {
+   "topic_id": "AWS-NETWORKING-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "43ccf282-9751-428f-9c95-e2a5fda7d7d6": {
+   "topic_id": "AWS-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "17c25fc2-9ca7-4e95-8d03-0e79bfd799c4": {
+   "topic_id": "AWS-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "409f2b6f-438b-40e7-ac34-3977b382ae9a": {
+   "topic_id": "AWS-NETWORKING-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "62a93d88-5452-4667-9261-0fea765f1901": {
+   "topic_id": "AWS-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "40aa8a0e-b44c-4066-983e-4aa5aab449f4": {
+   "topic_id": "AWS-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): The default Transit Gateway quota is 5000 attachments, not 50.; The default Transit Gateway quota is 5,000 attachments, not 50."
+  },
+  "41120a2a-2438-4982-9766-2c97766de6f8": {
+   "topic_id": "AWS-NETWORKING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Checking that the peering is active (D) is as standard a step as checking route tables (B).; Checking that the peering is Active is as valid a troubleshooting step as checking the route tables."
+  },
+  "4f3115b2-74c3-49fc-bdc6-62fe1e81e2ef": {
+   "topic_id": "AWS-NETWORKING-D4-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "42a42001-859b-472d-b614-9c6899e9a354": {
+   "topic_id": "AWS-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

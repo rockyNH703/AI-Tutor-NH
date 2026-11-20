@@ -1,0 +1,208 @@
+{
+ "category": "tcp-ip",
+ "book_id": "tcp_ip",
+ "questions": {
+  "1c7bc586-a89f-4a9f-a480-ea78be8bbab5": {
+   "topic_id": "TCP-IP-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e2a78dd6-d2d8-40c1-b413-82d12350c6f2": {
+   "topic_id": "TCP-IP-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): The textbook four-way close answers a FIN with an ACK, which is at least as defensible as FIN-ACK.; In the standard four-way teardown the peer answers a FIN with an ACK and sends its own FIN later."
+  },
+  "a4d895f7-2953-4ab2-8aae-43856729fbdd": {
+   "topic_id": "TCP-IP-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6a2a18f6-0b99-4984-8487-a9dae9145e9d": {
+   "topic_id": "TCP-IP-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "90436cb2-fed5-4abf-8e4e-213e55159196": {
+   "topic_id": "TCP-IP-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3d827804-b677-4537-ba4f-317d4841cb99": {
+   "topic_id": "TCP-IP-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d98810b2-91d7-456b-ab43-d23aef3b7e17": {
+   "topic_id": "TCP-IP-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "9c709585-c191-42af-9db2-42af5770f382": {
+   "topic_id": "TCP-IP-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2e0ad6b9-f372-4f28-9896-6bc014340828": {
+   "topic_id": "TCP-IP-D1-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): SYN retry counts are OS-specific (Windows 2, Linux 5 or 6), so 3 is not a single defensible fact.; SYN retry counts are OS-specific (Linux 6, Windows 2); no single option is a standard fact."
+  },
+  "2e066ad3-cc23-4f29-8113-65abbb031f38": {
+   "topic_id": "TCP-IP-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "72579be2-434b-491b-a0fc-39ba6846343f": {
+   "topic_id": "TCP-IP-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3c4f0e50-579b-4a0e-9af9-d4aa5246d306": {
+   "topic_id": "TCP-IP-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2a78684a-e9d8-48ae-a487-a859cd7d85cd": {
+   "topic_id": "TCP-IP-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a02ceb81-ab9b-4b22-bccc-efbb061e0e35": {
+   "topic_id": "TCP-IP-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6a949057-5172-488d-923b-681a81410d99": {
+   "topic_id": "TCP-IP-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8741dd6d-9117-4604-8889-e8ac1bd4149d": {
+   "topic_id": "TCP-IP-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3b88a516-79b2-485d-baa3-04dfaba191a9": {
+   "topic_id": "TCP-IP-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "613f2cf6-829f-4b34-9895-f5eb54a4c1f3": {
+   "topic_id": "TCP-IP-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5900a250-54e7-4738-81eb-afe5bc4e4f6d": {
+   "topic_id": "TCP-IP-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ce06ce53-23af-44e2-82d1-13d657672feb": {
+   "topic_id": "TCP-IP-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c1024355-14c5-416f-941c-61c08a9e6bc3": {
+   "topic_id": "TCP-IP-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ba794888-04ff-4a15-a012-fe6602aa5f7a": {
+   "topic_id": "TCP-IP-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c7aa191c-4560-4ccd-9cf1-b1ede073dd7c": {
+   "topic_id": "TCP-IP-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ab8456cf-676a-41cc-aa66-1d53599fa516": {
+   "topic_id": "TCP-IP-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a0c52378-83cc-438e-bf23-d61ce11f5871": {
+   "topic_id": "TCP-IP-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "165189fe-6f5a-4db3-a4e8-87e522db9cc2": {
+   "topic_id": "TCP-IP-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "29583375-f29d-4147-a287-58329979abd1": {
+   "topic_id": "TCP-IP-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "091f4615-e0e0-4b5c-829b-e03575616fae": {
+   "topic_id": "TCP-IP-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "88957b14-4f2e-4bbb-9e7a-8bc3e45d3549": {
+   "topic_id": "TCP-IP-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ff928aaf-8a5a-4bf0-9d8b-ca617151f330": {
+   "topic_id": "TCP-IP-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "0d8abdb3-e363-4d84-bd2c-876a11fa6761": {
+   "topic_id": "TCP-IP-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d39e25bb-efc3-4f76-a544-c6f4f5bb9367": {
+   "topic_id": "TCP-IP-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8718679b-1b90-46f5-b5b8-5ff66baf65ff": {
+   "topic_id": "TCP-IP-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "947d251d-2477-4650-806f-e0f0dd9dbe9c": {
+   "topic_id": "TCP-IP-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "5f1881fe-d44c-4878-a1fa-3fcd3655b9c2": {
+   "topic_id": "TCP-IP-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cb36b3a7-c777-4cdf-91f2-60489ed1f6e4": {
+   "topic_id": "TCP-IP-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "59babbfe-cfa2-4931-8779-ab644343ddce": {
+   "topic_id": "TCP-IP-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b6383599-9a80-446a-99eb-9bf75b2065e2": {
+   "topic_id": "TCP-IP-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8f79a3f7-ebe1-4ba3-9a55-400a021b0325": {
+   "topic_id": "TCP-IP-D4-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "45fd1275-6fff-4e8c-8995-115522b649e7": {
+   "topic_id": "TCP-IP-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

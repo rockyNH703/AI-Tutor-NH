@@ -1,0 +1,181 @@
+{
+ "category": "linux-networking",
+ "book_id": "linux_networking",
+ "questions": {
+  "441f663a-d681-45fb-8f3e-c5b7d2fe5b80": {
+   "topic_id": "LINUX-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0b24a09c-3567-4914-b3c9-7099707c9cd5": {
+   "topic_id": "LINUX-NETWORKING-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9cb50c99-cc10-4b38-bc33-b4cdea46ca67": {
+   "topic_id": "LINUX-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c9724b1c-0f5a-4122-8c8c-7c67087f1390": {
+   "topic_id": "LINUX-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a38c7c8d-08d2-4a9f-95f4-1938065556c6": {
+   "topic_id": "LINUX-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "866787bf-c484-4329-ac07-288c71922b57": {
+   "topic_id": "LINUX-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "30352688-0c01-498c-9af9-74ac3a0351ad": {
+   "topic_id": "LINUX-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "0f9d3769-3124-4c69-a91b-4c4a9a54b2f2": {
+   "topic_id": "LINUX-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e173b9f9-fdd3-4c88-bff4-30ff2d34064a": {
+   "topic_id": "LINUX-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8fc55b85-6aef-45ff-b4a4-e0d727a172dd": {
+   "topic_id": "LINUX-NETWORKING-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "68184a68-dd7c-4204-881b-f9eafd243311": {
+   "topic_id": "LINUX-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "cde24d41-ad79-4042-bf8c-c71bd81d383d": {
+   "topic_id": "LINUX-NETWORKING-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a89a1f1c-76cb-485b-853f-d8fec9673781": {
+   "topic_id": "LINUX-NETWORKING-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "98aa1447-cae2-42e5-8715-0b2cd52b03a3": {
+   "topic_id": "LINUX-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "489905cd-9bc4-4f36-bb2a-53548aadd474": {
+   "topic_id": "LINUX-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "84b7b910-e9df-42ab-8771-3fb15af80da0": {
+   "topic_id": "LINUX-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "23ea3d29-5267-4e7f-939f-aacfc89857f2": {
+   "topic_id": "LINUX-NETWORKING-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "f219a4d6-4d56-47f1-b153-c50c3f2bb6bc": {
+   "topic_id": "LINUX-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "649d17b5-37b2-4a7c-b1bc-27c90674c9d0": {
+   "topic_id": "LINUX-NETWORKING-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2881d86f-376f-4df5-9d2f-0d297854fd11": {
+   "topic_id": "LINUX-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "7d50f02f-34c4-44eb-b2f8-2f69aeb5ddeb": {
+   "topic_id": "LINUX-NETWORKING-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "056fbbe1-c85c-4242-9a82-03bc2fc0d3cd": {
+   "topic_id": "LINUX-NETWORKING-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ea0233aa-57a8-4def-9142-e7aaa8f379eb": {
+   "topic_id": "LINUX-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "71032309-d961-4ea9-8e04-55dd7f1db2f7": {
+   "topic_id": "LINUX-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "27e5dda7-5ff3-4768-8ef2-b609889c642a": {
+   "topic_id": "LINUX-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6c92f474-7b65-47b6-8e65-47455e96b4e5": {
+   "topic_id": "LINUX-NETWORKING-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "aa09bb47-c656-4c01-8439-c0fe9ac7f063": {
+   "topic_id": "LINUX-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bc0f6a67-6827-4303-b20e-cb0c05c5e6b7": {
+   "topic_id": "LINUX-NETWORKING-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7ba642e7-2c7d-429f-a2cd-c8984fcf3c08": {
+   "topic_id": "LINUX-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5ec7caec-d8b5-428f-8e1f-5ae9c157b697": {
+   "topic_id": "LINUX-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c0fde74b-2ecb-4301-a9a0-694a5b7d7d95": {
+   "topic_id": "LINUX-NETWORKING-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "34a21a94-509c-4ed3-88aa-e9769c874ab0": {
+   "topic_id": "LINUX-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "85ec1bff-08de-443f-a384-3f5b8883c8fb": {
+   "topic_id": "LINUX-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bdadc589-8cdc-4694-8528-bc552c9b0350": {
+   "topic_id": "LINUX-NETWORKING-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8b911419-abb8-4206-8b54-600632038a1e": {
+   "topic_id": "LINUX-NETWORKING-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

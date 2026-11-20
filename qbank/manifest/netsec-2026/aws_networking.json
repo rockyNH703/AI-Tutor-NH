@@ -1,0 +1,378 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "aws_networking",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "cloud",
+  "language": "english",
+  "title": "AWS Networking",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "AWS-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "VPC design and routing",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AWS-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "VPC CIDR blocks and subnet sizing",
+     "aliases": [
+      "vpc cidr",
+      "subnetting",
+      "subnet mask",
+      "cidr block",
+      "aws subnets",
+      "/24 subnet",
+      "/28 subnet",
+      "vpc ip addressing"
+     ],
+     "paraphrases": [
+      "Choosing VPC CIDR ranges, carving them into subnets and reading subnet masks and prefix lengths."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing VPC CIDR ranges, carving them into subnets and reading subnet masks and prefix lengths."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "Internet gateways and public subnets",
+     "aliases": [
+      "internet gateway",
+      "igw",
+      "public subnet",
+      "public vs private subnet",
+      "vpc internet access"
+     ],
+     "paraphrases": [
+      "How an internet gateway attaches to a VPC and what makes a subnet public."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an internet gateway attaches to a VPC and what makes a subnet public."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "NAT gateways for private subnet egress",
+     "aliases": [
+      "nat gateway",
+      "nat gw",
+      "aws nat",
+      "private subnet outbound",
+      "elastic ip nat",
+      "nat instance"
+     ],
+     "paraphrases": [
+      "How NAT gateways give private subnets outbound internet access and what they require."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How NAT gateways give private subnets outbound internet access and what they require."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D1-T04",
+     "topic_number": 4,
+     "title": "VPC route tables and route selection",
+     "aliases": [
+      "route table",
+      "vpc routing",
+      "longest prefix match",
+      "route priority",
+      "route table limits",
+      "custom route table"
+     ],
+     "paraphrases": [
+      "How VPC route tables hold routes, which route wins for a packet and how routes are added or replaced."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How VPC route tables hold routes, which route wins for a packet and how routes are added or replaced."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D1-T05",
+     "topic_number": 5,
+     "title": "VPC endpoints: gateway and interface",
+     "aliases": [
+      "vpc endpoint",
+      "gateway endpoint",
+      "interface endpoint",
+      "privatelink",
+      "aws privatelink",
+      "s3 endpoint",
+      "dynamodb endpoint"
+     ],
+     "paraphrases": [
+      "Reaching AWS services privately from a VPC with gateway and interface endpoints and how they differ."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reaching AWS services privately from a VPC with gateway and interface endpoints and how they differ."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AWS-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "VPC security controls",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AWS-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "Security groups: stateful instance firewalls",
+     "aliases": [
+      "security group",
+      "sg",
+      "aws security groups",
+      "stateful firewall",
+      "ec2 security group",
+      "security group limits"
+     ],
+     "paraphrases": [
+      "How stateful security groups filter traffic for instances with allow-only rules and their limits."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How stateful security groups filter traffic for instances with allow-only rules and their limits."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "Network ACLs and security groups compared",
+     "aliases": [
+      "nacl",
+      "network acl",
+      "network access control list",
+      "stateless firewall",
+      "subnet acl",
+      "nacl vs security group",
+      "deny rules"
+     ],
+     "paraphrases": [
+      "How stateless subnet-level network ACLs evaluate allow and deny rules and how they differ from security groups."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How stateless subnet-level network ACLs evaluate allow and deny rules and how they differ from security groups."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AWS-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Inter-VPC and hybrid connectivity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AWS-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "VPC peering requirements and troubleshooting",
+     "aliases": [
+      "vpc peering",
+      "peering connection",
+      "transitive routing",
+      "overlapping cidr",
+      "inter-region peering",
+      "peering troubleshooting"
+     ],
+     "paraphrases": [
+      "Connecting two VPCs with peering, its CIDR and routing requirements, and how to troubleshoot it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Connecting two VPCs with peering, its CIDR and routing requirements, and how to troubleshoot it."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "AWS Transit Gateway hub connectivity",
+     "aliases": [
+      "transit gateway",
+      "tgw",
+      "aws tgw",
+      "hub and spoke vpc",
+      "transit gateway attachments"
+     ],
+     "paraphrases": [
+      "Using a Transit Gateway as a hub to connect many VPCs and on-premises networks, and its attachment limits."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using a Transit Gateway as a hub to connect many VPCs and on-premises networks, and its attachment limits."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D3-T03",
+     "topic_number": 3,
+     "title": "AWS Site-to-Site VPN",
+     "aliases": [
+      "site-to-site vpn",
+      "aws vpn",
+      "ipsec vpn",
+      "vpn connection",
+      "virtual private gateway",
+      "customer gateway"
+     ],
+     "paraphrases": [
+      "Connecting on-premises networks to AWS over IPsec Site-to-Site VPN."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Connecting on-premises networks to AWS over IPsec Site-to-Site VPN."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D3-T04",
+     "topic_number": 4,
+     "title": "AWS Direct Connect",
+     "aliases": [
+      "direct connect",
+      "dx",
+      "aws dx",
+      "dedicated connection",
+      "hosted connection",
+      "direct connect bandwidth"
+     ],
+     "paraphrases": [
+      "Private dedicated links from on-premises to AWS with Direct Connect and its connection speeds."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Private dedicated links from on-premises to AWS with Direct Connect and its connection speeds."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AWS-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "Load balancing, DNS and CLI operations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AWS-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "Elastic Load Balancing: ALB vs NLB",
+     "aliases": [
+      "elb",
+      "alb",
+      "nlb",
+      "application load balancer",
+      "network load balancer",
+      "layer 4 vs layer 7 load balancing"
+     ],
+     "paraphrases": [
+      "The AWS load balancer types and how Layer 7 ALB differs from Layer 4 NLB."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The AWS load balancer types and how Layer 7 ALB differs from Layer 4 NLB."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "Route 53 routing policies",
+     "aliases": [
+      "route 53",
+      "route53",
+      "aws dns",
+      "simple routing policy",
+      "latency routing",
+      "geolocation routing",
+      "weighted routing"
+     ],
+     "paraphrases": [
+      "How Amazon Route 53 routing policies decide which resource answers a DNS query."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Amazon Route 53 routing policies decide which resource answers a DNS query."
+      }
+     ]
+    },
+    {
+     "topic_id": "AWS-NETWORKING-D4-T03",
+     "topic_number": 3,
+     "title": "AWS CLI commands for VPC networking",
+     "aliases": [
+      "aws cli",
+      "aws ec2 cli",
+      "describe-vpcs",
+      "create-route-table",
+      "delete-route",
+      "create-vpn-connection",
+      "aws networking commands"
+     ],
+     "paraphrases": [
+      "Using AWS CLI ec2 commands to create, describe and change VPCs, route tables and VPN connections."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using AWS CLI ec2 commands to create, describe and change VPCs, route tables and VPN connections."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

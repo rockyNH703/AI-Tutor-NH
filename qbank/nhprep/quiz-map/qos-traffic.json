@@ -1,0 +1,130 @@
+{
+ "category": "qos-traffic",
+ "book_id": "qos_traffic",
+ "questions": {
+  "58dc8c3f-813a-45e9-a738-937c63709316": {
+   "topic_id": "QOS-TRAFFIC-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "622166ad-24d7-42c5-8775-720b0913d602": {
+   "topic_id": "QOS-TRAFFIC-D4-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): A service-policy attaches a policy-map; queuing and shaping are as plausible as bandwidth limits.; service-policy attaches a policy-map to an interface; queuing (B) and shaping (D) are as defensible as bandwidth limits (C)."
+  },
+  "717e386a-e8c7-4cb7-a3b9-e324aa7b50f2": {
+   "topic_id": "QOS-TRAFFIC-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0aed8575-bdea-4a59-ac5c-114b6352a185": {
+   "topic_id": "QOS-TRAFFIC-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6eadf150-c845-4c19-a137-e9df0e57f40c": {
+   "topic_id": "QOS-TRAFFIC-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d9379392-2f05-4179-9f36-1f5c8fa7b150": {
+   "topic_id": "QOS-TRAFFIC-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2f74a07e-4aa8-4417-912e-5a53f7635675": {
+   "topic_id": "QOS-TRAFFIC-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "70ae5544-580c-4142-b242-adafef8b8f0f": {
+   "topic_id": "QOS-TRAFFIC-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "652bf932-661a-4ebc-ae62-0e1ad6315bfa": {
+   "topic_id": "QOS-TRAFFIC-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d8b1b3e6-1aea-4e8b-9e25-7ab2b5cd9e83": {
+   "topic_id": "QOS-TRAFFIC-D2-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): CBWFQ bandwidth is a congestion-time minimum and the class can exceed it, so C is at least as correct.; CBWFQ bandwidth is a minimum during congestion and a class may exceed it when spare bandwidth exists, so C is at least as correct"
+  },
+  "c9c4b080-7ab0-4d6b-bcbe-960568fbc701": {
+   "topic_id": "QOS-TRAFFIC-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b6b9a05f-5ae3-4888-a5b3-c30e7db8540e": {
+   "topic_id": "QOS-TRAFFIC-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "c3b1d9cf-44de-4238-a343-7c35234b12e4": {
+   "topic_id": "QOS-TRAFFIC-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fbc4c119-b197-40f7-9961-764437f467b5": {
+   "topic_id": "QOS-TRAFFIC-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "acabdfff-5640-4ef5-b059-bc2305254c0c": {
+   "topic_id": "QOS-TRAFFIC-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "83719d17-d5d8-400c-b250-b99625cc299c": {
+   "topic_id": "QOS-TRAFFIC-D4-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ec849557-5669-489d-bb92-b0b1ed746625": {
+   "topic_id": "QOS-TRAFFIC-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "19395049-b8fb-405b-8957-8a779cf10acf": {
+   "topic_id": "QOS-TRAFFIC-D1-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "bb965546-2b84-4396-a3e5-d13607f5a2d5": {
+   "topic_id": "QOS-TRAFFIC-D3-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Policing drops excess traffic but shaping queues it; the stem does not say which.; Policing drops excess but shaping queues it; the stem does not say which, so A is equally defensible."
+  },
+  "7c3e559d-7d1f-4a9b-8963-44fa3908ac13": {
+   "topic_id": "QOS-TRAFFIC-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bf64d2ab-7dee-459b-a6dc-7b38d644835c": {
+   "topic_id": "QOS-TRAFFIC-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): DSCP 10, 12 and 14 are all AF class 1, and 10 (AF11) is the more canonical answer.; AF11, AF12 and AF13 (DSCP 10, 12, 14) are all AF class 1 and all three are offered."
+  },
+  "45f99207-000f-4cdb-aa4b-e440864bb55e": {
+   "topic_id": "QOS-TRAFFIC-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e5fec155-e387-4bd6-8347-8a4e68537ba8": {
+   "topic_id": "QOS-TRAFFIC-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "23bbe151-cd38-4be4-9fe7-0906c8e1082b": {
+   "topic_id": "QOS-TRAFFIC-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

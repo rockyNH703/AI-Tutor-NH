@@ -1,0 +1,102 @@
+{
+ "category": "compliance-frameworks",
+ "book_id": "compliance_frameworks",
+ "questions": {
+  "2de5ccea-3196-4f9c-bc25-589170b21909": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "cbfd2ba5-dd8b-4c36-b980-71a0f1672216": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "0c2e3535-e9df-4084-81ff-ac658577e33d": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0177b949-0425-4866-8739-192383143aa0": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): PCI DSS does require a risk assessment (12.2 in v3.2.1, targeted risk analysis in v4.0), so C is also a requirement.; PCI DSS explicitly requires risk assessment (v3.2.1 12.2, v4.0 12.3.1), so every option is a requirement and C is not a"
+  },
+  "238752a7-ef77-46e6-beae-45a72d0103a1": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "16c30822-edaa-4b99-8089-80ce7f3da7cc": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "acbdf5b3-9a55-430d-b7c4-0d2ccc15df6d": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2e6a5ce0-d567-4e92-96b5-0c2c4c05f345": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "73d28990-d667-4f1c-8614-5d4254b99375": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c11dbf32-3558-4f50-a744-c2069a324871": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "54c9eee4-fd21-4bfc-bcd7-f0720bacaee8": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ccde0255-16fb-46bf-b4be-d43ed63e87d4": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "508404bc-84b2-48bc-972b-cb6857beddf7": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "8866efdd-ea61-49d6-8a0b-b47fc3964d09": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "5730fcfe-7ede-4522-b846-f6966de9f39e": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5919fc5a-241d-4555-a0b9-dc10c51455e1": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "cbc5497b-2486-45c3-ad98-646174c326d6": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "5f247772-478b-4329-85b6-aa5439ecec02": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "302004bb-086e-4107-b829-51d795fcd710": {
+   "topic_id": "COMPLIANCE-FRAMEWORKS-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

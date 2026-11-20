@@ -1,0 +1,418 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "soc_analyst",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "SOC Analyst",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "SOC-ANALYST-D1",
+   "chapter_number": 1,
+   "title": "Security monitoring and SOC tooling",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SOC-ANALYST-D1-T01",
+     "topic_number": 1,
+     "title": "SIEM alert triage, correlation rules, log normalization and log sources",
+     "aliases": [
+      "siem",
+      "alert triage",
+      "correlation rules",
+      "log normalization",
+      "alert fatigue",
+      "security information and event management",
+      "windows event logs",
+      "log sources",
+      "siem correlation"
+     ],
+     "paraphrases": [
+      "How a SIEM collects and normalizes logs, correlates events into alerts, and how analysts triage those alerts without drowning in noise."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a SIEM collects and normalizes logs, correlates events into alerts, and how analysts triage those alerts without drowning in noise."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D1-T02",
+     "topic_number": 2,
+     "title": "Splunk SPL search commands",
+     "aliases": [
+      "splunk",
+      "spl",
+      "search processing language",
+      "splunk stats",
+      "splunk table",
+      "splunk search",
+      "splunk commands"
+     ],
+     "paraphrases": [
+      "Using Splunk Search Processing Language commands such as stats and table to summarize and present search results."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Splunk Search Processing Language commands such as stats and table to summarize and present search results."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D1-T03",
+     "topic_number": 3,
+     "title": "Security tools: EDR, SOAR, WAF and honeypots",
+     "aliases": [
+      "edr",
+      "endpoint detection and response",
+      "soar",
+      "security orchestration automation and response",
+      "waf",
+      "web application firewall",
+      "honeypot",
+      "security tools"
+     ],
+     "paraphrases": [
+      "What endpoint detection and response, SOAR platforms, web application firewalls and honeypots each do in a security operations center."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What endpoint detection and response, SOAR platforms, web application firewalls and honeypots each do in a security operations center."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SOC-ANALYST-D2",
+   "chapter_number": 2,
+   "title": "Network traffic analysis",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SOC-ANALYST-D2-T01",
+     "topic_number": 1,
+     "title": "Wireshark display filters and pcap analysis",
+     "aliases": [
+      "wireshark",
+      "display filters",
+      "pcap",
+      "packet capture",
+      "wireshark filter",
+      "tcp.port filter",
+      "packet analysis",
+      "tshark"
+     ],
+     "paraphrases": [
+      "Writing Wireshark display filters for ports and protocols and opening packet capture files for analysis."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Writing Wireshark display filters for ports and protocols and opening packet capture files for analysis."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D2-T02",
+     "topic_number": 2,
+     "title": "Detecting DNS tunneling and DNS exfiltration",
+     "aliases": [
+      "dns tunneling",
+      "dns exfiltration",
+      "txt records",
+      "txt queries",
+      "dns analysis",
+      "dns c2",
+      "suspicious dns"
+     ],
+     "paraphrases": [
+      "Recognizing DNS tunneling from unusual query patterns such as many TXT queries or long subdomains, and why it is hard to detect."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recognizing DNS tunneling from unusual query patterns such as many TXT queries or long subdomains, and why it is hard to detect."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D2-T03",
+     "topic_number": 3,
+     "title": "Detecting lateral movement over SMB",
+     "aliases": [
+      "lateral movement",
+      "smb",
+      "server message block",
+      "smb lateral movement",
+      "east-west traffic",
+      "psexec"
+     ],
+     "paraphrases": [
+      "Network indicators, such as frequent SMB connections between hosts, that suggest an attacker is moving laterally."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Network indicators, such as frequent SMB connections between hosts, that suggest an attacker is moving laterally."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SOC-ANALYST-D3",
+   "chapter_number": 3,
+   "title": "Threat intelligence and adversary behavior",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SOC-ANALYST-D3-T01",
+     "topic_number": 1,
+     "title": "MITRE ATT&CK framework and ATT&CK Navigator",
+     "aliases": [
+      "mitre att&ck",
+      "mitre attack",
+      "att&ck",
+      "attack navigator",
+      "att&ck navigator",
+      "tactics techniques procedures",
+      "ttps"
+     ],
+     "paraphrases": [
+      "What the MITRE ATT&CK knowledge base is for and how the ATT&CK Navigator maps adversary tactics and techniques."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the MITRE ATT&CK knowledge base is for and how the ATT&CK Navigator maps adversary tactics and techniques."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D3-T02",
+     "topic_number": 2,
+     "title": "ATT&CK techniques: initial access, execution and persistence",
+     "aliases": [
+      "initial access",
+      "execution tactic",
+      "persistence",
+      "phishing t1566",
+      "powershell t1059",
+      "drive-by compromise",
+      "invoke-expression",
+      "scheduled tasks",
+      "attack techniques"
+     ],
+     "paraphrases": [
+      "Specific adversary techniques such as phishing, drive-by compromise, PowerShell execution with Invoke-Expression and scheduled-task persistence, and which tactic each belongs to."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Specific adversary techniques such as phishing, drive-by compromise, PowerShell execution with Invoke-Expression and scheduled-task persistence, and which tactic each belongs to."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D3-T03",
+     "topic_number": 3,
+     "title": "Lockheed Martin Cyber Kill Chain",
+     "aliases": [
+      "kill chain",
+      "cyber kill chain",
+      "lockheed martin kill chain",
+      "attack lifecycle",
+      "intrusion kill chain",
+      "kill chain stages"
+     ],
+     "paraphrases": [
+      "The Lockheed Martin model that breaks a cyber attack into ordered stages from reconnaissance to actions on objectives."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Lockheed Martin model that breaks a cyber attack into ordered stages from reconnaissance to actions on objectives."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D3-T04",
+     "topic_number": 4,
+     "title": "Indicators of compromise and threat intelligence feeds",
+     "aliases": [
+      "ioc",
+      "iocs",
+      "indicators of compromise",
+      "threat feeds",
+      "threat intelligence",
+      "cti",
+      "file hash ioc",
+      "threat intel feeds"
+     ],
+     "paraphrases": [
+      "Types of indicators of compromise such as file hashes and how threat feeds share known IOCs to improve detection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Types of indicators of compromise such as file hashes and how threat feeds share known IOCs to improve detection."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D3-T05",
+     "topic_number": 5,
+     "title": "Malware categories and detection evasion techniques",
+     "aliases": [
+      "malware types",
+      "worm",
+      "trojan",
+      "ransomware",
+      "rat",
+      "malware evasion",
+      "sandbox evasion",
+      "sleep timers"
+     ],
+     "paraphrases": [
+      "Distinguishing malware families such as worms and trojans and the tricks malware uses, such as delayed execution, to avoid detection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Distinguishing malware families such as worms and trojans and the tricks malware uses, such as delayed execution, to avoid detection."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SOC-ANALYST-D4",
+   "chapter_number": 4,
+   "title": "Incident response and vulnerability management",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SOC-ANALYST-D4-T01",
+     "topic_number": 1,
+     "title": "NIST incident response lifecycle, containment and lessons learned",
+     "aliases": [
+      "nist incident response",
+      "nist 800-61",
+      "incident response lifecycle",
+      "containment",
+      "lessons learned",
+      "ir phases",
+      "incident handling",
+      "eradication and recovery"
+     ],
+     "paraphrases": [
+      "The phases of the NIST incident response lifecycle, especially the goals of containment and the post-incident lessons learned phase."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The phases of the NIST incident response lifecycle, especially the goals of containment and the post-incident lessons learned phase."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D4-T02",
+     "topic_number": 2,
+     "title": "Evidence preservation and chain of custody",
+     "aliases": [
+      "chain of custody",
+      "evidence preservation",
+      "digital forensics",
+      "forensic evidence",
+      "evidence handling",
+      "data integrity"
+     ],
+     "paraphrases": [
+      "Why incident responders preserve evidence and document its handling so it stays intact for analysis and legal proceedings."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why incident responders preserve evidence and document its handling so it stays intact for analysis and legal proceedings."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D4-T03",
+     "topic_number": 3,
+     "title": "Vulnerability scanning versus penetration testing",
+     "aliases": [
+      "vulnerability scanning",
+      "vulnerability scanner",
+      "penetration testing",
+      "pentest",
+      "vuln scan",
+      "nessus",
+      "vulnerability assessment"
+     ],
+     "paraphrases": [
+      "What a vulnerability scanner does and how automated scanning differs from manual penetration testing."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a vulnerability scanner does and how automated scanning differs from manual penetration testing."
+      }
+     ]
+    },
+    {
+     "topic_id": "SOC-ANALYST-D4-T04",
+     "topic_number": 4,
+     "title": "CVSS scoring and EPSS risk prioritization",
+     "aliases": [
+      "cvss",
+      "common vulnerability scoring system",
+      "attack vector",
+      "epss",
+      "exploit prediction scoring system",
+      "vulnerability prioritization",
+      "cvss v3"
+     ],
+     "paraphrases": [
+      "Reading CVSS v3 metrics such as attack vector and using EPSS exploit likelihood to prioritize vulnerability remediation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading CVSS v3 metrics such as attack vector and using EPSS exploit likelihood to prioritize vulnerability remediation."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

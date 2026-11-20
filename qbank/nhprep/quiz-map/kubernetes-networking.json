@@ -1,0 +1,148 @@
+{
+ "category": "kubernetes-networking",
+ "book_id": "kubernetes_networking",
+ "questions": {
+  "b64f542b-833d-456f-be60-71600a545346": {
+   "topic_id": "KUBERNETES-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0ca1e261-7bf0-4d38-b5c8-2ca8b103eb78": {
+   "topic_id": "KUBERNETES-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dfd6a749-4e06-4c0d-aa63-f1fe66a637f6": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): netpol is the valid short name, so D deletes the policy too.; netpol is the built-in short name, so D works exactly like A."
+  },
+  "fc3a3c0e-e11e-4a5b-9383-9b38274312d6": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5c226579-d557-44e4-a807-f4343f995236": {
+   "topic_id": "KUBERNETES-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4e01106c-0d6e-454d-b3af-f7acd45b799e": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0cd4858a-d18c-4dcb-a6e9-dee3afdb89f6": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): kubectl get netpol is identical to kubectl get networkpolicies.; kubectl get netpol is identical to kubectl get networkpolicies."
+  },
+  "5970d814-e1ca-4ef4-8319-865ec44b6dc9": {
+   "topic_id": "KUBERNETES-NETWORKING-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "33ee52c0-2f5b-43ea-be8b-a8895aa154d6": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "17ba8f68-4914-4a3a-943b-bd5bb1dfe399": {
+   "topic_id": "KUBERNETES-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a90df09f-9337-42f4-af4a-c5e0335cea59": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7a11e8c4-8587-44fe-ae56-e14109643aa8": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): kubectl expose pod --type=NodePort also creates a NodePort Service.; kubectl expose pod --type=NodePort also creates a NodePort Service, and the real subcommand is lowercase 'nodeport'."
+  },
+  "597ad4d9-7d3c-40a0-9036-4b98799fb3a3": {
+   "topic_id": "KUBERNETES-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): kubectl logs -f shows the same pod logs, so A and C are both correct.; kubectl logs -f also shows the pod's logs (and follows them), as defensible as A."
+  },
+  "e3c7f4c3-64a9-4bb1-8c77-1874b49f1377": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "cbebd0d2-ce12-4289-9348-4229d76c9dfc": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "69ffb48f-b07d-4ef9-9a7c-194dfbce364f": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "8d086bb5-c89b-4bbf-b6bb-133b2d8d3e05": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T02",
+   "difficulty": "hard",
+   "competency": "knowledge_understanding"
+  },
+  "d84d180d-e889-4a56-b4cf-7a4a0db70e11": {
+   "topic_id": "KUBERNETES-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "0aefd754-0426-46bb-b3dc-4056bdcac23b": {
+   "topic_id": "KUBERNETES-NETWORKING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): A literal empty rule ({}) allows all ingress while an empty list denies all, so A and B both fit.; An empty rule (ingress: [{}]) allows all ingress, while an empty or absent list denies all; the wording supports A or B."
+  },
+  "0490f6a1-54c9-48fb-83e6-4ed95acc50b8": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): A missing Service fails DNS resolution; Kubernetes returns no HTTP 404.; A non-existent Service fails DNS resolution (NXDOMAIN); Kubernetes returns no HTTP 404."
+  },
+  "7b18bd2a-73aa-433f-9e9a-5d8bd55ce96f": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T04",
+   "difficulty": "easy",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): kubectl get services and kubectl get svc are the same command.; kubectl get services and kubectl get svc are the same command."
+  },
+  "008140e9-d3bc-4516-af73-bb92e0358120": {
+   "topic_id": "KUBERNETES-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3f36d078-e827-441f-8089-24275fdb90ae": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25840bc5-5f23-472e-b467-5602b9d1ac9e": {
+   "topic_id": "KUBERNETES-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f912480e-6732-4bd9-9813-5e7be6c0248b": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "40553e6a-039a-45cb-9398-599846f4af2a": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9ed1ab35-d6e6-4e6d-a33b-7b70d55ad5c0": {
+   "topic_id": "KUBERNETES-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

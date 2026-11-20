@@ -1,0 +1,121 @@
+{
+ "category": "acl-deep-dive",
+ "book_id": "acl_deep_dive",
+ "questions": {
+  "44dfe6ae-6d57-4c7a-811e-1fc9928bcd55": {
+   "topic_id": "ACL-DEEP-DIVE-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a1dfa34f-0b6e-4654-ac18-0156e20beba9": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "607ea425-47dc-47e1-9398-f60942aec0d2": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): 'ip access-list standard 10' also creates standard ACL 10 on IOS, so A and D are both defensible.; 'ip access-list standard 10' also creates standard ACL 10 on current IOS, so A and D are both defensible."
+  },
+  "13f42e80-d599-4b8a-9cb8-13ca0c5993e3": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "62c9a06e-b1ca-4c01-af1e-6901de40f528": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "e1de333a-25d0-4ada-a4fe-1aababe37cd9": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "341582c4-3c4e-4be6-bc5a-88c08aed8789": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3e9e6fd3-e7b3-42a0-96b2-c54e0150875f": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5c02378d-6bc8-4ec6-887d-47394f94ca74": {
+   "topic_id": "ACL-DEEP-DIVE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8f930182-703a-4aa6-900a-0889ed6b8379": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1cff7098-bafe-40ed-923a-52bf834884c9": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "38a33bc3-ca2b-4b4d-85b2-7c62c882c0d1": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "42aca531-d12c-44a0-8d60-561250bd99bc": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "76932b9e-0c1c-4087-86a5-a954f91fb132": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7575e3d3-1841-4e15-901e-76e94e2fcda6": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "fc6e6710-f556-4f87-9ad0-96a2c62505d2": {
+   "topic_id": "ACL-DEEP-DIVE-D3-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): 'show ip access-list NAME' shows the named ACL directly and is at least as good as the general A.; 'show ip access-list NAME' shows the named ACL directly and is at least as correct as listing all ACLs."
+  },
+  "f8f29996-ec6e-4f19-b151-3d9b88af1dd8": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "a4d685f9-2af8-4efb-ba00-d30e06e83a80": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): IOS rejects an ACE on the 'ip access-list extended 110' line; A is the valid numbered form.; IOS rejects an ACE on the 'ip access-list extended 110' line; the numbered form A is the intended valid style."
+  },
+  "1945c944-d421-42bc-9309-3e7ec3082115": {
+   "topic_id": "ACL-DEEP-DIVE-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a8a2657a-dd3b-4be3-89d7-18b565a92856": {
+   "topic_id": "ACL-DEEP-DIVE-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): 'packet-tracer test' is not a real command; ASA uses 'packet-tracer input ...'.; 'packet-tracer test' is not a real command; ASA/FTD use 'packet-tracer input ifc> ...'."
+  },
+  "ea1d1eab-c9be-4a17-b1fb-0707304229fa": {
+   "topic_id": "ACL-DEEP-DIVE-D3-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): 'show access-lists' also displays per-entry match counts, so A and B are equally correct.; 'show access-lists' and 'show ip access-lists' both display per-entry match counts."
+  },
+  "d1a4145b-39f2-47da-8b40-12b2206f6f7f": {
+   "topic_id": "ACL-DEEP-DIVE-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

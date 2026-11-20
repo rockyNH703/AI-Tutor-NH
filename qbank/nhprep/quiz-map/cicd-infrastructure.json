@@ -1,0 +1,123 @@
+{
+ "category": "cicd-infrastructure",
+ "book_id": "cicd_infrastructure",
+ "questions": {
+  "ac9ffcfa-0e15-46a8-b1cf-188686e0a449": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "de548545-0314-4b2d-aa5a-0c01d2c0bec4": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "163b4ccb-8a76-426c-ac5a-85435ac5e998": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): All four are invented command names, so no option can be singled out as correct.; All four command names are invented, so no option is uniquely correct."
+  },
+  "2d4d2a4c-99c3-4a3b-920b-983d20873ed0": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b338013d-eadc-424f-8ccc-71fe2afff696": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T02",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "df96e7e4-36e3-431a-8a87-f6f3ce31eccc": {
+   "topic_id": "CICD-INFRASTRUCTURE-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "89b81627-0c27-4c4d-ac2f-665aef5350da": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "17da2bea-d824-4440-bbcb-ec17d3f0104b": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a9e0b8b7-c2e1-4eed-8d5d-bf2e1ebed800": {
+   "topic_id": "CICD-INFRASTRUCTURE-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "0b918725-bc25-426c-b041-a188b47f5f03": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4c630e11-fd1e-4e30-90ff-1c046a81b5a2": {
+   "topic_id": "CICD-INFRASTRUCTURE-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "722c2f74-fbed-4e51-be6a-0d84dab5067c": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2fe184ce-7e7d-4461-92fc-9d5193a1a5b8": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "68721b4b-c5e2-4473-ad89-e8082f36f9e1": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "dc87b517-50a3-4419-9c99-98f6928214f7": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "286ce247-1f78-4532-a9f8-f8c3dffc2280": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f0fa1e00-c859-479c-9959-52fa8ca9bbb4": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ccec3a17-6b25-4095-b825-185388f62682": {
+   "topic_id": "CICD-INFRASTRUCTURE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "90fdb7ad-24d3-46b6-bc59-56bb0070d938": {
+   "topic_id": "CICD-INFRASTRUCTURE-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7508efc3-ad72-4e90-bf2a-c53ab9c3e93d": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b7e748e6-10dd-44a3-af86-d2af0841a9b9": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d612c75d-6001-4d81-b686-58038c7366d7": {
+   "topic_id": "CICD-INFRASTRUCTURE-D2-T03",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): For a network device, show interface status (IOS) is at least as defensible as the Linux ip link show.; For a network device, show interface status (A) is as defensible as the Linux-only ip link show."
+  },
+  "ba78ad46-23eb-484f-97a7-fa8acca4b97a": {
+   "topic_id": "CICD-INFRASTRUCTURE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

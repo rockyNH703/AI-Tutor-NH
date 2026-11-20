@@ -1,0 +1,283 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "terraform_fundamentals",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "Terraform Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "TERRAFORM-FUNDAMENTALS-D1",
+   "chapter_number": 1,
+   "title": "Terraform workflow and CLI",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T01",
+     "topic_number": 1,
+     "title": "Terraform core workflow: init, plan, apply and destroy",
+     "aliases": [
+      "terraform init",
+      "terraform plan",
+      "terraform apply",
+      "terraform destroy",
+      "terraform workflow",
+      "terraform cli",
+      "terraform commands",
+      "write plan apply"
+     ],
+     "paraphrases": [
+      "What the main Terraform CLI commands do: initialising a directory, previewing changes, applying them and destroying resources."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the main Terraform CLI commands do: initialising a directory, previewing changes, applying them and destroying resources."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T02",
+     "topic_number": 2,
+     "title": "Importing existing infrastructure with terraform import",
+     "aliases": [
+      "terraform import",
+      "import existing resources",
+      "resource already exists error",
+      "brownfield infrastructure",
+      "bring resources under terraform",
+      "import block"
+     ],
+     "paraphrases": [
+      "How to bring resources created outside Terraform under its management and resolve resource already exists errors."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How to bring resources created outside Terraform under its management and resolve resource already exists errors."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T03",
+     "topic_number": 3,
+     "title": "Terraform workspaces for multiple environments",
+     "aliases": [
+      "terraform workspace",
+      "workspaces",
+      "terraform workspace list",
+      "terraform workspace new",
+      "terraform workspace select",
+      "multiple environments"
+     ],
+     "paraphrases": [
+      "Using Terraform workspaces to keep separate state for environments and the commands that list and switch them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Terraform workspaces to keep separate state for environments and the commands that list and switch them."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TERRAFORM-FUNDAMENTALS-D2",
+   "chapter_number": 2,
+   "title": "HCL configuration and modules",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T01",
+     "topic_number": 1,
+     "title": "Input variables, variable types and tfvars files",
+     "aliases": [
+      "terraform variables",
+      "input variables",
+      "variable block",
+      "tfvars",
+      "terraform.tfvars",
+      "var.",
+      "variable types",
+      "list variable",
+      "hcl variables"
+     ],
+     "paraphrases": [
+      "Declaring and referencing input variables in HCL, their types such as list, and supplying values through tfvars files."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Declaring and referencing input variables in HCL, their types such as list, and supplying values through tfvars files."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T02",
+     "topic_number": 2,
+     "title": "Output values and local values",
+     "aliases": [
+      "terraform output",
+      "output block",
+      "output values",
+      "locals",
+      "local values",
+      "locals block"
+     ],
+     "paraphrases": [
+      "Defining outputs to expose values from a configuration or module and locals to name reusable expressions."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Defining outputs to expose values from a configuration or module and locals to name reusable expressions."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T03",
+     "topic_number": 3,
+     "title": "Resource, data and provider blocks",
+     "aliases": [
+      "resource block",
+      "data block",
+      "data source",
+      "provider block",
+      "terraform provider",
+      "aws_instance",
+      "terraform resources",
+      "hcl syntax"
+     ],
+     "paraphrases": [
+      "The syntax of resource blocks, data sources that read existing infrastructure, and provider blocks that configure credentials and settings."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The syntax of resource blocks, data sources that read existing infrastructure, and provider blocks that configure credentials and settings."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T04",
+     "topic_number": 4,
+     "title": "Terraform modules and passing variables to them",
+     "aliases": [
+      "terraform modules",
+      "module block",
+      "module inputs",
+      "reusable modules",
+      "child module",
+      "root module"
+     ],
+     "paraphrases": [
+      "Calling modules, passing input variable values into them and keeping values consistent across several modules."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Calling modules, passing input variable values into them and keeping values consistent across several modules."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TERRAFORM-FUNDAMENTALS-D3",
+   "chapter_number": 3,
+   "title": "State, lifecycle and security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T01",
+     "topic_number": 1,
+     "title": "Terraform state, remote backends and drift",
+     "aliases": [
+      "terraform state",
+      "tfstate",
+      "remote backend",
+      "s3 backend",
+      "state locking",
+      "dynamodb locking",
+      "configuration drift",
+      "drift detection"
+     ],
+     "paraphrases": [
+      "How Terraform stores state locally or in a remote backend such as S3 with DynamoDB locking, and how it handles changes made outside Terraform."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Terraform stores state locally or in a remote backend such as S3 with DynamoDB locking, and how it handles changes made outside Terraform."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T02",
+     "topic_number": 2,
+     "title": "Lifecycle meta-arguments: prevent_destroy, ignore_changes, create_before_destroy",
+     "aliases": [
+      "lifecycle block",
+      "lifecycle meta-argument",
+      "prevent_destroy",
+      "ignore_changes",
+      "create_before_destroy",
+      "meta-arguments"
+     ],
+     "paraphrases": [
+      "How lifecycle meta-arguments change how Terraform replaces, updates or protects a resource from destruction."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How lifecycle meta-arguments change how Terraform replaces, updates or protects a resource from destruction."
+      }
+     ]
+    },
+    {
+     "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T03",
+     "topic_number": 3,
+     "title": "Managing secrets and sensitive data in Terraform",
+     "aliases": [
+      "terraform secrets",
+      "sensitive variables",
+      "secrets management",
+      "vault",
+      "hardcoded credentials",
+      "sensitive data"
+     ],
+     "paraphrases": [
+      "Best practices for keeping passwords, keys and other secrets out of Terraform configuration files."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Best practices for keeping passwords, keys and other secrets out of Terraform configuration files."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

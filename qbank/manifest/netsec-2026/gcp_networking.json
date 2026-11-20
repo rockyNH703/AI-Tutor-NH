@@ -1,0 +1,325 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "gcp_networking",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "cloud",
+  "language": "english",
+  "title": "Google Cloud Networking",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "GCP-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "VPC network design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "GCP-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "GCP VPC auto mode vs custom mode, subnets and IP ranges",
+     "aliases": [
+      "vpc subnets",
+      "auto mode vpc",
+      "custom mode vpc",
+      "subnet ip ranges",
+      "secondary ip range",
+      "alias ip",
+      "primary ip range",
+      "gcp vpc"
+     ],
+     "paraphrases": [
+      "How Google Cloud VPC networks are created in auto or custom mode and how subnets use primary and secondary IP ranges."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Google Cloud VPC networks are created in auto or custom mode and how subnets use primary and secondary IP ranges."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "Shared VPC host and service projects",
+     "aliases": [
+      "shared vpc",
+      "xpn",
+      "host project",
+      "service project",
+      "shared vpc requirements"
+     ],
+     "paraphrases": [
+      "Sharing one VPC from a host project with service projects in the same organization for central network management."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Sharing one VPC from a host project with service projects in the same organization for central network management."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "VPC Network Peering and its limitations",
+     "aliases": [
+      "vpc peering",
+      "vpc network peering",
+      "non-transitive peering",
+      "overlapping ip ranges",
+      "peering route exchange"
+     ],
+     "paraphrases": [
+      "Connecting two VPC networks with peering, its subnet route exchange, non-transitivity and the overlapping range restriction."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Connecting two VPC networks with peering, its subnet route exchange, non-transitivity and the overlapping range restriction."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D1-T04",
+     "topic_number": 4,
+     "title": "Cloud NAT for private instances",
+     "aliases": [
+      "cloud nat",
+      "nat gateway",
+      "gcp nat",
+      "outbound internet access",
+      "egress nat"
+     ],
+     "paraphrases": [
+      "Using Cloud NAT so instances without external IPs can reach the internet, and troubleshooting it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Cloud NAT so instances without external IPs can reach the internet, and troubleshooting it."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D1-T05",
+     "topic_number": 5,
+     "title": "Private Google Access to Google APIs",
+     "aliases": [
+      "private google access",
+      "pga",
+      "google apis without public ip",
+      "private api access"
+     ],
+     "paraphrases": [
+      "Letting VMs without external IP addresses reach Google APIs and services."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Letting VMs without external IP addresses reach Google APIs and services."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "GCP-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Hybrid connectivity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "GCP-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "Cloud VPN and HA VPN",
+     "aliases": [
+      "cloud vpn",
+      "ha vpn",
+      "high availability vpn",
+      "ipsec vpn gcp",
+      "vpn sla",
+      "vpn troubleshooting"
+     ],
+     "paraphrases": [
+      "Connecting on-premises networks to Google Cloud over IPsec VPN, HA VPN SLA and troubleshooting tunnels."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Connecting on-premises networks to Google Cloud over IPsec VPN, HA VPN SLA and troubleshooting tunnels."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "Dedicated and Partner Interconnect bandwidth",
+     "aliases": [
+      "cloud interconnect",
+      "dedicated interconnect",
+      "partner interconnect",
+      "interconnect bandwidth",
+      "vlan attachment"
+     ],
+     "paraphrases": [
+      "The Dedicated and Partner Interconnect options and their capacity limits."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Dedicated and Partner Interconnect options and their capacity limits."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D2-T03",
+     "topic_number": 3,
+     "title": "Cloud Router and BGP sessions",
+     "aliases": [
+      "cloud router",
+      "bgp",
+      "gcp bgp",
+      "bgp asn",
+      "dynamic routing",
+      "bgp session down"
+     ],
+     "paraphrases": [
+      "Creating a Cloud Router with a BGP ASN and what happens to learned routes when a BGP session fails."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating a Cloud Router with a BGP ASN and what happens to learned routes when a BGP session fails."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "GCP-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Load balancing and DNS",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "GCP-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "Cloud Load Balancing: global vs regional, Anycast and SSL termination",
+     "aliases": [
+      "cloud load balancing",
+      "gcp load balancer",
+      "https load balancer",
+      "global load balancing",
+      "regional load balancing",
+      "anycast ip",
+      "ssl termination",
+      "ssl offload"
+     ],
+     "paraphrases": [
+      "How Google Cloud global and regional load balancers differ, use Anycast IPs and terminate SSL at the load balancer."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Google Cloud global and regional load balancers differ, use Anycast IPs and terminate SSL at the load balancer."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "Cloud DNS managed zones and DNSSEC",
+     "aliases": [
+      "cloud dns",
+      "dnssec",
+      "managed zone",
+      "dns integrity",
+      "dns spoofing protection"
+     ],
+     "paraphrases": [
+      "Cloud DNS managed zones and enabling DNSSEC to protect the integrity of DNS responses."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Cloud DNS managed zones and enabling DNSSEC to protect the integrity of DNS responses."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "GCP-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "Network security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "GCP-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "VPC firewall rules: priority, direction and gcloud",
+     "aliases": [
+      "vpc firewall rules",
+      "gcp firewall",
+      "firewall priority",
+      "ingress egress rule",
+      "firewall-rules create",
+      "firewall rule direction"
+     ],
+     "paraphrases": [
+      "How VPC firewall rule priority and direction work and how to create rules with gcloud."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How VPC firewall rule priority and direction work and how to create rules with gcloud."
+      }
+     ]
+    },
+    {
+     "topic_id": "GCP-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "Cloud Armor WAF and DDoS protection",
+     "aliases": [
+      "cloud armor",
+      "waf",
+      "ddos protection",
+      "web application firewall",
+      "security policy",
+      "owasp rules"
+     ],
+     "paraphrases": [
+      "Cloud Armor security policies that give web applications WAF and DDoS protection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Cloud Armor security policies that give web applications WAF and DDoS protection."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

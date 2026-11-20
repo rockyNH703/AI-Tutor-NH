@@ -1,0 +1,361 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "azure_networking",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "cloud",
+  "language": "english",
+  "title": "Azure Networking",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "AZURE-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "Virtual networks, peering and name resolution",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AZURE-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "Azure VNet address space and design",
+     "aliases": [
+      "vnet",
+      "virtual network",
+      "azure vnet",
+      "vnet address space",
+      "address prefix",
+      "vnet cidr",
+      "vnet sizing"
+     ],
+     "paraphrases": [
+      "How Azure virtual networks are sized and addressed, including the largest address space a VNet accepts."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Azure virtual networks are sized and addressed, including the largest address space a VNet accepts."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "VNet peering and peered VNet troubleshooting",
+     "aliases": [
+      "vnet peering",
+      "virtual network peering",
+      "global vnet peering",
+      "peering non-transitive",
+      "transitive routing",
+      "peered vnets",
+      "hub and spoke"
+     ],
+     "paraphrases": [
+      "What VNet peering does, why it is non-transitive and how to troubleshoot traffic between peered VNets."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What VNet peering does, why it is non-transitive and how to troubleshoot traffic between peered VNets."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "Virtual network service endpoints",
+     "aliases": [
+      "service endpoint",
+      "service endpoints",
+      "vnet service endpoint",
+      "azure service endpoints",
+      "service endpoint troubleshooting"
+     ],
+     "paraphrases": [
+      "How service endpoints give a subnet direct access to Azure services over the Azure network and why they may stop working."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How service endpoints give a subnet direct access to Azure services over the Azure network and why they may stop working."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D1-T04",
+     "topic_number": 4,
+     "title": "Azure DNS public and private zones",
+     "aliases": [
+      "azure dns",
+      "private dns zone",
+      "public dns zone",
+      "azure private dns",
+      "dns zones",
+      "internal dns records"
+     ],
+     "paraphrases": [
+      "The difference between public and private Azure DNS zones and how private zones resolve names inside VNets."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between public and private Azure DNS zones and how private zones resolve names inside VNets."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AZURE-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Hybrid connectivity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AZURE-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "Azure VPN Gateway and point-to-site VPN",
+     "aliases": [
+      "vpn gateway",
+      "azure vpn gateway",
+      "vnet gateway",
+      "point to site",
+      "p2s",
+      "openvpn",
+      "ikev2",
+      "az network vnet-gateway"
+     ],
+     "paraphrases": [
+      "Creating an Azure VPN Gateway and the protocols that point-to-site connections use."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating an Azure VPN Gateway and the protocols that point-to-site connections use."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "ExpressRoute private and Microsoft peering",
+     "aliases": [
+      "expressroute",
+      "express route",
+      "er circuit",
+      "private peering",
+      "microsoft peering",
+      "azure backbone",
+      "dedicated private connection"
+     ],
+     "paraphrases": [
+      "How ExpressRoute provides private connectivity to Azure and how private peering differs from Microsoft peering."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ExpressRoute provides private connectivity to Azure and how private peering differs from Microsoft peering."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AZURE-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Network security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AZURE-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "NSG rule priority and default rules",
+     "aliases": [
+      "nsg",
+      "network security group",
+      "nsg rules",
+      "nsg priority",
+      "nsg default rules",
+      "security rules",
+      "rule priority 100-4096"
+     ],
+     "paraphrases": [
+      "How NSG rules are evaluated by priority number, the valid priority range and how default rules behave."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How NSG rules are evaluated by priority number, the valid priority range and how default rules behave."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "Creating and associating NSGs with Azure CLI",
+     "aliases": [
+      "az network nsg create",
+      "nsg cli",
+      "associate nsg to subnet",
+      "nsg subnet association",
+      "azure cli nsg",
+      "az network vnet subnet update"
+     ],
+     "paraphrases": [
+      "The Azure CLI commands that create a network security group and attach it to a subnet."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Azure CLI commands that create a network security group and attach it to a subnet."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D3-T03",
+     "topic_number": 3,
+     "title": "Azure Firewall network, application and DNAT rules",
+     "aliases": [
+      "azure firewall",
+      "firewall network rules",
+      "firewall application rules",
+      "dnat rule",
+      "fqdn filtering",
+      "az network firewall",
+      "nat rule collection"
+     ],
+     "paraphrases": [
+      "The Azure Firewall rule types: network rules by IP and port, application rules by FQDN, and DNAT rules for inbound translation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Azure Firewall rule types: network rules by IP and port, application rules by FQDN, and DNAT rules for inbound translation."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D3-T04",
+     "topic_number": 4,
+     "title": "Azure Bastion secure RDP and SSH access",
+     "aliases": [
+      "azure bastion",
+      "bastion",
+      "bastion host",
+      "rdp without public ip",
+      "ssh without public ip",
+      "jump host"
+     ],
+     "paraphrases": [
+      "How Azure Bastion gives RDP and SSH access to VMs without exposing a public IP."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Azure Bastion gives RDP and SSH access to VMs without exposing a public IP."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AZURE-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "Load balancing, application delivery and monitoring",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AZURE-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "Azure Load Balancer SKUs and health probes",
+     "aliases": [
+      "azure load balancer",
+      "load balancer",
+      "standard load balancer",
+      "basic load balancer",
+      "health probe",
+      "lb sku",
+      "zone redundant load balancer"
+     ],
+     "paraphrases": [
+      "The differences between Basic and Standard Azure Load Balancer and how health probes track backend pool health."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The differences between Basic and Standard Azure Load Balancer and how health probes track backend pool health."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "Application Gateway routing, SSL offload and WAF v2",
+     "aliases": [
+      "application gateway",
+      "app gateway",
+      "appgw",
+      "waf v2",
+      "web application firewall",
+      "url based routing",
+      "path based routing",
+      "ssl offload",
+      "tls termination"
+     ],
+     "paraphrases": [
+      "Application Gateway layer 7 features: URL path-based routing, SSL offload and its failures, and the WAF v2 SKU."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Application Gateway layer 7 features: URL path-based routing, SSL offload and its failures, and the WAF v2 SKU."
+      }
+     ]
+    },
+    {
+     "topic_id": "AZURE-NETWORKING-D4-T03",
+     "topic_number": 3,
+     "title": "Network Watcher flow logs and connection troubleshoot",
+     "aliases": [
+      "network watcher",
+      "nsg flow logs",
+      "flow logs",
+      "connection troubleshoot",
+      "azure network monitoring",
+      "az network watcher"
+     ],
+     "paraphrases": [
+      "Using Azure Network Watcher to enable NSG flow logs and diagnose connectivity between Azure resources."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Azure Network Watcher to enable NSG flow logs and diagnose connectivity between Azure resources."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

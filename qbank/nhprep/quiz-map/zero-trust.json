@@ -1,0 +1,198 @@
+{
+ "category": "zero-trust",
+ "book_id": "zero_trust",
+ "questions": {
+  "f5e44427-9746-4cf2-8e1b-9612ad5c8ecc": {
+   "topic_id": "ZERO-TRUST-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9ae2aeb5-9e2e-42df-97ec-bb616b4f44d1": {
+   "topic_id": "ZERO-TRUST-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0df104bf-0cd7-44d3-a5e7-b44f10a8548a": {
+   "topic_id": "ZERO-TRUST-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "caaf45d8-41cb-401b-b6c6-b674c8a2b962": {
+   "topic_id": "ZERO-TRUST-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a0867797-277a-4c33-9c3a-62b7fe140e84": {
+   "topic_id": "ZERO-TRUST-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "48a02390-3e15-4cd8-8863-3af393467c4e": {
+   "topic_id": "ZERO-TRUST-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "74900480-b5db-4937-ad06-3d8128850a99": {
+   "topic_id": "ZERO-TRUST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "56c99802-e455-491d-babb-13a51fe91580": {
+   "topic_id": "ZERO-TRUST-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3cffe122-97bd-4378-9909-43444778d3b7": {
+   "topic_id": "ZERO-TRUST-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "41afce3c-6957-4d5d-82e8-a81a1b767f4b": {
+   "topic_id": "ZERO-TRUST-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d8bcba7c-3c41-4934-972f-34e41a04c47b": {
+   "topic_id": "ZERO-TRUST-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f49cff71-afb5-40f4-ba1b-5b91163a0a48": {
+   "topic_id": "ZERO-TRUST-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "d8a47c36-40b3-4157-b7e1-8aa7d186cb48": {
+   "topic_id": "ZERO-TRUST-D2-T05",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Over-permissioning (privilege creep) is at least as commonly cited a least-privilege challenge as under-permissioning.; Over-permissioning and privilege creep (A) is the more commonly cited least-privilege challenge, at least as defe"
+  },
+  "76af2ff8-c793-4912-95b1-3af275251c3a": {
+   "topic_id": "ZERO-TRUST-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2de49bb7-be8c-4ce6-862a-d41f2ed9d7bc": {
+   "topic_id": "ZERO-TRUST-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7a220c1e-73de-4413-985d-e132eaeb3e0d": {
+   "topic_id": "ZERO-TRUST-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "68edefcf-1bb1-40ee-bd6a-79631a9f73fd": {
+   "topic_id": "ZERO-TRUST-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "6979e5d1-20f1-4542-ac84-0655931b4e2d": {
+   "topic_id": "ZERO-TRUST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b71e51af-73b2-45a1-9acf-3991297a13f8": {
+   "topic_id": "ZERO-TRUST-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "751c9bb1-e63f-484b-9225-ad55f4d9202f": {
+   "topic_id": "ZERO-TRUST-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Ignoring device compliance and leaving gaps that allow access are as commonly cited conditional access mistakes as overly restrictive policies.; Allowing all access by default and ignoring device compliance are at least as commonly c"
+  },
+  "c9643e3e-f9e9-4657-b4b5-a149a1601b6a": {
+   "topic_id": "ZERO-TRUST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "648f6b06-114d-4824-ad47-70c10a1089f1": {
+   "topic_id": "ZERO-TRUST-D2-T05",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "2d19f08b-4a6e-46b7-9ffd-6c1a49506e08": {
+   "topic_id": "ZERO-TRUST-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c5422c4c-b090-4fb8-993c-4552e9998c32": {
+   "topic_id": "ZERO-TRUST-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4bb542af-50ea-4de4-9aa2-26de5a2990a9": {
+   "topic_id": "ZERO-TRUST-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0540d495-f8ed-480b-8827-fd5316c43aed": {
+   "topic_id": "ZERO-TRUST-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7b453d45-3273-436f-8154-300b5765ef56": {
+   "topic_id": "ZERO-TRUST-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "020c8ce2-aea1-4fd6-946c-bc8d57644dd0": {
+   "topic_id": "ZERO-TRUST-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a03f2725-cccd-4de0-9aa9-a9b337def73c": {
+   "topic_id": "ZERO-TRUST-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "75b52509-79a4-4563-9249-71d2b3de17ad": {
+   "topic_id": "ZERO-TRUST-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "3dc0d03b-9f6d-40b6-8467-f096f7e4fbba": {
+   "topic_id": "ZERO-TRUST-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "9aea3a53-38f6-4841-9786-b8b7077e036d": {
+   "topic_id": "ZERO-TRUST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "17acc04d-b7fc-4d2d-be3e-96ba39883a67": {
+   "topic_id": "ZERO-TRUST-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "7cbd2298-af00-4bda-8855-6df7bcfb1c13": {
+   "topic_id": "ZERO-TRUST-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "e67ebbd3-4a7c-4d22-92e5-76862de6d9c2": {
+   "topic_id": "ZERO-TRUST-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "14d20df3-a66c-4d7e-aa50-f938ee6c787e": {
+   "topic_id": "ZERO-TRUST-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b20c50dd-86c8-4822-bedd-25f7d13530b2": {
+   "topic_id": "ZERO-TRUST-D2-T04",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "6b856ad3-22fa-4272-8482-e5b0829acae9": {
+   "topic_id": "ZERO-TRUST-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

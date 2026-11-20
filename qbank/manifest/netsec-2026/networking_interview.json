@@ -1,0 +1,410 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "networking_interview",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Networking Interview Q&A",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NETWORKING-INTERVIEW-D1",
+   "chapter_number": 1,
+   "title": "Layer 2 switching and Ethernet",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D1-T01",
+     "topic_number": 1,
+     "title": "ARP: IP to MAC address resolution and the ARP table",
+     "aliases": [
+      "arp",
+      "address resolution protocol",
+      "arp table",
+      "arp cache",
+      "arp -a",
+      "ip to mac",
+      "mac resolution"
+     ],
+     "paraphrases": [
+      "How ARP maps an IPv4 address to a MAC address on the local network and how to view the ARP table."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ARP maps an IPv4 address to a MAC address on the local network and how to view the ARP table."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D1-T02",
+     "topic_number": 2,
+     "title": "VLANs, trunking and broadcast domains",
+     "aliases": [
+      "vlan",
+      "vlans",
+      "trunking",
+      "vlan trunk",
+      "802.1q",
+      "dot1q",
+      "broadcast domain",
+      "virtual lan",
+      "trunk port"
+     ],
+     "paraphrases": [
+      "How VLANs split broadcast domains and how trunk links carry several VLANs over one link with 802.1Q tagging."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How VLANs split broadcast domains and how trunk links carry several VLANs over one link with 802.1Q tagging."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D1-T03",
+     "topic_number": 3,
+     "title": "Switch MAC learning and frame forwarding versus routers",
+     "aliases": [
+      "mac address table",
+      "cam table",
+      "switch forwarding",
+      "unknown unicast flooding",
+      "layer 2 switch",
+      "router vs switch",
+      "mac learning"
+     ],
+     "paraphrases": [
+      "How a Layer 2 switch learns MAC addresses and forwards or floods frames, and how it differs from a router."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a Layer 2 switch learns MAC addresses and forwards or floods frames, and how it differs from a router."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D1-T04",
+     "topic_number": 4,
+     "title": "Spanning Tree Protocol and Layer 2 loop prevention",
+     "aliases": [
+      "stp",
+      "spanning tree",
+      "spanning tree protocol",
+      "802.1d",
+      "switching loops",
+      "loop prevention",
+      "rstp"
+     ],
+     "paraphrases": [
+      "Why Spanning Tree Protocol exists and how it builds a loop-free Ethernet topology."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why Spanning Tree Protocol exists and how it builds a loop-free Ethernet topology."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D1-T05",
+     "topic_number": 5,
+     "title": "Ethernet frame size and MTU mismatch",
+     "aliases": [
+      "mtu",
+      "maximum transmission unit",
+      "ethernet frame size",
+      "1518 bytes",
+      "1500 mtu",
+      "mtu mismatch",
+      "fragmentation"
+     ],
+     "paraphrases": [
+      "The size limits of an Ethernet frame and payload and the problems a mismatched MTU causes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The size limits of an Ethernet frame and payload and the problems a mismatched MTU causes."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORKING-INTERVIEW-D2",
+   "chapter_number": 2,
+   "title": "IP routing",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D2-T01",
+     "topic_number": 1,
+     "title": "Default gateway and reaching remote networks",
+     "aliases": [
+      "default gateway",
+      "gateway",
+      "default route",
+      "gateway of last resort",
+      "first hop router"
+     ],
+     "paraphrases": [
+      "Why a host needs a default gateway to talk to devices outside its own subnet."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why a host needs a default gateway to talk to devices outside its own subnet."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D2-T02",
+     "topic_number": 2,
+     "title": "Route selection and administrative distance",
+     "aliases": [
+      "administrative distance",
+      "ad",
+      "best path selection",
+      "route selection",
+      "route preference",
+      "routing metric",
+      "longest prefix match"
+     ],
+     "paraphrases": [
+      "How a router chooses between routes to the same destination using prefix length, administrative distance and metric."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a router chooses between routes to the same destination using prefix length, administrative distance and metric."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D2-T03",
+     "topic_number": 3,
+     "title": "Static versus dynamic routing and the routing table",
+     "aliases": [
+      "static routing",
+      "dynamic routing",
+      "static route",
+      "routing protocols",
+      "routing table",
+      "show ip route"
+     ],
+     "paraphrases": [
+      "The difference between manually configured static routes and protocol-learned dynamic routes, and how to display the routing table on a Cisco router."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between manually configured static routes and protocol-learned dynamic routes, and how to display the routing table on a Cisco router."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D2-T04",
+     "topic_number": 4,
+     "title": "OSPF DR and BDR election",
+     "aliases": [
+      "ospf",
+      "dr",
+      "bdr",
+      "designated router",
+      "backup designated router",
+      "dr election",
+      "ospf priority"
+     ],
+     "paraphrases": [
+      "How OSPF elects a Designated Router and Backup Designated Router on a multi-access segment and what the BDR does."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How OSPF elects a Designated Router and Backup Designated Router on a multi-access segment and what the BDR does."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORKING-INTERVIEW-D3",
+   "chapter_number": 3,
+   "title": "IP services",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D3-T01",
+     "topic_number": 1,
+     "title": "DHCP address assignment, relay agent and troubleshooting",
+     "aliases": [
+      "dhcp",
+      "dynamic host configuration protocol",
+      "dora",
+      "dhcp discover",
+      "dhcp relay",
+      "ip helper-address",
+      "no ip address from dhcp"
+     ],
+     "paraphrases": [
+      "How DHCP leases addresses with the Discover, Offer, Request, Ack exchange, how a relay agent forwards it across subnets, and how to troubleshoot a client with no address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DHCP leases addresses with the Discover, Offer, Request, Ack exchange, how a relay agent forwards it across subnets, and how to troubleshoot a client with no address."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D3-T02",
+     "topic_number": 2,
+     "title": "DNS resolution and what happens when you type a URL",
+     "aliases": [
+      "dns",
+      "domain name system",
+      "dns lookup",
+      "name resolution",
+      "dns failure",
+      "type a url in browser",
+      "nxdomain"
+     ],
+     "paraphrases": [
+      "How a domain name is resolved to an IP address, what happens when resolution fails, and the steps of loading a web page."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a domain name is resolved to an IP address, what happens when resolution fails, and the steps of loading a web page."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D3-T03",
+     "topic_number": 3,
+     "title": "NAT types and PAT overload",
+     "aliases": [
+      "nat",
+      "pat",
+      "network address translation",
+      "port address translation",
+      "nat overload",
+      "static nat",
+      "dynamic nat"
+     ],
+     "paraphrases": [
+      "The kinds of NAT and how PAT lets many private hosts share one public IP address using ports."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The kinds of NAT and how PAT lets many private hosts share one public IP address using ports."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORKING-INTERVIEW-D4",
+   "chapter_number": 4,
+   "title": "Transport and troubleshooting tools",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D4-T01",
+     "topic_number": 1,
+     "title": "TCP three-way handshake, SYN, SYN-ACK and ACK",
+     "aliases": [
+      "tcp handshake",
+      "three-way handshake",
+      "3-way handshake",
+      "syn",
+      "syn-ack",
+      "ack",
+      "sequence number"
+     ],
+     "paraphrases": [
+      "How TCP opens a connection with SYN, SYN-ACK and ACK and what sequence and acknowledgment numbers mean."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How TCP opens a connection with SYN, SYN-ACK and ACK and what sequence and acknowledgment numbers mean."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D4-T02",
+     "topic_number": 2,
+     "title": "TCP versus UDP: connection-oriented and connectionless",
+     "aliases": [
+      "tcp vs udp",
+      "udp",
+      "user datagram protocol",
+      "connectionless",
+      "connection-oriented",
+      "reliable delivery"
+     ],
+     "paraphrases": [
+      "How connectionless, best-effort UDP differs from reliable, connection-oriented TCP."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How connectionless, best-effort UDP differs from reliable, connection-oriented TCP."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORKING-INTERVIEW-D4-T03",
+     "topic_number": 3,
+     "title": "Ping and traceroute for connectivity and path testing",
+     "aliases": [
+      "ping",
+      "traceroute",
+      "tracert",
+      "icmp echo",
+      "ttl",
+      "connectivity test",
+      "path trace"
+     ],
+     "paraphrases": [
+      "How ping checks reachability with ICMP echo and how traceroute discovers each hop by incrementing the TTL."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ping checks reachability with ICMP echo and how traceroute discovers each hop by incrementing the TTL."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

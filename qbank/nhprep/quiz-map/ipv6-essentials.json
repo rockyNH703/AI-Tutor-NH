@@ -1,0 +1,134 @@
+{
+ "category": "ipv6-essentials",
+ "book_id": "ipv6_essentials",
+ "questions": {
+  "23106a3a-c8c4-421f-b907-8c5b4d315c45": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bd1df480-6ff2-41d6-8378-f024fc83818b": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Stateless DHCPv6 assigns no addresses, so A states the difference as well as B.; Stateless DHCPv6 assigns no addresses, so A states the textbook difference as well as B does."
+  },
+  "4047002f-ac22-4361-995a-93167119b981": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): 'Use only once' is also a valid IPv6 compression rule.; RFC 4291/5952 make 'leading zeros omitted' and ' only once' both valid compression rules."
+  },
+  "fb212a66-732e-433d-8eb1-1886c4fb1058": {
+   "topic_id": "IPV6-ESSENTIALS-D4-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "8d06bee0-d63d-4599-b97a-eea6756fe288": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "66b76f64-ba6c-420f-aba5-e664270e46cd": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0011177f-5ec6-49d5-a155-37ae671d20c2": {
+   "topic_id": "IPV6-ESSENTIALS-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "77c25c8d-674c-4498-8b0a-8eac44035b59": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4d95a168-61df-47e5-b302-3a61bb0eccee": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ed9838ab-3911-41ef-b139-64159ed91f10": {
+   "topic_id": "IPV6-ESSENTIALS-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8709326d-5521-42f2-bdff-72e0219713b8": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3628c705-a054-4b61-b309-828d6488dd98": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "33532ecc-d81d-4824-ad59-4525c61a8a11": {
+   "topic_id": "IPV6-ESSENTIALS-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "f04ec628-3cc9-45c2-a013-43e0f74233c5": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4966f004-69b8-456c-abe8-8d7daac45d4b": {
+   "topic_id": "IPV6-ESSENTIALS-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "8ea5d3ac-b5c6-4046-abd0-7550a78616df": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d58b8fc4-cb65-46cf-829c-6467f1122735": {
+   "topic_id": "IPV6-ESSENTIALS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5e5ceee7-f75b-47aa-9330-c0106b2bab3e": {
+   "topic_id": "IPV6-ESSENTIALS-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f00336de-95b4-4ea4-966b-d22311b6ab2b": {
+   "topic_id": "IPV6-ESSENTIALS-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "00261cb6-f80c-4650-bb82-5d51263aef7e": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0447b293-e80f-4177-99d2-2bf0a8c4de77": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): Per RFC 4861 the node creates a neighbor entry for the source and replies with an NA.; RFC 4861: on a valid NS for its own address a node creates a STALE cache entry for the source and replies with an NA (B)."
+  },
+  "dc063561-e91a-4cbd-a223-909ed76a9e1c": {
+   "topic_id": "IPV6-ESSENTIALS-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "58c5db31-cac8-4b09-800d-bab82d2fc716": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fdaeba00-68c6-4b24-98d0-1ef18f187c61": {
+   "topic_id": "IPV6-ESSENTIALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4f2d1065-dca1-4838-b9e8-1076c56c93ba": {
+   "topic_id": "IPV6-ESSENTIALS-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

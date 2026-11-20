@@ -1,0 +1,362 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "sdwan",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Cisco SD-WAN",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "SDWAN-D1",
+   "chapter_number": 1,
+   "title": "SD-WAN architecture and control plane",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SDWAN-D1-T01",
+     "topic_number": 1,
+     "title": "SD-WAN components: vManage, vSmart, vBond and WAN Edge (vEdge, cEdge)",
+     "aliases": [
+      "vmanage",
+      "vsmart",
+      "vbond",
+      "wan edge",
+      "cedge",
+      "vedge",
+      "sd-wan controllers",
+      "sd-wan orchestrator",
+      "catalyst sd-wan manager",
+      "sd-wan components"
+     ],
+     "paraphrases": [
+      "The roles of the SD-WAN manager, controller, orchestrator and edge routers and how they divide management, control and data planes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The roles of the SD-WAN manager, controller, orchestrator and edge routers and how they divide management, control and data planes."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D1-T02",
+     "topic_number": 2,
+     "title": "TLOCs and transport colors",
+     "aliases": [
+      "tloc",
+      "transport locator",
+      "tloc color",
+      "transport color",
+      "mpls color",
+      "biz-internet",
+      "public-internet",
+      "restrict keyword",
+      "tloc 3-tuple"
+     ],
+     "paraphrases": [
+      "How a transport location is identified by system IP, color and encapsulation, the standard colors and how the restrict option changes tunnel formation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a transport location is identified by system IP, color and encapsulation, the standard colors and how the restrict option changes tunnel formation."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D1-T03",
+     "topic_number": 3,
+     "title": "OMP (Overlay Management Protocol) routes and attributes",
+     "aliases": [
+      "omp",
+      "overlay management protocol",
+      "omp routes",
+      "vroute",
+      "omp originator",
+      "omp graceful restart",
+      "show omp routes",
+      "omp vs bgp"
+     ],
+     "paraphrases": [
+      "How OMP distributes routes, TLOCs and service routes between edges and controllers, its attributes, graceful restart and the commands to view it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How OMP distributes routes, TLOCs and service routes between edges and controllers, its attributes, graceful restart and the commands to view it."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D1-T04",
+     "topic_number": 4,
+     "title": "SD-WAN device authentication and data plane encryption",
+     "aliases": [
+      "sd-wan pki",
+      "certificate authentication",
+      "sd-wan certificates",
+      "dtls",
+      "sd-wan ipsec",
+      "data plane encryption",
+      "zero trust onboarding"
+     ],
+     "paraphrases": [
+      "How SD-WAN devices authenticate each other with certificates and how data plane traffic is protected with IPsec."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How SD-WAN devices authenticate each other with certificates and how data plane traffic is protected with IPsec."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D1-T05",
+     "topic_number": 5,
+     "title": "BFD tunnel liveness and path monitoring in SD-WAN",
+     "aliases": [
+      "bfd",
+      "bidirectional forwarding detection",
+      "sd-wan bfd",
+      "tunnel health",
+      "tunnel down",
+      "bfd session"
+     ],
+     "paraphrases": [
+      "How BFD runs over every SD-WAN tunnel to detect failures and measure path quality, and what happens when a session fails."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How BFD runs over every SD-WAN tunnel to detect failures and measure path quality, and what happens when a session fails."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SDWAN-D2",
+   "chapter_number": 2,
+   "title": "SD-WAN policies",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SDWAN-D2-T01",
+     "topic_number": 1,
+     "title": "Centralized control policies and overlay topologies (hub-and-spoke, mesh)",
+     "aliases": [
+      "centralized control policy",
+      "control policy",
+      "hub and spoke",
+      "full mesh",
+      "sd-wan topology",
+      "set preference",
+      "vsmart policy",
+      "multi-vpn policy"
+     ],
+     "paraphrases": [
+      "Using vSmart control policies to shape route and TLOC advertisement and build hub-and-spoke, mesh or partial-mesh topologies."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using vSmart control policies to shape route and TLOC advertisement and build hub-and-spoke, mesh or partial-mesh topologies."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D2-T02",
+     "topic_number": 2,
+     "title": "Application-aware routing (AAR) and SLA classes",
+     "aliases": [
+      "aar",
+      "application aware routing",
+      "app-route policy",
+      "sla class",
+      "latency loss jitter",
+      "dynamic path selection"
+     ],
+     "paraphrases": [
+      "How application-aware routing picks tunnels per application using real-time loss, latency and jitter measured against SLA classes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How application-aware routing picks tunnels per application using real-time loss, latency and jitter measured against SLA classes."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D2-T03",
+     "topic_number": 3,
+     "title": "Service chaining and service insertion",
+     "aliases": [
+      "service chaining",
+      "service insertion",
+      "firewall insertion",
+      "service routes",
+      "traffic steering to firewall"
+     ],
+     "paraphrases": [
+      "Steering traffic through services such as firewalls or WAN optimizers placed in the path using policy and service routes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Steering traffic through services such as firewalls or WAN optimizers placed in the path using policy and service routes."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D2-T04",
+     "topic_number": 4,
+     "title": "SD-WAN QoS policy and DSCP marking",
+     "aliases": [
+      "sd-wan qos",
+      "dscp marking",
+      "qos policy",
+      "traffic prioritization",
+      "localized data policy qos"
+     ],
+     "paraphrases": [
+      "Classifying, marking and prioritizing traffic with DSCP and QoS policies on SD-WAN edges."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Classifying, marking and prioritizing traffic with DSCP and QoS policies on SD-WAN edges."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SDWAN-D3",
+   "chapter_number": 3,
+   "title": "SD-WAN security and cloud",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SDWAN-D3-T01",
+     "topic_number": 1,
+     "title": "Embedded security: zone-based firewall, IPS (Snort) and URL filtering",
+     "aliases": [
+      "sd-wan security",
+      "embedded firewall",
+      "zone based firewall",
+      "ips",
+      "snort",
+      "url filtering",
+      "utd",
+      "sd-wan security policy"
+     ],
+     "paraphrases": [
+      "The on-box security features of SD-WAN edges, including the enterprise firewall, Snort-based IPS and URL filtering."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The on-box security features of SD-WAN edges, including the enterprise firewall, Snort-based IPS and URL filtering."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D3-T02",
+     "topic_number": 2,
+     "title": "Cloud onRamp for SaaS and IaaS",
+     "aliases": [
+      "cloud onramp",
+      "cloud onramp for saas",
+      "cloud onramp for iaas",
+      "saas optimization",
+      "cloud access"
+     ],
+     "paraphrases": [
+      "How Cloud onRamp measures and optimizes paths to SaaS applications and extends the overlay into public cloud."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Cloud onRamp measures and optimizes paths to SaaS applications and extends the overlay into public cloud."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SDWAN-D4",
+   "chapter_number": 4,
+   "title": "SD-WAN management and operations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SDWAN-D4-T01",
+     "topic_number": 1,
+     "title": "Device and feature templates and template variables",
+     "aliases": [
+      "feature template",
+      "device template",
+      "template variables",
+      "attach template",
+      "vmanage templates",
+      "configuration groups"
+     ],
+     "paraphrases": [
+      "Building device and feature templates in vManage, using variables for per-device values and attaching templates to devices."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Building device and feature templates in vManage, using variables for per-device values and attaching templates to devices."
+      }
+     ]
+    },
+    {
+     "topic_id": "SDWAN-D4-T02",
+     "topic_number": 2,
+     "title": "SD-WAN monitoring and troubleshooting (dashboard, alarms, control connections)",
+     "aliases": [
+      "vmanage dashboard",
+      "sd-wan monitoring",
+      "alarms and events",
+      "show control connections",
+      "sd-wan troubleshooting",
+      "control connection down"
+     ],
+     "paraphrases": [
+      "Monitoring the overlay from the vManage dashboard, alarms and events, and checking control connections from the CLI."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Monitoring the overlay from the vManage dashboard, alarms and events, and checking control connections from the CLI."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

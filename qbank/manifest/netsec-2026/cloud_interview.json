@@ -1,0 +1,312 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "cloud_interview",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "cloud",
+  "language": "english",
+  "title": "AWS Cloud Networking Interview Q&A",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CLOUD-INTERVIEW-D1",
+   "chapter_number": 1,
+   "title": "VPC networking and design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-INTERVIEW-D1-T01",
+     "topic_number": 1,
+     "title": "VPC design, public and private subnets and 3-tier architecture",
+     "aliases": [
+      "vpc design",
+      "3-tier architecture",
+      "three tier vpc",
+      "public subnet",
+      "private subnet",
+      "database subnet",
+      "multiple vpcs",
+      "subnet design"
+     ],
+     "paraphrases": [
+      "How to lay out a VPC with public and private subnets for a multi-tier application and the trade-offs of using several VPCs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How to lay out a VPC with public and private subnets for a multi-tier application and the trade-offs of using several VPCs."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D1-T02",
+     "topic_number": 2,
+     "title": "VPC peering limits and AWS Transit Gateway",
+     "aliases": [
+      "vpc peering",
+      "peering connection",
+      "transit gateway",
+      "tgw",
+      "overlapping cidr",
+      "transitive routing",
+      "peering limits",
+      "hub and spoke vpc"
+     ],
+     "paraphrases": [
+      "Connecting VPCs with peering, its CIDR and routing limits and quotas, and when a Transit Gateway is used instead."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Connecting VPCs with peering, its CIDR and routing limits and quotas, and when a Transit Gateway is used instead."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D1-T03",
+     "topic_number": 3,
+     "title": "NAT Gateway function and route table troubleshooting",
+     "aliases": [
+      "nat gateway",
+      "nat gw",
+      "aws nat",
+      "outbound internet private subnet",
+      "nat route table",
+      "elastic ip nat"
+     ],
+     "paraphrases": [
+      "What a NAT Gateway does for private subnets and the common configuration mistakes that break its connectivity."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a NAT Gateway does for private subnets and the common configuration mistakes that break its connectivity."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CLOUD-INTERVIEW-D2",
+   "chapter_number": 2,
+   "title": "Hybrid connectivity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-INTERVIEW-D2-T01",
+     "topic_number": 1,
+     "title": "AWS Direct Connect versus VPN",
+     "aliases": [
+      "direct connect",
+      "aws dx",
+      "dx",
+      "dedicated connection aws",
+      "direct connect vs vpn",
+      "private link to aws"
+     ],
+     "paraphrases": [
+      "How AWS Direct Connect provides a dedicated, consistent, low-latency link and how it compares with an internet VPN."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How AWS Direct Connect provides a dedicated, consistent, low-latency link and how it compares with an internet VPN."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D2-T02",
+     "topic_number": 2,
+     "title": "AWS Site-to-Site VPN and customer gateway configuration",
+     "aliases": [
+      "site to site vpn",
+      "aws vpn",
+      "ipsec vpn aws",
+      "customer gateway",
+      "cgw",
+      "virtual private gateway",
+      "vpn tunnel aws"
+     ],
+     "paraphrases": [
+      "How an AWS Site-to-Site VPN runs encrypted over the internet and what customer gateway settings affect its stability."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an AWS Site-to-Site VPN runs encrypted over the internet and what customer gateway settings affect its stability."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CLOUD-INTERVIEW-D3",
+   "chapter_number": 3,
+   "title": "Cloud security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-INTERVIEW-D3-T01",
+     "topic_number": 1,
+     "title": "AWS shared responsibility model",
+     "aliases": [
+      "shared responsibility model",
+      "security of the cloud",
+      "security in the cloud",
+      "aws responsibility",
+      "customer responsibility"
+     ],
+     "paraphrases": [
+      "Which security duties AWS owns for the cloud infrastructure and which the customer owns for what runs in it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Which security duties AWS owns for the cloud infrastructure and which the customer owns for what runs in it."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D3-T02",
+     "topic_number": 2,
+     "title": "Security groups versus network ACLs",
+     "aliases": [
+      "security groups",
+      "sg",
+      "nacl",
+      "network acl",
+      "stateful vs stateless",
+      "security group vs nacl",
+      "subnet firewall"
+     ],
+     "paraphrases": [
+      "How stateful instance-level security groups differ from stateless subnet-level network ACLs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How stateful instance-level security groups differ from stateless subnet-level network ACLs."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D3-T03",
+     "topic_number": 3,
+     "title": "S3 bucket policies and access control",
+     "aliases": [
+      "s3 security",
+      "bucket policy",
+      "s3 acl",
+      "put-bucket-policy",
+      "s3 permissions",
+      "secure s3 bucket"
+     ],
+     "paraphrases": [
+      "Securing S3 buckets with bucket policies and ACLs, including applying a bucket policy from the CLI."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Securing S3 buckets with bucket policies and ACLs, including applying a bucket policy from the CLI."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CLOUD-INTERVIEW-D4",
+   "chapter_number": 4,
+   "title": "Availability, scaling and AWS CLI",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-INTERVIEW-D4-T01",
+     "topic_number": 1,
+     "title": "Load balancer health checks",
+     "aliases": [
+      "elb health check",
+      "load balancer health check",
+      "alb health check",
+      "unhealthy target",
+      "target health",
+      "elastic load balancing"
+     ],
+     "paraphrases": [
+      "How a load balancer health check decides whether instances can take traffic and what happens when one fails."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a load balancer health check decides whether instances can take traffic and what happens when one fails."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D4-T02",
+     "topic_number": 2,
+     "title": "Auto Scaling groups with CloudWatch alarms",
+     "aliases": [
+      "auto scaling",
+      "autoscaling group",
+      "asg",
+      "scale out",
+      "cloudwatch alarm",
+      "scaling policy",
+      "aws auto scaling"
+     ],
+     "paraphrases": [
+      "How CloudWatch alarms drive Auto Scaling policies to launch or remove instances as load changes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How CloudWatch alarms drive Auto Scaling policies to launch or remove instances as load changes."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-INTERVIEW-D4-T03",
+     "topic_number": 3,
+     "title": "AWS CLI commands for EC2, security groups and NAT gateways",
+     "aliases": [
+      "aws cli",
+      "aws ec2 cli",
+      "describe-instances",
+      "create-security-group",
+      "delete-security-group",
+      "create-nat-gateway",
+      "aws command line"
+     ],
+     "paraphrases": [
+      "The aws ec2 CLI commands used to list instances and create or delete security groups and NAT gateways."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The aws ec2 CLI commands used to list instances and create or delete security groups and NAT gateways."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,311 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "troubleshooting",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Network Troubleshooting",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "TROUBLESHOOTING-D1",
+   "chapter_number": 1,
+   "title": "Troubleshooting methodology and tools",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TROUBLESHOOTING-D1-T01",
+     "topic_number": 1,
+     "title": "Troubleshooting methodologies: top-down, bottom-up, divide and conquer",
+     "aliases": [
+      "troubleshooting methodology",
+      "top-down approach",
+      "bottom-up approach",
+      "divide and conquer",
+      "osi layer by layer",
+      "structured troubleshooting",
+      "troubleshooting approach"
+     ],
+     "paraphrases": [
+      "Choosing and applying structured troubleshooting methods such as top-down, divide and conquer and the OSI layer-by-layer approach."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing and applying structured troubleshooting methods such as top-down, divide and conquer and the OSI layer-by-layer approach."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D1-T02",
+     "topic_number": 2,
+     "title": "Connectivity test commands: ping, traceroute, telnet and arp",
+     "aliases": [
+      "ping",
+      "traceroute",
+      "tracert",
+      "telnet port test",
+      "arp -a",
+      "arp cache",
+      "connectivity testing",
+      "path tracing"
+     ],
+     "paraphrases": [
+      "Using ping, traceroute, telnet and ARP cache commands to test reachability, trace paths and check TCP ports."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using ping, traceroute, telnet and ARP cache commands to test reachability, trace paths and check TCP ports."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D1-T03",
+     "topic_number": 3,
+     "title": "Wireshark and TCP packet analysis",
+     "aliases": [
+      "wireshark",
+      "packet capture",
+      "pcap",
+      "display filters",
+      "follow tcp stream",
+      "tcp retransmissions",
+      "tcp rst",
+      "tcp reset",
+      "packet timestamps"
+     ],
+     "paraphrases": [
+      "Reading packet captures in Wireshark: display filters, following TCP streams, timestamps, retransmissions and TCP resets."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading packet captures in Wireshark: display filters, following TCP streams, timestamps, retransmissions and TCP resets."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TROUBLESHOOTING-D2",
+   "chapter_number": 2,
+   "title": "Layer 1 and Layer 2 troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TROUBLESHOOTING-D2-T01",
+     "topic_number": 1,
+     "title": "Interface errors and speed/duplex mismatch",
+     "aliases": [
+      "duplex mismatch",
+      "speed mismatch",
+      "crc errors",
+      "late collisions",
+      "input errors",
+      "show interfaces",
+      "interface counters",
+      "half duplex"
+     ],
+     "paraphrases": [
+      "Reading interface counters with show interfaces and diagnosing CRC errors, collisions and speed or duplex mismatches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading interface counters with show interfaces and diagnosing CRC errors, collisions and speed or duplex mismatches."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D2-T02",
+     "topic_number": 2,
+     "title": "Physical layer faults: fiber connectors and PoE",
+     "aliases": [
+      "poe",
+      "power over ethernet",
+      "poe failure",
+      "dirty fiber connector",
+      "fiber optic link",
+      "no link light",
+      "physical layer issues"
+     ],
+     "paraphrases": [
+      "Diagnosing physical layer problems such as dirty fiber connectors and Power over Ethernet failures."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Diagnosing physical layer problems such as dirty fiber connectors and Power over Ethernet failures."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D2-T03",
+     "topic_number": 3,
+     "title": "Switching faults: VLAN mismatch, MAC table overflow and broadcast storms",
+     "aliases": [
+      "vlan mismatch",
+      "access port vlan",
+      "mac table overflow",
+      "cam table overflow",
+      "broadcast storm",
+      "spanning tree failure",
+      "stp loop",
+      "layer 2 loop"
+     ],
+     "paraphrases": [
+      "Troubleshooting switch problems including access port VLAN mismatches, MAC address table overflow and broadcast storms from spanning tree failures."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Troubleshooting switch problems including access port VLAN mismatches, MAC address table overflow and broadcast storms from spanning tree failures."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TROUBLESHOOTING-D3",
+   "chapter_number": 3,
+   "title": "Routing, network services and VPN troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TROUBLESHOOTING-D3-T01",
+     "topic_number": 1,
+     "title": "Routing troubleshooting: default route, OSPF neighbors and asymmetric routing",
+     "aliases": [
+      "show ip route",
+      "default route",
+      "show ip ospf neighbor",
+      "ospf adjacency",
+      "asymmetric routing",
+      "routing table",
+      "layer 3 troubleshooting"
+     ],
+     "paraphrases": [
+      "Verifying routes and OSPF neighbors and recognizing the symptoms of asymmetric routing."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Verifying routes and OSPF neighbors and recognizing the symptoms of asymmetric routing."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D3-T02",
+     "topic_number": 2,
+     "title": "DNS troubleshooting: NXDOMAIN, SERVFAIL, stale cache and nslookup",
+     "aliases": [
+      "dns",
+      "nxdomain",
+      "servfail",
+      "nslookup",
+      "dns cache",
+      "stale dns",
+      "dns ttl",
+      "name resolution"
+     ],
+     "paraphrases": [
+      "Diagnosing name resolution failures from DNS response codes, stale caches and outdated records using nslookup."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Diagnosing name resolution failures from DNS response codes, stale caches and outdated records using nslookup."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D3-T03",
+     "topic_number": 3,
+     "title": "DHCP troubleshooting: relay agents and rogue servers",
+     "aliases": [
+      "dhcp",
+      "dhcp relay",
+      "ip helper-address",
+      "rogue dhcp server",
+      "multiple dhcp servers",
+      "ip address conflict"
+     ],
+     "paraphrases": [
+      "Troubleshooting DHCP address assignment, including relay agents across subnets and conflicts from multiple DHCP servers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Troubleshooting DHCP address assignment, including relay agents across subnets and conflicts from multiple DHCP servers."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D3-T04",
+     "topic_number": 4,
+     "title": "IPsec VPN troubleshooting: Phase 2 interesting traffic",
+     "aliases": [
+      "ipsec",
+      "ipsec phase 2",
+      "interesting traffic",
+      "crypto acl mismatch",
+      "proxy id mismatch",
+      "site-to-site vpn",
+      "vpn tunnel no traffic"
+     ],
+     "paraphrases": [
+      "Recognizing IPsec Phase 2 problems such as an interesting traffic mismatch where the tunnel is up but passes no traffic."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recognizing IPsec Phase 2 problems such as an interesting traffic mismatch where the tunnel is up but passes no traffic."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-D3-T05",
+     "topic_number": 5,
+     "title": "SSL/TLS certificate expiry",
+     "aliases": [
+      "ssl certificate",
+      "tls certificate",
+      "certificate expired",
+      "certificate validity",
+      "https certificate error"
+     ],
+     "paraphrases": [
+      "Understanding why SSL/TLS certificates expire and how expiry breaks secure connections."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Understanding why SSL/TLS certificates expire and how expiry breaks secure connections."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

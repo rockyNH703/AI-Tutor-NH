@@ -1,0 +1,306 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ospf_mastery",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "OSPF Mastery",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "OSPF-MASTERY-D1",
+   "chapter_number": 1,
+   "title": "OSPF operation and interface configuration",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "OSPF-MASTERY-D1-T01",
+     "topic_number": 1,
+     "title": "OSPF cost calculation and reference bandwidth",
+     "aliases": [
+      "ospf cost",
+      "ospf metric",
+      "reference bandwidth",
+      "auto-cost reference-bandwidth",
+      "ospf link cost",
+      "cost calculation",
+      "interface cost"
+     ],
+     "paraphrases": [
+      "How OSPF derives interface cost from the reference bandwidth and how changing it affects path selection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How OSPF derives interface cost from the reference bandwidth and how changing it affects path selection."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D1-T02",
+     "topic_number": 2,
+     "title": "OSPF neighbor states and adjacency formation",
+     "aliases": [
+      "ospf neighbor states",
+      "ospf adjacency",
+      "2-way state",
+      "exstart",
+      "exchange state",
+      "full state",
+      "mtu mismatch",
+      "ospf stuck in exstart",
+      "adjacency troubleshooting"
+     ],
+     "paraphrases": [
+      "The OSPF neighbor state machine from Down to Full and the common causes of adjacencies that do not form, such as MTU mismatch."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The OSPF neighbor state machine from Down to Full and the common causes of adjacencies that do not form, such as MTU mismatch."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D1-T03",
+     "topic_number": 3,
+     "title": "OSPF DR and BDR election",
+     "aliases": [
+      "dr election",
+      "bdr election",
+      "designated router",
+      "backup designated router",
+      "ospf priority",
+      "dr bdr",
+      "ip ospf priority"
+     ],
+     "paraphrases": [
+      "How OSPF elects the designated and backup designated routers using interface priority and router ID."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How OSPF elects the designated and backup designated routers using interface priority and router ID."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D1-T04",
+     "topic_number": 4,
+     "title": "OSPF authentication",
+     "aliases": [
+      "ospf authentication",
+      "ospf md5",
+      "message-digest",
+      "ospf md5 authentication",
+      "ip ospf authentication",
+      "ospf password"
+     ],
+     "paraphrases": [
+      "Securing OSPF neighbor relationships with plain-text or MD5 authentication on Cisco interfaces."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Securing OSPF neighbor relationships with plain-text or MD5 authentication on Cisco interfaces."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D1-T05",
+     "topic_number": 5,
+     "title": "OSPFv3 for IPv6",
+     "aliases": [
+      "ospfv3",
+      "ospf for ipv6",
+      "ipv6 ospf",
+      "ipv6 router ospf",
+      "ospf version 3"
+     ],
+     "paraphrases": [
+      "Enabling and configuring OSPFv3 to route IPv6 on Cisco router interfaces."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Enabling and configuring OSPFv3 to route IPv6 on Cisco router interfaces."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "OSPF-MASTERY-D2",
+   "chapter_number": 2,
+   "title": "Multi-area OSPF, LSAs and area types",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "OSPF-MASTERY-D2-T01",
+     "topic_number": 1,
+     "title": "OSPF LSA types",
+     "aliases": [
+      "lsa types",
+      "ospf lsa",
+      "type 1 lsa",
+      "type 3 lsa",
+      "type 4 lsa",
+      "type 5 lsa",
+      "type 7 lsa",
+      "router lsa",
+      "summary lsa",
+      "external lsa",
+      "link state advertisement"
+     ],
+     "paraphrases": [
+      "What each OSPF link-state advertisement type carries, who originates it and how far it floods."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What each OSPF link-state advertisement type carries, who originates it and how far it floods."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D2-T02",
+     "topic_number": 2,
+     "title": "OSPF router roles: ABR and ASBR",
+     "aliases": [
+      "abr",
+      "asbr",
+      "area border router",
+      "autonomous system boundary router",
+      "ospf router types",
+      "ospf redistribution"
+     ],
+     "paraphrases": [
+      "The roles of area border routers and autonomous system boundary routers in a multi-area OSPF design."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The roles of area border routers and autonomous system boundary routers in a multi-area OSPF design."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D2-T03",
+     "topic_number": 3,
+     "title": "OSPF stub and totally stubby areas",
+     "aliases": [
+      "stub area",
+      "totally stubby area",
+      "ospf stub",
+      "area stub no-summary",
+      "ospf special areas",
+      "ospf area types"
+     ],
+     "paraphrases": [
+      "How stub and totally stubby areas filter external and inter-area LSAs to shrink routing tables."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How stub and totally stubby areas filter external and inter-area LSAs to shrink routing tables."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D2-T04",
+     "topic_number": 4,
+     "title": "OSPF not-so-stubby areas (NSSA)",
+     "aliases": [
+      "nssa",
+      "not so stubby area",
+      "totally nssa",
+      "area nssa",
+      "ospf nssa"
+     ],
+     "paraphrases": [
+      "How an NSSA imports external routes as Type 7 LSAs while still blocking Type 5 LSAs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an NSSA imports external routes as Type 7 LSAs while still blocking Type 5 LSAs."
+      }
+     ]
+    },
+    {
+     "topic_id": "OSPF-MASTERY-D2-T05",
+     "topic_number": 5,
+     "title": "OSPF virtual links",
+     "aliases": [
+      "virtual link",
+      "ospf virtual link",
+      "area virtual-link",
+      "transit area",
+      "discontiguous backbone",
+      "area 0 connectivity"
+     ],
+     "paraphrases": [
+      "Using a virtual link through a transit area to connect an area or split backbone to area 0."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using a virtual link through a transit area to connect an area or split backbone to area 0."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "OSPF-MASTERY-D3",
+   "chapter_number": 3,
+   "title": "OSPF verification and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "OSPF-MASTERY-D3-T01",
+     "topic_number": 1,
+     "title": "OSPF verification commands (show ip ospf neighbor and database)",
+     "aliases": [
+      "show ip ospf neighbor",
+      "show ip ospf database",
+      "ospf verification",
+      "ospf show commands",
+      "ospf lsdb",
+      "link state database",
+      "ospf troubleshooting commands"
+     ],
+     "paraphrases": [
+      "Cisco IOS commands that verify OSPF neighbors and display the link-state database."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Cisco IOS commands that verify OSPF neighbors and display the link-state database."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

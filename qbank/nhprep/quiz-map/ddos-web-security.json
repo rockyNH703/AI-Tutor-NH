@@ -1,0 +1,150 @@
+{
+ "category": "ddos-web-security",
+ "book_id": "ddos_web_security",
+ "questions": {
+  "4041bf2a-8dfd-4cfe-bbac-8f933cda8262": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9b38dae5-22d7-482f-aebc-0abeb9450527": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e0307244-d53d-434a-be2e-8a560d04ecbb": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "98d7c555-584b-4515-9196-da457f7564fa": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "72baf392-90a1-41b5-b669-299d2572ae9c": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "2c6a722e-feba-41fd-93c5-6980eaf9bcf1": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "c82162ce-9bba-4e61-b214-eeaaf1bddedd": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ec4fe2bb-2a1e-4aec-ad76-96c67c03a9a9": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0df07805-3c86-4882-ae70-8ff60ca86cbe": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6cf0db0f-340e-47f0-80ad-878acb58835d": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "57b37583-68d0-414d-a5fb-7b28c3bb0a99": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "40816772-4998-4099-8259-33d9bfd8a89a": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ee83f697-9486-4478-a2f8-0e113383a483": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Blind boolean and time-based injection both work without error messages.; Both boolean-based and time-based blind SQL injection are defined by the absence of error output."
+  },
+  "8d4322e2-0096-4b03-b9cb-f8051d446c1b": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "33615a63-49ba-4bb9-b1c3-726db0b00a1c": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T06",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2e883fa5-f3bc-43d3-85be-0658533e67e0": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Content Security Policy is also a standard stored-XSS defense, as defensible as input sanitization.; Content Security Policy is an equally standard stored-XSS defense alongside input sanitization/output encoding."
+  },
+  "24453795-b98c-4fc4-8ee9-f31f6166c47f": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7b3592fa-e51e-43ee-998a-2632a877632e": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "df8d575c-2fc9-44b1-bd97-f491c4c0352e": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "3263a838-fe64-4399-aa18-f93dfb685a15": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a41a1015-c3e6-4d49-afb0-c4c108534496": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "488eb09e-45ee-4a63-bcee-82eeef206cb6": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Telling attack traffic from legitimate traffic (A) is at least as central a challenge as scaling resources.; Distinguishing and identifying attack traffic is at least as standard a 'main challenge' as scaling resources."
+  },
+  "e3908249-da94-4891-a78d-4a240bccb02f": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4f7a55a3-815d-4350-832f-295eaf6eb634": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "67e16653-7a8d-4a2f-b1af-92648eed76bd": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "daa694d7-e419-469e-a5d1-ae911c5e7859": {
+   "topic_id": "DDOS-WEB-SECURITY-D2-T05",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): SSRF exploits unvalidated server-side URL fetching, often through open redirects (C), not misconfigured firewalls.; SSRF exploits unvalidated server-side URL fetching (often via open redirects), so C fits far better than misconfigured fir"
+  },
+  "31c04155-78f9-4b94-b19d-23f202c334bf": {
+   "topic_id": "DDOS-WEB-SECURITY-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "21d489b2-94a0-4db2-86f6-dfe298f8adfd": {
+   "topic_id": "DDOS-WEB-SECURITY-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

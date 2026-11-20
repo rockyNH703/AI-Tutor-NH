@@ -1,0 +1,195 @@
+{
+ "category": "noc-engineer",
+ "book_id": "noc_engineer",
+ "questions": {
+  "1496583c-3151-4c3c-bfb0-78f7cb3892ac": {
+   "topic_id": "NOC-ENGINEER-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "52ca6939-ba2c-4ab3-940e-98035a232920": {
+   "topic_id": "NOC-ENGINEER-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b9de91b6-3b5f-4c0a-a8f9-e97e424f80ff": {
+   "topic_id": "NOC-ENGINEER-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eb0ee0df-4fbd-48d0-895d-b36eba308fed": {
+   "topic_id": "NOC-ENGINEER-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6f98ed94-4da0-45cd-a13c-a28ef9e37c47": {
+   "topic_id": "NOC-ENGINEER-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "479116f4-7fba-4ac7-b60a-304a83145051": {
+   "topic_id": "NOC-ENGINEER-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Packet loss (late collisions, CRC errors) is the textbook symptom and at least as defensible as intermittent connectivity.; Duplex mismatch classically shows packet loss, late collisions and CRC errors; packet loss is at least as def"
+  },
+  "e613b6a3-7874-499c-b9a5-bdef6ddd22c3": {
+   "topic_id": "NOC-ENGINEER-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Repair, Recovery, Restore and Resolution are all accepted MTTR expansions in incident management.; MTTR is used as Repair, Recovery, Restore and Resolve; in incident management Restore/Resolve are as standard as Repair."
+  },
+  "18eeb91c-ccca-48f1-9fe5-693d9cd7478f": {
+   "topic_id": "NOC-ENGINEER-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d629284d-5c86-411b-ab68-c6909818ceda": {
+   "topic_id": "NOC-ENGINEER-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d700cc92-e168-4494-b509-7ab29194e3f3": {
+   "topic_id": "NOC-ENGINEER-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fa034723-e2a9-477e-a969-79ce18d7487e": {
+   "topic_id": "NOC-ENGINEER-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f855ff53-d8ae-4719-b483-d7c19c36a67f": {
+   "topic_id": "NOC-ENGINEER-D3-T04",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "db30a3dd-c18d-4240-bae9-ea3cdc7a2e76": {
+   "topic_id": "NOC-ENGINEER-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "288043f1-1ab0-4c25-b06e-1dae7f95e0bf": {
+   "topic_id": "NOC-ENGINEER-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "bf8affbc-6357-4c9f-ba2a-0095b0d0cc58": {
+   "topic_id": "NOC-ENGINEER-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "949fe610-845d-4010-a631-0c050f71f915": {
+   "topic_id": "NOC-ENGINEER-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "04e1e64f-0231-4021-9bc2-f718a1cecb08": {
+   "topic_id": "NOC-ENGINEER-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3c4fcecb-2d38-4187-b215-b616dd765e64": {
+   "topic_id": "NOC-ENGINEER-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "803f0fab-5e02-40ea-a263-c1da0458187d": {
+   "topic_id": "NOC-ENGINEER-D1-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "b601f5f6-635e-4bbc-9e43-2073b775a8bb": {
+   "topic_id": "NOC-ENGINEER-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3da5002e-5919-4a87-9bf6-bb4f4120f24a": {
+   "topic_id": "NOC-ENGINEER-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c4c494b3-70ab-4bf3-936a-50b816e6898f": {
+   "topic_id": "NOC-ENGINEER-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "86e7c91f-952b-4c59-b964-f47ce22e7f0e": {
+   "topic_id": "NOC-ENGINEER-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2f57f8b4-83af-4706-ace9-ce3cbcc2d3cd": {
+   "topic_id": "NOC-ENGINEER-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "08912563-aa2d-45f9-b4ab-02c1387a7133": {
+   "topic_id": "NOC-ENGINEER-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7f1dc997-8b4d-4cbb-9d93-532121c25a4c": {
+   "topic_id": "NOC-ENGINEER-D1-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): Stratum 0 reference clocks are the most accurate time source; Stratum 1 is only the most accurate server.; Stratum 0 reference clocks are the most accurate time source; Stratum 1 is only the most accurate NTP server."
+  },
+  "d4262827-b351-4378-9062-21e8642f83c9": {
+   "topic_id": "NOC-ENGINEER-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "865b055b-aa47-49f3-8e27-ed960c848218": {
+   "topic_id": "NOC-ENGINEER-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8958ffae-d989-4ade-b71b-c473728b360f": {
+   "topic_id": "NOC-ENGINEER-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d69a3388-d395-4d9f-b626-a64d108442cb": {
+   "topic_id": "NOC-ENGINEER-D2-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "694e4100-d3d0-40ad-b1fd-0777ddac770b": {
+   "topic_id": "NOC-ENGINEER-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): TCNs come from ports changing forwarding state (link failures and flaps), not mainly from configuration changes.; TCNs come from ports changing forwarding state (link up/down, flapping, no PortFast), so link failure is the better answer t"
+  },
+  "5d0fb7c9-61bd-43b3-b3c8-959b57b66d01": {
+   "topic_id": "NOC-ENGINEER-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "df7c2b64-4aaa-4bae-bcb2-0a09d8789280": {
+   "topic_id": "NOC-ENGINEER-D3-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "d3669fd6-53dc-4c81-8fac-d59950b3d6b0": {
+   "topic_id": "NOC-ENGINEER-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6b7cc0b5-6631-4b83-a4cd-f4b5d9ae0cd8": {
+   "topic_id": "NOC-ENGINEER-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "62265f2d-1018-41a7-883a-53a66c9e5576": {
+   "topic_id": "NOC-ENGINEER-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a7c2a90f-72d8-4947-98f4-dd55f4a7bb19": {
+   "topic_id": "NOC-ENGINEER-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

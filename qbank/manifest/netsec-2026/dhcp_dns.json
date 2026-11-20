@@ -1,0 +1,330 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "dhcp_dns",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "DHCP and DNS Essentials",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "DHCP-DNS-D1",
+   "chapter_number": 1,
+   "title": "DHCP operation and configuration",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DHCP-DNS-D1-T01",
+     "topic_number": 1,
+     "title": "DHCP DORA process and messages",
+     "aliases": [
+      "dora",
+      "dhcp discover",
+      "dhcp offer",
+      "dhcp request",
+      "dhcp ack",
+      "dhcp handshake",
+      "dhcp message exchange"
+     ],
+     "paraphrases": [
+      "The Discover, Offer, Request and Acknowledge exchange a DHCP client and server use to assign an address and what each message carries."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Discover, Offer, Request and Acknowledge exchange a DHCP client and server use to assign an address and what each message carries."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D1-T02",
+     "topic_number": 2,
+     "title": "DHCP lease renewal and rebinding timers",
+     "aliases": [
+      "dhcp lease",
+      "lease renewal",
+      "t1 timer",
+      "t2 timer",
+      "dhcp rebinding",
+      "lease time",
+      "50 percent renewal",
+      "87.5 percent rebind"
+     ],
+     "paraphrases": [
+      "How a DHCP lease is renewed at T1 (50 percent) and rebound at T2 (87.5 percent) of its duration."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a DHCP lease is renewed at T1 (50 percent) and rebound at T2 (87.5 percent) of its duration."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D1-T03",
+     "topic_number": 3,
+     "title": "DHCP relay agent and ip helper-address",
+     "aliases": [
+      "dhcp relay",
+      "ip helper-address",
+      "helper address",
+      "relay agent",
+      "dhcp forwarding",
+      "bootp relay"
+     ],
+     "paraphrases": [
+      "How a router relays client DHCP broadcasts as unicast to a DHCP server on another subnet using ip helper-address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a router relays client DHCP broadcasts as unicast to a DHCP server on another subnet using ip helper-address."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D1-T04",
+     "topic_number": 4,
+     "title": "DHCP pools, exclusions, reservations and options",
+     "aliases": [
+      "dhcp pool",
+      "dhcp scope",
+      "excluded address",
+      "exclusion range",
+      "dhcp reservation",
+      "option 150",
+      "dhcp options",
+      "ip dhcp pool",
+      "tftp server option"
+     ],
+     "paraphrases": [
+      "Configuring DHCP scopes or pools on a Cisco router, excluding addresses, reserving addresses for hosts and handing out options such as the TFTP server."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configuring DHCP scopes or pools on a Cisco router, excluding addresses, reserving addresses for hosts and handing out options such as the TFTP server."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D1-T05",
+     "topic_number": 5,
+     "title": "DHCP verification and troubleshooting",
+     "aliases": [
+      "show ip dhcp binding",
+      "dhcp binding table",
+      "dhcp troubleshooting",
+      "client not getting ip",
+      "dhcp not working",
+      "dhcp verification"
+     ],
+     "paraphrases": [
+      "Checking DHCP bindings and diagnosing why a client does not receive an address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Checking DHCP bindings and diagnosing why a client does not receive an address."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DHCP-DNS-D2",
+   "chapter_number": 2,
+   "title": "DNS fundamentals",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DHCP-DNS-D2-T01",
+     "topic_number": 1,
+     "title": "DNS hierarchy, root servers and TLDs",
+     "aliases": [
+      "dns hierarchy",
+      "root server",
+      "root servers",
+      "tld",
+      "top-level domain",
+      "dns namespace",
+      "domain tree"
+     ],
+     "paraphrases": [
+      "The structure of the DNS namespace from the root servers through top-level domains to individual domains."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The structure of the DNS namespace from the root servers through top-level domains to individual domains."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D2-T02",
+     "topic_number": 2,
+     "title": "DNS resource record types (A, MX, PTR, SOA)",
+     "aliases": [
+      "dns records",
+      "a record",
+      "mx record",
+      "ptr record",
+      "soa record",
+      "cname",
+      "ns record",
+      "reverse dns",
+      "resource records"
+     ],
+     "paraphrases": [
+      "What the common DNS record types map, including A for IPv4, MX for mail, PTR for reverse lookups and SOA for zone authority."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the common DNS record types map, including A for IPv4, MX for mail, PTR for reverse lookups and SOA for zone authority."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D2-T03",
+     "topic_number": 3,
+     "title": "DNS TTL and resolver caching",
+     "aliases": [
+      "dns ttl",
+      "time to live",
+      "dns cache",
+      "dns caching",
+      "record ttl",
+      "resolver cache"
+     ],
+     "paraphrases": [
+      "How the TTL on a DNS record controls how long resolvers cache it and what values it can take."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the TTL on a DNS record controls how long resolvers cache it and what values it can take."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D2-T04",
+     "topic_number": 4,
+     "title": "DNS recursive and iterative queries and forwarders",
+     "aliases": [
+      "recursive query",
+      "iterative query",
+      "dns resolution",
+      "dns forwarders",
+      "forwarders",
+      "dns resolver",
+      "name resolution"
+     ],
+     "paraphrases": [
+      "How recursive and iterative DNS queries differ and how a DNS server forwards queries it cannot answer."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How recursive and iterative DNS queries differ and how a DNS server forwards queries it cannot answer."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DHCP-DNS-D3",
+   "chapter_number": 3,
+   "title": "DHCP and DNS security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DHCP-DNS-D3-T01",
+     "topic_number": 1,
+     "title": "DHCP snooping and rogue DHCP server protection",
+     "aliases": [
+      "dhcp snooping",
+      "ip dhcp snooping",
+      "rogue dhcp server",
+      "dhcp spoofing",
+      "trusted ports",
+      "dhcp starvation"
+     ],
+     "paraphrases": [
+      "Using DHCP snooping on switches to block unauthorized DHCP servers and track legitimate bindings."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using DHCP snooping on switches to block unauthorized DHCP servers and track legitimate bindings."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D3-T02",
+     "topic_number": 2,
+     "title": "DNSSEC authenticity and validation failures",
+     "aliases": [
+      "dnssec",
+      "dns security extensions",
+      "dns signing",
+      "rrsig",
+      "dnskey",
+      "dns validation"
+     ],
+     "paraphrases": [
+      "How DNSSEC signs DNS data to prove authenticity and integrity, and how a misconfiguration breaks resolution."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DNSSEC signs DNS data to prove authenticity and integrity, and how a misconfiguration breaks resolution."
+      }
+     ]
+    },
+    {
+     "topic_id": "DHCP-DNS-D3-T03",
+     "topic_number": 3,
+     "title": "Split-horizon DNS",
+     "aliases": [
+      "split horizon dns",
+      "split-brain dns",
+      "split dns",
+      "dns views",
+      "internal and external dns"
+     ],
+     "paraphrases": [
+      "Giving different DNS answers to internal and external clients based on where the query comes from."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Giving different DNS answers to internal and external clients based on where the query comes from."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

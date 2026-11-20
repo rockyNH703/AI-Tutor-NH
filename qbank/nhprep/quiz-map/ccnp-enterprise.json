@@ -1,0 +1,404 @@
+{
+ "category": "ccnp-enterprise",
+ "book_id": "ccnp_enterprise",
+ "questions": {
+  "2576e6fc-25d5-4afd-a0bc-65ea5419b957": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b1a57b0e-9380-45f2-bd35-43efc456e12e": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d3ed0348-ba5c-420f-806c-45ca30fb872d": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "56b055b5-6f05-4879-8b6f-38020f6b4a7a": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0be31287-fce3-4d38-b3d9-d1767fadab77": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ead8ce07-b177-4a15-a6ea-7a23ad573787": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): A stub area still receives Type 3 summary LSAs; it blocks Types 4 and 5.; A standard stub area still receives Type 3 summary LSAs; it blocks Types 4 and 5."
+  },
+  "f2b01abf-a9c4-4af1-9103-d3ef60d60660": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a849050d-6d21-48c6-9b80-9993235276e6": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "df4e23de-e3d3-4457-a63b-267520bddcfb": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3e91dfb4-2870-406a-8659-bbd854804c34": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T05",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "e99352e1-b134-48b8-9936-d84668286429": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T06",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Removing the iBGP full mesh (fewer sessions, A) is the textbook purpose, at least as defensible as C.; Removing the iBGP full mesh (fewer sessions) is as textbook an answer as reflecting routes between clients."
+  },
+  "523f7407-61dc-4834-bc53-29fcc8611924": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T05",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "6c03e82b-5e5e-4c1d-a3c9-9d29922b0b22": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T08",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c8d0235d-52b6-4a08-8c1d-0aed372f5567": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T09",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ee9b417d-c92e-461b-9f3a-d7e97f61d739": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "fbb1ae3d-ccdf-4a10-a7dc-250855cc6184": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "051b8bb7-b45e-4e11-ba00-5bcc00246eb3": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "4515a353-d3db-4216-ab1b-e87d62f8134e": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "04914331-db16-4b13-84d5-b00b4deded84": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4a0b6122-57eb-44b3-a34a-d39b38919d99": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4ea654bb-43c7-41a0-9e21-0fa322f62b79": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "ddef24f3-3a49-4ad9-8555-5346d61489c4": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "528fca5d-79c1-4784-ae46-0e106468fa9d": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "91bb96be-0fa1-4951-a503-0b298ff56dc8": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "9691dca9-6056-40d3-ac41-fc982f525a87": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T09",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): SLAAC is Stateless Address Autoconfiguration; the keyed expansion adds Link and is wrong.; SLAAC is Stateless Address Autoconfiguration (RFC 4862); the key adds a wrong 'Link'."
+  },
+  "3743828d-fcf1-4b25-8c80-a8a585372540": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T07",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "b5776330-f115-4e26-a15d-24bdc294393d": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ed060195-7022-4a62-850c-0eae3239a2a5": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "29857d86-0e45-4caf-a0fa-68d46251cd5c": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d15daf5c-dc57-4f5a-8ec9-ec57c6573792": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8ef5db63-e577-41ee-817c-bb1776a14863": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "a8075cac-d037-4716-b721-98006b6dc23a": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): EtherChannel misconfig guard err-disables the bundle, so C is as defensible as B.; Err-disabled or suspended members (C) are as typical a symptom as MAC flapping, and B's explanation is wrong."
+  },
+  "d7662335-cc9f-4559-872c-3222a107b1cd": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ddf2b6ca-1c1c-4a1f-beb1-398fe3e2e494": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T09",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): NDP's address resolution (A) is at least as correct as the vague establishing neighbor relationships (D).; NDP replaces ARP for address resolution, so A is at least as correct as the vague D."
+  },
+  "e34c7eb6-b16c-4965-992b-5c55207c356d": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): Area 0 cannot be a stub; IOS rejects area 0 stub.; IOS rejects 'area 0 stub' because the backbone cannot be a stub area."
+  },
+  "bf3aace6-e982-430e-91b2-0dd35f25b88e": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T04",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): The output shows both the return code/operational state and RTT values, so B and C are equally defensible.; Cisco describes the command as showing operational status and statistics (RTT), so B and C are equally defensible."
+  },
+  "6349e250-382e-4e5b-bccb-dd0cfd263e53": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): The PE is the LER, so A and D name the same device and the premise is muddled.; The PE is the LER, so A and D name the same device and are equally defensible."
+  },
+  "d22c4e93-0c49-48fd-9250-adc868d7f5ea": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "05cfd196-7768-4b13-9b9b-b68316184f78": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): Load-balancing method is a per-switch global setting; a mismatch between ends does not stop the bundle forming.; Port-channel load-balancing is a local per-switch setting; a mismatch between ends does not prevent the bundle forming."
+  },
+  "3eda2b6e-42f0-454b-bac8-c12405d81aec": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): snmp-server group maps a security model to read/write/notify views, so view access is as defensible as user permissions.; snmp-server group sets the security model and read/write/notify views for its users, so B and C both describe i"
+  },
+  "5e2d4d45-67db-48bd-b3d5-e02f17e195cf": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "10a1d063-28d6-487f-a2f6-13b6a410ee2d": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "93c727ae-e37f-4707-a17d-63c91bfdbd77": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f5d1ac5b-85c6-4637-a298-677455d0dedb": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7073fbf9-4527-47ac-a5bb-9dffb7b9eaed": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d1199a75-e684-49d5-b234-6cf3828d6aa5": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "51e61710-3a55-4e66-a168-92cc79264095": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "03141432-ff88-4875-9184-85f975fe632b": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T06",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "68095c97-1820-4280-8968-fd3131badd72": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): show ip eigrp topology (active routes, pending replies) is the standard SIA troubleshooting command, not debug eigrp packets.; SIA is diagnosed with show ip eigrp topology (active) to find the neighbour not replying, not debug eigrp packe"
+  },
+  "1e9e164c-2dc3-45ad-a5b2-deaced4b2ff6": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "07ba9ab0-ca68-4258-9d18-d18c9c6c8b14": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "ed619e57-c9d1-40c8-9c38-342204c454ac": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "2313b8d5-18da-4e52-a935-8c6096568baa": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "f296f41f-e962-4519-8632-760b01020d5e": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T09",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8a7ce597-f097-4d0b-953c-f3b31a250096": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T09",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "49ea5997-ed84-4b9c-badc-b50ad1696b36": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "66692071-8732-407e-ac0b-0b13feff7774": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fe415372-d3b2-415a-82ed-14d4c6d1fe64": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "158b18fa-2fe7-44c2-99a4-5178e109fcfc": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T07",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Route-maps with tags are the canonical loop-prevention tool and are at least as defensible as distribute-list.; Route-maps with tags are the standard redistribution-loop prevention, at least as defensible as distribute-list."
+  },
+  "f7b8959f-1ea5-4f68-9ade-e48d94919c57": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "6f1c5654-b318-4798-a242-4e7d44f93327": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "42f1bfa0-e9df-494d-9219-05a495669cfc": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "23065302-e249-458c-834a-521fe4f6e83f": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T05",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "20995801-d82c-4ce7-ae0d-0fad42cff1f8": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ddbc49b8-8421-4f36-ba2d-36161d58909c": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): Phase 3's cited advantage over Phase 2 is scalability via hub summarization and NHRP redirect/shortcut, not simpler configuration.; Phase 3's main gain over Phase 2 is scalability (hub summarization, NHRP redirect/shortcut), and the expla"
+  },
+  "d9c7ff88-ea84-4e7d-b701-0bb2246c4d94": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a7fb4185-b5fe-4100-9794-c1b9699d2600": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "29662576-1cee-4458-9031-7b89f5b459ae": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2d197bc5-11c4-42bf-9cf4-c461d8e330d1": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "486825ba-b9ad-4ace-8bb3-06d40a978f0f": {
+   "topic_id": "CCNP-ENTERPRISE-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "42e91224-944a-4c1e-9d4d-ccf3096bb9b5": {
+   "topic_id": "CCNP-ENTERPRISE-D1-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "dfbd6524-5cc3-4925-845c-ef44919ea66f": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T07",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5d648472-3343-4bad-a432-60f5d343f0b9": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1fab1018-2896-4708-bebf-e41fee21f0b6": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "99bb7d2b-022c-4571-b070-a8036316dee6": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T07",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "7ff299f2-309c-453f-afa6-8b2a4542dd50": {
+   "topic_id": "CCNP-ENTERPRISE-D4-T07",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4d5bf5b0-2aa9-4503-a3d0-66ff0363261a": {
+   "topic_id": "CCNP-ENTERPRISE-D2-T07",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

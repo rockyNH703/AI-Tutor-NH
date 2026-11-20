@@ -1,0 +1,247 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "troubleshooting_scenarios",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Network Troubleshooting Scenarios",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "TROUBLESHOOTING-SCENARIOS-D1",
+   "chapter_number": 1,
+   "title": "Routing protocol troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T01",
+     "topic_number": 1,
+     "title": "BGP session flapping: hold timers, MTU and link stability",
+     "aliases": [
+      "bgp flapping",
+      "bgp session flap",
+      "bgp neighbor down",
+      "bgp hold timer",
+      "bgp keepalive",
+      "bgp mtu issue",
+      "ping df bit",
+      "bgp peer reset",
+      "border gateway protocol troubleshooting"
+     ],
+     "paraphrases": [
+      "Diagnosing a BGP peering that repeatedly drops by checking hold timers, path MTU and the stability of the underlying link."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Diagnosing a BGP peering that repeatedly drops by checking hold timers, path MTU and the stability of the underlying link."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T02",
+     "topic_number": 2,
+     "title": "OSPF neighbors stuck in INIT state",
+     "aliases": [
+      "ospf init state",
+      "ospf neighbor stuck",
+      "ospf adjacency problem",
+      "ospf neighbor troubleshooting",
+      "ospf hello multicast",
+      "224.0.0.5",
+      "ospf area mismatch",
+      "show ip ospf neighbor",
+      "show ip protocols"
+     ],
+     "paraphrases": [
+      "Finding why OSPF neighbors do not move past INIT, such as area mismatches or ACLs blocking OSPF multicast hellos."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Finding why OSPF neighbors do not move past INIT, such as area mismatches or ACLs blocking OSPF multicast hellos."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TROUBLESHOOTING-SCENARIOS-D2",
+   "chapter_number": 2,
+   "title": "Switching and LAN access troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T01",
+     "topic_number": 1,
+     "title": "Switch ports going err-disabled (BPDU guard and port security)",
+     "aliases": [
+      "err-disabled",
+      "errdisable",
+      "err disabled port",
+      "bpdu guard violation",
+      "port security violation",
+      "show port-security",
+      "show spanning-tree",
+      "switch port shutdown"
+     ],
+     "paraphrases": [
+      "Identifying why a switch port keeps entering the err-disabled state, mainly BPDU guard and port security violations, and the commands that show them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Identifying why a switch port keeps entering the err-disabled state, mainly BPDU guard and port security violations, and the commands that show them."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T02",
+     "topic_number": 2,
+     "title": "VLAN users cannot reach the internet: gateway and NAT checks",
+     "aliases": [
+      "vlan no internet",
+      "vlan 20 internet",
+      "default gateway unreachable",
+      "svi gateway",
+      "show ip nat translations",
+      "nat not working",
+      "show ip interface brief",
+      "inter-vlan internet access"
+     ],
+     "paraphrases": [
+      "Troubleshooting a VLAN that has no internet access by verifying the default gateway interface, its reachability and NAT translations."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Troubleshooting a VLAN that has no internet access by verifying the default gateway interface, its reachability and NAT translations."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T03",
+     "topic_number": 3,
+     "title": "Wireless clients get a DHCP address but have no internet",
+     "aliases": [
+      "wifi no internet",
+      "wireless no internet",
+      "dhcp but no internet",
+      "wireless vlan assignment",
+      "wlan vlan mapping",
+      "wireless gateway issue",
+      "proxy settings",
+      "connected no internet"
+     ],
+     "paraphrases": [
+      "Working through wireless clients that receive DHCP leases yet cannot browse, checking VLAN assignment, gateway routing and proxy settings."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Working through wireless clients that receive DHCP leases yet cannot browse, checking VLAN assignment, gateway routing and proxy settings."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TROUBLESHOOTING-SCENARIOS-D3",
+   "chapter_number": 3,
+   "title": "WAN, VPN and network services troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T01",
+     "topic_number": 1,
+     "title": "IPsec VPN tunnel up but no traffic passing",
+     "aliases": [
+      "vpn up no traffic",
+      "ipsec tunnel no traffic",
+      "nat exemption",
+      "no nat vpn",
+      "interesting traffic acl",
+      "crypto acl",
+      "site to site vpn troubleshooting",
+      "vpn routing"
+     ],
+     "paraphrases": [
+      "Diagnosing a site-to-site VPN that shows up but forwards nothing, covering NAT exemption, the interesting traffic ACL and routing over the tunnel."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Diagnosing a site-to-site VPN that shows up but forwards nothing, covering NAT exemption, the interesting traffic ACL and routing over the tunnel."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T02",
+     "topic_number": 2,
+     "title": "Slow application performance from a branch: latency, bandwidth and QoS",
+     "aliases": [
+      "slow website branch",
+      "branch office slow",
+      "wan link utilization",
+      "iperf",
+      "round trip time",
+      "latency troubleshooting",
+      "show policy-map",
+      "qos misconfiguration",
+      "wan performance"
+     ],
+     "paraphrases": [
+      "Investigating slow access from one branch office by measuring latency and WAN bandwidth and checking QoS policies."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Investigating slow access from one branch office by measuring latency and WAN bandwidth and checking QoS policies."
+      }
+     ]
+    },
+    {
+     "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T03",
+     "topic_number": 3,
+     "title": "DNS resolves internal names but not external domains",
+     "aliases": [
+      "dns external failure",
+      "dns not resolving internet",
+      "dns forwarder",
+      "recursive dns",
+      "udp 53 blocked",
+      "dns port 53",
+      "dns server settings",
+      "name resolution troubleshooting"
+     ],
+     "paraphrases": [
+      "Troubleshooting DNS that works for internal names but fails for external domains, such as forwarder misconfiguration or a firewall blocking port 53."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Troubleshooting DNS that works for internal names but fails for external domains, such as forwarder misconfiguration or a firewall blocking port 53."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,306 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "devops_interview",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "DevOps Interview Prep",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "DEVOPS-INTERVIEW-D1",
+   "chapter_number": 1,
+   "title": "CI/CD pipelines, deployment strategies and secrets",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D1-T01",
+     "topic_number": 1,
+     "title": "CI/CD pipeline stages: build, test and zero-downtime design",
+     "aliases": [
+      "ci/cd",
+      "cicd",
+      "ci cd pipeline",
+      "continuous integration",
+      "continuous delivery",
+      "build stage",
+      "test stage",
+      "pipeline stages",
+      "jenkins pipeline",
+      "zero downtime pipeline"
+     ],
+     "paraphrases": [
+      "What the build and test stages of a CI/CD pipeline do and how to design a pipeline that deploys without downtime."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the build and test stages of a CI/CD pipeline do and how to design a pipeline that deploys without downtime."
+      }
+     ]
+    },
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D1-T02",
+     "topic_number": 2,
+     "title": "Deployment strategies: blue-green, canary and rolling",
+     "aliases": [
+      "blue green deployment",
+      "blue-green",
+      "canary deployment",
+      "canary release",
+      "rolling deployment",
+      "rolling update",
+      "deployment strategies",
+      "release strategies"
+     ],
+     "paraphrases": [
+      "How blue-green, canary and rolling deployments release a new version and limit risk and downtime."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How blue-green, canary and rolling deployments release a new version and limit risk and downtime."
+      }
+     ]
+    },
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D1-T03",
+     "topic_number": 3,
+     "title": "Secrets management in CI/CD and Kubernetes",
+     "aliases": [
+      "secrets management",
+      "hashicorp vault",
+      "vault",
+      "kubernetes secrets",
+      "k8s secrets",
+      "pipeline secrets",
+      "credentials in ci/cd",
+      "secret storage"
+     ],
+     "paraphrases": [
+      "Keeping passwords, keys and tokens out of code by using a secrets manager such as Vault or Kubernetes Secrets."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Keeping passwords, keys and tokens out of code by using a secrets manager such as Vault or Kubernetes Secrets."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DEVOPS-INTERVIEW-D2",
+   "chapter_number": 2,
+   "title": "Source control and GitOps",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D2-T01",
+     "topic_number": 1,
+     "title": "Git branching strategies: GitFlow and trunk-based development",
+     "aliases": [
+      "gitflow",
+      "git flow",
+      "trunk based development",
+      "trunk-based",
+      "branching strategy",
+      "feature branches",
+      "release branch",
+      "git branching",
+      "merge conflicts"
+     ],
+     "paraphrases": [
+      "How GitFlow and trunk-based development organise feature, release and main branches and the trade-offs of long-lived branches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How GitFlow and trunk-based development organise feature, release and main branches and the trade-offs of long-lived branches."
+      }
+     ]
+    },
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D2-T02",
+     "topic_number": 2,
+     "title": "GitOps principles and reconciliation",
+     "aliases": [
+      "gitops",
+      "git ops",
+      "argo cd",
+      "argocd",
+      "flux",
+      "git as source of truth",
+      "reconciliation loop",
+      "declarative deployment"
+     ],
+     "paraphrases": [
+      "Using a Git repository as the source of truth for desired state and automatically reconciling the cluster to match it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using a Git repository as the source of truth for desired state and automatically reconciling the cluster to match it."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DEVOPS-INTERVIEW-D3",
+   "chapter_number": 3,
+   "title": "Infrastructure as Code and configuration management",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D3-T01",
+     "topic_number": 1,
+     "title": "Infrastructure as Code fundamentals and configuration drift",
+     "aliases": [
+      "iac",
+      "infrastructure as code",
+      "configuration drift",
+      "server drift",
+      "iac version control",
+      "immutable infrastructure",
+      "infrastructure automation"
+     ],
+     "paraphrases": [
+      "Why infrastructure is defined and versioned as code, and how that avoids the configuration drift of manual setups."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why infrastructure is defined and versioned as code, and how that avoids the configuration drift of manual setups."
+      }
+     ]
+    },
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D3-T02",
+     "topic_number": 2,
+     "title": "Ansible configuration management and idempotency",
+     "aliases": [
+      "ansible",
+      "ansible playbook",
+      "playbooks",
+      "idempotency",
+      "idempotent",
+      "configuration management",
+      "ansible iac"
+     ],
+     "paraphrases": [
+      "Ansible as an infrastructure-as-code and configuration management tool and why its playbooks are idempotent."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Ansible as an infrastructure-as-code and configuration management tool and why its playbooks are idempotent."
+      }
+     ]
+    },
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D3-T03",
+     "topic_number": 3,
+     "title": "Terraform state, state locking and CLI workflow",
+     "aliases": [
+      "terraform",
+      "terraform state",
+      "state locking",
+      "terraform force-unlock",
+      "terraform init",
+      "terraform plan",
+      "terraform troubleshooting",
+      "tfstate",
+      "remote backend"
+     ],
+     "paraphrases": [
+      "How Terraform tracks resources in its state file, how state locking prevents concurrent changes, and the init, plan and unlock commands."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Terraform tracks resources in its state file, how state locking prevents concurrent changes, and the init, plan and unlock commands."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DEVOPS-INTERVIEW-D4",
+   "chapter_number": 4,
+   "title": "Containers and Kubernetes",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D4-T01",
+     "topic_number": 1,
+     "title": "Docker containers versus virtual machines",
+     "aliases": [
+      "docker vs vm",
+      "containers vs virtual machines",
+      "docker",
+      "containers",
+      "virtual machines",
+      "vm",
+      "hypervisor",
+      "shared kernel",
+      "containerization"
+     ],
+     "paraphrases": [
+      "How Docker containers differ from virtual machines in kernel sharing, isolation, startup time and resource use, and when to pick each."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Docker containers differ from virtual machines in kernel sharing, isolation, startup time and resource use, and when to pick each."
+      }
+     ]
+    },
+    {
+     "topic_id": "DEVOPS-INTERVIEW-D4-T02",
+     "topic_number": 2,
+     "title": "Kubernetes pod networking and CNI",
+     "aliases": [
+      "kubernetes networking",
+      "k8s networking",
+      "cni",
+      "container network interface",
+      "pod ip address",
+      "pod to pod communication",
+      "pod connectivity",
+      "calico",
+      "flannel"
+     ],
+     "paraphrases": [
+      "How Kubernetes pods get IP addresses and talk to each other through a CNI plugin, and how to troubleshoot pod connectivity."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Kubernetes pods get IP addresses and talk to each other through a CNI plugin, and how to troubleshoot pod connectivity."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,431 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "prompt_engineering",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "ai",
+  "language": "english",
+  "title": "Prompt Engineering Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "PROMPT-ENGINEERING-D1",
+   "chapter_number": 1,
+   "title": "Prompting techniques",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PROMPT-ENGINEERING-D1-T01",
+     "topic_number": 1,
+     "title": "Prompts, system messages and role prompting",
+     "aliases": [
+      "prompt",
+      "system message",
+      "system prompt",
+      "role prompting",
+      "persona prompting",
+      "llm prompt basics",
+      "assistant behavior"
+     ],
+     "paraphrases": [
+      "What a prompt is, how a system message sets the assistant's behavior, and how role prompting frames the context of a response."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a prompt is, how a system message sets the assistant's behavior, and how role prompting frames the context of a response."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D1-T02",
+     "topic_number": 2,
+     "title": "Zero-shot and few-shot prompting",
+     "aliases": [
+      "zero-shot",
+      "few-shot",
+      "zero shot prompting",
+      "few shot prompting",
+      "in-context examples",
+      "one-shot",
+      "examples in prompt"
+     ],
+     "paraphrases": [
+      "Prompting with no examples versus giving a few examples to guide the model's output."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Prompting with no examples versus giving a few examples to guide the model's output."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D1-T03",
+     "topic_number": 3,
+     "title": "Chain-of-thought and ReAct reasoning prompts",
+     "aliases": [
+      "chain of thought",
+      "cot",
+      "step by step reasoning",
+      "react",
+      "reason and act",
+      "react pattern",
+      "reasoning prompts"
+     ],
+     "paraphrases": [
+      "Prompts that make the model reason step by step, and the ReAct pattern that interleaves reasoning with actions."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Prompts that make the model reason step by step, and the ReAct pattern that interleaves reasoning with actions."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D1-T04",
+     "topic_number": 4,
+     "title": "Prompt chaining and multi-turn conversation design",
+     "aliases": [
+      "prompt chaining",
+      "chained prompts",
+      "multi-turn",
+      "multi turn conversation",
+      "conversation context",
+      "dialogue design"
+     ],
+     "paraphrases": [
+      "Feeding one prompt's output into the next, and keeping context coherent across many turns of a conversation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Feeding one prompt's output into the next, and keeping context coherent across many turns of a conversation."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D1-T05",
+     "topic_number": 5,
+     "title": "Structured JSON output and code generation prompts",
+     "aliases": [
+      "json output",
+      "structured output",
+      "output format",
+      "json formatting",
+      "code generation",
+      "code prompts",
+      "codegen prompt"
+     ],
+     "paraphrases": [
+      "Asking a model for well-formed JSON and giving the details, such as the language, that code-generation prompts need."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Asking a model for well-formed JSON and giving the details, such as the language, that code-generation prompts need."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PROMPT-ENGINEERING-D2",
+   "chapter_number": 2,
+   "title": "Models, parameters and tokens",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PROMPT-ENGINEERING-D2-T01",
+     "topic_number": 1,
+     "title": "Temperature and top-p sampling parameters",
+     "aliases": [
+      "temperature",
+      "top-p",
+      "top p",
+      "nucleus sampling",
+      "sampling parameters",
+      "randomness",
+      "llm parameters"
+     ],
+     "paraphrases": [
+      "How temperature and top-p control the randomness and diversity of generated text."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How temperature and top-p control the randomness and diversity of generated text."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D2-T02",
+     "topic_number": 2,
+     "title": "Tokens, token counting and latency optimization",
+     "aliases": [
+      "tokens",
+      "token count",
+      "tokenization",
+      "tokenizer",
+      "tiktoken",
+      "latency",
+      "response time",
+      "token budget"
+     ],
+     "paraphrases": [
+      "Counting tokens with a tokenizer and reducing the tokens processed to cut response latency."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Counting tokens with a tokenizer and reducing the tokens processed to cut response latency."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D2-T03",
+     "topic_number": 3,
+     "title": "Embedding, completion and multimodal models",
+     "aliases": [
+      "embedding model",
+      "embeddings",
+      "completion model",
+      "multimodal",
+      "vision language model",
+      "text vectors",
+      "model types"
+     ],
+     "paraphrases": [
+      "The difference between embedding models that produce vectors, completion models that generate text, and multimodal models that handle text and images."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between embedding models that produce vectors, completion models that generate text, and multimodal models that handle text and images."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D2-T04",
+     "topic_number": 4,
+     "title": "Model selection tradeoffs and when to fine-tune",
+     "aliases": [
+      "model selection",
+      "fine-tuning",
+      "fine tuning",
+      "speed quality cost",
+      "model tradeoffs",
+      "prompting vs fine-tuning",
+      "choose a model"
+     ],
+     "paraphrases": [
+      "Balancing speed, quality and cost when picking a model, and when fine-tuning beats prompt engineering."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Balancing speed, quality and cost when picking a model, and when fine-tuning beats prompt engineering."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PROMPT-ENGINEERING-D3",
+   "chapter_number": 3,
+   "title": "LLM applications",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PROMPT-ENGINEERING-D3-T01",
+     "topic_number": 1,
+     "title": "Extractive and abstractive summarization",
+     "aliases": [
+      "summarization",
+      "summarize",
+      "extractive summarization",
+      "abstractive summarization",
+      "incident report summary",
+      "text summary"
+     ],
+     "paraphrases": [
+      "Summarizing text by extracting original sentences or generating new ones, including incident report summaries."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Summarizing text by extracting original sentences or generating new ones, including incident report summaries."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D3-T02",
+     "topic_number": 2,
+     "title": "Sentiment classification and named entity extraction",
+     "aliases": [
+      "sentiment analysis",
+      "sentiment classification",
+      "named entity extraction",
+      "ner",
+      "named entity recognition",
+      "entity extraction",
+      "text classification"
+     ],
+     "paraphrases": [
+      "Using LLMs to classify the sentiment of text and to identify and categorize named entities."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using LLMs to classify the sentiment of text and to identify and categorize named entities."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D3-T03",
+     "topic_number": 3,
+     "title": "Retrieval-augmented generation (RAG)",
+     "aliases": [
+      "rag",
+      "retrieval augmented generation",
+      "retrieval-augmented generation",
+      "document retrieval",
+      "grounded generation"
+     ],
+     "paraphrases": [
+      "Combining retrieval of relevant documents with text generation to give informed answers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Combining retrieval of relevant documents with text generation to give informed answers."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D3-T04",
+     "topic_number": 4,
+     "title": "Function calling and tool use",
+     "aliases": [
+      "function calling",
+      "tool use",
+      "tool calling",
+      "llm tools",
+      "external functions",
+      "agents tools"
+     ],
+     "paraphrases": [
+      "Letting an LLM call external tools or functions to take actions or fetch data."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Letting an LLM call external tools or functions to take actions or fetch data."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PROMPT-ENGINEERING-D4",
+   "chapter_number": 4,
+   "title": "LLM safety and evaluation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PROMPT-ENGINEERING-D4-T01",
+     "topic_number": 1,
+     "title": "Prompt injection attacks",
+     "aliases": [
+      "prompt injection",
+      "direct prompt injection",
+      "indirect prompt injection",
+      "jailbreak",
+      "llm attacks",
+      "instruction override"
+     ],
+     "paraphrases": [
+      "User input crafted to override or bypass a model's system instructions."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "User input crafted to override or bypass a model's system instructions."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D4-T02",
+     "topic_number": 2,
+     "title": "Guardrails, content filtering and PII protection",
+     "aliases": [
+      "guardrails",
+      "content filtering",
+      "pii",
+      "pii leakage",
+      "data leakage",
+      "safety filters",
+      "output moderation"
+     ],
+     "paraphrases": [
+      "Restricting model output to safe content and filtering it to keep personal data from leaking."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Restricting model output to safe content and filtering it to keep personal data from leaking."
+      }
+     ]
+    },
+    {
+     "topic_id": "PROMPT-ENGINEERING-D4-T03",
+     "topic_number": 3,
+     "title": "Output validation and evaluation metrics like BLEU",
+     "aliases": [
+      "output validation",
+      "llm evaluation",
+      "bleu",
+      "bleu score",
+      "evaluation metrics",
+      "human review",
+      "quality checks"
+     ],
+     "paraphrases": [
+      "Checking generated outputs by review and scoring them against reference texts with metrics such as BLEU."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Checking generated outputs by review and scoring them against reference texts with metrics such as BLEU."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

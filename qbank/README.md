@@ -124,10 +124,33 @@ python scripts/nhprep_quiz_to_bank.py <export run folder> ../qbank --write    # 
   - a format other than one-of-N, or a key that disagrees with itself, is an error;
   - an exact duplicate is written once;
   - a question NHprep drops is retired only when its category's coverage says every question was seen;
-  - a review is kept only while the question is unchanged.
+  - a review is kept only while the question is unchanged;
+  - a question whose options are identical in NHprep's own data is not imported (listed as unsupported).
 
-## What is here (2026-11-19)
-- **CCNA manifest** (`manifest/netsec-2026/ccna.json`): the 200-301 v1.1 domains and 44 canonical topics with aliases; no questions yet (they come from session 3's NHprep export).
+## What is here (2026-11-20)
+- **NHprep's quiz questions** from session 3's export of 2026-11-19 (`2026-11-19T08-17-18-846Z`, sha256
+  955d02e6…fe18f5): 1,665 keyed questions in 54 categories.
+  - **1,664 imported:** 1,482 active and 182 inactive (disputed). One is not imported: two of its options are
+    identical in NHprep's own data.
+  - **Owner audience:** NetworkersHome students only (`NHPREP_ALLOWED_EMAIL_DOMAINS`).
+- **How they were mapped** (owner decision 2026-11-19: Claude agents offline, with a blind check):
+  - **Topic lists:** an agent per category drafted the category's topic list. That gives 53 new manifests (one per
+    category, `manifest/netsec-2026/<book>.json`, edition "NHprep quiz bank 2026"), and the ccna category maps onto
+    the existing CCNA manifest.
+  - **Topic and difficulty:** the same agent chose each question's topic and difficulty, written to
+    `nhprep/quiz-map/<category>.json`.
+  - **Independent check:** a second agent re-judged every mapping. It disagreed on 3 topics (settled by session 2
+    for the verifier) and on 210 difficulties (a two-level gap became medium; the mapper's level was kept
+    otherwise).
+- **Answer keys:** the verifiers doubted 294 of NHprep's keys, and two more judges (technical, item-writing) re-judged
+  each doubt.
+  - **Both found a problem:** 182 questions (66 judged wrong, 116 with more than one defensible answer) are imported
+    inactive, with the reason in `inactive_reason`.
+  - **Split verdicts:** 21 stay active.
+  - Everything is in `nhprep/review.json` for NetworkersHome's trainers. NHprep's text and keys are never changed
+    here.
+- **CCNA manifest** (`manifest/netsec-2026/ccna.json`): the 200-301 v1.1 domains and 44 canonical topics with
+  aliases; the ccna category's 40 questions map onto it.
 - **Before that:** PadhAI's NCERT content (the CBSE 2026-27 inventory and the Chapter 9 questions) was deleted
   on the owner's instruction; it remains in git history (commit e57652c and earlier). NetSec's production
   question-bank tables were already empty. The certification bank (domains and topics) is still to be written

@@ -1,0 +1,630 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ccnp_enterprise",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "CCNP Enterprise",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CCNP-ENTERPRISE-D1",
+   "chapter_number": 1,
+   "title": "Layer 2 switching and first hop redundancy",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-ENTERPRISE-D1-T01",
+     "topic_number": 1,
+     "title": "Spanning Tree: root bridge, port roles and states, RSTP and MST",
+     "aliases": [
+      "stp",
+      "spanning tree",
+      "rstp",
+      "rapid spanning tree",
+      "mst",
+      "mstp",
+      "root bridge",
+      "alternate port",
+      "stp port states",
+      "802.1w",
+      "802.1s"
+     ],
+     "paraphrases": [
+      "How spanning tree elects a root bridge, assigns port roles and states, and how RSTP and MST extend it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How spanning tree elects a root bridge, assigns port roles and states, and how RSTP and MST extend it."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D1-T02",
+     "topic_number": 2,
+     "title": "STP edge features: PortFast and BPDU Guard",
+     "aliases": [
+      "portfast",
+      "bpdu guard",
+      "bpduguard",
+      "edge port",
+      "stp toolkit",
+      "spanning-tree portfast",
+      "err-disabled bpdu"
+     ],
+     "paraphrases": [
+      "Using PortFast for access ports and BPDU Guard to shut ports that receive unexpected BPDUs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using PortFast for access ports and BPDU Guard to shut ports that receive unexpected BPDUs."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D1-T03",
+     "topic_number": 3,
+     "title": "EtherChannel with LACP and PAgP, verification and troubleshooting",
+     "aliases": [
+      "etherchannel",
+      "port channel",
+      "port-channel",
+      "lacp",
+      "pagp",
+      "link aggregation",
+      "802.3ad",
+      "show etherchannel summary",
+      "etherchannel load balancing"
+     ],
+     "paraphrases": [
+      "Bundling links with LACP or PAgP, checking the bundle and diagnosing misconfigured EtherChannels."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Bundling links with LACP or PAgP, checking the bundle and diagnosing misconfigured EtherChannels."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D1-T04",
+     "topic_number": 4,
+     "title": "First hop redundancy with HSRP: priority, preemption and tracking",
+     "aliases": [
+      "hsrp",
+      "fhrp",
+      "first hop redundancy",
+      "hot standby router protocol",
+      "hsrp preemption",
+      "hsrp tracking",
+      "standby track",
+      "vrrp",
+      "glbp"
+     ],
+     "paraphrases": [
+      "How HSRP gives hosts a redundant default gateway, and how priority, preemption and interface tracking decide the active router."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How HSRP gives hosts a redundant default gateway, and how priority, preemption and interface tracking decide the active router."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNP-ENTERPRISE-D2",
+   "chapter_number": 2,
+   "title": "IP routing: OSPF, EIGRP, BGP, redistribution and IPv6",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T01",
+     "topic_number": 1,
+     "title": "OSPF LSA types, link-state database and stub areas",
+     "aliases": [
+      "ospf lsa",
+      "lsa types",
+      "router lsa",
+      "ospf stub area",
+      "totally stubby",
+      "nssa",
+      "ospf database",
+      "show ip ospf database",
+      "ospf area types"
+     ],
+     "paraphrases": [
+      "The OSPF LSA types, what the link-state database holds, and how stub areas limit which LSAs they receive."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The OSPF LSA types, what the link-state database holds, and how stub areas limit which LSAs they receive."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T02",
+     "topic_number": 2,
+     "title": "OSPF neighbors and DR/BDR election on multi-access networks",
+     "aliases": [
+      "ospf neighbor",
+      "ospf adjacency",
+      "designated router",
+      "ospf dr",
+      "dr bdr",
+      "backup designated router",
+      "show ip ospf neighbor",
+      "ospf multi-access"
+     ],
+     "paraphrases": [
+      "How OSPF forms neighbor relationships and why a designated router reduces adjacencies and flooding on shared segments."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How OSPF forms neighbor relationships and why a designated router reduces adjacencies and flooding on shared segments."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T03",
+     "topic_number": 3,
+     "title": "EIGRP DUAL: successors, feasible successors and stuck-in-active",
+     "aliases": [
+      "eigrp",
+      "dual",
+      "feasible successor",
+      "feasibility condition",
+      "successor",
+      "stuck in active",
+      "sia",
+      "eigrp topology table",
+      "show ip eigrp topology",
+      "reported distance"
+     ],
+     "paraphrases": [
+      "How EIGRP's DUAL algorithm picks successors and loop-free backups, and how to read the topology table and troubleshoot stuck-in-active routes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How EIGRP's DUAL algorithm picks successors and loop-free backups, and how to read the topology table and troubleshoot stuck-in-active routes."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T04",
+     "topic_number": 4,
+     "title": "EIGRP named mode and unequal-cost load balancing with variance",
+     "aliases": [
+      "eigrp named mode",
+      "eigrp variance",
+      "unequal cost load balancing",
+      "variance command",
+      "router eigrp",
+      "eigrp configuration",
+      "eigrp load balancing"
+     ],
+     "paraphrases": [
+      "Configuring EIGRP in named mode and using variance to load balance over unequal-cost paths."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configuring EIGRP in named mode and using variance to load balance over unequal-cost paths."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T05",
+     "topic_number": 5,
+     "title": "BGP attributes and best path selection",
+     "aliases": [
+      "bgp attributes",
+      "bgp path selection",
+      "bgp best path",
+      "as-path",
+      "as path",
+      "local preference",
+      "weight",
+      "med",
+      "bgp community",
+      "bgp multipath"
+     ],
+     "paraphrases": [
+      "The BGP path attributes such as weight, local preference, AS-path and communities, and the order in which BGP uses them to choose a best path."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The BGP path attributes such as weight, local preference, AS-path and communities, and the order in which BGP uses them to choose a best path."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T06",
+     "topic_number": 6,
+     "title": "BGP peering: eBGP multihop and route reflectors",
+     "aliases": [
+      "bgp peering",
+      "bgp neighbor",
+      "ebgp multihop",
+      "ebgp-multihop",
+      "route reflector",
+      "bgp route reflector",
+      "ibgp full mesh",
+      "rr client"
+     ],
+     "paraphrases": [
+      "Establishing BGP sessions, including eBGP multihop, and scaling iBGP with route reflectors instead of a full mesh."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Establishing BGP sessions, including eBGP multihop, and scaling iBGP with route reflectors instead of a full mesh."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T07",
+     "topic_number": 7,
+     "title": "Route redistribution: seed metrics, filtering and redistribution loops",
+     "aliases": [
+      "redistribution",
+      "route redistribution",
+      "seed metric",
+      "mutual redistribution",
+      "distribute-list",
+      "redistribution loop",
+      "route-map redistribution",
+      "redistribute eigrp"
+     ],
+     "paraphrases": [
+      "Moving routes between routing protocols with the right seed metric and filtering them to prevent redistribution loops."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Moving routes between routing protocols with the right seed metric and filtering them to prevent redistribution loops."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T08",
+     "topic_number": 8,
+     "title": "Routing table verification with show ip route",
+     "aliases": [
+      "routing table",
+      "show ip route",
+      "rib",
+      "route verification",
+      "ip routing table"
+     ],
+     "paraphrases": [
+      "Reading the IP routing table to see which paths a router has to each network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading the IP routing table to see which paths a router has to each network."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D2-T09",
+     "topic_number": 9,
+     "title": "IPv6 address autoconfiguration: SLAAC, NDP and router advertisements",
+     "aliases": [
+      "ipv6",
+      "slaac",
+      "ndp",
+      "neighbor discovery",
+      "router advertisement",
+      "ipv6 nd ra",
+      "ipv6 enable",
+      "stateless autoconfiguration",
+      "link-local"
+     ],
+     "paraphrases": [
+      "How IPv6 hosts discover neighbors and routers and configure their own addresses through SLAAC and router advertisements."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How IPv6 hosts discover neighbors and routers and configure their own addresses through SLAAC and router advertisements."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNP-ENTERPRISE-D3",
+   "chapter_number": 3,
+   "title": "Virtualization and overlays: MPLS, VRF, GRE and DMVPN",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-ENTERPRISE-D3-T01",
+     "topic_number": 1,
+     "title": "MPLS label switching: LSR and LER roles",
+     "aliases": [
+      "mpls",
+      "label switching",
+      "lsr",
+      "ler",
+      "label switch router",
+      "label edge router",
+      "mpls labels",
+      "pe router"
+     ],
+     "paraphrases": [
+      "How MPLS forwards packets by label and the roles of label switch routers and label edge routers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How MPLS forwards packets by label and the roles of label switch routers and label edge routers."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D3-T02",
+     "topic_number": 2,
+     "title": "VRFs and MPLS L3VPN: route distinguisher, route target and route leaking",
+     "aliases": [
+      "vrf",
+      "vrf-lite",
+      "route distinguisher",
+      "route target",
+      "rd",
+      "rt",
+      "mpls l3vpn",
+      "mpls vpn",
+      "route leaking",
+      "vpnv4"
+     ],
+     "paraphrases": [
+      "Separating routing tables with VRFs, and how route distinguishers, route targets and route leaking control what each VPN sees."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Separating routing tables with VRFs, and how route distinguishers, route targets and route leaking control what each VPN sees."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D3-T03",
+     "topic_number": 3,
+     "title": "GRE tunnels and DMVPN with NHRP (phases 2 and 3)",
+     "aliases": [
+      "gre",
+      "gre tunnel",
+      "dmvpn",
+      "nhrp",
+      "dmvpn phase 3",
+      "dmvpn phase 2",
+      "ip nhrp map",
+      "interface tunnel",
+      "mgre",
+      "spoke to spoke"
+     ],
+     "paraphrases": [
+      "Building GRE tunnels and DMVPN overlays, where NHRP maps tunnel addresses to public addresses for dynamic spoke-to-spoke tunnels."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Building GRE tunnels and DMVPN overlays, where NHRP maps tunnel addresses to public addresses for dynamic spoke-to-spoke tunnels."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNP-ENTERPRISE-D4",
+   "chapter_number": 4,
+   "title": "Security, network assurance and automation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T01",
+     "topic_number": 1,
+     "title": "AAA with TACACS+ and RADIUS",
+     "aliases": [
+      "aaa",
+      "tacacs+",
+      "tacacs",
+      "radius",
+      "aaa authentication",
+      "aaa new-model",
+      "device administration",
+      "tacacs vs radius"
+     ],
+     "paraphrases": [
+      "Device access control with AAA, configuring RADIUS login authentication and comparing TACACS+ with RADIUS."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Device access control with AAA, configuring RADIUS login authentication and comparing TACACS+ with RADIUS."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T02",
+     "topic_number": 2,
+     "title": "DHCP snooping against rogue DHCP servers",
+     "aliases": [
+      "dhcp snooping",
+      "ip dhcp snooping",
+      "rogue dhcp",
+      "dhcp spoofing",
+      "trusted port",
+      "layer 2 security"
+     ],
+     "paraphrases": [
+      "How DHCP snooping blocks rogue DHCP servers by trusting only selected ports."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DHCP snooping blocks rogue DHCP servers by trusting only selected ports."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T03",
+     "topic_number": 3,
+     "title": "SNMP and Syslog monitoring",
+     "aliases": [
+      "snmp",
+      "snmp community",
+      "snmpv3",
+      "snmp-server group",
+      "syslog",
+      "syslog severity",
+      "logging",
+      "show logging",
+      "network monitoring"
+     ],
+     "paraphrases": [
+      "Monitoring devices with SNMP communities and groups, and with Syslog messages and their severity levels."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Monitoring devices with SNMP communities and groups, and with Syslog messages and their severity levels."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T04",
+     "topic_number": 4,
+     "title": "IP SLA performance measurement",
+     "aliases": [
+      "ip sla",
+      "ip service level agreement",
+      "show ip sla statistics",
+      "sla probe",
+      "network performance monitoring",
+      "icmp echo probe"
+     ],
+     "paraphrases": [
+      "Using IP SLA probes to measure response times and monitor network performance."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using IP SLA probes to measure response times and monitor network performance."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T05",
+     "topic_number": 5,
+     "title": "Network automation with Ansible playbooks and roles",
+     "aliases": [
+      "ansible",
+      "ansible playbook",
+      "ansible-playbook",
+      "ansible-galaxy",
+      "ansible roles",
+      "playbooks",
+      "network automation"
+     ],
+     "paraphrases": [
+      "Automating repetitive network tasks with Ansible playbooks, running them with ansible-playbook and managing roles with ansible-galaxy."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Automating repetitive network tasks with Ansible playbooks, running them with ansible-playbook and managing roles with ansible-galaxy."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T06",
+     "topic_number": 6,
+     "title": "SD-Access and Cisco DNA Center",
+     "aliases": [
+      "sd-access",
+      "sda",
+      "dna center",
+      "cisco dna center",
+      "catalyst center",
+      "intent-based networking",
+      "controller-based networking"
+     ],
+     "paraphrases": [
+      "What Cisco DNA Center does in an SD-Access fabric, chiefly automating network provisioning."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What Cisco DNA Center does in an SD-Access fabric, chiefly automating network provisioning."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-ENTERPRISE-D4-T07",
+     "topic_number": 7,
+     "title": "YANG data models for model-driven programmability",
+     "aliases": [
+      "yang",
+      "yang models",
+      "data models",
+      "netconf",
+      "restconf",
+      "model-driven programmability"
+     ],
+     "paraphrases": [
+      "How YANG models describe device configuration and state in a structured form that automation tools can use."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How YANG models describe device configuration and state in a structured form that automation tools can use."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

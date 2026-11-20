@@ -1,0 +1,334 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "zero_trust",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Zero Trust Security",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "ZERO-TRUST-D1",
+   "chapter_number": 1,
+   "title": "Zero Trust principles and models",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ZERO-TRUST-D1-T01",
+     "topic_number": 1,
+     "title": "Zero Trust principles, assume breach and the implementation roadmap",
+     "aliases": [
+      "zero trust principles",
+      "assume breach",
+      "never trust always verify",
+      "zero trust roadmap",
+      "zero trust implementation",
+      "zero trust adoption steps",
+      "zta principles"
+     ],
+     "paraphrases": [
+      "The core Zero Trust mindset such as assume breach, and the ordered steps of identifying, protecting and monitoring assets when adopting it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The core Zero Trust mindset such as assume breach, and the ordered steps of identifying, protecting and monitoring assets when adopting it."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D1-T02",
+     "topic_number": 2,
+     "title": "Google BeyondCorp context-based access model",
+     "aliases": [
+      "beyondcorp",
+      "google beyondcorp",
+      "vpn-less access",
+      "context-based access",
+      "context aware access",
+      "beyondcorp enterprise"
+     ],
+     "paraphrases": [
+      "Google's BeyondCorp model, which grants remote access from user and device identity and context instead of a VPN and network perimeter."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Google's BeyondCorp model, which grants remote access from user and device identity and context instead of a VPN and network perimeter."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ZERO-TRUST-D2",
+   "chapter_number": 2,
+   "title": "Identity, device and access policy",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ZERO-TRUST-D2-T01",
+     "topic_number": 1,
+     "title": "Identity-based access and authentication protocols",
+     "aliases": [
+      "identity-based access",
+      "identity based access control",
+      "radius",
+      "aaa",
+      "identity verification",
+      "user and device authentication",
+      "password-only authentication"
+     ],
+     "paraphrases": [
+      "Granting access from verified user and device identity, the protocols such as RADIUS that support it, and the pitfall of relying on passwords alone."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Granting access from verified user and device identity, the protocols such as RADIUS that support it, and the pitfall of relying on passwords alone."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D2-T02",
+     "topic_number": 2,
+     "title": "Multi-factor authentication in Zero Trust",
+     "aliases": [
+      "mfa",
+      "multi-factor authentication",
+      "multifactor authentication",
+      "2fa",
+      "two-factor authentication",
+      "strong authentication"
+     ],
+     "paraphrases": [
+      "Why Zero Trust requires multiple verification factors and how MFA should be applied and maintained."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why Zero Trust requires multiple verification factors and how MFA should be applied and maintained."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D2-T03",
+     "topic_number": 3,
+     "title": "Conditional access policies",
+     "aliases": [
+      "conditional access",
+      "conditional access policy",
+      "risk-based access",
+      "adaptive access",
+      "access policy evaluation",
+      "entra conditional access"
+     ],
+     "paraphrases": [
+      "Policies that evaluate user identity, device compliance and location before granting access, and the mistakes made when configuring them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Policies that evaluate user identity, device compliance and location before granting access, and the mistakes made when configuring them."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D2-T04",
+     "topic_number": 4,
+     "title": "Device trust and security posture assessment",
+     "aliases": [
+      "device trust",
+      "device posture",
+      "device compliance",
+      "posture assessment",
+      "endpoint posture",
+      "device health check"
+     ],
+     "paraphrases": [
+      "Assessing a device's security posture and compliance before it is allowed to reach resources."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Assessing a device's security posture and compliance before it is allowed to reach resources."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D2-T05",
+     "topic_number": 5,
+     "title": "Least privilege access and RBAC",
+     "aliases": [
+      "least privilege",
+      "principle of least privilege",
+      "polp",
+      "rbac",
+      "role-based access control",
+      "minimum necessary access",
+      "permissioning"
+     ],
+     "paraphrases": [
+      "Giving users only the access their role needs, typically through role-based access control, and the challenges of getting permissions right."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Giving users only the access their role needs, typically through role-based access control, and the challenges of getting permissions right."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ZERO-TRUST-D3",
+   "chapter_number": 3,
+   "title": "Secure access architectures",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ZERO-TRUST-D3-T01",
+     "topic_number": 1,
+     "title": "ZTNA versus traditional VPN",
+     "aliases": [
+      "ztna",
+      "zero trust network access",
+      "ztna vs vpn",
+      "vpn replacement",
+      "per-application access",
+      "remote access vpn"
+     ],
+     "paraphrases": [
+      "How ZTNA gives per-application access where a traditional VPN exposes the whole network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ZTNA gives per-application access where a traditional VPN exposes the whole network."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D3-T02",
+     "topic_number": 2,
+     "title": "SASE: SD-WAN with cloud-delivered security",
+     "aliases": [
+      "sase",
+      "secure access service edge",
+      "sse",
+      "security service edge",
+      "casb",
+      "swg",
+      "fwaas",
+      "sd-wan security"
+     ],
+     "paraphrases": [
+      "Secure Access Service Edge, which combines SD-WAN with cloud-delivered security services, its advantages and deployment considerations."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Secure Access Service Edge, which combines SD-WAN with cloud-delivered security services, its advantages and deployment considerations."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D3-T03",
+     "topic_number": 3,
+     "title": "Software-Defined Perimeter (SDP)",
+     "aliases": [
+      "sdp",
+      "software-defined perimeter",
+      "software defined perimeter",
+      "dark cloud",
+      "hidden infrastructure",
+      "black cloud"
+     ],
+     "paraphrases": [
+      "The Software-Defined Perimeter, which hides infrastructure from unauthorised users and admits only authenticated users and devices."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Software-Defined Perimeter, which hides infrastructure from unauthorised users and admits only authenticated users and devices."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ZERO-TRUST-D4",
+   "chapter_number": 4,
+   "title": "Segmentation and traffic inspection",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ZERO-TRUST-D4-T01",
+     "topic_number": 1,
+     "title": "Microsegmentation and workload security groups",
+     "aliases": [
+      "microsegmentation",
+      "micro-segmentation",
+      "workload segmentation",
+      "security groups",
+      "aws security group",
+      "create-security-group",
+      "workload isolation"
+     ],
+     "paraphrases": [
+      "Isolating workloads into separate security groups in data centres and clouds, including creating AWS security groups, to limit lateral movement."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Isolating workloads into separate security groups in data centres and clouds, including creating AWS security groups, to limit lateral movement."
+      }
+     ]
+    },
+    {
+     "topic_id": "ZERO-TRUST-D4-T02",
+     "topic_number": 2,
+     "title": "East-west traffic inspection and lateral movement",
+     "aliases": [
+      "east-west traffic",
+      "east west inspection",
+      "lateral movement",
+      "internal traffic inspection",
+      "north-south vs east-west",
+      "lateral movement detection"
+     ],
+     "paraphrases": [
+      "Inspecting traffic between internal resources to detect and prevent an attacker's lateral movement."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Inspecting traffic between internal resources to detect and prevent an attacker's lateral movement."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

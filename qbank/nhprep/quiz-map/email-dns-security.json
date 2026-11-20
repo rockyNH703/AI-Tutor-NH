@@ -1,0 +1,119 @@
+{
+ "category": "email-dns-security",
+ "book_id": "email_dns_security",
+ "questions": {
+  "d19c6f48-5e18-4cb8-be96-efd6252f05f3": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "66bbf40a-9c56-40d6-bdcc-a94225b3455e": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "76d83601-1b2a-4de3-8d4e-4de50673ac80": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4bd6b87c-9d64-4aaa-a183-d3dfbe4c9399": {
+   "topic_id": "EMAIL-DNS-SECURITY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "81297025-b423-498f-849a-13f57a915881": {
+   "topic_id": "EMAIL-DNS-SECURITY-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): A generic greeting (B) is as commonly taught a phishing indicator as urgency.; A generic greeting is as commonly taught a phishing indicator as urgency."
+  },
+  "2d7dfb0b-0c22-4f5b-a3a3-94905146adf1": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "ea0eb32f-950b-4ff2-a784-e398dcb6e508": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): host -t TXT (D) returns the same SPF TXT record as dig TXT.; host -t TXT returns the same TXT records holding SPF, so D is equally correct."
+  },
+  "e293295e-5f21-4209-b061-2d2fbfd77d6d": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "59e3b0c2-bc19-46de-8281-b6678db6131e": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "faf063fd-8190-43d0-afe3-1ee7ee1da0b5": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ea2f25a2-e5f4-4870-ac28-cdf61b7d9a05": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "44b46675-6f2b-4bac-be20-dd4b883fde3f": {
+   "topic_id": "EMAIL-DNS-SECURITY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b6b26023-c4a2-4ba1-9243-216c5582e7bd": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "bd762dbd-ad09-4af4-a4d3-93ee1428016b": {
+   "topic_id": "EMAIL-DNS-SECURITY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4c768a4a-64d7-4fe9-99d7-cccdd5f80e0f": {
+   "topic_id": "EMAIL-DNS-SECURITY-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f7cc53cd-4678-4f90-b1aa-bdf40cca70d6": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "5d4c87ca-9b47-4fd9-b1e6-3e3b1644580b": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f6e55066-874d-4ed0-96e9-f286e3e91bfd": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d439f7c0-b02b-4562-a17a-9a5b376d2f4d": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e53df155-d5fa-446b-bb33-b78309e450bc": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4c18f723-c21f-46ea-ae2a-4310b59bc9cb": {
+   "topic_id": "EMAIL-DNS-SECURITY-D1-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): less piped to grep acts like cat and finds the header too, so D also works.; less piped to grep outputs the file non-interactively and also finds the header, so D works too."
+  },
+  "f2cd551e-0b4a-4c99-8504-8eae33a1fd0c": {
+   "topic_id": "EMAIL-DNS-SECURITY-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

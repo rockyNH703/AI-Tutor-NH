@@ -1,0 +1,304 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "spanning_tree",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Spanning Tree and Layer 2 Switching",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "SPANNING-TREE-D1",
+   "chapter_number": 1,
+   "title": "STP fundamentals (802.1D and PVST+)",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SPANNING-TREE-D1-T01",
+     "topic_number": 1,
+     "title": "STP root bridge election and bridge priority",
+     "aliases": [
+      "root bridge",
+      "root bridge election",
+      "bridge priority",
+      "bridge id",
+      "bid",
+      "spanning-tree priority",
+      "default priority 32768",
+      "stp root election"
+     ],
+     "paraphrases": [
+      "How STP elects the root bridge from the lowest bridge ID, the default priority and how to change it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How STP elects the root bridge from the lowest bridge ID, the default priority and how to change it."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D1-T02",
+     "topic_number": 2,
+     "title": "STP port roles (root, designated, non-designated)",
+     "aliases": [
+      "stp port roles",
+      "root port",
+      "designated port",
+      "non-designated port",
+      "blocking port",
+      "stp roles"
+     ],
+     "paraphrases": [
+      "The roles a port takes in classic STP and how they differ from port states."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The roles a port takes in classic STP and how they differ from port states."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D1-T03",
+     "topic_number": 3,
+     "title": "STP topology change notification (TCN BPDU)",
+     "aliases": [
+      "tcn",
+      "tcn bpdu",
+      "topology change notification",
+      "topology change",
+      "tca",
+      "stp topology change"
+     ],
+     "paraphrases": [
+      "How switches signal and react to a topology change with TCN BPDUs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How switches signal and react to a topology change with TCN BPDUs."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D1-T04",
+     "topic_number": 4,
+     "title": "Verifying STP with show spanning-tree",
+     "aliases": [
+      "show spanning-tree",
+      "stp verification",
+      "stp show commands",
+      "verify spanning tree",
+      "stp status"
+     ],
+     "paraphrases": [
+      "The Cisco IOS commands used to display the current spanning tree topology and status."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Cisco IOS commands used to display the current spanning tree topology and status."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SPANNING-TREE-D2",
+   "chapter_number": 2,
+   "title": "Rapid STP and MST",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SPANNING-TREE-D2-T01",
+     "topic_number": 1,
+     "title": "RSTP port states (discarding, learning, forwarding)",
+     "aliases": [
+      "rstp port states",
+      "rstp states",
+      "discarding state",
+      "learning state",
+      "forwarding state",
+      "802.1w states"
+     ],
+     "paraphrases": [
+      "The three RSTP port states and what a port does with frames and MAC addresses in each."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The three RSTP port states and what a port does with frames and MAC addresses in each."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D2-T02",
+     "topic_number": 2,
+     "title": "RSTP port roles and the proposal/agreement handshake",
+     "aliases": [
+      "rstp port roles",
+      "alternate port",
+      "backup port",
+      "proposal agreement",
+      "rstp sync",
+      "rstp handshake",
+      "802.1w roles"
+     ],
+     "paraphrases": [
+      "RSTP port roles such as designated, alternate and backup, and how the proposal/agreement handshake converges links quickly."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "RSTP port roles such as designated, alternate and backup, and how the proposal/agreement handshake converges links quickly."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D2-T03",
+     "topic_number": 3,
+     "title": "Rapid PVST+ and RSTP convergence benefits",
+     "aliases": [
+      "rapid pvst",
+      "rapid-pvst",
+      "rapid pvst+",
+      "rstp",
+      "rapid spanning tree",
+      "802.1w",
+      "spanning-tree mode rapid-pvst",
+      "rstp vs stp"
+     ],
+     "paraphrases": [
+      "Why RSTP converges faster than classic STP and how to enable it per VLAN as Rapid PVST+."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why RSTP converges faster than classic STP and how to enable it per VLAN as Rapid PVST+."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D2-T04",
+     "topic_number": 4,
+     "title": "MST regions, configuration name and revision number",
+     "aliases": [
+      "mst",
+      "mstp",
+      "802.1s",
+      "multiple spanning tree",
+      "mst region",
+      "mst revision number",
+      "mst configuration name"
+     ],
+     "paraphrases": [
+      "What makes switches part of the same MST region, including the configuration name and revision number."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What makes switches part of the same MST region, including the configuration name and revision number."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SPANNING-TREE-D3",
+   "chapter_number": 3,
+   "title": "STP protection and Layer 2 troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SPANNING-TREE-D3-T01",
+     "topic_number": 1,
+     "title": "PortFast and BPDU Guard on edge ports",
+     "aliases": [
+      "portfast",
+      "bpdu guard",
+      "bpduguard",
+      "edge port",
+      "spanning-tree portfast",
+      "err-disabled bpdu",
+      "access port protection"
+     ],
+     "paraphrases": [
+      "Configuring PortFast on edge ports and how BPDU Guard reacts when such a port receives a BPDU."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configuring PortFast on edge ports and how BPDU Guard reacts when such a port receives a BPDU."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D3-T02",
+     "topic_number": 2,
+     "title": "Root Guard and Loop Guard",
+     "aliases": [
+      "root guard",
+      "loop guard",
+      "root-inconsistent",
+      "loop-inconsistent",
+      "stp guard features",
+      "superior bpdu protection"
+     ],
+     "paraphrases": [
+      "How Root Guard protects the root bridge placement and how Loop Guard stops loops when BPDUs stop arriving."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Root Guard protects the root bridge placement and how Loop Guard stops loops when BPDUs stop arriving."
+      }
+     ]
+    },
+    {
+     "topic_id": "SPANNING-TREE-D3-T03",
+     "topic_number": 3,
+     "title": "Troubleshooting Layer 2 loops, broadcast storms and blocked ports",
+     "aliases": [
+      "broadcast storm",
+      "layer 2 loop",
+      "switching loop",
+      "stp troubleshooting",
+      "port stuck blocking",
+      "superior bpdu",
+      "mac flapping"
+     ],
+     "paraphrases": [
+      "Recognising broadcast storms and switching loops and diagnosing why a port stays in the blocking state."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recognising broadcast storms and switching loops and diagnosing why a port stays in the blocking state."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

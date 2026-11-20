@@ -1,0 +1,130 @@
+{
+ "category": "terraform-fundamentals",
+ "book_id": "terraform_fundamentals",
+ "questions": {
+  "161a6cbf-917e-4dc9-be1a-4aeba163446d": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ea82451f-0160-40fd-ac70-f4cd8e6edd20": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Single-quoted labels are invalid HCL while the bare-identifier label in B is accepted, so B is at least as defensible as the keyed A.; HCL rejects single-quoted labels while a bare identifier label (B) is accepted, so the keyed form"
+  },
+  "ef6ec490-f5aa-438e-bbcd-dd9426c7ccab": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9ee39d70-ecca-43df-aeb9-4dd073b3ac34": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Both the interpolation form and the bare var.my_var reference are valid, the bare one being idiomatic since 0.12.; var.my_var is the idiomatic Terraform 0.12+ reference and the bare ${} form is only valid inside a string, so B is at"
+  },
+  "c0ec12d2-3849-4e46-bc44-7e39d989f3d4": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Single quotes are invalid HCL and a bare identifier label (B) is accepted, so B competes with the keyed A.; Single-quoted labels are invalid HCL while an unquoted label (B) is accepted, so A is not the single best answer."
+  },
+  "9c6f6b4c-b8c3-410f-b124-74b66c70bbc5": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0a753477-056a-4847-ad55-ffec9db12028": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3b851ba8-6ac9-4255-9cf6-9d8de3a65fc6": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "48bc5914-8f1d-4878-8a93-40ed762bafb5": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cef89365-d4fd-42d5-b552-4e01a8095ffc": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3fc77ec7-db94-4c1e-9194-bbfd3e0ac0c7": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8b5344e9-5a3e-48a5-b835-76dce5dbaef4": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fc4d9770-6157-4f22-a8be-513f84fab336": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d101492f-bd8b-4f7c-8fda-a4315884c667": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "38525a64-cfaa-48d1-a6c4-10c4ee6f1621": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "39d4519e-f2ec-4f9d-af63-e2707ba47464": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "16ff1bce-be68-4c66-a959-208b3d2f4ff3": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f2647100-eb7c-4e41-b52b-d171204906df": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bdccc2cd-234c-4235-8a35-1b32e59d8989": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "576a63e1-62c1-4ab0-9024-84dba55a9993": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D3-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "6bec95d3-c3cc-4502-a259-61465a193218": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Single-quoted labels are invalid HCL while bare identifier labels (B) are accepted, so B is at least as defensible.; Single-quoted labels are invalid HCL while bare identifier labels (B) parse, so A and B are at least equally defensi"
+  },
+  "99aa59fd-5cf7-4149-bdb0-f3e434931943": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8481d460-fc31-4ea9-9d94-0c8ae295c1f2": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fa4e5a7a-3b59-4d4c-becc-e36d5cb217f1": {
+   "topic_id": "TERRAFORM-FUNDAMENTALS-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  }
+ }
+}

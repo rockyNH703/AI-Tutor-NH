@@ -1,0 +1,418 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ai_fundamentals",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "ai",
+  "language": "english",
+  "title": "AI and ML Fundamentals for Network Engineers",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "AI-FUNDAMENTALS-D1",
+   "chapter_number": 1,
+   "title": "Machine learning foundations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AI-FUNDAMENTALS-D1-T01",
+     "topic_number": 1,
+     "title": "Supervised and unsupervised learning",
+     "aliases": [
+      "supervised learning",
+      "unsupervised learning",
+      "labeled data",
+      "unlabeled data",
+      "types of machine learning",
+      "learning paradigms"
+     ],
+     "paraphrases": [
+      "What supervised learning does with labeled input-output pairs and how it differs from unsupervised approaches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What supervised learning does with labeled input-output pairs and how it differs from unsupervised approaches."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D1-T02",
+     "topic_number": 2,
+     "title": "Classic ML algorithms: decision trees, random forests, KNN and SVM",
+     "aliases": [
+      "decision tree",
+      "random forest",
+      "knn",
+      "k-nearest neighbors",
+      "svm",
+      "support vector machine",
+      "kernel trick",
+      "ensemble methods",
+      "classification algorithms"
+     ],
+     "paraphrases": [
+      "How decision trees, random forest ensembles, k-nearest neighbors and kernel SVMs classify data and when to choose each."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How decision trees, random forest ensembles, k-nearest neighbors and kernel SVMs classify data and when to choose each."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D1-T03",
+     "topic_number": 3,
+     "title": "Feature engineering and data normalization",
+     "aliases": [
+      "feature engineering",
+      "normalization",
+      "min-max scaling",
+      "feature scaling",
+      "data preprocessing",
+      "data preparation"
+     ],
+     "paraphrases": [
+      "Creating useful input features and scaling data to a common range before training a model."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating useful input features and scaling data to a common range before training a model."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D1-T04",
+     "topic_number": 4,
+     "title": "Overfitting, bias-variance tradeoff and dropout",
+     "aliases": [
+      "overfitting",
+      "underfitting",
+      "bias-variance tradeoff",
+      "bias and variance",
+      "regularization",
+      "dropout",
+      "generalization"
+     ],
+     "paraphrases": [
+      "Why models memorize training data, how bias and variance trade against model complexity, and how dropout reduces overfitting."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why models memorize training data, how bias and variance trade against model complexity, and how dropout reduces overfitting."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D1-T05",
+     "topic_number": 5,
+     "title": "Model evaluation metrics and cross-validation",
+     "aliases": [
+      "evaluation metrics",
+      "confusion matrix",
+      "f1 score",
+      "precision and recall",
+      "roc curve",
+      "auc",
+      "r-squared",
+      "k-fold cross-validation",
+      "cross validation",
+      "imbalanced dataset"
+     ],
+     "paraphrases": [
+      "Measuring classification and regression models with confusion matrices, F1, ROC curves, R-squared and k-fold cross-validation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Measuring classification and regression models with confusion matrices, F1, ROC curves, R-squared and k-fold cross-validation."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AI-FUNDAMENTALS-D2",
+   "chapter_number": 2,
+   "title": "Deep learning and neural networks",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AI-FUNDAMENTALS-D2-T01",
+     "topic_number": 1,
+     "title": "Neural network activation functions and ReLU",
+     "aliases": [
+      "activation function",
+      "relu",
+      "rectified linear unit",
+      "non-linearity",
+      "sigmoid",
+      "tanh"
+     ],
+     "paraphrases": [
+      "Why activation functions add non-linearity to neural networks and how ReLU behaves."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why activation functions add non-linearity to neural networks and how ReLU behaves."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D2-T02",
+     "topic_number": 2,
+     "title": "Neural network training: epochs, vanishing gradients and optimizers",
+     "aliases": [
+      "vanishing gradient",
+      "backpropagation",
+      "epoch",
+      "adam optimizer",
+      "gradient descent",
+      "sgd",
+      "optimizers",
+      "learning rate",
+      "neural network training"
+     ],
+     "paraphrases": [
+      "How deep networks are trained over epochs with gradient-based optimizers such as Adam, and how the vanishing gradient problem arises and is mitigated."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How deep networks are trained over epochs with gradient-based optimizers such as Adam, and how the vanishing gradient problem arises and is mitigated."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D2-T03",
+     "topic_number": 3,
+     "title": "Convolutional and recurrent neural networks (CNN, RNN)",
+     "aliases": [
+      "cnn",
+      "convolutional neural network",
+      "stride",
+      "convolution filter",
+      "rnn",
+      "recurrent neural network",
+      "sequence models",
+      "image classification"
+     ],
+     "paraphrases": [
+      "What CNNs and RNNs are used for and how convolution parameters like stride work."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What CNNs and RNNs are used for and how convolution parameters like stride work."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AI-FUNDAMENTALS-D3",
+   "chapter_number": 3,
+   "title": "Transformers and large language models",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AI-FUNDAMENTALS-D3-T01",
+     "topic_number": 1,
+     "title": "Transformer attention and encoder-decoder architecture",
+     "aliases": [
+      "transformer",
+      "transformers",
+      "attention mechanism",
+      "self-attention",
+      "encoder-decoder",
+      "seq2seq",
+      "transformer architecture"
+     ],
+     "paraphrases": [
+      "How the attention mechanism lets transformers focus on relevant parts of the input and how the encoder-decoder design maps input to output."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the attention mechanism lets transformers focus on relevant parts of the input and how the encoder-decoder design maps input to output."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D3-T02",
+     "topic_number": 2,
+     "title": "LLM architectures (BERT vs GPT) and tokenization",
+     "aliases": [
+      "bert",
+      "gpt",
+      "bert vs gpt",
+      "encoder-only",
+      "decoder-only",
+      "tokenization",
+      "byte pair encoding",
+      "bpe",
+      "wordpiece",
+      "subword tokens"
+     ],
+     "paraphrases": [
+      "How encoder-only BERT and decoder-only GPT differ and how subword tokenizers such as BPE handle unknown words."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How encoder-only BERT and decoder-only GPT differ and how subword tokenizers such as BPE handle unknown words."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D3-T03",
+     "topic_number": 3,
+     "title": "Fine-tuning pre-trained models",
+     "aliases": [
+      "fine-tuning",
+      "fine tuning",
+      "pre-trained model",
+      "transfer learning",
+      "task adaptation",
+      "llm fine-tuning"
+     ],
+     "paraphrases": [
+      "Adapting a pre-trained model to a specific task by further training on a smaller task-specific dataset."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Adapting a pre-trained model to a specific task by further training on a smaller task-specific dataset."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "AI-FUNDAMENTALS-D4",
+   "chapter_number": 4,
+   "title": "AI for networking, deployment and ethics",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "AI-FUNDAMENTALS-D4-T01",
+     "topic_number": 1,
+     "title": "AIOps anomaly detection in network telemetry",
+     "aliases": [
+      "aiops",
+      "anomaly detection",
+      "network telemetry",
+      "outlier detection",
+      "unusual traffic patterns",
+      "network anomalies"
+     ],
+     "paraphrases": [
+      "Using AIOps anomaly detection to spot unusual patterns in network telemetry that signal problems."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using AIOps anomaly detection to spot unusual patterns in network telemetry that signal problems."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D4-T02",
+     "topic_number": 2,
+     "title": "ML for traffic classification and predictive failure analysis",
+     "aliases": [
+      "traffic classification",
+      "ml traffic classification",
+      "predictive failure",
+      "predictive maintenance",
+      "failure prediction",
+      "ml in networking"
+     ],
+     "paraphrases": [
+      "Applying machine learning to classify network traffic and to predict device or link failures from historical data."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Applying machine learning to classify network traffic and to predict device or link failures from historical data."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D4-T03",
+     "topic_number": 3,
+     "title": "AI model deployment: cloud vs edge and training cost",
+     "aliases": [
+      "edge ai",
+      "edge deployment",
+      "cloud deployment",
+      "cloud vs edge",
+      "model deployment",
+      "training cost",
+      "gpu",
+      "tpu",
+      "inference at the edge"
+     ],
+     "paraphrases": [
+      "Trade-offs of running AI models in the cloud or at the edge, edge resource limits, and the compute cost of training."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Trade-offs of running AI models in the cloud or at the edge, edge resource limits, and the compute cost of training."
+      }
+     ]
+    },
+    {
+     "topic_id": "AI-FUNDAMENTALS-D4-T04",
+     "topic_number": 4,
+     "title": "Ethical AI: bias and fairness",
+     "aliases": [
+      "ethical ai",
+      "ai ethics",
+      "responsible ai",
+      "ai bias",
+      "fairness",
+      "algorithmic bias"
+     ],
+     "paraphrases": [
+      "The main ethical challenge of AI systems: bias and fairness in automated decisions."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The main ethical challenge of AI systems: bias and fairness in automated decisions."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

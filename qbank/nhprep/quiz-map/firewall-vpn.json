@@ -1,0 +1,177 @@
+{
+ "category": "firewall-vpn",
+ "book_id": "firewall_vpn",
+ "questions": {
+  "9bb3738f-df56-45e6-a4e4-15ec03182aba": {
+   "topic_id": "FIREWALL-VPN-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "079e3272-df1f-4107-b31f-7d74e7a17523": {
+   "topic_id": "FIREWALL-VPN-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "69449249-fb0b-4154-846b-af74aab67c5b": {
+   "topic_id": "FIREWALL-VPN-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Denying outside-to-inside by default (B) is as true as allowing inside-to-outside.; Under default security levels, inside-to-outside is allowed and outside-to-inside is denied, so A and B are both true."
+  },
+  "a1fd632b-224b-4969-93da-7b508cf42ca6": {
+   "topic_id": "FIREWALL-VPN-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6a563587-2ed3-4529-b45a-4ea9d1a3c35b": {
+   "topic_id": "FIREWALL-VPN-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0ee40c8b-de44-4bd3-83fb-3320d907c724": {
+   "topic_id": "FIREWALL-VPN-D4-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "65eff483-250c-4ccd-be6c-6143a4221af0": {
+   "topic_id": "FIREWALL-VPN-D3-T02",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Blocking access to a subnet (B) fits near-source extended ACL placement as well as D does.; Extended ACLs go near the source generally, so blocking access to a subnet (B) fits as well as D."
+  },
+  "10be323d-c191-4298-886c-7c5392990b14": {
+   "topic_id": "FIREWALL-VPN-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f4aa7e5f-d353-4362-ab9b-4ae39e110680": {
+   "topic_id": "FIREWALL-VPN-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5a087bcb-f455-4893-bef1-01c6fd351161": {
+   "topic_id": "FIREWALL-VPN-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "365f4970-a86a-497a-bd5f-cabccf94dea5": {
+   "topic_id": "FIREWALL-VPN-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4e9651e0-357b-4850-9d79-063de645c79f": {
+   "topic_id": "FIREWALL-VPN-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "837bd2c8-768f-4b5e-9e21-268c067c9b6f": {
+   "topic_id": "FIREWALL-VPN-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6c9e17b1-29ce-41de-8d5d-d6790529701b": {
+   "topic_id": "FIREWALL-VPN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3be21c15-b725-43af-86ff-159c9a31ad01": {
+   "topic_id": "FIREWALL-VPN-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9296dcff-a213-4eef-9347-7ed5ea502697": {
+   "topic_id": "FIREWALL-VPN-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b0cd8b70-1fd9-4b40-be6d-ac1b6e29f3e6": {
+   "topic_id": "FIREWALL-VPN-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): A DMZ commonly hosts mail on port 25; RDP 3389 (C) is the port to block inbound.; A DMZ typically hosts the mail server on 25, while inbound RDP 3389 is the port to block."
+  },
+  "f5f57523-2e83-4778-94de-b68ea64a52fd": {
+   "topic_id": "FIREWALL-VPN-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a9ba249a-57ba-43e1-8ed5-75523a9bfed9": {
+   "topic_id": "FIREWALL-VPN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f85b1810-c58c-49e4-aa52-d90fbc3714c6": {
+   "topic_id": "FIREWALL-VPN-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2a79b267-095d-4efc-8afb-cafcf3a70961": {
+   "topic_id": "FIREWALL-VPN-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "bd795987-71df-4464-a3b3-ecc7444b242f": {
+   "topic_id": "FIREWALL-VPN-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4198d710-8e7e-4e96-a90a-1c3682d59bf8": {
+   "topic_id": "FIREWALL-VPN-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "7aadcd37-13aa-4fa3-b722-84d01d6ddded": {
+   "topic_id": "FIREWALL-VPN-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "13310f63-2ced-42b0-af33-4be59af67030": {
+   "topic_id": "FIREWALL-VPN-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "734bf6f5-6f72-4b49-89c5-2d2c59dca296": {
+   "topic_id": "FIREWALL-VPN-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "df4e4588-e5c0-4715-a0fa-aa0d491ef590": {
+   "topic_id": "FIREWALL-VPN-D3-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): NAT order depends on platform and direction (IOS inside-to-outside routes before NAT; ASA un-NATs before ACL), so A is not uniquely right.; Order depends on direction: on IOS inside-to-outside it is filter, route, translate (B), outs"
+  },
+  "2a24efba-bb07-486c-aa64-9d75ddf1909e": {
+   "topic_id": "FIREWALL-VPN-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): D describes a false positive as well as B does.; B and D describe the same thing, a benign event flagged as a threat."
+  },
+  "0080a666-0517-4d86-8130-a7d35f557a3c": {
+   "topic_id": "FIREWALL-VPN-D4-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "f1fc9cd9-f542-4e6a-b5fa-e2982ab81311": {
+   "topic_id": "FIREWALL-VPN-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): A WAF also inspects at the application layer, as defensible as a proxy firewall.; A WAF is equally a firewall designed to inspect at the application layer."
+  },
+  "9ccbbaf2-81d8-4c08-bac7-f9874f1dea57": {
+   "topic_id": "FIREWALL-VPN-D4-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "b7ce1e6e-559c-43a5-9e05-9a57bb35b443": {
+   "topic_id": "FIREWALL-VPN-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "754a0faf-ec1a-45d8-ac41-6644988716ed": {
+   "topic_id": "FIREWALL-VPN-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  }
+ }
+}

@@ -1,0 +1,352 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "cloud_networking",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "cloud",
+  "language": "english",
+  "title": "Cloud Networking (AWS and Azure)",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CLOUD-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "Cloud fundamentals and virtual network design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "Cloud service models and the shared responsibility model",
+     "aliases": [
+      "iaas",
+      "paas",
+      "saas",
+      "iaas vs paas",
+      "shared responsibility",
+      "shared responsibility model",
+      "cloud service models",
+      "infrastructure as a service",
+      "platform as a service"
+     ],
+     "paraphrases": [
+      "What IaaS and PaaS deliver and which security duties belong to the cloud provider versus the customer."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What IaaS and PaaS deliver and which security duties belong to the cloud provider versus the customer."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "VPC CIDR sizing, public and private subnets and route tables",
+     "aliases": [
+      "vpc",
+      "vpc cidr",
+      "cidr block",
+      "public subnet",
+      "private subnet",
+      "route table",
+      "vpc subnets",
+      "aws vpc design",
+      "subnet sizing"
+     ],
+     "paraphrases": [
+      "Sizing a VPC with CIDR notation and how route tables make a subnet public or private."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Sizing a VPC with CIDR notation and how route tables make a subnet public or private."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "Internet Gateway and NAT Gateway in an AWS VPC",
+     "aliases": [
+      "internet gateway",
+      "igw",
+      "nat gateway",
+      "nat gw",
+      "nat vs igw",
+      "outbound internet access",
+      "aws nat"
+     ],
+     "paraphrases": [
+      "How an Internet Gateway serves public subnets and a NAT Gateway gives private subnets outbound internet access."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an Internet Gateway serves public subnets and a NAT Gateway gives private subnets outbound internet access."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D1-T04",
+     "topic_number": 4,
+     "title": "Azure VNets and Network Security Groups",
+     "aliases": [
+      "azure vnet",
+      "vnet",
+      "azure virtual network",
+      "nsg",
+      "network security group",
+      "azure nsg",
+      "az network vnet create",
+      "azure cli vnet"
+     ],
+     "paraphrases": [
+      "Creating Azure virtual networks with the Azure CLI and filtering their traffic with stateful Network Security Groups."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating Azure virtual networks with the Azure CLI and filtering their traffic with stateful Network Security Groups."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CLOUD-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Inter-VPC and hybrid connectivity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "VPC peering and AWS Transit Gateway",
+     "aliases": [
+      "vpc peering",
+      "transit gateway",
+      "tgw",
+      "aws transit gateway",
+      "inter-region peering",
+      "transitive routing",
+      "hub and spoke vpc"
+     ],
+     "paraphrases": [
+      "Connecting VPCs with peering and its limits, and using Transit Gateway as a hub for many VPCs and on-premises networks."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Connecting VPCs with peering and its limits, and using Transit Gateway as a hub for many VPCs and on-premises networks."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "Hybrid connectivity: Direct Connect, ExpressRoute and site-to-site VPN",
+     "aliases": [
+      "direct connect",
+      "aws direct connect",
+      "dx",
+      "expressroute",
+      "azure expressroute",
+      "site-to-site vpn",
+      "vpn tunnel",
+      "hybrid cloud connectivity",
+      "dedicated connection"
+     ],
+     "paraphrases": [
+      "Dedicated private links such as Direct Connect and ExpressRoute compared with encrypted VPN tunnels over the internet."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Dedicated private links such as Direct Connect and ExpressRoute compared with encrypted VPN tunnels over the internet."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CLOUD-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Load balancing and DNS",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "Application Load Balancer versus Network Load Balancer",
+     "aliases": [
+      "alb",
+      "nlb",
+      "application load balancer",
+      "network load balancer",
+      "elb types",
+      "layer 7 load balancer",
+      "layer 4 load balancer",
+      "path-based routing"
+     ],
+     "paraphrases": [
+      "How the Layer 7 ALB routes HTTP and HTTPS by rules while the Layer 4 NLB handles TCP and UDP with low latency."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the Layer 7 ALB routes HTTP and HTTPS by rules while the Layer 4 NLB handles TCP and UDP with low latency."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "Load balancer health checks and cross-zone load balancing",
+     "aliases": [
+      "health checks",
+      "target health",
+      "cross-zone load balancing",
+      "cross zone",
+      "elb health check",
+      "target group health"
+     ],
+     "paraphrases": [
+      "How load balancers check target health before sending traffic and spread requests across Availability Zones."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How load balancers check target health before sending traffic and spread requests across Availability Zones."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D3-T03",
+     "topic_number": 3,
+     "title": "Amazon Route 53 DNS, routing policies and alias records",
+     "aliases": [
+      "route 53",
+      "route53",
+      "aws dns",
+      "routing policies",
+      "weighted routing",
+      "failover routing",
+      "geolocation routing",
+      "alias record",
+      "cname vs alias"
+     ],
+     "paraphrases": [
+      "Route 53 as a DNS service, its routing policies and how alias records differ from CNAME records."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Route 53 as a DNS service, its routing policies and how alias records differ from CNAME records."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CLOUD-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "Cloud network security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CLOUD-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "AWS security groups and network ACLs",
+     "aliases": [
+      "security group",
+      "security groups",
+      "sg",
+      "nacl",
+      "network acl",
+      "network access control list",
+      "default security group",
+      "stateful vs stateless",
+      "sg vs nacl"
+     ],
+     "paraphrases": [
+      "Stateful security group defaults and behaviour compared with stateless, numbered, first-match network ACL rules."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Stateful security group defaults and behaviour compared with stateless, numbered, first-match network ACL rules."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "WAF, AWS Shield DDoS protection and cloud-native firewalls",
+     "aliases": [
+      "waf",
+      "web application firewall",
+      "aws waf",
+      "aws shield",
+      "shield",
+      "ddos protection",
+      "cloud-native firewall",
+      "cloud firewall"
+     ],
+     "paraphrases": [
+      "Protecting cloud workloads with web application firewalls, DDoS protection and auto-scaling cloud-native firewalls."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Protecting cloud workloads with web application firewalls, DDoS protection and auto-scaling cloud-native firewalls."
+      }
+     ]
+    },
+    {
+     "topic_id": "CLOUD-NETWORKING-D4-T03",
+     "topic_number": 3,
+     "title": "Zero Trust and microsegmentation in the cloud",
+     "aliases": [
+      "zero trust",
+      "zero trust architecture",
+      "zta",
+      "identity-based access",
+      "microsegmentation",
+      "micro-segmentation",
+      "least privilege network"
+     ],
+     "paraphrases": [
+      "Granting access by identity and role instead of network location, and segmenting workloads with separate security policies."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Granting access by identity and role instead of network location, and segmenting workloads with separate security policies."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

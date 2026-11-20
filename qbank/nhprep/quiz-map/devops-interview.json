@@ -1,0 +1,172 @@
+{
+ "category": "devops-interview",
+ "book_id": "devops_interview",
+ "questions": {
+  "8e5a1c12-0e67-4228-80f8-57ea41f7d837": {
+   "topic_id": "DEVOPS-INTERVIEW-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f7739e7f-c699-48f0-a684-990f5d02237b": {
+   "topic_id": "DEVOPS-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "aca749fc-9cd9-41d1-8487-9646fbf2a9e8": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d2ad86bb-efca-4ce9-97c6-012c82750866": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d07585fd-5ab5-4e14-821d-430fc936044b": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "a80fa375-bacb-4182-b20a-fa92fd2b7619": {
+   "topic_id": "DEVOPS-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "31552b80-799d-4665-a91c-8156a2c6b357": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "03dc28b6-3bcb-41e1-ad08-78cd9773a30a": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "d98da265-9c3e-49ae-b295-4d39209f88a8": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7d947fcb-6082-47ed-9ec3-3c147ccc5a50": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2ee9670e-76fd-446c-8f9e-4f13d9897ff2": {
+   "topic_id": "DEVOPS-INTERVIEW-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ed5af6d0-005d-4ed1-b20b-c10e170b0137": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8de43a7d-3378-443c-8a2a-33194b0a2ed7": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "07d0fe23-1502-437e-975a-00bdd9288a8f": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1649237b-ac2c-4695-8378-9bfca2333a48": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "efab9c9c-4d34-4074-b058-54415fa7fd30": {
+   "topic_id": "DEVOPS-INTERVIEW-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "d51f6683-3438-4c39-a719-cef19fb7f40f": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Running terraform validate (D) is as standard a troubleshooting step as checking state (A).; Running terraform validate is as standard a troubleshooting step for a failing plan as checking state."
+  },
+  "0aa24e6e-2448-4e91-9a75-97dba767e320": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "af95fcd1-42b5-4c13-91ad-578e6974efde": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "56f8ec2d-2fe3-4025-9242-2ffec501e629": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "0795111b-a2c6-4aa5-8d1a-bf4840e24e0f": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "b897fc15-649d-431b-b0c0-5d5f3be1dae9": {
+   "topic_id": "DEVOPS-INTERVIEW-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0be1a61f-b66d-425e-a1b7-93b3e815a2d7": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "abfebdbd-ce31-4e1f-a715-dcbd39553c0a": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ab2418fb-3e12-428d-9f6e-560ed06df146": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1481a4f4-7b42-4694-9118-8604f4525ffb": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "11f18a45-2f26-47c4-b39c-58cb3398d948": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4ed65b0b-34dd-4ab8-be0d-f8f69bb44d07": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f012e952-8565-4694-87d3-56947ac7faf0": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "1883cbb5-100b-4c97-ae12-cbcd3f9f4631": {
+   "topic_id": "DEVOPS-INTERVIEW-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "57236ee9-a8da-4009-a855-a3117bb229f2": {
+   "topic_id": "DEVOPS-INTERVIEW-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e0e26057-7fa1-4bef-a307-7bf6792b7cb1": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "00af5b06-264a-49be-8a85-826f3c1a7915": {
+   "topic_id": "DEVOPS-INTERVIEW-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

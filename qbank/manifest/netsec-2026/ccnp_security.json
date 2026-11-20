@@ -1,0 +1,508 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ccnp_security",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "security",
+  "language": "english",
+  "title": "CCNP Security",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CCNP-SECURITY-D1",
+   "chapter_number": 1,
+   "title": "Security Concepts",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-SECURITY-D1-T01",
+     "topic_number": 1,
+     "title": "Cryptography: hashing algorithms and symmetric vs asymmetric encryption",
+     "aliases": [
+      "hashing",
+      "sha-256",
+      "md5",
+      "sha-1",
+      "symmetric encryption",
+      "asymmetric encryption",
+      "encryption algorithms",
+      "cryptography",
+      "hash collision"
+     ],
+     "paraphrases": [
+      "Hash functions and their collision resistance, and how symmetric and asymmetric encryption use keys."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Hash functions and their collision resistance, and how symmetric and asymmetric encryption use keys."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D1-T02",
+     "topic_number": 2,
+     "title": "PKI and certificate chains of trust",
+     "aliases": [
+      "pki",
+      "public key infrastructure",
+      "certificate chain",
+      "root ca",
+      "intermediate certificate",
+      "digital certificates",
+      "chain of trust"
+     ],
+     "paraphrases": [
+      "How a public key infrastructure links certificates through intermediates to a trusted root CA."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a public key infrastructure links certificates through intermediates to a trusted root CA."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D1-T03",
+     "topic_number": 3,
+     "title": "Security principles: CIA triad and zero trust",
+     "aliases": [
+      "cia triad",
+      "confidentiality integrity availability",
+      "zero trust",
+      "zero trust architecture",
+      "assume breach",
+      "security principles"
+     ],
+     "paraphrases": [
+      "Core information security principles, the CIA triad, and the zero trust model of verifying every access request."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Core information security principles, the CIA triad, and the zero trust model of verifying every access request."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D1-T04",
+     "topic_number": 4,
+     "title": "Threats, indicators of compromise and vulnerability scoring (APT, IOC, CVSS)",
+     "aliases": [
+      "apt",
+      "advanced persistent threat",
+      "ioc",
+      "indicator of compromise",
+      "cvss",
+      "cvss v3",
+      "vulnerability scoring",
+      "threat detection"
+     ],
+     "paraphrases": [
+      "Kinds of threat actors such as APTs, indicators of compromise, and rating vulnerability severity with CVSS."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Kinds of threat actors such as APTs, indicators of compromise, and rating vulnerability severity with CVSS."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D1-T05",
+     "topic_number": 5,
+     "title": "Web application and software attacks: SQL injection, XSS, CSRF, path traversal, buffer overflow",
+     "aliases": [
+      "sql injection",
+      "sqli",
+      "xss",
+      "cross-site scripting",
+      "csrf",
+      "cross-site request forgery",
+      "path traversal",
+      "directory traversal",
+      "buffer overflow",
+      "owasp",
+      "web attacks"
+     ],
+     "paraphrases": [
+      "Common application attacks, what each exploits, and their primary defenses."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Common application attacks, what each exploits, and their primary defenses."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNP-SECURITY-D2",
+   "chapter_number": 2,
+   "title": "Network Security: Firewalls, IPS and VPN",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-SECURITY-D2-T01",
+     "topic_number": 1,
+     "title": "Cisco ASA and FTD architecture, packet flow and FMC management",
+     "aliases": [
+      "ftd",
+      "firepower threat defense",
+      "asa",
+      "adaptive security appliance",
+      "fmc",
+      "firepower management center",
+      "ftd packet flow",
+      "asa vs ftd",
+      "ngfw",
+      "secure firewall"
+     ],
+     "paraphrases": [
+      "How ASA and Firepower Threat Defense differ, how FTD inspects traffic in its data plane, and how FTD is managed by FMC."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ASA and Firepower Threat Defense differ, how FTD inspects traffic in its data plane, and how FTD is managed by FMC."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D2-T02",
+     "topic_number": 2,
+     "title": "Firewall access control policies and NAT types",
+     "aliases": [
+      "access control policy",
+      "acp",
+      "firewall rules",
+      "nat",
+      "object nat",
+      "twice nat",
+      "pat",
+      "static nat",
+      "dynamic nat"
+     ],
+     "paraphrases": [
+      "Defining allowed and denied traffic with firewall access control policies and choosing between NAT types on ASA and FTD."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Defining allowed and denied traffic with firewall access control policies and choosing between NAT types on ASA and FTD."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D2-T03",
+     "topic_number": 3,
+     "title": "Snort IPS rules and intrusion prevention",
+     "aliases": [
+      "snort",
+      "snort rules",
+      "ips",
+      "intrusion prevention",
+      "ids",
+      "intrusion detection",
+      "snort rule syntax"
+     ],
+     "paraphrases": [
+      "Reading Snort rule headers and options and how intrusion prevention alerts on matching traffic."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading Snort rule headers and options and how intrusion prevention alerts on matching traffic."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D2-T04",
+     "topic_number": 4,
+     "title": "IPsec site-to-site VPN: IKEv1 phases, transform sets and crypto maps",
+     "aliases": [
+      "ipsec",
+      "site-to-site vpn",
+      "ikev1",
+      "ike phase 1",
+      "isakmp",
+      "transform set",
+      "crypto map",
+      "ipsec vpn"
+     ],
+     "paraphrases": [
+      "Building a classic IPsec tunnel on Cisco routers: IKE phases, transform sets and crypto map configuration."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Building a classic IPsec tunnel on Cisco routers: IKE phases, transform sets and crypto map configuration."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D2-T05",
+     "topic_number": 5,
+     "title": "Scalable VPNs: DMVPN, GETVPN and FlexVPN",
+     "aliases": [
+      "dmvpn",
+      "nhrp",
+      "getvpn",
+      "group encrypted transport",
+      "flexvpn",
+      "ikev2",
+      "spoke-to-spoke tunnels",
+      "hub and spoke vpn"
+     ],
+     "paraphrases": [
+      "How DMVPN builds dynamic spoke tunnels with NHRP, how GETVPN encrypts without tunnels, and what FlexVPN offers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DMVPN builds dynamic spoke tunnels with NHRP, how GETVPN encrypts without tunnels, and what FlexVPN offers."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D2-T06",
+     "topic_number": 6,
+     "title": "AnyConnect remote access SSL VPN",
+     "aliases": [
+      "anyconnect",
+      "secure client",
+      "remote access vpn",
+      "ssl vpn",
+      "ravpn",
+      "client vpn"
+     ],
+     "paraphrases": [
+      "Using Cisco AnyConnect to give remote users secure SSL VPN access to the network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Cisco AnyConnect to give remote users secure SSL VPN access to the network."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNP-SECURITY-D3",
+   "chapter_number": 3,
+   "title": "Secure Network Access and Identity (ISE)",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-SECURITY-D3-T01",
+     "topic_number": 1,
+     "title": "Cisco ISE personas, posture assessment and guest portals",
+     "aliases": [
+      "ise",
+      "identity services engine",
+      "pan",
+      "policy administration node",
+      "ise personas",
+      "posture",
+      "posture assessment",
+      "guest portal",
+      "guest access"
+     ],
+     "paraphrases": [
+      "ISE node roles such as the PAN, endpoint posture compliance checks, and guest portal access."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "ISE node roles such as the PAN, endpoint posture compliance checks, and guest portal access."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D3-T02",
+     "topic_number": 2,
+     "title": "802.1X, MAB and EAP methods",
+     "aliases": [
+      "802.1x",
+      "dot1x",
+      "mab",
+      "mac authentication bypass",
+      "eap",
+      "eap-tls",
+      "peap",
+      "eap-fast",
+      "network access control"
+     ],
+     "paraphrases": [
+      "Port-based authentication with 802.1X, the EAP methods it uses, and MAB for devices without a supplicant."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Port-based authentication with 802.1X, the EAP methods it uses, and MAB for devices without a supplicant."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D3-T03",
+     "topic_number": 3,
+     "title": "RADIUS Change of Authorization and TrustSec SGTs",
+     "aliases": [
+      "radius",
+      "coa",
+      "change of authorization",
+      "trustsec",
+      "sgt",
+      "security group tag",
+      "sgacl",
+      "segmentation"
+     ],
+     "paraphrases": [
+      "Changing a session's access dynamically with RADIUS CoA and enforcing policy with TrustSec security group tags."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Changing a session's access dynamically with RADIUS CoA and enforcing policy with TrustSec security group tags."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CCNP-SECURITY-D4",
+   "chapter_number": 4,
+   "title": "Content, Endpoint and Cloud Security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CCNP-SECURITY-D4-T01",
+     "topic_number": 1,
+     "title": "Email security with Cisco ESA: DKIM and data loss prevention",
+     "aliases": [
+      "esa",
+      "email security appliance",
+      "secure email",
+      "dkim",
+      "domainkeys identified mail",
+      "email authentication",
+      "dlp",
+      "data loss prevention"
+     ],
+     "paraphrases": [
+      "Protecting mail flow with the Email Security Appliance, signing mail with DKIM, and preventing data loss."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Protecting mail flow with the Email Security Appliance, signing mail with DKIM, and preventing data loss."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D4-T02",
+     "topic_number": 2,
+     "title": "Web security: Cisco WSA deployment modes and Umbrella DNS-layer security",
+     "aliases": [
+      "wsa",
+      "web security appliance",
+      "secure web appliance",
+      "transparent proxy",
+      "explicit proxy",
+      "web filtering",
+      "umbrella",
+      "dns-layer security",
+      "dns security"
+     ],
+     "paraphrases": [
+      "Filtering web traffic with the WSA in explicit or transparent mode and blocking malicious domains with Umbrella."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Filtering web traffic with the WSA in explicit or transparent mode and blocking malicious domains with Umbrella."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D4-T03",
+     "topic_number": 3,
+     "title": "Endpoint protection: Secure Endpoint (AMP), EDR, fileless malware and Threat Grid sandboxing",
+     "aliases": [
+      "amp",
+      "secure endpoint",
+      "amp for endpoints",
+      "edr",
+      "endpoint detection and response",
+      "antivirus",
+      "fileless malware",
+      "threat grid",
+      "secure malware analytics",
+      "sandboxing"
+     ],
+     "paraphrases": [
+      "Protecting endpoints with Secure Endpoint and EDR, detecting fileless malware, and analyzing suspicious files in a sandbox."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Protecting endpoints with Secure Endpoint and EDR, detecting fileless malware, and analyzing suspicious files in a sandbox."
+      }
+     ]
+    },
+    {
+     "topic_id": "CCNP-SECURITY-D4-T04",
+     "topic_number": 4,
+     "title": "Cloud security: shared responsibility, AWS security groups and CASB",
+     "aliases": [
+      "cloud security",
+      "shared responsibility model",
+      "aws security groups",
+      "security group",
+      "casb",
+      "cloud access security broker",
+      "aws",
+      "saas security"
+     ],
+     "paraphrases": [
+      "Who secures what in the cloud, filtering cloud workload traffic with AWS security groups, and controlling SaaS use with a CASB."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Who secures what in the cloud, filtering cloud workload traffic with AWS security groups, and controlling SaaS use with a CASB."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

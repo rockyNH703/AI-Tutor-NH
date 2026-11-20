@@ -1,0 +1,375 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ansible_networks",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "Ansible for Network Automation",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "ANSIBLE-NETWORKS-D1",
+   "chapter_number": 1,
+   "title": "Ansible fundamentals, inventory and the command line",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D1-T01",
+     "topic_number": 1,
+     "title": "Static inventory files: INI and YAML groups and host variables",
+     "aliases": [
+      "inventory",
+      "ansible inventory",
+      "ini inventory",
+      "yaml inventory",
+      "host groups",
+      "host variables",
+      "ansible_host",
+      "hosts file"
+     ],
+     "paraphrases": [
+      "How to list managed devices in INI or YAML inventory files, group them and attach host variables."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How to list managed devices in INI or YAML inventory files, group them and attach host variables."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D1-T02",
+     "topic_number": 2,
+     "title": "Dynamic inventory scripts and plugins",
+     "aliases": [
+      "dynamic inventory",
+      "inventory script",
+      "inventory plugin",
+      "json inventory"
+     ],
+     "paraphrases": [
+      "Generating the host list at run time with a script or plugin that returns JSON."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Generating the host list at run time with a script or plugin that returns JSON."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D1-T03",
+     "topic_number": 3,
+     "title": "ansible.cfg settings and running ansible-playbook",
+     "aliases": [
+      "ansible.cfg",
+      "ansible config",
+      "ansible-playbook command",
+      "ansible cli",
+      "-i inventory",
+      "configuration file"
+     ],
+     "paraphrases": [
+      "Setting Ansible defaults in ansible.cfg and running playbooks against an inventory from the command line."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Setting Ansible defaults in ansible.cfg and running playbooks against an inventory from the command line."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D1-T04",
+     "topic_number": 4,
+     "title": "Check mode dry runs and verbose troubleshooting",
+     "aliases": [
+      "check mode",
+      "--check",
+      "dry run",
+      "verbose mode",
+      "-vvv",
+      "verbosity",
+      "troubleshooting playbooks",
+      "debugging ansible"
+     ],
+     "paraphrases": [
+      "Simulating a run without changes and raising verbosity to find why a task fails."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Simulating a run without changes and raising verbosity to find why a task fails."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ANSIBLE-NETWORKS-D2",
+   "chapter_number": 2,
+   "title": "Playbooks and task control",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D2-T01",
+     "topic_number": 1,
+     "title": "Playbook structure: plays, hosts and gather_facts",
+     "aliases": [
+      "playbook",
+      "play",
+      "hosts directive",
+      "gather_facts",
+      "facts gathering",
+      "yaml playbook"
+     ],
+     "paraphrases": [
+      "The parts of a play, how hosts targets devices and why network playbooks often disable fact gathering."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The parts of a play, how hosts targets devices and why network playbooks often disable fact gathering."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D2-T02",
+     "topic_number": 2,
+     "title": "Conditional tasks with when and ansible_network_os",
+     "aliases": [
+      "when",
+      "conditionals",
+      "when condition",
+      "ansible_network_os",
+      "conditional execution"
+     ],
+     "paraphrases": [
+      "Running a task only when a condition holds, such as a specific network operating system."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Running a task only when a condition holds, such as a specific network operating system."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D2-T03",
+     "topic_number": 3,
+     "title": "Loops with loop and with_items",
+     "aliases": [
+      "loop",
+      "loops",
+      "with_items",
+      "item variable",
+      "iteration",
+      "looping tasks"
+     ],
+     "paraphrases": [
+      "Repeating one task over a list of values using loop or the older with_items keyword."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Repeating one task over a list of values using loop or the older with_items keyword."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D2-T04",
+     "topic_number": 4,
+     "title": "Handlers and notify",
+     "aliases": [
+      "handlers",
+      "notify",
+      "handler",
+      "notify handler",
+      "changed status"
+     ],
+     "paraphrases": [
+      "Triggering handler tasks from tasks that report a change, and when handlers run."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Triggering handler tasks from tasks that report a change, and when handlers run."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D2-T05",
+     "topic_number": 5,
+     "title": "Error handling: block, rescue, failed_when and ignore_errors",
+     "aliases": [
+      "block",
+      "rescue",
+      "always",
+      "failed_when",
+      "ignore_errors",
+      "error handling",
+      "block rescue"
+     ],
+     "paraphrases": [
+      "Grouping tasks in blocks, recovering with rescue, defining failure conditions and continuing past errors."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Grouping tasks in blocks, recovering with rescue, defining failure conditions and continuing past errors."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ANSIBLE-NETWORKS-D3",
+   "chapter_number": 3,
+   "title": "Roles, templates and secrets",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D3-T01",
+     "topic_number": 1,
+     "title": "Ansible roles and their directory structure",
+     "aliases": [
+      "roles",
+      "ansible role",
+      "role directory",
+      "tasks/main.yml",
+      "defaults/main.yml",
+      "handlers/main.yml",
+      "role structure"
+     ],
+     "paraphrases": [
+      "How a role separates tasks, handlers, defaults and templates into standard directories for reuse."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a role separates tasks, handlers, defaults and templates into standard directories for reuse."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D3-T02",
+     "topic_number": 2,
+     "title": "Jinja2 templating: variables, filters and for loops",
+     "aliases": [
+      "jinja2",
+      "jinja",
+      "templates",
+      "jinja filters",
+      "upper filter",
+      "template variables",
+      "jinja for loop"
+     ],
+     "paraphrases": [
+      "Referencing variables, applying filters and writing for loops in Jinja2 expressions and templates."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Referencing variables, applying filters and writing for loops in Jinja2 expressions and templates."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D3-T03",
+     "topic_number": 3,
+     "title": "Ansible Vault: encrypting files and strings",
+     "aliases": [
+      "ansible vault",
+      "vault",
+      "ansible-vault",
+      "encrypt_string",
+      "encrypt file",
+      "secrets"
+     ],
+     "paraphrases": [
+      "Using ansible-vault to encrypt whole files or single string values that hold secrets."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using ansible-vault to encrypt whole files or single string values that hold secrets."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ANSIBLE-NETWORKS-D4",
+   "chapter_number": 4,
+   "title": "Network device modules",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D4-T01",
+     "topic_number": 1,
+     "title": "Configuring Cisco IOS with ios_config lines and parents",
+     "aliases": [
+      "ios_config",
+      "cisco.ios.ios_config",
+      "parents",
+      "lines",
+      "ios configuration module",
+      "push config"
+     ],
+     "paraphrases": [
+      "Applying configuration lines to Cisco IOS devices, placing them under parent sections such as an interface."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Applying configuration lines to Cisco IOS devices, placing them under parent sections such as an interface."
+      }
+     ]
+    },
+    {
+     "topic_id": "ANSIBLE-NETWORKS-D4-T02",
+     "topic_number": 2,
+     "title": "Running commands on Cisco IOS with ios_command",
+     "aliases": [
+      "ios_command",
+      "cisco.ios.ios_command",
+      "show commands",
+      "run commands on ios"
+     ],
+     "paraphrases": [
+      "Sending show and other exec commands to Cisco IOS devices and collecting their output."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Sending show and other exec commands to Cisco IOS devices and collecting their output."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,441 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "fortinet_fcp",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "security",
+  "language": "english",
+  "title": "FortiGate Network Security Administration",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "FORTINET-FCP-D1",
+   "chapter_number": 1,
+   "title": "Firewall policies, NAT and SD-WAN",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FORTINET-FCP-D1-T01",
+     "topic_number": 1,
+     "title": "FortiGate firewall policy order and implicit deny",
+     "aliases": [
+      "firewall policy",
+      "fortigate policy",
+      "policy order",
+      "implicit deny",
+      "policy matching",
+      "ipv4 policy",
+      "top-down policy"
+     ],
+     "paraphrases": [
+      "How FortiGate evaluates firewall policies from the top down and denies anything not explicitly allowed."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How FortiGate evaluates firewall policies from the top down and denies anything not explicitly allowed."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D1-T02",
+     "topic_number": 2,
+     "title": "FortiGate NAT, virtual IPs and central SNAT",
+     "aliases": [
+      "nat",
+      "fortigate nat",
+      "vip",
+      "virtual ip",
+      "central snat",
+      "snat",
+      "dnat",
+      "port forwarding",
+      "many-to-one nat",
+      "ip pool"
+     ],
+     "paraphrases": [
+      "Source and destination NAT on FortiGate, including virtual IPs for inbound access, many-to-one NAT and central SNAT versus per-policy NAT."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Source and destination NAT on FortiGate, including virtual IPs for inbound access, many-to-one NAT and central SNAT versus per-policy NAT."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D1-T03",
+     "topic_number": 3,
+     "title": "FortiGate session table and session helpers",
+     "aliases": [
+      "session table",
+      "session helpers",
+      "diagnose sys session list",
+      "fortigate sessions",
+      "stateful sessions",
+      "alg"
+     ],
+     "paraphrases": [
+      "How FortiGate tracks stateful sessions, what session helpers do and how to list active sessions."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How FortiGate tracks stateful sessions, what session helpers do and how to list active sessions."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D1-T04",
+     "topic_number": 4,
+     "title": "FortiGate SD-WAN and performance SLA health checks",
+     "aliases": [
+      "sd-wan",
+      "sdwan",
+      "performance sla",
+      "sla health check",
+      "wan link monitoring",
+      "fortigate sd-wan",
+      "link health"
+     ],
+     "paraphrases": [
+      "Using SD-WAN performance SLA health checks to measure WAN links and steer traffic to the best path."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using SD-WAN performance SLA health checks to measure WAN links and steer traffic to the best path."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "FORTINET-FCP-D2",
+   "chapter_number": 2,
+   "title": "Security profiles and SSL inspection",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FORTINET-FCP-D2-T01",
+     "topic_number": 1,
+     "title": "FortiGate SSL deep inspection, CA certificate and exemptions",
+     "aliases": [
+      "ssl inspection",
+      "deep inspection",
+      "ssl deep inspection",
+      "https inspection",
+      "ssl exemption",
+      "fortigate ca certificate",
+      "tls inspection"
+     ],
+     "paraphrases": [
+      "How FortiGate decrypts SSL/TLS traffic with its CA certificate and how exemptions bypass inspection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How FortiGate decrypts SSL/TLS traffic with its CA certificate and how exemptions bypass inspection."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D2-T02",
+     "topic_number": 2,
+     "title": "FortiGate antivirus in proxy mode versus flow mode",
+     "aliases": [
+      "antivirus",
+      "fortigate antivirus",
+      "proxy mode",
+      "flow mode",
+      "proxy-based inspection",
+      "flow-based inspection",
+      "av scanning"
+     ],
+     "paraphrases": [
+      "How antivirus scanning differs between proxy-based and flow-based inspection on FortiGate."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How antivirus scanning differs between proxy-based and flow-based inspection on FortiGate."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D2-T03",
+     "topic_number": 3,
+     "title": "FortiGate web filtering with FortiGuard categories",
+     "aliases": [
+      "web filter",
+      "web filtering",
+      "fortiguard categories",
+      "url filtering",
+      "category filtering",
+      "content filtering"
+     ],
+     "paraphrases": [
+      "Using the Web Filter security profile to allow or block websites by FortiGuard category."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using the Web Filter security profile to allow or block websites by FortiGuard category."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D2-T04",
+     "topic_number": 4,
+     "title": "FortiGate data leak prevention (DLP)",
+     "aliases": [
+      "dlp",
+      "data leak prevention",
+      "data loss prevention",
+      "dlp sensor",
+      "sensitive data filtering"
+     ],
+     "paraphrases": [
+      "What the FortiGate DLP profile does to detect and stop sensitive data leaving the network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the FortiGate DLP profile does to detect and stop sensitive data leaving the network."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "FORTINET-FCP-D3",
+   "chapter_number": 3,
+   "title": "VPN and user authentication",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FORTINET-FCP-D3-T01",
+     "topic_number": 1,
+     "title": "FortiGate IPsec VPN phases and IKEv1 versus IKEv2",
+     "aliases": [
+      "ipsec",
+      "ipsec vpn",
+      "ike",
+      "ikev1",
+      "ikev2",
+      "phase 1",
+      "phase 2",
+      "site-to-site vpn",
+      "nat traversal",
+      "nat-t"
+     ],
+     "paraphrases": [
+      "IPsec VPN on FortiGate: what phase 1 negotiates and how IKEv1 and IKEv2 differ."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "IPsec VPN on FortiGate: what phase 1 negotiates and how IKEv1 and IKEv2 differ."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D3-T02",
+     "topic_number": 2,
+     "title": "FortiGate SSL VPN web mode and tunnel mode",
+     "aliases": [
+      "ssl vpn",
+      "sslvpn",
+      "web mode",
+      "tunnel mode",
+      "forticlient vpn",
+      "remote access vpn",
+      "vpn portal"
+     ],
+     "paraphrases": [
+      "The difference between browser-based web mode and client-based tunnel mode in FortiGate SSL VPN."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between browser-based web mode and client-based tunnel mode in FortiGate SSL VPN."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D3-T03",
+     "topic_number": 3,
+     "title": "FortiGate local users and two-factor authentication with FortiToken",
+     "aliases": [
+      "user authentication",
+      "local user",
+      "config user local",
+      "fortitoken",
+      "two-factor authentication",
+      "2fa",
+      "mfa",
+      "firewall authentication"
+     ],
+     "paraphrases": [
+      "Creating local users on FortiGate and adding two-factor authentication with FortiToken."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating local users on FortiGate and adding two-factor authentication with FortiToken."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "FORTINET-FCP-D4",
+   "chapter_number": 4,
+   "title": "System administration, high availability and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FORTINET-FCP-D4-T01",
+     "topic_number": 1,
+     "title": "FortiGate administration, firmware version and configuration backup and restore",
+     "aliases": [
+      "get system status",
+      "firmware version",
+      "config backup",
+      "backup and restore",
+      "execute backup config",
+      "super_admin",
+      "admin profile",
+      "administrator access"
+     ],
+     "paraphrases": [
+      "Basic FortiGate system administration: admin profiles, checking firmware, and backing up and restoring the configuration."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Basic FortiGate system administration: admin profiles, checking firmware, and backing up and restoring the configuration."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D4-T02",
+     "topic_number": 2,
+     "title": "FortiGate high availability (HA) clusters and heartbeat",
+     "aliases": [
+      "ha",
+      "high availability",
+      "fgcp",
+      "ha cluster",
+      "heartbeat interface",
+      "ha status",
+      "failover",
+      "active-passive"
+     ],
+     "paraphrases": [
+      "How FortiGate HA clusters use heartbeat interfaces to monitor members and how to check cluster status."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How FortiGate HA clusters use heartbeat interfaces to monitor members and how to check cluster status."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D4-T03",
+     "topic_number": 3,
+     "title": "FortiGate virtual domains (VDOMs)",
+     "aliases": [
+      "vdom",
+      "vdoms",
+      "virtual domains",
+      "multi-vdom",
+      "nat mode vdom",
+      "virtual firewall"
+     ],
+     "paraphrases": [
+      "How VDOMs split one FortiGate into independent virtual firewalls with their own policies."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How VDOMs split one FortiGate into independent virtual firewalls with their own policies."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D4-T04",
+     "topic_number": 4,
+     "title": "FortiGate traffic logs, event logs and FortiAnalyzer logging",
+     "aliases": [
+      "logging",
+      "fortigate logs",
+      "traffic logs",
+      "event logs",
+      "utm logs",
+      "fortianalyzer",
+      "log settings",
+      "policy logging"
+     ],
+     "paraphrases": [
+      "The FortiGate log types, what each records and where policy logs are stored or sent."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The FortiGate log types, what each records and where policy logs are stored or sent."
+      }
+     ]
+    },
+    {
+     "topic_id": "FORTINET-FCP-D4-T05",
+     "topic_number": 5,
+     "title": "FortiGate CLI troubleshooting with debug flow and packet sniffer",
+     "aliases": [
+      "diagnose debug flow",
+      "debug flow",
+      "packet sniffer",
+      "diagnose sniffer packet",
+      "packet capture",
+      "fortigate troubleshooting",
+      "cli diagnostics"
+     ],
+     "paraphrases": [
+      "Using diagnose debug flow and diagnose sniffer packet to trace and capture traffic when troubleshooting FortiGate."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using diagnose debug flow and diagnose sniffer packet to trace and capture traffic when troubleshooting FortiGate."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,148 @@
+{
+ "category": "career-certification",
+ "book_id": "career_certification",
+ "questions": {
+  "8fcb20ec-295b-4fac-a91c-5b1d8907a337": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6dc33f04-a47d-46be-b0d8-fde672b3f59a": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1f09dd99-adec-4ccb-b8db-72576d59e800": {
+   "topic_id": "CAREER-CERTIFICATION-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "db62ecf6-0757-48df-b741-ccd6a279e471": {
+   "topic_id": "CAREER-CERTIFICATION-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7b73788e-3fdf-4337-a415-a50acf71abdd": {
+   "topic_id": "CAREER-CERTIFICATION-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "08a449cc-349e-4514-8dc5-68d8dc01ca3f": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2a545713-734f-407b-832b-de696a58dd16": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bc0f19b3-3787-4185-b39d-5358be96c021": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "2607a1c5-c00f-4000-8e14-681967177ea1": {
+   "topic_id": "CAREER-CERTIFICATION-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "1ac4ce8a-7ad7-4cd1-90a3-418cdf7cb1a3": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4ab21c36-a7e6-41a8-967d-5cf576a931cb": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "f5dbb80f-3e00-4d18-9f64-28c7664bb47d": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "58cb2564-d8c2-4b99-9865-ccaccb7b5a84": {
+   "topic_id": "CAREER-CERTIFICATION-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "79ec3907-a7db-43ad-8fc5-08a7eb166bbc": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "56f77812-574e-478e-9b66-e6050cb0ccf9": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b460240d-ca13-4a90-ac56-c7eeafe58a2e": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): Cisco Learning Network is at least as well known for CCNA discussion as r/networking.; The Cisco Learning Network is the CCNA community, while r/networking points cert questions to r/ccna."
+  },
+  "a11efef1-9411-4f95-ad97-892ad287e59c": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ee7024f4-e62e-4242-bde2-a95466a2497b": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bc4f6809-811c-40e9-8da2-5e8a15df3549": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): Specializing after broad experience (B) is the usual advice and at least as defensible as C.; The standard advice is to specialise after building broad fundamentals (B), not to follow market shifts."
+  },
+  "0f1f4f87-1646-4c3e-af5a-cd734264d2aa": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "f3a27775-f87e-4734-9652-adba219a0212": {
+   "topic_id": "CAREER-CERTIFICATION-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "aaae24f9-1740-4f77-8f73-5e385f28bec9": {
+   "topic_id": "CAREER-CERTIFICATION-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2238cdf1-f8eb-4ae8-b4a0-a5ef28f5b640": {
+   "topic_id": "CAREER-CERTIFICATION-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f63bd91c-ad33-41ef-bf27-5e7a81614f76": {
+   "topic_id": "CAREER-CERTIFICATION-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "6cbf4917-e9b2-47de-9e1b-f50d2d0a62dd": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "95e8fcb2-7a42-4d23-9948-79bdc2b6104a": {
+   "topic_id": "CAREER-CERTIFICATION-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "a7f2fbb6-e5a3-4a83-9350-53e01a0670f2": {
+   "topic_id": "CAREER-CERTIFICATION-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b7b7ad63-adac-4d8e-a3bd-44a100f10c52": {
+   "topic_id": "CAREER-CERTIFICATION-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

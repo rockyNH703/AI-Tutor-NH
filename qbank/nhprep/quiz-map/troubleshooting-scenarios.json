@@ -1,0 +1,130 @@
+{
+ "category": "troubleshooting-scenarios",
+ "book_id": "troubleshooting_scenarios",
+ "questions": {
+  "a1dc3b8d-4757-4875-ab7b-69a486a28471": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Link utilization is read from show interface load and rates; iperf measures achievable throughput, so A is at least as defensible.; Utilization is read directly from show interface load and rates; iperf measures available throughput,"
+  },
+  "1ba08267-29cd-4fcc-9a14-1f9bd6b3c831": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "a2913b6e-9982-4e27-8d69-ebdc5298cd3a": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "e7e4db21-c066-4ca4-9133-ca55014cd6aa": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "024d98cd-662c-489c-9a22-4307cceae3dc": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dc8e6971-3442-41b2-8c5a-be7ee1b8b1af": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6b5a24ec-9eeb-4b91-a528-a71cef012ee7": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5d85b557-4444-426b-a2b4-cf1e4a37a6b3": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "0c75bb88-354a-45bc-b841-73a435c930a5": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fa2adea0-90c9-4cc4-a65d-4fd59595c3f1": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "c8289b61-7c4d-4170-abf0-a97fb1dba9f8": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): UDLD and EtherChannel misconfiguration guard also err-disable ports, so B and C are equally valid likely causes.; UDLD and EtherChannel misconfiguration guard also err-disable ports, so B and C are valid causes as well as BPDU guard."
+  },
+  "fe951ecf-7bbc-40c6-8fbc-b61fdc8fbe8b": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "086a69e8-7b05-4942-ae41-5e7dacec1e63": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9e21ad3b-fb50-403e-a408-bd2e28d3769b": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): show running-config shows the OSPF configuration as directly as show ip protocols does.; show running-config literally shows the OSPF configuration, so it is as defensible as show ip protocols."
+  },
+  "60503bb9-b804-4f22-bffd-74f799535a88": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "52d0636a-c043-48a1-b5bd-e093d94b0b8a": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): An area mismatch makes the router drop hellos so no neighbor forms; INIT indicates one-way hellos, which the keyed cause does not produce.; An area mismatch drops hellos so no neighbor appears; INIT means one-way hellos, and Cisco lists a"
+  },
+  "f43d2d42-4b6c-44ff-993e-c4b97b19b7f0": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f5e1fcfd-d827-495a-b1bd-e4ba4b8cc49a": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "5d2cc270-efb5-4633-88a6-412713b56e03": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8842e89d-9a43-4eaf-85ca-d1c24a89a289": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "029ffab1-d839-424c-929f-59ab227bff86": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "8a5698b3-55ae-4fb9-ab55-1b057dd6b16f": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "5e83d84f-eec4-4539-8ab6-347f9a6dc0f7": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "b3728836-6660-4959-bcc9-ed57baf45983": {
+   "topic_id": "TROUBLESHOOTING-SCENARIOS-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

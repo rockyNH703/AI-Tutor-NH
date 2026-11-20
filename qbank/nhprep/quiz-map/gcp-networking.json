@@ -1,0 +1,159 @@
+{
+ "category": "gcp-networking",
+ "book_id": "gcp_networking",
+ "questions": {
+  "f1e62637-c76d-44cb-8c7b-8dba1bf4ee8e": {
+   "topic_id": "GCP-NETWORKING-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "80f75d8c-e7fa-4810-8457-59c615a981a7": {
+   "topic_id": "GCP-NETWORKING-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Egress is implicitly allowed; checking the NAT gateway configuration is at least as reasonable a first step.; Google's Cloud NAT troubleshooting starts with gateway configuration and status as much as egress firewall rules."
+  },
+  "f92736cd-356e-468a-a818-a21901df5ef3": {
+   "topic_id": "GCP-NETWORKING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "21ddc00b-f187-46bb-a4d3-429670c846aa": {
+   "topic_id": "GCP-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4e9d5926-9fc4-444b-b523-b5e4e1a001e8": {
+   "topic_id": "GCP-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "e253d7fa-55f7-4a5d-88f3-5b78a5df21c4": {
+   "topic_id": "GCP-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ff6b77c4-cce6-4473-9e57-ad505f2a1ecd": {
+   "topic_id": "GCP-NETWORKING-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7db95b18-6ca6-464b-83aa-1acd4150392d": {
+   "topic_id": "GCP-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "3c20247a-6de8-4523-925f-b650db77722a": {
+   "topic_id": "GCP-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fc7707da-d1c7-482d-925e-a761f2d7241e": {
+   "topic_id": "GCP-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "d596bf9d-5fd8-4f9a-8e48-7fce8bf89a13": {
+   "topic_id": "GCP-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9527fd2e-1456-4a0e-a9e4-a2959582a665": {
+   "topic_id": "GCP-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8a2798aa-7904-4b13-8f68-7d518246d3a5": {
+   "topic_id": "GCP-NETWORKING-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "a3bee022-58b6-4bae-b733-8bb7d74cdc24": {
+   "topic_id": "GCP-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3737238d-a3da-4851-b432-aa48e22bc681": {
+   "topic_id": "GCP-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8d23b26e-81ac-40ea-9cf0-b5c989364c6c": {
+   "topic_id": "GCP-NETWORKING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "535e49c7-4c69-487a-a0a9-bf1132a8e1be": {
+   "topic_id": "GCP-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f27160bc-58c3-465b-8760-34cf0abbb740": {
+   "topic_id": "GCP-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "71c47dbf-5403-47d4-bc9d-020973be2a3b": {
+   "topic_id": "GCP-NETWORKING-D3-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): gcloud dns managed-zones update --dnssec-state on enables DNSSEC as validly as the console.; DNSSEC can be enabled equally with gcloud dns managed-zones update --dnssec-state on or in the console."
+  },
+  "f2a4e9ce-dbf6-4f6d-bbf8-adb39441b690": {
+   "topic_id": "GCP-NETWORKING-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): VPC peering also rejects overlapping subnet ranges, making D equally true.; No overlapping subnet ranges is as true a characteristic of VPC peering as route exchange."
+  },
+  "86e5b699-1b16-4faa-82f3-36cea6797b53": {
+   "topic_id": "GCP-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a539b6cc-8ce0-4e73-a713-3b6b48ca867b": {
+   "topic_id": "GCP-NETWORKING-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "bb46af2a-4a4b-4180-b760-4859b2588ae6": {
+   "topic_id": "GCP-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e2b0b546-29f6-41b4-ab44-f1715fc41373": {
+   "topic_id": "GCP-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2de3c7ef-5007-4342-aedf-0070570a9de1": {
+   "topic_id": "GCP-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1a6d9d01-7e6d-445a-bc1f-6b5a9ede1a4c": {
+   "topic_id": "GCP-NETWORKING-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "176e7241-b84f-4d2c-9f8f-baca88f2578c": {
+   "topic_id": "GCP-NETWORKING-D4-T01",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "c103fc00-788e-48af-8554-57cd8a75a8f0": {
+   "topic_id": "GCP-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d1e7d160-6358-4742-8d62-20e9766cc958": {
+   "topic_id": "GCP-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2db8c1b1-3894-4e41-b181-4606074f1b2a": {
+   "topic_id": "GCP-NETWORKING-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

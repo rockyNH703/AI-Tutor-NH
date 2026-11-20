@@ -1,0 +1,180 @@
+{
+ "category": "palo-alto",
+ "book_id": "pcnse",
+ "questions": {
+  "825f058c-fdcb-45be-9203-86956f48ae79": {
+   "topic_id": "PCNSE-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "55c2abda-2774-493c-a7a8-4ca26b1d777c": {
+   "topic_id": "PCNSE-D3-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): No option is real PAN-OS syntax (show global-protect-gateway ...); C is at least as close as A.; PAN-OS uses 'show global-protect-gateway ...'; 'show globalprotect status' does not exist and no option is valid."
+  },
+  "bcebd568-8518-4417-8237-76096a1d59e8": {
+   "topic_id": "PCNSE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9f463581-26d3-4a23-ad45-5888f03d3eb5": {
+   "topic_id": "PCNSE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6f1848ee-537a-4f08-8e54-071af654759f": {
+   "topic_id": "PCNSE-D2-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5c365da9-d2e5-4ba2-8bfe-6a350f222899": {
+   "topic_id": "PCNSE-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a32f9cd1-33df-46dd-8db8-7a339bb1d441": {
+   "topic_id": "PCNSE-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "f91a437e-3450-47fe-8dde-5ac2b11bd5a5": {
+   "topic_id": "PCNSE-D4-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): PAN-OS uses show high-availability state/link-monitoring; B is the real command prefix and A is not valid.; PAN-OS uses 'show high-availability state' (or link-monitoring); 'show ha status' is not a command and B is closer."
+  },
+  "1aa29ca9-a19a-490a-9d4e-d14f6d78c019": {
+   "topic_id": "PCNSE-D1-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "7a566326-26a2-49ca-b917-3ff3d3a6f9ef": {
+   "topic_id": "PCNSE-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e52827bb-9082-43b8-86a4-b019df47d3d7": {
+   "topic_id": "PCNSE-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c8fdaad6-a534-4892-8cae-98d604afaa0f": {
+   "topic_id": "PCNSE-D4-T03",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "dc0d53b2-015c-45ce-9ce6-d3dbde65ef1b": {
+   "topic_id": "PCNSE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cf511910-9c50-4198-8dd1-53eeae68c7d6": {
+   "topic_id": "PCNSE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e0ae3695-25d4-4d86-861a-3ffc861890f1": {
+   "topic_id": "PCNSE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bdbe6a12-6ecf-4c3e-9bfc-fc30fab05624": {
+   "topic_id": "PCNSE-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "a62342f6-49c5-494f-9b59-99da7ceda9c7": {
+   "topic_id": "PCNSE-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "34bdb3e3-f8c0-49bd-8f90-bf98f5312072": {
+   "topic_id": "PCNSE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e59eb75e-5160-4d63-b4cc-59cee51947a2": {
+   "topic_id": "PCNSE-D1-T02",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "c7d3082a-ae53-4f71-bdf1-def25196621e": {
+   "topic_id": "PCNSE-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "83896689-39fd-430a-a8d2-d1047f8ebcbd": {
+   "topic_id": "PCNSE-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9575de8a-7b7d-4168-9ba1-b917011987fa": {
+   "topic_id": "PCNSE-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6b63cef5-ddaa-48e0-b17f-1d8a7a2aa114": {
+   "topic_id": "PCNSE-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "41f9b2a5-5a27-4c86-b855-a16a7186dbf0": {
+   "topic_id": "PCNSE-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "597ca3dd-aff8-4fae-a286-728a695b3ba0": {
+   "topic_id": "PCNSE-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "a97f8063-4088-4210-9c12-2341c51e419d": {
+   "topic_id": "PCNSE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e447237b-1c61-4794-a198-b4b220afa45b": {
+   "topic_id": "PCNSE-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "18530814-6b01-4d79-af2d-c838f4fb0e37": {
+   "topic_id": "PCNSE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eabda5a0-151f-4603-927b-6c049fd34843": {
+   "topic_id": "PCNSE-D1-T04",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): show nat configuration does not exist; show running nat-policy is the real command, so B is closer.; 'show nat configuration' does not exist on PAN-OS; the real command is 'show running nat-policy', closest to B."
+  },
+  "c6b5f789-fdf6-4f35-a922-0675c9acea0c": {
+   "topic_id": "PCNSE-D4-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "6b588e04-26a4-4fb4-a47d-a9b6cdea6cdc": {
+   "topic_id": "PCNSE-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "7ab42d13-c9b2-4338-8709-a9279faae033": {
+   "topic_id": "PCNSE-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fd67e91d-1572-45fe-b83c-56855e5bf89d": {
+   "topic_id": "PCNSE-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "75aa5ba3-a004-4899-9496-1efd96df8b36": {
+   "topic_id": "PCNSE-D3-T02",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): No option is real syntax (show user user-id-agent ...); A names the agent and is as defensible as B.; PAN-OS uses 'show user user-id-agent config/state all'; 'show user-id configuration' does not exist and no option is valid."
+  }
+ }
+}

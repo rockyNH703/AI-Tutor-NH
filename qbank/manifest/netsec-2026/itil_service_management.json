@@ -1,0 +1,355 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "itil_service_management",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "general",
+  "language": "english",
+  "title": "ITIL 4 IT Service Management Essentials",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "ITIL-SERVICE-MANAGEMENT-D1",
+   "chapter_number": 1,
+   "title": "ITIL 4 foundations and continual improvement",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D1-T01",
+     "topic_number": 1,
+     "title": "ITIL 4 service value system and value co-creation",
+     "aliases": [
+      "svs",
+      "service value system",
+      "itil 4 svs",
+      "value co-creation",
+      "itil 4 framework",
+      "service value chain"
+     ],
+     "paraphrases": [
+      "How the ITIL 4 service value system brings components together to create value through services."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the ITIL 4 service value system brings components together to create value through services."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D1-T02",
+     "topic_number": 2,
+     "title": "Continual improvement and the PDCA cycle",
+     "aliases": [
+      "continual improvement",
+      "csi",
+      "pdca",
+      "plan do check act",
+      "deming cycle",
+      "continual service improvement"
+     ],
+     "paraphrases": [
+      "The goal of continual improvement and how the Plan-Do-Check-Act cycle guides ongoing refinement of services and processes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The goal of continual improvement and how the Plan-Do-Check-Act cycle guides ongoing refinement of services and processes."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ITIL-SERVICE-MANAGEMENT-D2",
+   "chapter_number": 2,
+   "title": "Incident, problem and service desk operations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T01",
+     "topic_number": 1,
+     "title": "Incident management lifecycle and major incidents",
+     "aliases": [
+      "incident management",
+      "incident lifecycle",
+      "major incident",
+      "major incident process",
+      "incident logging",
+      "incident response itil"
+     ],
+     "paraphrases": [
+      "The steps for handling incidents from logging onward, and how the major incident process focuses on fast service restoration."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The steps for handling incidents from logging onward, and how the major incident process focuses on fast service restoration."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T02",
+     "topic_number": 2,
+     "title": "Problem management, known errors and the KEDB",
+     "aliases": [
+      "problem management",
+      "known error",
+      "kedb",
+      "known error database",
+      "workaround",
+      "proactive problem management",
+      "root cause",
+      "incident vs problem"
+     ],
+     "paraphrases": [
+      "How problems differ from incidents, proactive problem management, and using the known error database and workarounds to resolve recurring incidents."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How problems differ from incidents, proactive problem management, and using the known error database and workarounds to resolve recurring incidents."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T03",
+     "topic_number": 3,
+     "title": "Service desk design and tiered support",
+     "aliases": [
+      "service desk",
+      "help desk",
+      "single point of contact",
+      "spoc",
+      "tiered support",
+      "l1 l2 l3 support",
+      "escalation paths"
+     ],
+     "paraphrases": [
+      "The service desk as the single point of contact for users and how tiered support with clear escalation is designed."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The service desk as the single point of contact for users and how tiered support with clear escalation is designed."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T04",
+     "topic_number": 4,
+     "title": "Knowledge management in ITSM",
+     "aliases": [
+      "knowledge management",
+      "knowledge base",
+      "knowledge articles",
+      "kb articles",
+      "faq management"
+     ],
+     "paraphrases": [
+      "The role of knowledge management in storing and sharing knowledge articles, known errors and FAQs to speed up resolution."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The role of knowledge management in storing and sharing knowledge articles, known errors and FAQs to speed up resolution."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ITIL-SERVICE-MANAGEMENT-D3",
+   "chapter_number": 3,
+   "title": "Change enablement and configuration management",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T01",
+     "topic_number": 1,
+     "title": "Change requests, CAB and change types",
+     "aliases": [
+      "rfc",
+      "request for change",
+      "cab",
+      "change advisory board",
+      "emergency change",
+      "change types",
+      "change enablement",
+      "change management"
+     ],
+     "paraphrases": [
+      "What a request for change is, how the change advisory board assesses changes, and what makes a change an emergency change."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a request for change is, how the change advisory board assesses changes, and what makes a change an emergency change."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T02",
+     "topic_number": 2,
+     "title": "Change risk assessment, rollback plans and post-implementation review",
+     "aliases": [
+      "change risk assessment",
+      "rollback plan",
+      "backout plan",
+      "post implementation review",
+      "pir",
+      "change lessons learned"
+     ],
+     "paraphrases": [
+      "Assessing the impact and mitigation of changes, planning rollback for failed changes, and reviewing changes after implementation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Assessing the impact and mitigation of changes, planning rollback for failed changes, and reviewing changes after implementation."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T03",
+     "topic_number": 3,
+     "title": "CMDB, configuration items and baselines",
+     "aliases": [
+      "cmdb",
+      "configuration management database",
+      "configuration item",
+      "ci",
+      "configuration baseline",
+      "service configuration management",
+      "ci relationships"
+     ],
+     "paraphrases": [
+      "What configuration items are, how a CMDB tracks them and their relationships, and what a configuration baseline is."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What configuration items are, how a CMDB tracks them and their relationships, and what a configuration baseline is."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ITIL-SERVICE-MANAGEMENT-D4",
+   "chapter_number": 4,
+   "title": "Service levels, availability and capacity",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T01",
+     "topic_number": 1,
+     "title": "Service level agreements and operational level agreements",
+     "aliases": [
+      "sla",
+      "service level agreement",
+      "ola",
+      "operational level agreement",
+      "service level management",
+      "slm"
+     ],
+     "paraphrases": [
+      "What SLAs and OLAs are and how internal OLAs between teams support customer-facing SLAs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What SLAs and OLAs are and how internal OLAs between teams support customer-facing SLAs."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T02",
+     "topic_number": 2,
+     "title": "Service level objectives and indicators",
+     "aliases": [
+      "slo",
+      "sli",
+      "service level objective",
+      "service level indicator",
+      "slo vs sli",
+      "service metrics"
+     ],
+     "paraphrases": [
+      "The difference between an SLO as a performance target and an SLI as the measurement used to check it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between an SLO as a performance target and an SLI as the measurement used to check it."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T03",
+     "topic_number": 3,
+     "title": "Availability management metrics MTBF and MTTR",
+     "aliases": [
+      "mtbf",
+      "mttr",
+      "mean time between failures",
+      "mean time to repair",
+      "availability management",
+      "reliability metrics"
+     ],
+     "paraphrases": [
+      "How MTBF expresses reliability and how MTTR is calculated in availability management."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How MTBF expresses reliability and how MTTR is calculated in availability management."
+      }
+     ]
+    },
+    {
+     "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T04",
+     "topic_number": 4,
+     "title": "Capacity management and capacity planning",
+     "aliases": [
+      "capacity management",
+      "capacity planning",
+      "capacity and performance management",
+      "demand forecasting",
+      "resource planning"
+     ],
+     "paraphrases": [
+      "How capacity planning predicts future capacity requirements from current usage and expected growth."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How capacity planning predicts future capacity requirements from current usage and expected growth."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

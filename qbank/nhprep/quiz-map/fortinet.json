@@ -1,0 +1,157 @@
+{
+ "category": "fortinet",
+ "book_id": "fortinet_fcp",
+ "questions": {
+  "b6f33182-b95f-4f98-8cda-8c93adffa1e2": {
+   "topic_id": "FORTINET-FCP-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8da3e431-334c-4582-95c7-559a420d3309": {
+   "topic_id": "FORTINET-FCP-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ed323959-b683-476c-b14c-585952db6bce": {
+   "topic_id": "FORTINET-FCP-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5b306c70-d43f-4120-a5b0-f2150ac7117b": {
+   "topic_id": "FORTINET-FCP-D4-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9774ac33-283c-42d2-aa02-a387b473d91c": {
+   "topic_id": "FORTINET-FCP-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): Flow mode does not scan after delivery (it streams and holds the last packet); 'flow is faster' is the accurate difference.; Flow mode scans packets in transit (holding the last packet), not after delivery; flow mode being faster (B) is t"
+  },
+  "1b9d3355-d048-48a9-a90d-3f0ae593fd06": {
+   "topic_id": "FORTINET-FCP-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "93e6d120-0d9a-4649-b760-fafaac89a602": {
+   "topic_id": "FORTINET-FCP-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): execute backup config requires a destination; 'execute backup config flash' is a complete local backup command.; execute backup config needs a destination; 'execute backup config flash' is a valid complete form saving locally, as def"
+  },
+  "e5015762-56d7-4cfc-b83c-7730f05bfdc9": {
+   "topic_id": "FORTINET-FCP-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b661b5dc-3aae-4fe8-bdc4-40bcc366ef42": {
+   "topic_id": "FORTINET-FCP-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e98e5af8-6161-421a-b883-085108d703f2": {
+   "topic_id": "FORTINET-FCP-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "2b51e41c-020c-45bc-aec0-5688c70b8ac1": {
+   "topic_id": "FORTINET-FCP-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "58ec4649-af7c-439d-bec9-d7b224768968": {
+   "topic_id": "FORTINET-FCP-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5f91bcb1-7fe8-4c27-bbc3-bdf6b3dd7e9f": {
+   "topic_id": "FORTINET-FCP-D1-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "8c90b3c9-29bc-4ed9-a032-c93fcd4d7875": {
+   "topic_id": "FORTINET-FCP-D4-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1742086f-6bca-46c7-a9cb-1a02c74b4819": {
+   "topic_id": "FORTINET-FCP-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "18ae0dff-fbb4-4823-92e8-14b5ee80df59": {
+   "topic_id": "FORTINET-FCP-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c53752fc-5a2a-45e3-9311-e4d3e82dd265": {
+   "topic_id": "FORTINET-FCP-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5f246f75-a201-4c26-82f2-d82ff178b83f": {
+   "topic_id": "FORTINET-FCP-D4-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "81f22fa0-7a1a-4972-ac23-c0d0eb524c4d": {
+   "topic_id": "FORTINET-FCP-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "37ab3bf6-b7ea-4311-835d-90c014b71d0c": {
+   "topic_id": "FORTINET-FCP-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0ca6feb8-9e18-4667-8f29-b47bd6c7516a": {
+   "topic_id": "FORTINET-FCP-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): IKEv1 lacks MOBIKE, so D is also a true IKEv1/IKEv2 difference alongside C.; Built-in NAT-T and mobility (MOBIKE, IKEv2-only) are both genuine IKEv2-over-IKEv1 differences."
+  },
+  "36e3fe14-7fcc-4cde-b908-5f0d8f23cd64": {
+   "topic_id": "FORTINET-FCP-D4-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): FortiAnalyzer logging is off by default; by default logs stay on local disk or memory (B).; FortiAnalyzer logging is not enabled by default; by default logs go to local disk or memory only (B)."
+  },
+  "a8dae89a-8a7b-461c-a42b-8759c80257fd": {
+   "topic_id": "FORTINET-FCP-D4-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): NAT mode itself means routed traffic (A); C is true of VDOMs in any mode.; NAT mode means routed operation (A), while C describes VDOMs in any mode; the stem supports either."
+  },
+  "f390b64a-4d63-49dc-b724-e23851db9250": {
+   "topic_id": "FORTINET-FCP-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c826fde8-df09-4cf7-9c29-859727a42de3": {
+   "topic_id": "FORTINET-FCP-D4-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "b27fafbf-b686-4886-8bae-b0863e584358": {
+   "topic_id": "FORTINET-FCP-D1-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Session helpers fix NAT for embedded addresses and open pinholes, so B is as defensible as generic C.; Session helpers are ALGs that open pinholes and fix embedded addresses for NAT, so B is at least as defensible as the generic C."
+  },
+  "3017e5fc-900c-4cde-88ef-bcda46e78f1f": {
+   "topic_id": "FORTINET-FCP-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fd869d7a-5720-458a-9019-0ae3844f70e5": {
+   "topic_id": "FORTINET-FCP-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "d977bbfa-e255-4d11-981d-46697f542e24": {
+   "topic_id": "FORTINET-FCP-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

@@ -1,0 +1,132 @@
+{
+ "category": "spanning-tree",
+ "book_id": "spanning_tree",
+ "questions": {
+  "24bd55bf-4b81-4932-8c46-12d168853b8f": {
+   "topic_id": "SPANNING-TREE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e22a5f6b-6d14-40dc-9556-59704c84495c": {
+   "topic_id": "SPANNING-TREE-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): The IOS interface command is 'spanning-tree portfast'; there is no 'enable' keyword.; The IOS interface command is 'spanning-tree portfast'; there is no 'enable' keyword."
+  },
+  "ccf01a7d-ffa9-4495-b2c9-5633324ed415": {
+   "topic_id": "SPANNING-TREE-D1-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): A switch receiving a TCN replies with a configuration BPDU carrying TCA; it does not reset the topology.; A switch receiving a TCN acknowledges it with a TCA-flagged configuration BPDU and relays it toward the root; it does not reset the"
+  },
+  "9a2ca591-2072-4c28-b356-fe47b4e206ab": {
+   "topic_id": "SPANNING-TREE-D3-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): Err-disable needs BPDU Guard; with PortFast alone the port just loses edge status, so the key relies on an unstated assumption.; Without BPDU Guard a PortFast port that receives a BPDU just loses PortFast status; err-disable requires BPDU"
+  },
+  "bcfc21fb-318f-49e2-8ed8-bd874927c43f": {
+   "topic_id": "SPANNING-TREE-D1-T02",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): The stem asks for a role; Alternate port is the proper role while blocking is a state, though CCNA texts also say blocking port.; Alternate port is the correct role name; 'blocking port' is a state, though legacy 802.1D material uses"
+  },
+  "cffaa0f7-45c5-4042-ab3b-47c97a56f9bc": {
+   "topic_id": "SPANNING-TREE-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "65b64a36-8b1b-477b-a7d0-d5f209abacd8": {
+   "topic_id": "SPANNING-TREE-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0a92d048-e147-4406-8cb3-7f21d0f4d0e9": {
+   "topic_id": "SPANNING-TREE-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "5b55f0d3-f52f-4c29-8a8b-1d115accc273": {
+   "topic_id": "SPANNING-TREE-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "412a15a8-aec4-40da-bc16-07fc64d77f18": {
+   "topic_id": "SPANNING-TREE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "42494eed-31dc-4b0d-9129-e15b746d2871": {
+   "topic_id": "SPANNING-TREE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f1a93b63-5b6e-4473-89a5-603e2f7edc6f": {
+   "topic_id": "SPANNING-TREE-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "87a67f77-1d24-4015-9cbc-0c39ba64f38c": {
+   "topic_id": "SPANNING-TREE-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "77045962-08ff-4c30-89e1-d6af0ae11564": {
+   "topic_id": "SPANNING-TREE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5bf81183-1d4b-4417-83be-d9114232728b": {
+   "topic_id": "SPANNING-TREE-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "193f581a-c288-4384-97f0-6017a4427bd9": {
+   "topic_id": "SPANNING-TREE-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a6e6320a-15c7-4cb6-8368-39662b7b6f85": {
+   "topic_id": "SPANNING-TREE-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): High switch CPU and latency are standard storm indicators at least as much as excessive ARP.; High switch CPU is a standard broadcast storm indicator at least as much as excessive ARP requests."
+  },
+  "002867fb-f30b-48fb-828e-b7946e4c5206": {
+   "topic_id": "SPANNING-TREE-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "324ca212-4be9-426b-b9b6-d585e8612570": {
+   "topic_id": "SPANNING-TREE-D2-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): The premise is flawed (no state skips to forwarding), leaving no clearly single best option.; No RSTP state skips learning; fast transition comes from edge ports or proposal/agreement, so the stored answer and explanation are false."
+  },
+  "867d0b83-e42f-459d-9908-d49e052a6ae4": {
+   "topic_id": "SPANNING-TREE-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "749b3b59-e064-4067-bf43-97575def1856": {
+   "topic_id": "SPANNING-TREE-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "a2b4e1dc-2236-4db4-b88f-17dd2beeff7b": {
+   "topic_id": "SPANNING-TREE-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "99c2f4ad-1f56-47cf-9123-a98450eca6cf": {
+   "topic_id": "SPANNING-TREE-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e9eb176b-ef9a-467d-a5ca-a603fd953712": {
+   "topic_id": "SPANNING-TREE-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

@@ -1,0 +1,152 @@
+{
+ "category": "cloud-networking",
+ "book_id": "cloud_networking",
+ "questions": {
+  "bc3784ec-0e09-4d1c-b8fa-44a00db01557": {
+   "topic_id": "CLOUD-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6e4a0436-f5cf-4618-9d7d-7b797454d8d8": {
+   "topic_id": "CLOUD-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "11c557fb-5f08-4737-a29e-03a8729f7a7c": {
+   "topic_id": "CLOUD-NETWORKING-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "28777dcc-56c9-4e71-bf9a-f443583d562f": {
+   "topic_id": "CLOUD-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b1af5ba0-cdd8-4282-ae16-cf7cd6dde091": {
+   "topic_id": "CLOUD-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "31cd4104-89de-48ae-ba17-9ab9d43a296c": {
+   "topic_id": "CLOUD-NETWORKING-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7945ae65-002d-4a87-9fa6-6a5e4469a066": {
+   "topic_id": "CLOUD-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "4feef632-e936-4275-ad14-6d78c4fa362d": {
+   "topic_id": "CLOUD-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "39e902dc-0142-4351-be43-dd80e50419d0": {
+   "topic_id": "CLOUD-NETWORKING-D3-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "c53ac17d-00a5-4961-ad4c-a4355f09e6a2": {
+   "topic_id": "CLOUD-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "50f1e54f-bc43-4b79-9384-9be6c2b4a6d2": {
+   "topic_id": "CLOUD-NETWORKING-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Cross-zone is on by default for ALBs, so A is a true characteristic alongside the definitional B.; Cross-zone load balancing is on by default for ALBs, so A is as true as the definitional B."
+  },
+  "bf077f1e-995c-43e9-bbeb-3d69f6238c0f": {
+   "topic_id": "CLOUD-NETWORKING-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "184ad631-3e09-4861-b7e4-a8c1d79f7781": {
+   "topic_id": "CLOUD-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "95f376ff-9bfc-4250-a585-43cf461ea710": {
+   "topic_id": "CLOUD-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "2f2ba0da-eda6-488f-8417-791952715618": {
+   "topic_id": "CLOUD-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c24df52e-79b9-4ad7-aee7-ffeb84c107e6": {
+   "topic_id": "CLOUD-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5dcc2d45-4ab7-4e5a-87d0-79298d23b986": {
+   "topic_id": "CLOUD-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "33a46995-b2d5-4170-ba74-d6a5053ba23f": {
+   "topic_id": "CLOUD-NETWORKING-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "43ff361c-628d-41bc-b705-7e496b09e82e": {
+   "topic_id": "CLOUD-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a2cb385a-09f3-42fe-96c9-f4579288e662": {
+   "topic_id": "CLOUD-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8db48bd2-92c9-456a-85ac-b744b17d6533": {
+   "topic_id": "CLOUD-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7959d025-cc41-4d72-8258-fac778b7aa24": {
+   "topic_id": "CLOUD-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "620573dd-0bb7-4976-b360-e3bd9cfa7a2e": {
+   "topic_id": "CLOUD-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0e7cd24c-4bb7-4e09-8aaf-a9836897b9ec": {
+   "topic_id": "CLOUD-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "bbbb3bfd-f703-470c-acc7-c06a05426d2f": {
+   "topic_id": "CLOUD-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "e4091dab-4b72-46ee-9d96-68ae1cbc15f3": {
+   "topic_id": "CLOUD-NETWORKING-D1-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "9b1730fe-c4b1-43e4-b513-ffc685c24bea": {
+   "topic_id": "CLOUD-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ea420180-5a7e-4fda-9823-7004a82b36b8": {
+   "topic_id": "CLOUD-NETWORKING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9d7ee15a-d97c-419b-b0b8-9f733397fc5f": {
+   "topic_id": "CLOUD-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

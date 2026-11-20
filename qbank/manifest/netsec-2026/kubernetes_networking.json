@@ -1,0 +1,307 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "kubernetes_networking",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "cloud",
+  "language": "english",
+  "title": "Kubernetes Networking",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "KUBERNETES-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "Pod networking and CNI plugins",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "Kubernetes pod networking model and pod IP addressing",
+     "aliases": [
+      "pod networking",
+      "pod ip",
+      "flat network model",
+      "kubernetes network model",
+      "pod to pod communication",
+      "ip per pod"
+     ],
+     "paraphrases": [
+      "How Kubernetes gives every pod its own IP address so pods talk to each other directly without NAT."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Kubernetes gives every pod its own IP address so pods talk to each other directly without NAT."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "CNI plugins: Calico, Cilium, Weave and Flannel",
+     "aliases": [
+      "cni",
+      "container network interface",
+      "calico",
+      "cilium",
+      "weave",
+      "flannel",
+      "ebpf",
+      "overlay network",
+      "cni plugin"
+     ],
+     "paraphrases": [
+      "What the common CNI plugins provide, such as overlay networking, eBPF datapaths and network policy enforcement."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the common CNI plugins provide, such as overlay networking, eBPF datapaths and network policy enforcement."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "KUBERNETES-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Services, kube-proxy and DNS",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "Kubernetes Service types: ClusterIP, NodePort, LoadBalancer and ExternalName",
+     "aliases": [
+      "service types",
+      "clusterip",
+      "nodeport",
+      "loadbalancer service",
+      "externalname",
+      "kubectl create service",
+      "k8s service"
+     ],
+     "paraphrases": [
+      "The four Service types, what each exposes and how to create them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The four Service types, what each exposes and how to create them."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "kube-proxy and its iptables and IPVS modes",
+     "aliases": [
+      "kube-proxy",
+      "kube proxy",
+      "ipvs",
+      "iptables mode",
+      "ipvs mode",
+      "service load balancing"
+     ],
+     "paraphrases": [
+      "How kube-proxy routes Service traffic to endpoints and how IPVS mode compares with iptables mode."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How kube-proxy routes Service traffic to endpoints and how IPVS mode compares with iptables mode."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D2-T03",
+     "topic_number": 3,
+     "title": "CoreDNS and Kubernetes service discovery",
+     "aliases": [
+      "coredns",
+      "kube-dns",
+      "cluster dns",
+      "service discovery",
+      "kubernetes dns"
+     ],
+     "paraphrases": [
+      "How CoreDNS resolves Service names to cluster IPs so pods can find services by name."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How CoreDNS resolves Service names to cluster IPs so pods can find services by name."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D2-T04",
+     "topic_number": 4,
+     "title": "Troubleshooting Kubernetes service connectivity with kubectl",
+     "aliases": [
+      "service troubleshooting",
+      "kubectl get svc",
+      "kubectl exec curl",
+      "service connectivity",
+      "debug service",
+      "kubectl get services"
+     ],
+     "paraphrases": [
+      "Checking Services and testing connectivity from inside a pod to find why a service cannot be reached."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Checking Services and testing connectivity from inside a pod to find why a service cannot be reached."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "KUBERNETES-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Network policies",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "NetworkPolicy default allow and default deny behavior",
+     "aliases": [
+      "default deny",
+      "default allow",
+      "deny all ingress",
+      "network policy default",
+      "empty ingress rule",
+      "isolated pods"
+     ],
+     "paraphrases": [
+      "What traffic pods allow with no NetworkPolicy and how default deny and empty ingress rules isolate them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What traffic pods allow with no NetworkPolicy and how default deny and empty ingress rules isolate them."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "NetworkPolicy podSelector and namespaceSelector rules",
+     "aliases": [
+      "podselector",
+      "namespaceselector",
+      "pod selector",
+      "namespace selector",
+      "network policy selectors",
+      "allow from pods"
+     ],
+     "paraphrases": [
+      "How pod and namespace selectors in NetworkPolicy rules choose which peers may send or receive traffic."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How pod and namespace selectors in NetworkPolicy rules choose which peers may send or receive traffic."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D3-T03",
+     "topic_number": 3,
+     "title": "Managing NetworkPolicies with kubectl",
+     "aliases": [
+      "kubectl networkpolicy",
+      "kubectl get networkpolicies",
+      "kubectl delete networkpolicy",
+      "netpol",
+      "kubectl apply network policy"
+     ],
+     "paraphrases": [
+      "The kubectl commands to list, apply and delete NetworkPolicy objects."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The kubectl commands to list, apply and delete NetworkPolicy objects."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "KUBERNETES-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "Ingress and service mesh",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "Ingress resources, Ingress controllers and TLS termination",
+     "aliases": [
+      "ingress",
+      "ingress controller",
+      "nginx ingress",
+      "tls termination",
+      "l7 routing",
+      "host and path routing"
+     ],
+     "paraphrases": [
+      "How Ingress defines HTTP and HTTPS routing rules, how controllers such as nginx terminate TLS, and how to check controller logs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Ingress defines HTTP and HTTPS routing rules, how controllers such as nginx terminate TLS, and how to check controller logs."
+      }
+     ]
+    },
+    {
+     "topic_id": "KUBERNETES-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "Service mesh with Istio: sidecar proxies and mTLS",
+     "aliases": [
+      "service mesh",
+      "istio",
+      "sidecar proxy",
+      "envoy sidecar",
+      "mtls",
+      "mutual tls"
+     ],
+     "paraphrases": [
+      "How a service mesh such as Istio uses sidecar proxies to manage service traffic and encrypt it with mutual TLS."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a service mesh such as Istio uses sidecar proxies to manage service traffic and encrypt it with mutual TLS."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1090 @@
+{
+ "about": "NHprep quiz questions for NetworkersHome's trainers to review (session 2, 2026-11-20). Question text is in qbank/content; ids are the bank's.",
+ "inactive_disputed": [
+  {
+   "question_id": "NHQ-ACL-DEEP-DIVE-607EA425-47DC-47E1-9398-F60942AEC0D2",
+   "category": "acl-deep-dive",
+   "reason": "more than one defensible answer (two reviews): 'ip access-list standard 10' also creates standard ACL 10 on IOS, so A and D are both defensible.; 'ip access-list standard 10' also creates standard ACL 10 on current IOS, so A and D are both defensible."
+  },
+  {
+   "question_id": "NHQ-ACL-DEEP-DIVE-A4D685F9-2AF8-4EFB-BA00-D30E06E83A80",
+   "category": "acl-deep-dive",
+   "reason": "stored answer judged wrong (two reviews): IOS rejects an ACE on the 'ip access-list extended 110' line; A is the valid numbered form.; IOS rejects an ACE on the 'ip access-list extended 110' line; the numbered form A is the intended valid style."
+  },
+  {
+   "question_id": "NHQ-ACL-DEEP-DIVE-A8A2657A-DD3B-4BE3-89D7-18B565A92856",
+   "category": "acl-deep-dive",
+   "reason": "stored answer judged wrong (two reviews): 'packet-tracer test' is not a real command; ASA uses 'packet-tracer input ...'.; 'packet-tracer test' is not a real command; ASA/FTD use 'packet-tracer input <ifc> ...'."
+  },
+  {
+   "question_id": "NHQ-ACL-DEEP-DIVE-EA1D1EAB-C9BE-4A17-B1FB-0707304229FA",
+   "category": "acl-deep-dive",
+   "reason": "more than one defensible answer (two reviews): 'show access-lists' also displays per-entry match counts, so A and B are equally correct.; 'show access-lists' and 'show ip access-lists' both display per-entry match counts."
+  },
+  {
+   "question_id": "NHQ-ACL-DEEP-DIVE-FC6E6710-F556-4F87-9AD0-96A2C62505D2",
+   "category": "acl-deep-dive",
+   "reason": "more than one defensible answer (two reviews): 'show ip access-list NAME' shows the named ACL directly and is at least as good as the general A.; 'show ip access-list NAME' shows the named ACL directly and is at least as correct as listing all ACLs."
+  },
+  {
+   "question_id": "NHQ-AI-FUNDAMENTALS-6E9142AC-B152-420C-BF98-05266A0A6546",
+   "category": "ai-fundamentals",
+   "reason": "more than one defensible answer (two reviews): WordPiece is also a subword tokenizer that handles OOV words, so A and B both fit.; WordPiece is also a subword tokenizer that handles OOV words, so A and B are equally correct."
+  },
+  {
+   "question_id": "NHQ-AI-FUNDAMENTALS-90B62E56-C1EE-4354-9657-086014DF3327",
+   "category": "ai-fundamentals",
+   "reason": "more than one defensible answer (two reviews): Failure prediction is commonly classification; regression fits only an unstated time-to-failure framing.; Failure prediction is commonly framed as classification (fail within window); regression fits only time-to-failure, which the s"
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-0D8935EA-0566-4E46-BDF1-4114C571B5AA",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): A and C are identical to the shell for a single-word string.; The shell strips the quotes, so A and C run identically and both are correct."
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-156E8C9E-A645-4A66-92B8-B17785E02BD3",
+   "category": "ansible-networks",
+   "reason": "stored answer judged wrong (two reviews): The stem asks for with_items; A is the correct with_items form while B uses loop.; The question asks for with_items; option A is the valid with_items form while keyed B uses loop."
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-1FE72D16-9B0B-4148-934E-9A293CCFD380",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): Ansible loads defaults/main.yml, main.yaml and main.json, so A, C and D are all valid.; Ansible loads defaults/main.yml, main.yaml or main.json, so C and D are also valid."
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-2F558D3B-9954-4639-8E2A-65D4B870CDF1",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): The undefined-variable error names the variable, so checking its definitions (A) is at least as apt as verbosity (D).; The undefined-variable error already names the variable, so checking its definitions is at least as direct as rais"
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-6A7FA68D-AA06-482D-BE9B-8B17B1B62EEB",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): The flow-mapping form in C is equally valid YAML for host variables.; The YAML flow mapping in C is semantically identical to the block mapping in A."
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-8E81C13D-F72A-42D6-9C03-8162AF261310",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): ansible-playbook accepts -i after the playbook path, so A and B are equivalent.; ansible-playbook accepts -i before or after the playbook path, so A and B both work."
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-C6A964E4-0F03-4A48-A5C0-5DE14D98C427",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): A and C differ only by YAML quoting and both parse to the same parents string.; A and C differ only by optional YAML quoting; both are valid parents values."
+  },
+  {
+   "question_id": "NHQ-ANSIBLE-NETWORKS-F33D3AF1-3A72-4E24-9A0E-6461DE73ACD5",
+   "category": "ansible-networks",
+   "reason": "more than one defensible answer (two reviews): handlers/main.yaml (and main.json) are also loaded, so A is not uniquely valid.; Ansible also loads handlers/main.yaml (and main.json); main.yml is only convention."
+  },
+  {
+   "question_id": "NHQ-API-REST-353FC011-A17A-4E42-9EB0-793A420AFB64",
+   "category": "api-rest",
+   "reason": "more than one defensible answer (two reviews): API key header names are vendor-specific and Authorization: Bearer is at least as common as API-Key.; API key header names are vendor-specific and 'Authorization: Bearer' is equally common, so A is as defensible as B."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-10B8F46B-24D3-49E5-BBE2-2DC590F570DA",
+   "category": "aws-networking",
+   "reason": "more than one defensible answer (two reviews): 1 Gbps is only the dedicated minimum; hosted connections offer 100 Mbps (and from 50 Mbps), so C is also defensible.; 1 Gbps is the dedicated minimum, but hosted connections offer 50 and 100 Mbps, so C is also defensible."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-3BD73835-4ACC-4AB3-AF09-C98159A04771",
+   "category": "aws-networking",
+   "reason": "more than one defensible answer (two reviews): Inter-region VPC peering is supported, so C is also a correct statement.; Inter-region VPC peering is supported, so C is as true as B."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-40AA8A0E-B44C-4066-983E-4AA5AAB449F4",
+   "category": "aws-networking",
+   "reason": "stored answer judged wrong (two reviews): The default Transit Gateway quota is 5000 attachments, not 50.; The default Transit Gateway quota is 5,000 attachments, not 50."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-41120A2A-2438-4982-9766-2C97766DE6F8",
+   "category": "aws-networking",
+   "reason": "more than one defensible answer (two reviews): Checking that the peering is active (D) is as standard a step as checking route tables (B).; Checking that the peering is Active is as valid a troubleshooting step as checking the route tables."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-667F3F2B-5393-4B29-BB8E-7CD7D1C87109",
+   "category": "aws-networking",
+   "reason": "stored answer judged wrong (two reviews): The AWS default quota is 50 routes per route table (option A), not 200.; AWS default quota is 50 routes per route table (adjustable up to 1000); 200 is not a documented value."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-9232D320-C750-40CD-BE1F-D47604383E16",
+   "category": "aws-networking",
+   "reason": "stored answer judged wrong (two reviews): AWS does not replace routes on create; an identical destination errors and an overlapping prefix is kept alongside.; CreateRoute with an existing destination fails (RouteAlreadyExists) and an overlapping prefix is kept beside the old rout"
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-9EE1676D-1EDB-400D-B32C-36A8D573FEF1",
+   "category": "aws-networking",
+   "reason": "more than one defensible answer (two reviews): Every option is a valid /28 block, so nothing makes B the single answer.; Every option is a valid /28 network, so nothing makes B the single answer."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-ABC8ABD2-5485-4BF6-A11C-8E632556E6FA",
+   "category": "aws-networking",
+   "reason": "more than one defensible answer (two reviews): A public NAT gateway is placed in a public subnet, so D is as true as C.; A public NAT gateway sits in a public subnet, so D is also true, and private NAT gateways need no Elastic IP."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-EEB51930-56B8-4230-A85A-B9FABC2BE1F8",
+   "category": "aws-networking",
+   "reason": "stored answer judged wrong (two reviews): The default limit is 5 security groups per network interface (option A), as the explanation itself says.; The default is 5 security groups per network interface (option A), as the explanation itself says."
+  },
+  {
+   "question_id": "NHQ-AWS-NETWORKING-F03A81E2-5266-460F-9B08-3CB54722B012",
+   "category": "aws-networking",
+   "reason": "more than one defensible answer (two reviews): The VPC default NACL allows all while a custom NACL denies all, so A and B both fit the unqualified stem.; The VPC's default NACL allows all inbound; only a new custom NACL denies all, so A and B both fit."
+  },
+  {
+   "question_id": "NHQ-AZURE-NETWORKING-29AB4260-B46C-4437-92BC-5335F1313E23",
+   "category": "azure-networking",
+   "reason": "more than one defensible answer (two reviews): An endpoint for the wrong service (D) or an unavailable service (C) breaks it as surely as a disabled one.; A service missing from the region or an endpoint for the wrong service are as valid causes as a disabled endpoint."
+  },
+  {
+   "question_id": "NHQ-AZURE-NETWORKING-5A75D19E-4548-4144-BB98-6E8938F92A48",
+   "category": "azure-networking",
+   "reason": "stored answer judged wrong (two reviews): The keyed command does not exist; flow logs use az network watcher flow-log create.; There is no 'az network watcher nsg' subgroup; flow logs use 'az network watcher flow-log create/configure'."
+  },
+  {
+   "question_id": "NHQ-AZURE-NETWORKING-89EF4624-F909-4EB7-B54A-4ADC4C5E9244",
+   "category": "azure-networking",
+   "reason": "stored answer judged wrong (two reviews): NSG default rules cannot be deleted but are overridden by higher-priority custom rules; no option is correct.; NSG default rules cannot be deleted, but custom rules with higher priority override them."
+  },
+  {
+   "question_id": "NHQ-BGP-REAL-WORLD-B3A4886E-F005-4543-A4F1-040055AE4333",
+   "category": "bgp-real-world",
+   "reason": "stored answer judged wrong (two reviews): Stuck in active (an EIGRP concept) means waiting for query replies, which is B, not D.; 'Stuck in active' is an EIGRP route term (where B is right); for a BGP neighbor in Active, D is only loosely defensible."
+  },
+  {
+   "question_id": "NHQ-BGP-REAL-WORLD-D28800B0-8219-4D9B-A6C6-BE31D03B7D3A",
+   "category": "bgp-real-world",
+   "reason": "more than one defensible answer (two reviews): A firewall blocking TCP 179 is as classic a cause of Active as a wrong neighbor statement.; A firewall blocking TCP 179 leaves the session in Active just as commonly as a wrong neighbor address."
+  },
+  {
+   "question_id": "NHQ-BGP-REAL-WORLD-D31EDC51-8CFC-4CCF-9915-E5B188BE723C",
+   "category": "bgp-real-world",
+   "reason": "more than one defensible answer (two reviews): show ip bgp neighbors also lists every neighbor and its state, so A is as defensible as B.; 'show ip bgp neighbors' also shows each neighbor's state, so A is as correct as B."
+  },
+  {
+   "question_id": "NHQ-BGP-REAL-WORLD-E1D2120C-1E4C-46E0-A9E7-146B70FF6EE8",
+   "category": "bgp-real-world",
+   "reason": "stored answer judged wrong (two reviews): Best iBGP-learned routes are advertised to eBGP peers by default; the rule is iBGP split horizon.; Best iBGP-learned routes are advertised to eBGP peers by default; the rule is no iBGP-to-iBGP re-advertisement."
+  },
+  {
+   "question_id": "NHQ-BGP-REAL-WORLD-F724DFCA-77D2-4F34-BB4E-26AC3B3CB2A6",
+   "category": "bgp-real-world",
+   "reason": "stored answer judged wrong (two reviews): The cluster ID's purpose is loop prevention via CLUSTER_LIST, so B is at least as defensible as A.; The cluster ID's purpose is loop prevention via CLUSTER_LIST (B), as the explanation itself admits."
+  },
+  {
+   "question_id": "NHQ-CAREER-CERTIFICATION-B460240D-CA13-4A90-AC56-C7EEAFE58A2E",
+   "category": "career-certification",
+   "reason": "stored answer judged wrong (two reviews): Cisco Learning Network is at least as well known for CCNA discussion as r/networking.; The Cisco Learning Network is the CCNA community, while r/networking points cert questions to r/ccna."
+  },
+  {
+   "question_id": "NHQ-CAREER-CERTIFICATION-BC4F6809-811C-40E9-8DA2-5E8A15DF3549",
+   "category": "career-certification",
+   "reason": "stored answer judged wrong (two reviews): Specializing after broad experience (B) is the usual advice and at least as defensible as C.; The standard advice is to specialise after building broad fundamentals (B), not to follow market shifts."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-05CFD196-7768-4B13-9B9B-B68316184F78",
+   "category": "ccnp-enterprise",
+   "reason": "stored answer judged wrong (two reviews): Load-balancing method is a per-switch global setting; a mismatch between ends does not stop the bundle forming.; Port-channel load-balancing is a local per-switch setting; a mismatch between ends does not prevent the bundle forming."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-158B18FA-2FE7-44C2-99A4-5178E109FCFC",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): Route-maps with tags are the canonical loop-prevention tool and are at least as defensible as distribute-list.; Route-maps with tags are the standard redistribution-loop prevention, at least as defensible as distribute-list."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-3EDA2B6E-42F0-454B-BAC8-C12405D81AEC",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): snmp-server group maps a security model to read/write/notify views, so view access is as defensible as user permissions.; snmp-server group sets the security model and read/write/notify views for its users, so B and C both describe i"
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-6349E250-382E-4E5B-BCCB-DD0CFD263E53",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): The PE is the LER, so A and D name the same device and the premise is muddled.; The PE is the LER, so A and D name the same device and are equally defensible."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-68095C97-1820-4280-8968-FD3131BADD72",
+   "category": "ccnp-enterprise",
+   "reason": "stored answer judged wrong (two reviews): show ip eigrp topology (active routes, pending replies) is the standard SIA troubleshooting command, not debug eigrp packets.; SIA is diagnosed with show ip eigrp topology (active) to find the neighbour not replying, not debug eigrp packe"
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-9691DCA9-6056-40D3-AC41-FC982F525A87",
+   "category": "ccnp-enterprise",
+   "reason": "stored answer judged wrong (two reviews): SLAAC is Stateless Address Autoconfiguration; the keyed expansion adds Link and is wrong.; SLAAC is Stateless Address Autoconfiguration (RFC 4862); the key adds a wrong 'Link'."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-A8075CAC-D037-4716-B721-98006B6DC23A",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): EtherChannel misconfig guard err-disables the bundle, so C is as defensible as B.; Err-disabled or suspended members (C) are as typical a symptom as MAC flapping, and B's explanation is wrong."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-BF3AACE6-E982-430E-91B2-0DD35F25B88E",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): The output shows both the return code/operational state and RTT values, so B and C are equally defensible.; Cisco describes the command as showing operational status and statistics (RTT), so B and C are equally defensible."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-DDBC49B8-8421-4F36-BA2D-36161D58909C",
+   "category": "ccnp-enterprise",
+   "reason": "stored answer judged wrong (two reviews): Phase 3's cited advantage over Phase 2 is scalability via hub summarization and NHRP redirect/shortcut, not simpler configuration.; Phase 3's main gain over Phase 2 is scalability (hub summarization, NHRP redirect/shortcut), and the expla"
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-DDF2B6CA-1C1C-4A1F-BEB1-398FE3E2E494",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): NDP's address resolution (A) is at least as correct as the vague establishing neighbor relationships (D).; NDP replaces ARP for address resolution, so A is at least as correct as the vague D."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-E34C7EB6-B16C-4965-992B-5C55207C356D",
+   "category": "ccnp-enterprise",
+   "reason": "stored answer judged wrong (two reviews): Area 0 cannot be a stub; IOS rejects area 0 stub.; IOS rejects 'area 0 stub' because the backbone cannot be a stub area."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-E99352E1-B134-48B8-9936-D84668286429",
+   "category": "ccnp-enterprise",
+   "reason": "more than one defensible answer (two reviews): Removing the iBGP full mesh (fewer sessions, A) is the textbook purpose, at least as defensible as C.; Removing the iBGP full mesh (fewer sessions) is as textbook an answer as reflecting routes between clients."
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-EAD8CE07-B177-4A15-A6EA-7A23AD573787",
+   "category": "ccnp-enterprise",
+   "reason": "stored answer judged wrong (two reviews): A stub area still receives Type 3 summary LSAs; it blocks Types 4 and 5.; A standard stub area still receives Type 3 summary LSAs; it blocks Types 4 and 5."
+  },
+  {
+   "question_id": "NHQ-CCNP-SECURITY-05E6E038-ED00-401B-BD5A-0236DC228E02",
+   "category": "ccnp-security",
+   "reason": "more than one defensible answer (two reviews): SHA-512 has a larger digest and at least equal collision resistance, so D is as defensible as C.; SHA-512 offers at least the collision resistance of SHA-256, so D is at least as defensible."
+  },
+  {
+   "question_id": "NHQ-CCNP-SECURITY-10FBF705-ED00-4AA8-A096-09B4C4D0EAE6",
+   "category": "ccnp-security",
+   "reason": "more than one defensible answer (two reviews): Many-to-one is dynamic PAT, which ASA supports in both object NAT and twice NAT, so C and D are equally defensible.; Many-to-one is PAT, which on ASA can be configured as object NAT or twice NAT, so D is not uniquely right."
+  },
+  {
+   "question_id": "NHQ-CCNP-SECURITY-52A708DD-0C52-42BB-A4B5-40B79AF660EE",
+   "category": "ccnp-security",
+   "reason": "stored answer judged wrong (two reviews): The rule matches any TCP traffic to port 80 regardless of protocol, so C is correct and B overstates it.; The rule header matches any TCP traffic to destination port 80, which is option C, not HTTP specifically."
+  },
+  {
+   "question_id": "NHQ-CCNP-SECURITY-6F0DFBCC-A7D9-49A3-B74A-02EA0E918BA4",
+   "category": "ccnp-security",
+   "reason": "stored answer judged wrong (two reviews): FTD uses show managers (or sftunnel-status); show management connection is not a documented FTD command.; FTD checks its FMC registration with show managers (sftunnel status in expert mode); show management connection is not an FTD comman"
+  },
+  {
+   "question_id": "NHQ-CHECKPOINT-54AE093D-7786-4EE8-A9C6-11BF444DC198",
+   "category": "checkpoint",
+   "reason": "stored answer judged wrong (two reviews): fw stat shows the installed policy name and date per interface (A), not cluster status.; fw stat shows the installed policy name and install time per interface, not cluster status (cphaprob state)."
+  },
+  {
+   "question_id": "NHQ-CHECKPOINT-6420FBAB-B3A0-46AF-AF40-3BCA7451F83F",
+   "category": "checkpoint",
+   "reason": "stored answer judged wrong (two reviews): The documented IPS blade status command is ips stat (A).; The documented IPS status command on a Check Point gateway is ips stat."
+  },
+  {
+   "question_id": "NHQ-CHECKPOINT-7F935AC0-2F4A-4A22-941D-DB8402EDA855",
+   "category": "checkpoint",
+   "reason": "stored answer judged wrong (two reviews): fw ping is not a Check Point command; plain ping is the correct answer.; fw ping is not a Check Point command; plain ping, observed with fw monitor, is the standard test."
+  },
+  {
+   "question_id": "NHQ-CHECKPOINT-8709AA91-F52D-4D12-994F-E46FD63B2ED6",
+   "category": "checkpoint",
+   "reason": "stored answer judged wrong (two reviews): Check Point documents up to 5 ClusterXL members; 8 is incorrect.; Check Point documents ClusterXL at up to 5 members, not 8."
+  },
+  {
+   "question_id": "NHQ-CICD-INFRASTRUCTURE-163B4CCB-8A76-426C-AC5A-85435AC5E998",
+   "category": "cicd-infrastructure",
+   "reason": "more than one defensible answer (two reviews): All four are invented command names, so no option can be singled out as correct.; All four command names are invented, so no option is uniquely correct."
+  },
+  {
+   "question_id": "NHQ-CICD-INFRASTRUCTURE-D612C75D-6001-4D81-B686-58038C7366D7",
+   "category": "cicd-infrastructure",
+   "reason": "more than one defensible answer (two reviews): For a network device, show interface status (IOS) is at least as defensible as the Linux ip link show.; For a network device, show interface status (A) is as defensible as the Linux-only ip link show."
+  },
+  {
+   "question_id": "NHQ-CLOUD-INTERVIEW-9B417126-BA8B-48D5-B8A6-3FBB7DB6A5CC",
+   "category": "cloud-interview",
+   "reason": "stored answer judged wrong (two reviews): Inter-region VPC peering has been supported since 2017, so C is outdated and false.; AWS has supported inter-region VPC peering since 2017; the real limitation is no transitive routing."
+  },
+  {
+   "question_id": "NHQ-CLOUD-INTERVIEW-B6A3E68D-1290-422E-91CA-29E69D633AED",
+   "category": "cloud-interview",
+   "reason": "more than one defensible answer (two reviews): 50 is the default quota, but the adjustable maximum is 125, so the word maximum makes D defensible.; 50 is the default quota and 125 the adjustable maximum, so 'maximum' makes D equally defensible."
+  },
+  {
+   "question_id": "NHQ-CLOUD-INTERVIEW-E33636C7-2046-45AE-BEF2-477BAFDDD146",
+   "category": "cloud-interview",
+   "reason": "more than one defensible answer (two reviews): B is also true: security groups have only allow rules while NACLs have allow and deny rules.; B is also true: security groups have only allow rules while NACLs have allow and deny rules."
+  },
+  {
+   "question_id": "NHQ-CLOUD-NETWORKING-50F1E54F-BC43-4B79-9384-9BE6C2B4A6D2",
+   "category": "cloud-networking",
+   "reason": "more than one defensible answer (two reviews): Cross-zone is on by default for ALBs, so A is a true characteristic alongside the definitional B.; Cross-zone load balancing is on by default for ALBs, so A is as true as the definitional B."
+  },
+  {
+   "question_id": "NHQ-COMPLIANCE-FRAMEWORKS-0177B949-0425-4866-8739-192383143AA0",
+   "category": "compliance-frameworks",
+   "reason": "stored answer judged wrong (two reviews): PCI DSS does require a risk assessment (12.2 in v3.2.1, targeted risk analysis in v4.0), so C is also a requirement.; PCI DSS explicitly requires risk assessment (v3.2.1 12.2, v4.0 12.3.1), so every option is a requirement and C is not a "
+  },
+  {
+   "question_id": "NHQ-DDOS-WEB-SECURITY-2E883FA5-F3BC-43D3-85BE-0658533E67E0",
+   "category": "ddos-web-security",
+   "reason": "more than one defensible answer (two reviews): Content Security Policy is also a standard stored-XSS defense, as defensible as input sanitization.; Content Security Policy is an equally standard stored-XSS defense alongside input sanitization/output encoding."
+  },
+  {
+   "question_id": "NHQ-DDOS-WEB-SECURITY-488EB09E-45EE-4A63-BCEE-82EEEF206CB6",
+   "category": "ddos-web-security",
+   "reason": "more than one defensible answer (two reviews): Telling attack traffic from legitimate traffic (A) is at least as central a challenge as scaling resources.; Distinguishing and identifying attack traffic is at least as standard a 'main challenge' as scaling resources."
+  },
+  {
+   "question_id": "NHQ-DDOS-WEB-SECURITY-DAA694D7-E419-469E-A5D1-AE911C5E7859",
+   "category": "ddos-web-security",
+   "reason": "stored answer judged wrong (two reviews): SSRF exploits unvalidated server-side URL fetching, often through open redirects (C), not misconfigured firewalls.; SSRF exploits unvalidated server-side URL fetching (often via open redirects), so C fits far better than misconfigured fir"
+  },
+  {
+   "question_id": "NHQ-DDOS-WEB-SECURITY-EE83F697-9486-4478-A2F8-0E113383A483",
+   "category": "ddos-web-security",
+   "reason": "more than one defensible answer (two reviews): Blind boolean and time-based injection both work without error messages.; Both boolean-based and time-based blind SQL injection are defined by the absence of error output."
+  },
+  {
+   "question_id": "NHQ-DEVOPS-INTERVIEW-D51F6683-3438-4C39-A719-CEF19FB7F40F",
+   "category": "devops-interview",
+   "reason": "more than one defensible answer (two reviews): Running terraform validate (D) is as standard a troubleshooting step as checking state (A).; Running terraform validate is as standard a troubleshooting step for a failing plan as checking state."
+  },
+  {
+   "question_id": "NHQ-DHCP-DNS-EE10543E-7F82-41A9-AB98-20BED2913677",
+   "category": "dhcp-dns",
+   "reason": "more than one defensible answer (two reviews): A relay also sends the request to a configured DHCP server, so C is as true as D.; A relay both converts the broadcast to unicast and sends it to the configured server, so C is as true as D."
+  },
+  {
+   "question_id": "NHQ-EMAIL-DNS-SECURITY-4C18F723-C21F-46EA-AE2A-4310B59BC9CB",
+   "category": "email-dns-security",
+   "reason": "more than one defensible answer (two reviews): less piped to grep acts like cat and finds the header too, so D also works.; less piped to grep outputs the file non-interactively and also finds the header, so D works too."
+  },
+  {
+   "question_id": "NHQ-EMAIL-DNS-SECURITY-81297025-B423-498F-849A-13F57A915881",
+   "category": "email-dns-security",
+   "reason": "more than one defensible answer (two reviews): A generic greeting (B) is as commonly taught a phishing indicator as urgency.; A generic greeting is as commonly taught a phishing indicator as urgency."
+  },
+  {
+   "question_id": "NHQ-EMAIL-DNS-SECURITY-EA0EB32F-950B-4FF2-A784-E398DCB6E508",
+   "category": "email-dns-security",
+   "reason": "more than one defensible answer (two reviews): host -t TXT (D) returns the same SPF TXT record as dig TXT.; host -t TXT returns the same TXT records holding SPF, so D is equally correct."
+  },
+  {
+   "question_id": "NHQ-FIREWALL-VPN-2A24EFBA-BB07-486C-AA64-9D75DDF1909E",
+   "category": "firewall-vpn",
+   "reason": "more than one defensible answer (two reviews): D describes a false positive as well as B does.; B and D describe the same thing, a benign event flagged as a threat."
+  },
+  {
+   "question_id": "NHQ-FIREWALL-VPN-65EFF483-250C-4CCD-BE6C-6143A4221AF0",
+   "category": "firewall-vpn",
+   "reason": "more than one defensible answer (two reviews): Blocking access to a subnet (B) fits near-source extended ACL placement as well as D does.; Extended ACLs go near the source generally, so blocking access to a subnet (B) fits as well as D."
+  },
+  {
+   "question_id": "NHQ-FIREWALL-VPN-69449249-FB0B-4154-846B-AF74AAB67C5B",
+   "category": "firewall-vpn",
+   "reason": "more than one defensible answer (two reviews): Denying outside-to-inside by default (B) is as true as allowing inside-to-outside.; Under default security levels, inside-to-outside is allowed and outside-to-inside is denied, so A and B are both true."
+  },
+  {
+   "question_id": "NHQ-FIREWALL-VPN-B0CD8B70-1FD9-4B40-BE6D-AC1B6E29F3E6",
+   "category": "firewall-vpn",
+   "reason": "stored answer judged wrong (two reviews): A DMZ commonly hosts mail on port 25; RDP 3389 (C) is the port to block inbound.; A DMZ typically hosts the mail server on 25, while inbound RDP 3389 is the port to block."
+  },
+  {
+   "question_id": "NHQ-FIREWALL-VPN-DF4E4588-E5C0-4715-A0FA-AA0D491EF590",
+   "category": "firewall-vpn",
+   "reason": "more than one defensible answer (two reviews): NAT order depends on platform and direction (IOS inside-to-outside routes before NAT; ASA un-NATs before ACL), so A is not uniquely right.; Order depends on direction: on IOS inside-to-outside it is filter, route, translate (B), outs"
+  },
+  {
+   "question_id": "NHQ-FIREWALL-VPN-F1FC9CD9-F542-4E6A-B5FA-E2982AB81311",
+   "category": "firewall-vpn",
+   "reason": "more than one defensible answer (two reviews): A WAF also inspects at the application layer, as defensible as a proxy firewall.; A WAF is equally a firewall designed to inspect at the application layer."
+  },
+  {
+   "question_id": "NHQ-FORTINET-0CA6FEB8-9E18-4667-8F29-B47BD6C7516A",
+   "category": "fortinet",
+   "reason": "more than one defensible answer (two reviews): IKEv1 lacks MOBIKE, so D is also a true IKEv1/IKEv2 difference alongside C.; Built-in NAT-T and mobility (MOBIKE, IKEv2-only) are both genuine IKEv2-over-IKEv1 differences."
+  },
+  {
+   "question_id": "NHQ-FORTINET-36E3FE14-7FCC-4CDE-B908-5F0D8F23CD64",
+   "category": "fortinet",
+   "reason": "stored answer judged wrong (two reviews): FortiAnalyzer logging is off by default; by default logs stay on local disk or memory (B).; FortiAnalyzer logging is not enabled by default; by default logs go to local disk or memory only (B)."
+  },
+  {
+   "question_id": "NHQ-FORTINET-93E6D120-0D9A-4649-B760-FAFAAC89A602",
+   "category": "fortinet",
+   "reason": "more than one defensible answer (two reviews): execute backup config requires a destination; 'execute backup config flash' is a complete local backup command.; execute backup config needs a destination; 'execute backup config flash' is a valid complete form saving locally, as def"
+  },
+  {
+   "question_id": "NHQ-FORTINET-9774AC33-283C-42D2-AA02-A387B473D91C",
+   "category": "fortinet",
+   "reason": "stored answer judged wrong (two reviews): Flow mode does not scan after delivery (it streams and holds the last packet); 'flow is faster' is the accurate difference.; Flow mode scans packets in transit (holding the last packet), not after delivery; flow mode being faster (B) is t"
+  },
+  {
+   "question_id": "NHQ-FORTINET-A8DAE89A-8A7B-461C-A42B-8759C80257FD",
+   "category": "fortinet",
+   "reason": "more than one defensible answer (two reviews): NAT mode itself means routed traffic (A); C is true of VDOMs in any mode.; NAT mode means routed operation (A), while C describes VDOMs in any mode; the stem supports either."
+  },
+  {
+   "question_id": "NHQ-FORTINET-B27FAFBF-B686-4886-8BAE-B0863E584358",
+   "category": "fortinet",
+   "reason": "more than one defensible answer (two reviews): Session helpers fix NAT for embedded addresses and open pinholes, so B is as defensible as generic C.; Session helpers are ALGs that open pinholes and fix embedded addresses for NAT, so B is at least as defensible as the generic C."
+  },
+  {
+   "question_id": "NHQ-GCP-NETWORKING-71C47DBF-5403-47D4-BC9D-020973BE2A3B",
+   "category": "gcp-networking",
+   "reason": "more than one defensible answer (two reviews): gcloud dns managed-zones update --dnssec-state on enables DNSSEC as validly as the console.; DNSSEC can be enabled equally with gcloud dns managed-zones update --dnssec-state on or in the console."
+  },
+  {
+   "question_id": "NHQ-GCP-NETWORKING-80F75D8C-E7FA-4810-8457-59C615A981A7",
+   "category": "gcp-networking",
+   "reason": "more than one defensible answer (two reviews): Egress is implicitly allowed; checking the NAT gateway configuration is at least as reasonable a first step.; Google's Cloud NAT troubleshooting starts with gateway configuration and status as much as egress firewall rules."
+  },
+  {
+   "question_id": "NHQ-GCP-NETWORKING-F2A4E9CE-DBF6-4F6D-BBF8-ADB39441B690",
+   "category": "gcp-networking",
+   "reason": "more than one defensible answer (two reviews): VPC peering also rejects overlapping subnet ranges, making D equally true.; No overlapping subnet ranges is as true a characteristic of VPC peering as route exchange."
+  },
+  {
+   "question_id": "NHQ-IPV6-ESSENTIALS-0447B293-E80F-4177-99D2-2BF0A8C4DE77",
+   "category": "ipv6-essentials",
+   "reason": "stored answer judged wrong (two reviews): Per RFC 4861 the node creates a neighbor entry for the source and replies with an NA.; RFC 4861: on a valid NS for its own address a node creates a STALE cache entry for the source and replies with an NA (B)."
+  },
+  {
+   "question_id": "NHQ-IPV6-ESSENTIALS-4047002F-AC22-4361-995A-93167119B981",
+   "category": "ipv6-essentials",
+   "reason": "more than one defensible answer (two reviews): 'Use :: only once' is also a valid IPv6 compression rule.; RFC 4291/5952 make 'leading zeros omitted' and ':: only once' both valid compression rules."
+  },
+  {
+   "question_id": "NHQ-IPV6-ESSENTIALS-BD1DF480-6FF2-41D6-8378-F024FC83818B",
+   "category": "ipv6-essentials",
+   "reason": "more than one defensible answer (two reviews): Stateless DHCPv6 assigns no addresses, so A states the difference as well as B.; Stateless DHCPv6 assigns no addresses, so A states the textbook difference as well as B does."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-0490F6A1-54C9-48FB-83E6-4ED95ACC50B8",
+   "category": "kubernetes-networking",
+   "reason": "stored answer judged wrong (two reviews): A missing Service fails DNS resolution; Kubernetes returns no HTTP 404.; A non-existent Service fails DNS resolution (NXDOMAIN); Kubernetes returns no HTTP 404."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-0AEFD754-0426-46BB-B3DC-4056BDCAC23B",
+   "category": "kubernetes-networking",
+   "reason": "more than one defensible answer (two reviews): A literal empty rule ({}) allows all ingress while an empty list denies all, so A and B both fit.; An empty rule (ingress: [{}]) allows all ingress, while an empty or absent list denies all; the wording supports A or B."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-0CD4858A-D18C-4DCB-A6E9-DEE3AFDB89F6",
+   "category": "kubernetes-networking",
+   "reason": "more than one defensible answer (two reviews): kubectl get netpol is identical to kubectl get networkpolicies.; kubectl get netpol is identical to kubectl get networkpolicies."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-597AD4D9-7D3C-40A0-9036-4B98799FB3A3",
+   "category": "kubernetes-networking",
+   "reason": "more than one defensible answer (two reviews): kubectl logs -f shows the same pod logs, so A and C are both correct.; kubectl logs -f also shows the pod's logs (and follows them), as defensible as A."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-7A11E8C4-8587-44FE-AE56-E14109643AA8",
+   "category": "kubernetes-networking",
+   "reason": "more than one defensible answer (two reviews): kubectl expose pod --type=NodePort also creates a NodePort Service.; kubectl expose pod --type=NodePort also creates a NodePort Service, and the real subcommand is lowercase 'nodeport'."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-7B18BD2A-73AA-433F-9E9A-5D8BD55CE96F",
+   "category": "kubernetes-networking",
+   "reason": "more than one defensible answer (two reviews): kubectl get services and kubectl get svc are the same command.; kubectl get services and kubectl get svc are the same command."
+  },
+  {
+   "question_id": "NHQ-KUBERNETES-NETWORKING-DFD6A749-4E06-4C0D-AA63-F1FE66A637F6",
+   "category": "kubernetes-networking",
+   "reason": "more than one defensible answer (two reviews): netpol is the valid short name, so D deletes the policy too.; netpol is the built-in short name, so D works exactly like A."
+  },
+  {
+   "question_id": "NHQ-MPLS-VPN-16BEFBBB-4633-4BE5-90DA-542856BB1F1F",
+   "category": "mpls-vpn",
+   "reason": "more than one defensible answer (two reviews): A missing label can equally indicate a down LDP session or MPLS not enabled; the generic A is not uniquely best.; A missing label is as plausibly read as the LDP session being down or MPLS not enabled as a generic forwarding fault."
+  },
+  {
+   "question_id": "NHQ-MPLS-VPN-30DDEE84-0AEC-4814-B554-068080BA9DBE",
+   "category": "mpls-vpn",
+   "reason": "more than one defensible answer (two reviews): An unreachable PE loopback (no IGP route to the FEC) is a classic LSP failure cause, as defensible as the vague A.; No IGP route to the remote PE loopback is a standard LSP failure cause, as defensible as the vague 'incorrect label d"
+  },
+  {
+   "question_id": "NHQ-MPLS-VPN-4980D9DE-1393-4CC3-9B21-0E6DCEE6F1B6",
+   "category": "mpls-vpn",
+   "reason": "more than one defensible answer (two reviews): Both 'ip vrf' and 'vrf definition' create a VRF on current IOS.; Both 'ip vrf' and 'vrf definition' create a VRF on IOS, the latter being the current multi-AF form."
+  },
+  {
+   "question_id": "NHQ-MPLS-VPN-4DCF8F83-703F-46DF-A017-04F1B11E6C2D",
+   "category": "mpls-vpn",
+   "reason": "more than one defensible answer (two reviews): Limited scalability (per-LSP state, tunnel mesh) is as classic an RSVP-TE drawback as configuration complexity.; Limited scalability (N-squared tunnels, per-LSP state) is at least as classic an RSVP-TE drawback as configuration compl"
+  },
+  {
+   "question_id": "NHQ-MPLS-VPN-8437D546-ACA9-4C4D-9568-88F5460EBD45",
+   "category": "mpls-vpn",
+   "reason": "more than one defensible answer (two reviews): RFC 5036 describes LDP as the procedures by which LSRs establish LSPs, so A is as defensible as C.; RFC 5036 defines LDP as the procedures by which LSRs establish LSPs, so A is as defensible as C."
+  },
+  {
+   "question_id": "NHQ-NAT-DEEP-DIVE-151E667B-E9D1-4E35-A529-D5D49D296527",
+   "category": "nat-deep-dive",
+   "reason": "more than one defensible answer (two reviews): Verifying the NAT ACL is the classic specific check and is as defensible as the generic 'check the NAT configuration'.; Verifying the NAT ACL is a classic specific step and is as defensible as the generic 'check the NAT configuration"
+  },
+  {
+   "question_id": "NHQ-NAT-DEEP-DIVE-4A40C66A-6E78-4227-9567-B4170699C37C",
+   "category": "nat-deep-dive",
+   "reason": "stored answer judged wrong (two reviews): NAT64 translates IPv6 to IPv4 (option B), not the reverse.; NAT64 (RFC 6146) translates IPv6 to IPv4 so IPv6-only clients reach IPv4 servers; B is correct."
+  },
+  {
+   "question_id": "NHQ-NAT-DEEP-DIVE-4CA0A120-BE0F-4416-8D85-379FD529B68C",
+   "category": "nat-deep-dive",
+   "reason": "stored answer judged wrong (two reviews): NAT64 lets IPv6-only clients reach IPv4 servers (option B).; The standard NAT64 use case is IPv6-only clients reaching IPv4 servers (option B)."
+  },
+  {
+   "question_id": "NHQ-NAT-DEEP-DIVE-BC73893F-FA56-44B3-86EA-1C2B2F88EDC0",
+   "category": "nat-deep-dive",
+   "reason": "more than one defensible answer (two reviews): The pool-based 'ip nat inside source list NAT-ACL pool NAT-Pool' is an equally valid ACL-driven NAT command.; The pool form 'ip nat inside source list NAT-ACL pool NAT-Pool' also uses the ACL correctly."
+  },
+  {
+   "question_id": "NHQ-NETDEVOPS-96ABC026-0D43-4ACF-A4BC-1818C045DB90",
+   "category": "netdevops",
+   "reason": "more than one defensible answer (two reviews): All four commands (including -G/--get without data and -X GET) send a GET request.; curl url, curl -X GET url, curl --get url and curl -G url all send a GET request."
+  },
+  {
+   "question_id": "NHQ-NETDEVOPS-CB98027F-D62D-4C5A-A79C-3BC99904E4BB",
+   "category": "netdevops",
+   "reason": "more than one defensible answer (two reviews): YAML top-level key order is irrelevant, so every option describes an equally valid file.; YAML key order is irrelevant and top-level version is obsolete, so all four orderings are equally valid files."
+  },
+  {
+   "question_id": "NHQ-NETDEVOPS-E387163E-788C-4B5F-BB0C-AB899A6042DA",
+   "category": "netdevops",
+   "reason": "more than one defensible answer (two reviews): PATCH also updates an existing resource and the stem does not specify full replacement.; PATCH also updates an existing resource and the stem does not specify full replacement."
+  },
+  {
+   "question_id": "NHQ-NETDEVOPS-EF272010-ED45-4839-B6E5-08DB47AE3E8A",
+   "category": "netdevops",
+   "reason": "more than one defensible answer (two reviews): gNMI's Set RPC makes configuration changes as core a purpose as Subscribe telemetry.; gNMI covers both configuration (Get/Set) and streaming telemetry (Subscribe), so C is as defensible as B."
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-671B746A-C655-43F8-9492-4EA6906BCC31",
+   "category": "network-design",
+   "reason": "more than one defensible answer (two reviews): A and B state the same distinguishing fact from opposite sides; both are correct.; A and B state the same true distinction from opposite sides, so both are equally defensible."
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-F96D9672-D7AA-4D1C-B9FC-6AA76EFE9282",
+   "category": "network-design",
+   "reason": "more than one defensible answer (two reviews): OSPF, EIGRP, BGP and RIP all do ECMP; nothing makes OSPF uniquely correct.; OSPF, EIGRP, BGP (maximum-paths) and RIP all do ECMP; OSPF is not uniquely correct."
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-SCENARIOS-21AF531D-141C-4DBE-8573-55A0ECF36914",
+   "category": "network-design-scenarios",
+   "reason": "stored answer judged wrong (two reviews): A /20 holds only four /22s; ten sites need a /18, so only B fits among the options.; A /20 holds only four /22s, so it cannot serve ten /22 sites; B is the only option that fits."
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-SCENARIOS-349BBEC1-E939-460B-80E9-E16AC337B24F",
+   "category": "network-design-scenarios",
+   "reason": "stored answer judged wrong (two reviews): An RPO under one hour is met by asynchronous replication; synchronous is for near-zero RPO.; An RPO under one hour is met by asynchronous replication; synchronous is reserved for near-zero RPO."
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-SCENARIOS-B700C5D9-E770-4AFF-9D8F-A45CEFE77254",
+   "category": "network-design-scenarios",
+   "reason": "more than one defensible answer (two reviews): Monthly bandwidth cost is commonly the decisive MPLS vs SD-WAN factor, as defensible as C.; Bandwidth cost is commonly the decisive MPLS versus SD-WAN factor, at least as defensible as monitoring."
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-SCENARIOS-CDA2D1A1-F6EA-41EE-9996-9884472A6BD3",
+   "category": "network-design-scenarios",
+   "reason": "more than one defensible answer (two reviews): The stem is vague; interference and coverage effects of placement are as defensible as 'higher user density'.; The stem is vague and placement's capacity impact is as readily interference or coverage as user density."
+  },
+  {
+   "question_id": "NHQ-NETWORK-FUNDAMENTALS-31EE315C-33F0-4B81-9C4A-1D573A68E070",
+   "category": "network-fundamentals",
+   "reason": "more than one defensible answer (two reviews): Data Link only detects errors; Transport (TCP) does the recovery, so both are defensible for detection and correction.; Data Link only detects (FCS) and drops; Transport (TCP) performs error recovery, so both fit 'detection and corre"
+  },
+  {
+   "question_id": "NHQ-NETWORK-FUNDAMENTALS-6A105910-40FE-4140-BA80-227247E2B15D",
+   "category": "network-fundamentals",
+   "reason": "stored answer judged wrong (two reviews): A /28 from a Class C gives 16 subnets (A), as the explanation itself says; 32 is wrong.; A /28 from a Class C gives 2^4 = 16 subnets (option A), as the explanation itself says; 32 is wrong."
+  },
+  {
+   "question_id": "NHQ-NETWORKING-INTERVIEW-867541A8-F32C-4B8F-A316-A3E31F0EC733",
+   "category": "networking-interview",
+   "reason": "more than one defensible answer (two reviews): Best path uses longest match, AD and metric; AD alone is partial and the shortest-path option is equally partial.; AD only selects between route sources; within a protocol the metric/shortest-path computation picks the best path, so "
+  },
+  {
+   "question_id": "NHQ-NETWORKING-INTERVIEW-E83AF03C-32AD-4753-A8A2-A1B29FA1092F",
+   "category": "networking-interview",
+   "reason": "more than one defensible answer (two reviews): The browser checks its caches (including its DNS cache) before a DNS lookup, so B rivals C.; The browser checks its caches (including its DNS cache) before any DNS query, so B is at least as defensible as C."
+  },
+  {
+   "question_id": "NHQ-NOC-ENGINEER-479116F4-7FBA-4AC7-B60A-304A83145051",
+   "category": "noc-engineer",
+   "reason": "more than one defensible answer (two reviews): Packet loss (late collisions, CRC errors) is the textbook symptom and at least as defensible as intermittent connectivity.; Duplex mismatch classically shows packet loss, late collisions and CRC errors; packet loss is at least as def"
+  },
+  {
+   "question_id": "NHQ-NOC-ENGINEER-694E4100-D3D0-40AD-B1FD-0777DDAC770B",
+   "category": "noc-engineer",
+   "reason": "stored answer judged wrong (two reviews): TCNs come from ports changing forwarding state (link failures and flaps), not mainly from configuration changes.; TCNs come from ports changing forwarding state (link up/down, flapping, no PortFast), so link failure is the better answer t"
+  },
+  {
+   "question_id": "NHQ-NOC-ENGINEER-7F1DC997-8B4D-4CBB-9D93-532121C25A4C",
+   "category": "noc-engineer",
+   "reason": "stored answer judged wrong (two reviews): Stratum 0 reference clocks are the most accurate time source; Stratum 1 is only the most accurate server.; Stratum 0 reference clocks are the most accurate time source; Stratum 1 is only the most accurate NTP server."
+  },
+  {
+   "question_id": "NHQ-NOC-ENGINEER-E613B6A3-7874-499C-B9A5-BDEF6DDD22C3",
+   "category": "noc-engineer",
+   "reason": "more than one defensible answer (two reviews): Repair, Recovery, Restore and Resolution are all accepted MTTR expansions in incident management.; MTTR is used as Repair, Recovery, Restore and Resolve; in incident management Restore/Resolve are as standard as Repair."
+  },
+  {
+   "question_id": "NHQ-OSPF-MASTERY-096264CD-C9F7-4C3E-8D1F-8A3F0E7E943F",
+   "category": "ospf-mastery",
+   "reason": "more than one defensible answer (two reviews): B (blocks all external routes) is strictly true, while C is imprecise because totally stubby also blocks Type 3 except the default.; B is strictly true; C is imprecise since totally stubby blocks Type 3 except the default summary, so"
+  },
+  {
+   "question_id": "NHQ-OSPF-MASTERY-34F06CBE-DBC2-46B0-8CC0-E70AE22AADA4",
+   "category": "ospf-mastery",
+   "reason": "stored answer judged wrong (two reviews): C describes Init; 2-way means bidirectional hellos, and DR election happens in 2-way, so C is wrong.; Receiving the first hello is the Init state; 2-Way means bidirectional hellos, where DR/BDR election happens, so C is wrong."
+  },
+  {
+   "question_id": "NHQ-OSPF-MASTERY-6CCD7280-E901-4EE2-B986-F18CD090D53D",
+   "category": "ospf-mastery",
+   "reason": "stored answer judged wrong (two reviews): Area 0 cannot be a virtual link's transit area, so the keyed command is invalid.; A virtual link is 'area <transit-area> virtual-link <rid>' and area 0 cannot be the transit area, so the keyed command is wrong."
+  },
+  {
+   "question_id": "NHQ-OSPF-MASTERY-DD9249CC-75FF-4BD5-83E2-0B597987A04D",
+   "category": "ospf-mastery",
+   "reason": "more than one defensible answer (two reviews): A stub area also receives only summary (Type 3) LSAs and no externals; totally stubby gets only the default summary.; A stub area also gets only intra-area plus summary LSAs (no Type 5), while totally stubby gets only a default summa"
+  },
+  {
+   "question_id": "NHQ-PALO-ALTO-55C2ABDA-2774-493C-A7A8-4CA26B1D777C",
+   "category": "palo-alto",
+   "reason": "stored answer judged wrong (two reviews): No option is real PAN-OS syntax (show global-protect-gateway ...); C is at least as close as A.; PAN-OS uses 'show global-protect-gateway ...'; 'show globalprotect status' does not exist and no option is valid."
+  },
+  {
+   "question_id": "NHQ-PALO-ALTO-75AA5BA3-A004-4899-9496-1EFD96DF8B36",
+   "category": "palo-alto",
+   "reason": "stored answer judged wrong (two reviews): No option is real syntax (show user user-id-agent ...); A names the agent and is as defensible as B.; PAN-OS uses 'show user user-id-agent config/state all'; 'show user-id configuration' does not exist and no option is valid."
+  },
+  {
+   "question_id": "NHQ-PALO-ALTO-EABDA5A0-151F-4603-927B-6C049FD34843",
+   "category": "palo-alto",
+   "reason": "stored answer judged wrong (two reviews): show nat configuration does not exist; show running nat-policy is the real command, so B is closer.; 'show nat configuration' does not exist on PAN-OS; the real command is 'show running nat-policy', closest to B."
+  },
+  {
+   "question_id": "NHQ-PALO-ALTO-F91A437E-3450-47FE-8DDE-5AC2B11BD5A5",
+   "category": "palo-alto",
+   "reason": "stored answer judged wrong (two reviews): PAN-OS uses show high-availability state/link-monitoring; B is the real command prefix and A is not valid.; PAN-OS uses 'show high-availability state' (or link-monitoring); 'show ha status' is not a command and B is closer."
+  },
+  {
+   "question_id": "NHQ-PENTEST-BASICS-1A9F0814-5519-4618-876D-A14786D3FC96",
+   "category": "pentest-basics",
+   "reason": "more than one defensible answer (two reviews): Source code analysis and scanning also identify SQLi, so error checking is not uniquely best.; Source-code analysis (D) and scanning (B) also verify SQLi, so error-based checking is not the single best answer."
+  },
+  {
+   "question_id": "NHQ-PYTHON-NETWORKING-A92BDA64-CCF3-4A76-8C9F-6B165FCA2F60",
+   "category": "python-networking",
+   "reason": "more than one defensible answer (two reviews): logger.log(level, msg) and the keyword form are equally valid ways to log at a given level.; logger.log(level, msg) (A) and keyword form logging.log(level=..., msg=...) (D) are equally valid forms as B."
+  },
+  {
+   "question_id": "NHQ-PYTHON-NETWORKING-F13EE549-35EB-4EB4-8F51-E962D700173C",
+   "category": "python-networking",
+   "reason": "more than one defensible answer (two reviews): A bare except also correctly handles exceptions, so A and C are both valid.; A bare try/except (A) also correctly handles exceptions in valid Python; C is only best practice."
+  },
+  {
+   "question_id": "NHQ-QOS-TRAFFIC-622166AD-24D7-42C5-8775-720B0913D602",
+   "category": "qos-traffic",
+   "reason": "more than one defensible answer (two reviews): A service-policy attaches a policy-map; queuing and shaping are as plausible as bandwidth limits.; service-policy attaches a policy-map to an interface; queuing (B) and shaping (D) are as defensible as bandwidth limits (C)."
+  },
+  {
+   "question_id": "NHQ-QOS-TRAFFIC-BB965546-2B84-4396-A3E5-D13607F5A2D5",
+   "category": "qos-traffic",
+   "reason": "more than one defensible answer (two reviews): Policing drops excess traffic but shaping queues it; the stem does not say which.; Policing drops excess but shaping queues it; the stem does not say which, so A is equally defensible."
+  },
+  {
+   "question_id": "NHQ-QOS-TRAFFIC-BF64D2AB-7DEE-459B-A6DC-7B38D644835C",
+   "category": "qos-traffic",
+   "reason": "more than one defensible answer (two reviews): DSCP 10, 12 and 14 are all AF class 1, and 10 (AF11) is the more canonical answer.; AF11, AF12 and AF13 (DSCP 10, 12, 14) are all AF class 1 and all three are offered."
+  },
+  {
+   "question_id": "NHQ-QOS-TRAFFIC-D8B1B3E6-1AEA-4E8B-9E25-7AB2B5CD9E83",
+   "category": "qos-traffic",
+   "reason": "more than one defensible answer (two reviews): CBWFQ bandwidth is a congestion-time minimum and the class can exceed it, so C is at least as correct.; CBWFQ bandwidth is a minimum during congestion and a class may exceed it when spare bandwidth exists, so C is at least as correct"
+  },
+  {
+   "question_id": "NHQ-ROUTING-SWITCHING-3D5BD8FE-BF15-4529-9C8E-FF2197EA7EF6",
+   "category": "routing-switching",
+   "reason": "stored answer judged wrong (two reviews): AS-path length is compared before MED; option B gives the correct order.; BGP order is weight, local preference, locally originated, AS-path length, origin, then MED, so B is correct, not C."
+  },
+  {
+   "question_id": "NHQ-ROUTING-SWITCHING-74AC96AD-649A-432E-A946-9F99F94A9BFF",
+   "category": "routing-switching",
+   "reason": "stored answer judged wrong (two reviews): Named mode is entered with router eigrp <name>; eigrp named is not an IOS command.; Named mode is 'router eigrp <name>'; 'eigrp named <name>' is not an IOS command."
+  },
+  {
+   "question_id": "NHQ-ROUTING-SWITCHING-CEA34A3C-851F-4156-9047-873F03BEDD83",
+   "category": "routing-switching",
+   "reason": "more than one defensible answer (two reviews): Interface-level ip ospf <pid> area <id> enables OSPF on an interface as validly as network.; Interface command 'ip ospf <pid> area <id>' (C) enables OSPF on an interface as directly as the network statement."
+  },
+  {
+   "question_id": "NHQ-SDWAN-1A2F3722-CFE7-4623-AFE0-783E403108BD",
+   "category": "sdwan",
+   "reason": "stored answer judged wrong (two reviews): set url-filtering is not a Cisco SD-WAN command; URL filtering is a vManage security policy.; 'set url-filtering' is not a Cisco SD-WAN command; URL filtering is a vManage security policy."
+  },
+  {
+   "question_id": "NHQ-SDWAN-2B79D3E2-E5B4-4765-8E9F-84AC436D3F17",
+   "category": "sdwan",
+   "reason": "more than one defensible answer (two reviews): vBond authenticates and orchestrates the initial control connections, making it as defensible as vSmart.; vSmart owns the control plane, but Cisco describes vBond as authenticating and orchestrating the control connections, so C is e"
+  },
+  {
+   "question_id": "NHQ-SDWAN-6449C7F0-C77C-4DB3-A8BC-EB79CBADA5A7",
+   "category": "sdwan",
+   "reason": "stored answer judged wrong (two reviews): vManage is the management plane; control-plane management is vSmart's role.; vManage is the management plane (NMS); control plane is vSmart, so B is incorrect."
+  },
+  {
+   "question_id": "NHQ-SDWAN-A9441FCF-D348-43B2-9401-517CFC7B90B7",
+   "category": "sdwan",
+   "reason": "stored answer judged wrong (two reviews): restrict prevents tunnels to TLOCs of other colors; it does not limit advertisement to sites.; TLOC 'restrict' stops tunnels to TLOCs of other colors; it does not limit advertisement to specific sites."
+  },
+  {
+   "question_id": "NHQ-SECURITY-INTERVIEW-084FD975-BB97-484E-84E1-7F379E707F55",
+   "category": "security-interview",
+   "reason": "more than one defensible answer (two reviews): The stem names no firewall, so iptables -L and firewall-cmd --state are equally valid.; The stem names no firewall, so firewall-cmd --state and iptables -L are as valid as ufw status."
+  },
+  {
+   "question_id": "NHQ-SECURITY-INTERVIEW-1CA983C6-1CAA-47C5-ABB1-E520AB8047B1",
+   "category": "security-interview",
+   "reason": "more than one defensible answer (two reviews): ClientHello also carries a session ID, so B is equally correct.; ClientHello also carries the session ID (B) and, in TLS 1.3, the client's key_share (D)."
+  },
+  {
+   "question_id": "NHQ-SECURITY-INTERVIEW-C66E315B-1C3D-4547-B929-47A203CB5D27",
+   "category": "security-interview",
+   "reason": "more than one defensible answer (two reviews): getent passwd lists all users as well as (or more completely than) cat /etc/passwd.; getent passwd lists all users (including NSS/directory users) at least as well as cat /etc/passwd."
+  },
+  {
+   "question_id": "NHQ-SECURITY-INTERVIEW-CF8B38A1-B93E-469B-9D89-AB73F1688231",
+   "category": "security-interview",
+   "reason": "more than one defensible answer (two reviews): sestatus reports SELinux status at least as directly as getenforce.; sestatus reports the current SELinux status at least as directly as getenforce."
+  },
+  {
+   "question_id": "NHQ-SOC-ANALYST-29BB39FA-AF6B-479E-A772-1C0FB148A955",
+   "category": "soc-analyst",
+   "reason": "stored answer judged wrong (two reviews): The display filter that shows only HTTP is 'http'; tcp.port==80 is port-based and imprecise.; The Wireshark display filter for only HTTP is 'http'; tcp.port==80 includes non-HTTP packets and misses HTTP on other ports."
+  },
+  {
+   "question_id": "NHQ-SOC-ANALYST-B1E62ADA-AF0C-4041-A7AB-28D594606471",
+   "category": "soc-analyst",
+   "reason": "more than one defensible answer (two reviews): CVSS AV measures the attacker's remoteness/context, which the location option matches at least as well as delivery method.; AV reflects the context/remoteness of exploitation (N/A/L/P); 'location of the attack' fits at least as well "
+  },
+  {
+   "question_id": "NHQ-SOC-ANALYST-D69B22CB-2FC4-4F52-8512-76C298066061",
+   "category": "soc-analyst",
+   "reason": "more than one defensible answer (two reviews): EPSS estimates exploitation likelihood (A), and ranking by exploitability (C) is equally defensible.; EPSS estimates the probability of exploitation (A), which is used to rank vulnerabilities (C); both are defensible."
+  },
+  {
+   "question_id": "NHQ-SPANNING-TREE-324CA212-4BE9-426B-B9B6-D585E8612570",
+   "category": "spanning-tree",
+   "reason": "stored answer judged wrong (two reviews): The premise is flawed (no state skips to forwarding), leaving no clearly single best option.; No RSTP state skips learning; fast transition comes from edge ports or proposal/agreement, so the stored answer and explanation are false."
+  },
+  {
+   "question_id": "NHQ-SPANNING-TREE-9A2CA591-2072-4C28-B356-FE47B4E206AB",
+   "category": "spanning-tree",
+   "reason": "stored answer judged wrong (two reviews): Err-disable needs BPDU Guard; with PortFast alone the port just loses edge status, so the key relies on an unstated assumption.; Without BPDU Guard a PortFast port that receives a BPDU just loses PortFast status; err-disable requires BPDU"
+  },
+  {
+   "question_id": "NHQ-SPANNING-TREE-A6E6320A-15C7-4CB6-8368-39662B7B6F85",
+   "category": "spanning-tree",
+   "reason": "more than one defensible answer (two reviews): High switch CPU and latency are standard storm indicators at least as much as excessive ARP.; High switch CPU is a standard broadcast storm indicator at least as much as excessive ARP requests."
+  },
+  {
+   "question_id": "NHQ-SPANNING-TREE-BCFC21FB-318F-49E2-8ED8-BD874927C43F",
+   "category": "spanning-tree",
+   "reason": "more than one defensible answer (two reviews): The stem asks for a role; Alternate port is the proper role while blocking is a state, though CCNA texts also say blocking port.; Alternate port is the correct role name; 'blocking port' is a state, though legacy 802.1D material uses"
+  },
+  {
+   "question_id": "NHQ-SPANNING-TREE-CCF01A7D-FFA9-4495-B2C9-5633324ED415",
+   "category": "spanning-tree",
+   "reason": "stored answer judged wrong (two reviews): A switch receiving a TCN replies with a configuration BPDU carrying TCA; it does not reset the topology.; A switch receiving a TCN acknowledges it with a TCA-flagged configuration BPDU and relays it toward the root; it does not reset the "
+  },
+  {
+   "question_id": "NHQ-SPANNING-TREE-E22A5F6B-6D14-40DC-9556-59704C84495C",
+   "category": "spanning-tree",
+   "reason": "stored answer judged wrong (two reviews): The IOS interface command is 'spanning-tree portfast'; there is no 'enable' keyword.; The IOS interface command is 'spanning-tree portfast'; there is no 'enable' keyword."
+  },
+  {
+   "question_id": "NHQ-SUBNETTING-6D9F167E-0003-42CE-BC5E-22BE543C3832",
+   "category": "subnetting",
+   "reason": "more than one defensible answer (two reviews): Both A and C give enough hosts for every department, so two options work.; Both A (/24,/26,/27,/28) and C (/24,/25,/26,/28) give enough hosts for every department."
+  },
+  {
+   "question_id": "NHQ-SUBNETTING-845061E5-E0B6-4B1A-89F4-D2C5C8201E94",
+   "category": "subnetting",
+   "reason": "stored answer judged wrong (two reviews): 11001001 equals 201 (option A), not 157.; 11001001 equals 201 (option A), not 157."
+  },
+  {
+   "question_id": "NHQ-SUBNETTING-8F4476C5-08BF-4051-A313-AD655A3B7C67",
+   "category": "subnetting",
+   "reason": "stored answer judged wrong (two reviews): A /30 provides exactly 2 usable hosts, so /30 is the right size, not /29.; A /30 gives exactly 2 usable hosts, so /30 (option A) is the right size."
+  },
+  {
+   "question_id": "NHQ-SUBNETTING-97E303CB-35F9-41B5-9D70-388F69CFC914",
+   "category": "subnetting",
+   "reason": "stored answer judged wrong (two reviews): The 2^n-2 trick gives 30 hosts for a /27 (option C), as the explanation itself says.; A /27 has 30 usable hosts (2^5-2, option C), as the explanation itself computes."
+  },
+  {
+   "question_id": "NHQ-SUBNETTING-E956B3A6-8DF0-492B-B698-839D8CC2FEA8",
+   "category": "subnetting",
+   "reason": "stored answer judged wrong (two reviews): 172.16.10.25/20 is in 172.16.0.0/20, so the first usable host is 172.16.0.1 (option A).; 172.16.10.25/20 is in 172.16.0.0/20, so the first usable host is 172.16.0.1 (option A)."
+  },
+  {
+   "question_id": "NHQ-SUBNETTING-F504FA5A-DCF4-40C6-B6C8-315C154ED941",
+   "category": "subnetting",
+   "reason": "stored answer judged wrong (two reviews): 00011111 equals 31 (option B), not 15.; 00011111 equals 31 (option B), not 15."
+  },
+  {
+   "question_id": "NHQ-TCP-IP-2E0AD6B9-F372-4F28-9896-6BC014340828",
+   "category": "tcp-ip",
+   "reason": "more than one defensible answer (two reviews): SYN retry counts are OS-specific (Windows 2, Linux 5 or 6), so 3 is not a single defensible fact.; SYN retry counts are OS-specific (Linux 6, Windows 2); no single option is a standard fact."
+  },
+  {
+   "question_id": "NHQ-TCP-IP-E2A78DD6-D2D8-40C1-B413-82D12350C6F2",
+   "category": "tcp-ip",
+   "reason": "stored answer judged wrong (two reviews): The textbook four-way close answers a FIN with an ACK, which is at least as defensible as FIN-ACK.; In the standard four-way teardown the peer answers a FIN with an ACK and sends its own FIN later."
+  },
+  {
+   "question_id": "NHQ-TERRAFORM-FUNDAMENTALS-6BEC95D3-C3CC-4502-A259-61465A193218",
+   "category": "terraform-fundamentals",
+   "reason": "more than one defensible answer (two reviews): Single-quoted labels are invalid HCL while bare identifier labels (B) are accepted, so B is at least as defensible.; Single-quoted labels are invalid HCL while bare identifier labels (B) parse, so A and B are at least equally defensi"
+  },
+  {
+   "question_id": "NHQ-TERRAFORM-FUNDAMENTALS-9EE39D70-ECCA-43DF-AEB9-4DD073B3AC34",
+   "category": "terraform-fundamentals",
+   "reason": "more than one defensible answer (two reviews): Both the interpolation form and the bare var.my_var reference are valid, the bare one being idiomatic since 0.12.; var.my_var is the idiomatic Terraform 0.12+ reference and the bare ${} form is only valid inside a string, so B is at "
+  },
+  {
+   "question_id": "NHQ-TERRAFORM-FUNDAMENTALS-C0EC12D2-3849-4E46-BC44-7E39D989F3D4",
+   "category": "terraform-fundamentals",
+   "reason": "more than one defensible answer (two reviews): Single quotes are invalid HCL and a bare identifier label (B) is accepted, so B competes with the keyed A.; Single-quoted labels are invalid HCL while an unquoted label (B) is accepted, so A is not the single best answer."
+  },
+  {
+   "question_id": "NHQ-TERRAFORM-FUNDAMENTALS-EA82451F-0160-40FD-AC70-F4CD8E6EDD20",
+   "category": "terraform-fundamentals",
+   "reason": "more than one defensible answer (two reviews): Single-quoted labels are invalid HCL while the bare-identifier label in B is accepted, so B is at least as defensible as the keyed A.; HCL rejects single-quoted labels while a bare identifier label (B) is accepted, so the keyed form "
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-8C72D82F-D11D-4E08-B4B4-697BD774B075",
+   "category": "troubleshooting",
+   "reason": "stored answer judged wrong (two reviews): A cache entry goes stale because the record was updated while the cached copy was still valid (D); not querying recently does not cause staleness.; A cache entry is stale because the record changed (D) before its TTL expired; not querying"
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-FEFABF45-9D5F-419A-B7B8-DF4B4D964DE6",
+   "category": "troubleshooting",
+   "reason": "more than one defensible answer (two reviews): Dirty connectors typically cause attenuation and intermittent errors (D) rather than a complete loss of light.; Dirty connectors usually add attenuation and cause errors or intermittent loss (D) more often than a complete loss of lig"
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-SCENARIOS-52D0636A-C043-48A1-B5BD-E093D94B0B8A",
+   "category": "troubleshooting-scenarios",
+   "reason": "stored answer judged wrong (two reviews): An area mismatch makes the router drop hellos so no neighbor forms; INIT indicates one-way hellos, which the keyed cause does not produce.; An area mismatch drops hellos so no neighbor appears; INIT means one-way hellos, and Cisco lists a"
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-SCENARIOS-9E21AD3B-FB50-403E-A408-BD2E28D3769B",
+   "category": "troubleshooting-scenarios",
+   "reason": "more than one defensible answer (two reviews): show running-config shows the OSPF configuration as directly as show ip protocols does.; show running-config literally shows the OSPF configuration, so it is as defensible as show ip protocols."
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-SCENARIOS-A1DC3B8D-4757-4875-AB7B-69A486A28471",
+   "category": "troubleshooting-scenarios",
+   "reason": "more than one defensible answer (two reviews): Link utilization is read from show interface load and rates; iperf measures achievable throughput, so A is at least as defensible.; Utilization is read directly from show interface load and rates; iperf measures available throughput,"
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-SCENARIOS-C8289B61-7C4D-4170-ABF0-A97FB1DBA9F8",
+   "category": "troubleshooting-scenarios",
+   "reason": "more than one defensible answer (two reviews): UDLD and EtherChannel misconfiguration guard also err-disable ports, so B and C are equally valid likely causes.; UDLD and EtherChannel misconfiguration guard also err-disable ports, so B and C are valid causes as well as BPDU guard."
+  },
+  {
+   "question_id": "NHQ-WIRELESS-NETWORKING-7896C7C1-B19B-4259-8C39-55E739AFB368",
+   "category": "wireless-networking",
+   "reason": "more than one defensible answer (two reviews): The count depends on the regulatory domain; with channel 144 the US has 25, so the maximum in D is at least as defensible as 23.; 23 is the older US count and 25 the current US count including channel 144, and both are offered."
+  },
+  {
+   "question_id": "NHQ-WIRELESS-NETWORKING-C925C771-F5E8-4A38-9DF1-494EF2F225A0",
+   "category": "wireless-networking",
+   "reason": "stored answer judged wrong (two reviews): 'capwap enable' is not a Cisco AP command; lightweight APs run CAPWAP by default, so the keyed answer is incorrect.; 'capwap enable' is not a Cisco AP command; lightweight APs run CAPWAP by default, so the keyed answer is incorrect."
+  },
+  {
+   "question_id": "NHQ-ZERO-TRUST-751C9BB1-E63F-484B-9225-AD55F4D9202F",
+   "category": "zero-trust",
+   "reason": "more than one defensible answer (two reviews): Ignoring device compliance and leaving gaps that allow access are as commonly cited conditional access mistakes as overly restrictive policies.; Allowing all access by default and ignoring device compliance are at least as commonly c"
+  },
+  {
+   "question_id": "NHQ-ZERO-TRUST-D8A47C36-40B3-4157-B7E1-8AA7D186CB48",
+   "category": "zero-trust",
+   "reason": "more than one defensible answer (two reviews): Over-permissioning (privilege creep) is at least as commonly cited a least-privilege challenge as under-permissioning.; Over-permissioning and privilege creep (A) is the more commonly cited least-privilege challenge, at least as defe"
+  }
+ ],
+ "active_split_verdict": [
+  {
+   "question_id": "NHQ-AWS-NETWORKING-37E8A12D-6D51-445F-AC26-9C9FC544DD61",
+   "category": "aws-networking",
+   "verdicts": {
+    "item": "fine",
+    "technical": "key_wrong"
+   }
+  },
+  {
+   "question_id": "NHQ-CAREER-CERTIFICATION-08A449CC-349E-4514-8DC5-68D8DC01CA3F",
+   "category": "career-certification",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-CAREER-CERTIFICATION-2238CDF1-F8EB-4AE8-B4A0-A5EF28F5B640",
+   "category": "career-certification",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-CAREER-CERTIFICATION-BC0F19B3-3787-4185-B39D-5358BE96C021",
+   "category": "career-certification",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-CAREER-CERTIFICATION-F5DBB80F-3E00-4D18-9F64-28C7664BB47D",
+   "category": "career-certification",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-1FAB1018-2896-4708-BEBF-E41FEE21F0B6",
+   "category": "ccnp-enterprise",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-42F1BFA0-E9DF-494D-9219-05A495669CFC",
+   "category": "ccnp-enterprise",
+   "verdicts": {
+    "item": "fine",
+    "technical": "key_wrong"
+   }
+  },
+  {
+   "question_id": "NHQ-CCNP-ENTERPRISE-4EA654BB-43C7-41A0-9E21-0FA322F62B79",
+   "category": "ccnp-enterprise",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-CLOUD-INTERVIEW-6E4D8D33-3BAF-4D91-948B-3317AC6C1A15",
+   "category": "cloud-interview",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-FORTINET-C53752FC-5A2A-45E3-9311-E4D3E82DD265",
+   "category": "fortinet",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-GCP-NETWORKING-176E7241-B84F-4D2C-9F8F-BACA88F2578C",
+   "category": "gcp-networking",
+   "verdicts": {
+    "item": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-NAT-DEEP-DIVE-C70D58D4-FE1E-4C16-92D5-BB2B5D27E056",
+   "category": "nat-deep-dive",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-NETWORK-DESIGN-SCENARIOS-0289DBE9-2095-4D34-84EF-549E07A3474F",
+   "category": "network-design-scenarios",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-OSPF-MASTERY-18D4DB47-7CD9-4938-A625-340EC2668BA9",
+   "category": "ospf-mastery",
+   "verdicts": {
+    "item": "fine",
+    "technical": "key_wrong"
+   }
+  },
+  {
+   "question_id": "NHQ-OSPF-MASTERY-DB4C52A5-CBE9-4BB6-8AA2-55916862F6F2",
+   "category": "ospf-mastery",
+   "verdicts": {
+    "item": "fine",
+    "technical": "key_wrong"
+   }
+  },
+  {
+   "question_id": "NHQ-PALO-ALTO-A32F9CD1-33DF-46DD-8DB8-7A339BB1D441",
+   "category": "palo-alto",
+   "verdicts": {
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-SDWAN-B5A626DD-0CD0-4EB4-B9A2-5454CC02FF6A",
+   "category": "sdwan",
+   "verdicts": {
+    "item": "fine",
+    "technical": "key_wrong"
+   }
+  },
+  {
+   "question_id": "NHQ-SOC-ANALYST-336D6030-4B64-46CC-BE3E-95C1FEC1D2C4",
+   "category": "soc-analyst",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  },
+  {
+   "question_id": "NHQ-SOC-ANALYST-9DB2A104-F28A-4D39-A964-174E793C2A32",
+   "category": "soc-analyst",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-B8566564-EB5F-4020-9D40-ECEC591DECE9",
+   "category": "troubleshooting",
+   "verdicts": {
+    "item": "ambiguous",
+    "technical": "fine"
+   }
+  },
+  {
+   "question_id": "NHQ-TROUBLESHOOTING-SCENARIOS-B3728836-6660-4959-BCC9-ED57BAF45983",
+   "category": "troubleshooting-scenarios",
+   "verdicts": {
+    "item": "fine",
+    "technical": "ambiguous"
+   }
+  }
+ ],
+ "not_imported": [
+  {
+   "question_id": "NHQ-WIRELESS-NETWORKING-227B0FF1-B02E-4545-8DB4-43EDC68D8AFA",
+   "category": "wireless-networking",
+   "reason": "two options are identical in NHprep's own data"
+  }
+ ]
+}

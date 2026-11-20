@@ -1,0 +1,338 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "firewall_vpn",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Firewall and VPN Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "FIREWALL-VPN-D1",
+   "chapter_number": 1,
+   "title": "Firewall technologies and threat prevention",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FIREWALL-VPN-D1-T01",
+     "topic_number": 1,
+     "title": "Stateless and stateful firewalls",
+     "aliases": [
+      "stateful firewall",
+      "stateless firewall",
+      "packet filtering",
+      "stateful inspection",
+      "connection tracking",
+      "state table"
+     ],
+     "paraphrases": [
+      "How stateless packet filters judge each packet alone while stateful firewalls track connection state."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How stateless packet filters judge each packet alone while stateful firewalls track connection state."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D1-T02",
+     "topic_number": 2,
+     "title": "Next-generation, proxy and web application firewalls",
+     "aliases": [
+      "ngfw",
+      "next generation firewall",
+      "proxy firewall",
+      "application layer firewall",
+      "waf",
+      "web application firewall",
+      "application control"
+     ],
+     "paraphrases": [
+      "What NGFWs, proxy firewalls and WAFs add beyond stateful filtering, up to the application layer."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What NGFWs, proxy firewalls and WAFs add beyond stateful filtering, up to the application layer."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D1-T03",
+     "topic_number": 3,
+     "title": "IDS and IPS detection methods and alerts",
+     "aliases": [
+      "ids",
+      "ips",
+      "intrusion detection",
+      "intrusion prevention",
+      "signature based detection",
+      "anomaly based detection",
+      "false positive",
+      "ids vs ips"
+     ],
+     "paraphrases": [
+      "How intrusion detection and prevention systems differ, how they detect threats and what false positives are."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How intrusion detection and prevention systems differ, how they detect threats and what false positives are."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D1-T04",
+     "topic_number": 4,
+     "title": "Firewall rule management best practices",
+     "aliases": [
+      "least privilege",
+      "firewall rule review",
+      "change management",
+      "firewall policy hygiene",
+      "rule base cleanup"
+     ],
+     "paraphrases": [
+      "Good practice for firewall policy, including least privilege and change-managed rule changes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Good practice for firewall policy, including least privilege and change-managed rule changes."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "FIREWALL-VPN-D2",
+   "chapter_number": 2,
+   "title": "Security zones and DMZ design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FIREWALL-VPN-D2-T01",
+     "topic_number": 1,
+     "title": "Inside, outside and trust zones with security levels",
+     "aliases": [
+      "security zones",
+      "inside zone",
+      "outside zone",
+      "security levels",
+      "trusted and untrusted zones",
+      "asa security level",
+      "zone based firewall"
+     ],
+     "paraphrases": [
+      "How firewalls divide networks into trusted inside and untrusted outside zones and the default traffic rules between them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How firewalls divide networks into trusted inside and untrusted outside zones and the default traffic rules between them."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D2-T02",
+     "topic_number": 2,
+     "title": "DMZ architecture, traffic flows and allowed ports",
+     "aliases": [
+      "dmz",
+      "demilitarized zone",
+      "screened subnet",
+      "dual firewall dmz",
+      "dmz ports",
+      "dmz web server",
+      "perimeter network"
+     ],
+     "paraphrases": [
+      "Why a DMZ exists, single and dual firewall designs, and which flows and ports to allow to public servers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why a DMZ exists, single and dual firewall designs, and which flows and ports to allow to public servers."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "FIREWALL-VPN-D3",
+   "chapter_number": 3,
+   "title": "Access control lists and NAT",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FIREWALL-VPN-D3-T01",
+     "topic_number": 1,
+     "title": "ACL implicit deny and wildcard masks",
+     "aliases": [
+      "acl",
+      "access control list",
+      "implicit deny",
+      "wildcard mask",
+      "inverse mask",
+      "acl matching"
+     ],
+     "paraphrases": [
+      "How ACL entries match traffic with wildcard masks and what the implicit deny at the end does."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ACL entries match traffic with wildcard masks and what the implicit deny at the end does."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D3-T02",
+     "topic_number": 2,
+     "title": "Standard, extended and named ACLs and their placement",
+     "aliases": [
+      "standard acl",
+      "extended acl",
+      "named acl",
+      "ip access-list extended",
+      "acl placement",
+      "numbered acl"
+     ],
+     "paraphrases": [
+      "The differences between standard, extended and named Cisco ACLs, how to create them and where to place them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The differences between standard, extended and named Cisco ACLs, how to create them and where to place them."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D3-T03",
+     "topic_number": 3,
+     "title": "NAT purpose and types: static NAT, dynamic NAT and PAT",
+     "aliases": [
+      "nat",
+      "network address translation",
+      "static nat",
+      "dynamic nat",
+      "pat",
+      "port address translation",
+      "nat overload",
+      "ipv4 conservation"
+     ],
+     "paraphrases": [
+      "Why NAT is used and how static NAT, dynamic NAT and PAT map private addresses to public ones."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why NAT is used and how static NAT, dynamic NAT and PAT map private addresses to public ones."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D3-T04",
+     "topic_number": 4,
+     "title": "NAT address terminology and order of operations",
+     "aliases": [
+      "inside local",
+      "inside global",
+      "outside local",
+      "outside global",
+      "nat order of operations",
+      "nat terms"
+     ],
+     "paraphrases": [
+      "The inside and outside, local and global NAT address names and where translation happens relative to routing and filtering."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The inside and outside, local and global NAT address names and where translation happens relative to routing and filtering."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "FIREWALL-VPN-D4",
+   "chapter_number": 4,
+   "title": "VPN technologies",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "FIREWALL-VPN-D4-T01",
+     "topic_number": 1,
+     "title": "IPsec VPN: IKE phases, ESP and tunnel vs transport mode",
+     "aliases": [
+      "ipsec",
+      "ike",
+      "ike phase 1",
+      "ike phase 2",
+      "esp",
+      "encapsulating security payload",
+      "tunnel mode",
+      "transport mode",
+      "security association"
+     ],
+     "paraphrases": [
+      "How IPsec builds tunnels with IKE phase 1 and 2, what ESP provides and how tunnel and transport modes differ."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How IPsec builds tunnels with IKE phase 1 and 2, what ESP provides and how tunnel and transport modes differ."
+      }
+     ]
+    },
+    {
+     "topic_id": "FIREWALL-VPN-D4-T02",
+     "topic_number": 2,
+     "title": "Site-to-site vs remote access VPNs, SSL VPN and split tunneling",
+     "aliases": [
+      "ssl vpn",
+      "remote access vpn",
+      "site to site vpn",
+      "split tunneling",
+      "clientless vpn",
+      "anyconnect",
+      "tls vpn"
+     ],
+     "paraphrases": [
+      "How site-to-site and remote access VPNs differ, the advantages of SSL VPNs and what split tunneling does."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How site-to-site and remote access VPNs differ, the advantages of SSL VPNs and what split tunneling does."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

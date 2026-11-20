@@ -1,0 +1,260 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "email_dns_security",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Email and DNS Security",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "EMAIL-DNS-SECURITY-D1",
+   "chapter_number": 1,
+   "title": "Email authentication: SPF, DKIM and DMARC",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D1-T01",
+     "topic_number": 1,
+     "title": "SPF records and all mechanisms (-all, ~all)",
+     "aliases": [
+      "spf",
+      "sender policy framework",
+      "spf record",
+      "-all",
+      "~all",
+      "hard fail",
+      "soft fail",
+      "spf txt record"
+     ],
+     "paraphrases": [
+      "How an SPF TXT record lists authorized senders and how its all qualifiers decide what happens to unlisted senders."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an SPF TXT record lists authorized senders and how its all qualifiers decide what happens to unlisted senders."
+      }
+     ]
+    },
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D1-T02",
+     "topic_number": 2,
+     "title": "DKIM signatures and selectors",
+     "aliases": [
+      "dkim",
+      "domainkeys identified mail",
+      "dkim signature",
+      "dkim selector",
+      "_domainkey",
+      "dkim-signature header",
+      "email signing"
+     ],
+     "paraphrases": [
+      "How DKIM signs messages to prove integrity, where the selector public key lives in DNS, and how to find the signature header."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DKIM signs messages to prove integrity, where the selector public key lives in DNS, and how to find the signature header."
+      }
+     ]
+    },
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D1-T03",
+     "topic_number": 3,
+     "title": "DMARC policies and alignment",
+     "aliases": [
+      "dmarc",
+      "dmarc policy",
+      "p=none",
+      "p=quarantine",
+      "p=reject",
+      "dmarc alignment",
+      "identifier alignment"
+     ],
+     "paraphrases": [
+      "What the DMARC none, quarantine and reject policies do and how alignment ties SPF and DKIM results to the From domain."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the DMARC none, quarantine and reject policies do and how alignment ties SPF and DKIM results to the From domain."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "EMAIL-DNS-SECURITY-D2",
+   "chapter_number": 2,
+   "title": "Email gateway and phishing defense",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D2-T01",
+     "topic_number": 1,
+     "title": "Email gateway filtering, spam scoring and attachment sandboxing",
+     "aliases": [
+      "email gateway",
+      "secure email gateway",
+      "seg",
+      "spam filter",
+      "spam score",
+      "content filtering",
+      "attachment sandboxing",
+      "email sandbox"
+     ],
+     "paraphrases": [
+      "How an email security gateway scores spam, analyzes message content and detonates attachments in a sandbox."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an email security gateway scores spam, analyzes message content and detonates attachments in a sandbox."
+      }
+     ]
+    },
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D2-T02",
+     "topic_number": 2,
+     "title": "Phishing indicators and lookalike domains",
+     "aliases": [
+      "phishing",
+      "phishing indicators",
+      "phishing email",
+      "lookalike domain",
+      "typosquatting",
+      "homoglyph domain",
+      "urgency"
+     ],
+     "paraphrases": [
+      "Recognizing phishing emails by signs such as urgent requests and domains that imitate legitimate ones."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recognizing phishing emails by signs such as urgent requests and domains that imitate legitimate ones."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "EMAIL-DNS-SECURITY-D3",
+   "chapter_number": 3,
+   "title": "DNS security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D3-T01",
+     "topic_number": 1,
+     "title": "DNSSEC records and chain of trust (RRSIG, DS)",
+     "aliases": [
+      "dnssec",
+      "dns security extensions",
+      "rrsig",
+      "ds record",
+      "dnskey",
+      "chain of trust",
+      "dig +dnssec"
+     ],
+     "paraphrases": [
+      "How DNSSEC authenticates DNS answers with RRSIG signatures and DS records that link child zones to parents, and how to query it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DNSSEC authenticates DNS answers with RRSIG signatures and DS records that link child zones to parents, and how to query it."
+      }
+     ]
+    },
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D3-T02",
+     "topic_number": 2,
+     "title": "Encrypted DNS: DNS over HTTPS and DNS over TLS",
+     "aliases": [
+      "doh",
+      "dns over https",
+      "dot",
+      "dns over tls",
+      "encrypted dns",
+      "port 853",
+      "dns privacy"
+     ],
+     "paraphrases": [
+      "How DoH and DoT encrypt DNS queries and responses and which ports they use."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DoH and DoT encrypt DNS queries and responses and which ports they use."
+      }
+     ]
+    },
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D3-T03",
+     "topic_number": 3,
+     "title": "DNS tunneling detection",
+     "aliases": [
+      "dns tunneling",
+      "dns tunnel",
+      "dns exfiltration",
+      "dns entropy",
+      "long subdomains",
+      "dns covert channel"
+     ],
+     "paraphrases": [
+      "Spotting data hidden in DNS traffic through long subdomains and high-entropy query names."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Spotting data hidden in DNS traffic through long subdomains and high-entropy query names."
+      }
+     ]
+    },
+    {
+     "topic_id": "EMAIL-DNS-SECURITY-D3-T04",
+     "topic_number": 4,
+     "title": "DNS sinkholing of malicious domains",
+     "aliases": [
+      "dns sinkhole",
+      "sinkhole",
+      "sinkholing",
+      "dns blackhole",
+      "malicious domain blocking",
+      "dns firewall"
+     ],
+     "paraphrases": [
+      "Using a DNS sinkhole to answer queries for malicious domains with a safe address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using a DNS sinkhole to answer queries for malicious domains with a safe address."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

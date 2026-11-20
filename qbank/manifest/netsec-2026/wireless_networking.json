@@ -1,0 +1,328 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "wireless_networking",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "wireless",
+  "language": "english",
+  "title": "Wireless Networking Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "WIRELESS-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "RF fundamentals and 802.11 standards",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WIRELESS-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "RF signal quality: SNR and RSSI",
+     "aliases": [
+      "snr",
+      "signal to noise ratio",
+      "rssi",
+      "received signal strength indicator",
+      "signal strength",
+      "noise floor",
+      "signal quality",
+      "dbm"
+     ],
+     "paraphrases": [
+      "How signal strength and signal-to-noise ratio are measured and used to judge wireless signal quality."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How signal strength and signal-to-noise ratio are measured and used to judge wireless signal quality."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "Wi-Fi frequency bands, channels and DFS",
+     "aliases": [
+      "2.4 ghz",
+      "5 ghz",
+      "non-overlapping channels",
+      "channels 1 6 11",
+      "dfs",
+      "dynamic frequency selection",
+      "wifi channels",
+      "channel planning",
+      "unii bands"
+     ],
+     "paraphrases": [
+      "The 2.4 GHz and 5 GHz bands, their non-overlapping channels, and Dynamic Frequency Selection for radar avoidance."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The 2.4 GHz and 5 GHz bands, their non-overlapping channels, and Dynamic Frequency Selection for radar avoidance."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "802.11 standards and data rates (802.11n, ac, ax)",
+     "aliases": [
+      "802.11n",
+      "802.11ac",
+      "802.11ax",
+      "wi-fi 4",
+      "wi-fi 5",
+      "wi-fi 6",
+      "spatial streams",
+      "mimo",
+      "wifi data rates",
+      "wifi standards"
+     ],
+     "paraphrases": [
+      "The 802.11n, 802.11ac and 802.11ax amendments, the bands they use and their maximum theoretical data rates."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The 802.11n, 802.11ac and 802.11ax amendments, the bands they use and their maximum theoretical data rates."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "WIRELESS-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Controller-based architecture and AP operation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WIRELESS-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "Wireless LAN controllers and CAPWAP",
+     "aliases": [
+      "wlc",
+      "wireless lan controller",
+      "capwap",
+      "lightweight ap",
+      "lwapp",
+      "controller based wireless",
+      "ap join",
+      "centralized wireless"
+     ],
+     "paraphrases": [
+      "The role of a wireless LAN controller in managing access points and the CAPWAP protocol between controller and AP."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The role of a wireless LAN controller in managing access points and the CAPWAP protocol between controller and AP."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "Cisco AP modes: local, FlexConnect, monitor, sniffer",
+     "aliases": [
+      "ap modes",
+      "flexconnect",
+      "local mode",
+      "monitor mode",
+      "sniffer mode",
+      "bridge mode",
+      "local switching",
+      "access point modes"
+     ],
+     "paraphrases": [
+      "The operating modes of a Cisco access point and when to use each, such as FlexConnect local switching or monitor and sniffer capture."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The operating modes of a Cisco access point and when to use each, such as FlexConnect local switching or monitor and sniffer capture."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D2-T03",
+     "topic_number": 3,
+     "title": "WLC and AP CLI commands and verification",
+     "aliases": [
+      "show wireless client summary",
+      "show ip interface brief",
+      "wlc commands",
+      "ap cli",
+      "ap static ip",
+      "wireless show commands",
+      "9800 cli",
+      "wireless verification"
+     ],
+     "paraphrases": [
+      "Command-line configuration and show commands on wireless LAN controllers and access points."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Command-line configuration and show commands on wireless LAN controllers and access points."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "WIRELESS-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Wireless security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WIRELESS-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "WPA2 and WPA3: personal vs enterprise, PSK and SAE",
+     "aliases": [
+      "wpa2",
+      "wpa3",
+      "wpa3-sae",
+      "sae",
+      "wpa2-psk",
+      "pre-shared key",
+      "wpa2 enterprise",
+      "wpa2 personal",
+      "wifi encryption"
+     ],
+     "paraphrases": [
+      "The WPA2 and WPA3 security modes, the difference between personal and enterprise, and how SAE improves on PSK."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The WPA2 and WPA3 security modes, the difference between personal and enterprise, and how SAE improves on PSK."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "802.1X and RADIUS authentication for WLANs",
+     "aliases": [
+      "radius",
+      "802.1x",
+      "eap",
+      "aaa",
+      "wireless authentication",
+      "enterprise authentication troubleshooting",
+      "ise",
+      "dot1x"
+     ],
+     "paraphrases": [
+      "How RADIUS and 802.1X authenticate wireless clients and how to troubleshoot enterprise authentication failures."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How RADIUS and 802.1X authenticate wireless clients and how to troubleshoot enterprise authentication failures."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "WIRELESS-NETWORKING-D4",
+   "chapter_number": 4,
+   "title": "WLAN design, roaming and optimization",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WIRELESS-NETWORKING-D4-T01",
+     "topic_number": 1,
+     "title": "Site surveys and AP placement",
+     "aliases": [
+      "site survey",
+      "ap placement",
+      "client density",
+      "coverage planning",
+      "wireless design",
+      "predictive survey",
+      "rf survey"
+     ],
+     "paraphrases": [
+      "Using site surveys and client density to plan where access points go for coverage and capacity."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using site surveys and client density to plan where access points go for coverage and capacity."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D4-T02",
+     "topic_number": 2,
+     "title": "Client roaming and 802.11r fast transition",
+     "aliases": [
+      "802.11r",
+      "fast roaming",
+      "fast transition",
+      "ft",
+      "fast bss transition",
+      "wireless roaming",
+      "slow roaming",
+      "roaming latency"
+     ],
+     "paraphrases": [
+      "How clients roam between access points and how 802.11r fast transition reduces roaming delay."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How clients roam between access points and how 802.11r fast transition reduces roaming delay."
+      }
+     ]
+    },
+    {
+     "topic_id": "WIRELESS-NETWORKING-D4-T03",
+     "topic_number": 3,
+     "title": "Band steering in mixed-client WLANs",
+     "aliases": [
+      "band steering",
+      "band select",
+      "dual band clients",
+      "steer to 5 ghz",
+      "mixed 802.11n and 802.11ac",
+      "client steering"
+     ],
+     "paraphrases": [
+      "Steering dual-band clients to the 5 GHz band to optimize performance in mixed-client environments."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Steering dual-band clients to the 5 GHz band to optimize performance in mixed-client environments."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,281 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "nat_deep_dive",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "NAT Deep Dive",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NAT-DEEP-DIVE-D1",
+   "chapter_number": 1,
+   "title": "NAT concepts and packet flow",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NAT-DEEP-DIVE-D1-T01",
+     "topic_number": 1,
+     "title": "NAT address terms: inside local, inside global, outside local and outside global",
+     "aliases": [
+      "inside local",
+      "inside global",
+      "outside local",
+      "outside global",
+      "nat terminology",
+      "nat address types",
+      "nat address terms"
+     ],
+     "paraphrases": [
+      "What each of the four NAT address names means and which host and side of the router it describes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What each of the four NAT address names means and which host and side of the router it describes."
+      }
+     ]
+    },
+    {
+     "topic_id": "NAT-DEEP-DIVE-D1-T02",
+     "topic_number": 2,
+     "title": "NAT order of operations and return traffic translation",
+     "aliases": [
+      "nat order of operations",
+      "route then nat",
+      "nat then route",
+      "nat return traffic",
+      "nat packet flow",
+      "untranslation"
+     ],
+     "paraphrases": [
+      "When the router routes versus translates a packet in each direction and how replies are translated back to the inside host."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "When the router routes versus translates a packet in each direction and how replies are translated back to the inside host."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NAT-DEEP-DIVE-D2",
+   "chapter_number": 2,
+   "title": "NAT types",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NAT-DEEP-DIVE-D2-T01",
+     "topic_number": 1,
+     "title": "Static NAT one-to-one mappings",
+     "aliases": [
+      "static nat",
+      "one-to-one nat",
+      "ip nat inside source static",
+      "static translation",
+      "server nat",
+      "static mapping"
+     ],
+     "paraphrases": [
+      "Permanent one-to-one mappings for servers, their configuration and their bidirectional reachability."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Permanent one-to-one mappings for servers, their configuration and their bidirectional reachability."
+      }
+     ]
+    },
+    {
+     "topic_id": "NAT-DEEP-DIVE-D2-T02",
+     "topic_number": 2,
+     "title": "Dynamic NAT with address pools",
+     "aliases": [
+      "dynamic nat",
+      "nat pool",
+      "ip nat pool",
+      "pool exhaustion",
+      "dynamic translation",
+      "many-to-many nat"
+     ],
+     "paraphrases": [
+      "How dynamic NAT assigns addresses from a pool and what happens when the pool runs out."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How dynamic NAT assigns addresses from a pool and what happens when the pool runs out."
+      }
+     ]
+    },
+    {
+     "topic_id": "NAT-DEEP-DIVE-D2-T03",
+     "topic_number": 3,
+     "title": "PAT and NAT overload",
+     "aliases": [
+      "pat",
+      "port address translation",
+      "nat overload",
+      "overload",
+      "many-to-one nat",
+      "interface overload"
+     ],
+     "paraphrases": [
+      "Sharing one public address among many hosts using ports, including overload on the outside interface."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Sharing one public address among many hosts using ports, including overload on the outside interface."
+      }
+     ]
+    },
+    {
+     "topic_id": "NAT-DEEP-DIVE-D2-T04",
+     "topic_number": 4,
+     "title": "NAT64 translation between IPv6 and IPv4",
+     "aliases": [
+      "nat64",
+      "ipv6 to ipv4 translation",
+      "ipv4 ipv6 translation",
+      "ipv6 transition nat",
+      "stateful nat64"
+     ],
+     "paraphrases": [
+      "What NAT64 translates and when it is used to connect IPv6 and IPv4 hosts."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What NAT64 translates and when it is used to connect IPv6 and IPv4 hosts."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NAT-DEEP-DIVE-D3",
+   "chapter_number": 3,
+   "title": "NAT configuration and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NAT-DEEP-DIVE-D3-T01",
+     "topic_number": 1,
+     "title": "Selecting traffic for NAT with ACLs and ip nat inside source list",
+     "aliases": [
+      "nat acl",
+      "ip nat inside source list",
+      "nat access list",
+      "nat access-list",
+      "which hosts get translated"
+     ],
+     "paraphrases": [
+      "Using access lists to choose which inside addresses are translated and what happens without one."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using access lists to choose which inside addresses are translated and what happens without one."
+      }
+     ]
+    },
+    {
+     "topic_id": "NAT-DEEP-DIVE-D3-T02",
+     "topic_number": 2,
+     "title": "Verifying and troubleshooting NAT with show, debug and clear commands",
+     "aliases": [
+      "show ip nat translations",
+      "debug ip nat",
+      "clear ip nat translation",
+      "nat troubleshooting",
+      "nat verification",
+      "nat translation table"
+     ],
+     "paraphrases": [
+      "Checking, debugging and clearing NAT translations on a Cisco router when translations do not appear."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Checking, debugging and clearing NAT translations on a Cisco router when translations do not appear."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NAT-DEEP-DIVE-D4",
+   "chapter_number": 4,
+   "title": "NAT design considerations",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NAT-DEEP-DIVE-D4-T01",
+     "topic_number": 1,
+     "title": "NAT side effects on VPNs and packet fragmentation",
+     "aliases": [
+      "nat and vpn",
+      "nat ipsec",
+      "nat traversal",
+      "nat-t",
+      "nat fragmentation",
+      "nat mtu"
+     ],
+     "paraphrases": [
+      "How NAT interferes with encrypted VPN traffic and how it relates to MTU and fragmentation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How NAT interferes with encrypted VPN traffic and how it relates to MTU and fragmentation."
+      }
+     ]
+    },
+    {
+     "topic_id": "NAT-DEEP-DIVE-D4-T02",
+     "topic_number": 2,
+     "title": "NAT hairpinning and public address planning",
+     "aliases": [
+      "nat hairpinning",
+      "nat loopback",
+      "hairpin nat",
+      "nat reflection",
+      "public ip exhaustion",
+      "nat address planning"
+     ],
+     "paraphrases": [
+      "Reaching an inside host by its public address from inside, and planning enough public addresses for translation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reaching an inside host by its public address from inside, and planning enough public addresses for translation."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

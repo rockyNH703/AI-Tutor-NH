@@ -1,0 +1,368 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "career_certification",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "general",
+  "language": "english",
+  "title": "Networking Career and Certification Path",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CAREER-CERTIFICATION-D1",
+   "chapter_number": 1,
+   "title": "Certification roadmaps",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CAREER-CERTIFICATION-D1-T01",
+     "topic_number": 1,
+     "title": "Cisco certification roadmap: CCNA, CCNP tracks and CCIE",
+     "aliases": [
+      "cisco certification path",
+      "cisco roadmap",
+      "ccna",
+      "ccnp",
+      "ccie",
+      "ccnp enterprise",
+      "ccnp security",
+      "cisco certs",
+      "which cisco cert first"
+     ],
+     "paraphrases": [
+      "The order of Cisco certifications from CCNA to CCNP and CCIE and how the CCNP tracks differ in focus."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The order of Cisco certifications from CCNA to CCNP and CCIE and how the CCNP tracks differ in focus."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D1-T02",
+     "topic_number": 2,
+     "title": "Security certifications: Fortinet NSE and CompTIA CySA+",
+     "aliases": [
+      "fortinet nse",
+      "nse7",
+      "nse 7",
+      "comptia cysa+",
+      "cysa",
+      "cybersecurity analyst certification",
+      "security certifications",
+      "fortinet certification"
+     ],
+     "paraphrases": [
+      "What vendor and vendor-neutral security certifications such as Fortinet NSE7 and CompTIA CySA+ focus on."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What vendor and vendor-neutral security certifications such as Fortinet NSE7 and CompTIA CySA+ focus on."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D1-T03",
+     "topic_number": 3,
+     "title": "AWS cloud certification path",
+     "aliases": [
+      "aws certification",
+      "aws cloud practitioner",
+      "aws solutions architect associate",
+      "saa",
+      "aws certs",
+      "cloud certification path",
+      "aws roadmap"
+     ],
+     "paraphrases": [
+      "The usual progression of AWS certifications from Cloud Practitioner to the associate level."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The usual progression of AWS certifications from Cloud Practitioner to the associate level."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CAREER-CERTIFICATION-D2",
+   "chapter_number": 2,
+   "title": "Labs and practice tools",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CAREER-CERTIFICATION-D2-T01",
+     "topic_number": 1,
+     "title": "Network simulators and emulators: Packet Tracer, GNS3 and EVE-NG",
+     "aliases": [
+      "packet tracer",
+      "cisco packet tracer",
+      "gns3",
+      "eve-ng",
+      "eve ng",
+      "network simulator",
+      "network emulator",
+      "lab software",
+      "router images"
+     ],
+     "paraphrases": [
+      "What Packet Tracer, GNS3 and EVE-NG offer, how they compare and what they need to run devices."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What Packet Tracer, GNS3 and EVE-NG offer, how they compare and what they need to run devices."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D2-T02",
+     "topic_number": 2,
+     "title": "Building a home lab or virtual lab",
+     "aliases": [
+      "home lab",
+      "homelab",
+      "virtual lab",
+      "practice lab",
+      "used switches and routers",
+      "lab equipment",
+      "lab setup"
+     ],
+     "paraphrases": [
+      "Practical and cost-effective ways to build a physical home lab or a virtual lab for hands-on practice."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Practical and cost-effective ways to build a physical home lab or a virtual lab for hands-on practice."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CAREER-CERTIFICATION-D3",
+   "chapter_number": 3,
+   "title": "Job search and interviews",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CAREER-CERTIFICATION-D3-T01",
+     "topic_number": 1,
+     "title": "Resume optimization for ATS and quantifiable achievements",
+     "aliases": [
+      "resume",
+      "cv",
+      "ats",
+      "applicant tracking system",
+      "resume keywords",
+      "quantifiable achievements",
+      "resume tips"
+     ],
+     "paraphrases": [
+      "How to write a networking resume that passes applicant tracking systems and shows measurable results."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How to write a networking resume that passes applicant tracking systems and shows measurable results."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D3-T02",
+     "topic_number": 2,
+     "title": "Behavioral interviews and the STAR method",
+     "aliases": [
+      "behavioral interview",
+      "behavioural interview",
+      "star method",
+      "situation task action result",
+      "hr interview",
+      "interview answers"
+     ],
+     "paraphrases": [
+      "What behavioral interviews assess and how to structure answers with the STAR method."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What behavioral interviews assess and how to structure answers with the STAR method."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D3-T03",
+     "topic_number": 3,
+     "title": "Cisco show commands for technical interviews and troubleshooting",
+     "aliases": [
+      "technical interview",
+      "cisco show commands",
+      "show ip interface brief",
+      "show running-config",
+      "show ip bgp neighbors",
+      "show interfaces",
+      "troubleshooting interview",
+      "cli interview questions"
+     ],
+     "paraphrases": [
+      "Common Cisco IOS verification commands and a first-step troubleshooting approach asked in technical interviews."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Common Cisco IOS verification commands and a first-step troubleshooting approach asked in technical interviews."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D3-T04",
+     "topic_number": 4,
+     "title": "LinkedIn profile optimization for network engineers",
+     "aliases": [
+      "linkedin",
+      "linkedin profile",
+      "linkedin headline",
+      "linkedin skills",
+      "endorsements",
+      "personal branding",
+      "profile visibility"
+     ],
+     "paraphrases": [
+      "How to improve a LinkedIn headline and skills section so recruiters find and value the profile."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How to improve a LinkedIn headline and skills section so recruiters find and value the profile."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CAREER-CERTIFICATION-D4",
+   "chapter_number": 4,
+   "title": "Career growth and community",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CAREER-CERTIFICATION-D4-T01",
+     "topic_number": 1,
+     "title": "Networking career progression and specialization",
+     "aliases": [
+      "career path",
+      "career progression",
+      "noc l1",
+      "network operations center",
+      "noc engineer",
+      "specialization",
+      "career growth",
+      "job roles"
+     ],
+     "paraphrases": [
+      "How network careers typically progress from NOC roles to senior and management positions and when to specialize."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How network careers typically progress from NOC roles to senior and management positions and when to specialize."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D4-T02",
+     "topic_number": 2,
+     "title": "Network architect role and designing for scalability",
+     "aliases": [
+      "network architect",
+      "architect role",
+      "network design",
+      "scalability",
+      "network topology",
+      "scalable network design"
+     ],
+     "paraphrases": [
+      "What a network architect is responsible for and which design factors drive a scalable network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a network architect is responsible for and which design factors drive a scalable network."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D4-T03",
+     "topic_number": 3,
+     "title": "Networking communities: Reddit, Discord and forums",
+     "aliases": [
+      "networking community",
+      "r/networking",
+      "reddit networking",
+      "discord server",
+      "network collective",
+      "cisco learning network",
+      "online forums"
+     ],
+     "paraphrases": [
+      "Online communities where network engineers and certification candidates discuss topics and share knowledge."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Online communities where network engineers and certification candidates discuss topics and share knowledge."
+      }
+     ]
+    },
+    {
+     "topic_id": "CAREER-CERTIFICATION-D4-T04",
+     "topic_number": 4,
+     "title": "Contributing to open source networking projects on GitHub",
+     "aliases": [
+      "open source",
+      "github",
+      "open source contribution",
+      "open source networking tools",
+      "github portfolio",
+      "collaboration"
+     ],
+     "paraphrases": [
+      "Why contributing to open source networking tools on GitHub helps learning, collaboration and a career."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why contributing to open source networking tools on GitHub helps learning, collaboration and a career."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

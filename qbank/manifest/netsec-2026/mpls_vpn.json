@@ -1,0 +1,287 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "mpls_vpn",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "MPLS and VPN Technologies",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "MPLS-VPN-D1",
+   "chapter_number": 1,
+   "title": "MPLS fundamentals and label distribution",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "MPLS-VPN-D1-T01",
+     "topic_number": 1,
+     "title": "MPLS labels, label stack and label switched paths",
+     "aliases": [
+      "mpls label",
+      "label stack",
+      "lsp",
+      "label switched path",
+      "label switching",
+      "mpls basics",
+      "mpls header"
+     ],
+     "paraphrases": [
+      "What an MPLS label and a label stack are and how a label switched path carries packets through the network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What an MPLS label and a label stack are and how a label switched path carries packets through the network."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D1-T02",
+     "topic_number": 2,
+     "title": "MPLS label operations: push, swap and pop",
+     "aliases": [
+      "push swap pop",
+      "label push",
+      "label swap",
+      "label pop",
+      "label imposition",
+      "label disposition",
+      "lsr operations"
+     ],
+     "paraphrases": [
+      "How label switching routers add, replace and remove labels as a packet crosses the MPLS core."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How label switching routers add, replace and remove labels as a packet crosses the MPLS core."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D1-T03",
+     "topic_number": 3,
+     "title": "Penultimate hop popping (PHP)",
+     "aliases": [
+      "php",
+      "penultimate hop popping",
+      "implicit null",
+      "implicit-null label",
+      "egress pop",
+      "label 3"
+     ],
+     "paraphrases": [
+      "Why the next-to-last router removes the top label and how that simplifies work on the egress router."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why the next-to-last router removes the top label and how that simplifies work on the egress router."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D1-T04",
+     "topic_number": 4,
+     "title": "LDP label distribution and enabling MPLS on interfaces",
+     "aliases": [
+      "ldp",
+      "label distribution protocol",
+      "mpls ip",
+      "ldp configuration",
+      "label bindings",
+      "ldp neighbor",
+      "enable mpls"
+     ],
+     "paraphrases": [
+      "How LDP distributes labels between routers and how MPLS is enabled on Cisco interfaces."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How LDP distributes labels between routers and how MPLS is enabled on Cisco interfaces."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D1-T05",
+     "topic_number": 5,
+     "title": "MPLS forwarding table verification and LSP troubleshooting",
+     "aliases": [
+      "show mpls forwarding-table",
+      "lfib",
+      "mpls troubleshooting",
+      "lsp failure",
+      "missing label",
+      "mpls verification",
+      "label forwarding table"
+     ],
+     "paraphrases": [
+      "Reading the MPLS forwarding table on Cisco routers and diagnosing missing labels or LSPs that fail to come up."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reading the MPLS forwarding table on Cisco routers and diagnosing missing labels or LSPs that fail to come up."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "MPLS-VPN-D2",
+   "chapter_number": 2,
+   "title": "MPLS Layer 3 VPN",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "MPLS-VPN-D2-T01",
+     "topic_number": 1,
+     "title": "MPLS L3VPN PE router role and VRF configuration",
+     "aliases": [
+      "vrf",
+      "ip vrf",
+      "vrf definition",
+      "pe router",
+      "provider edge",
+      "ce router",
+      "l3vpn",
+      "mpls l3vpn",
+      "virtual routing and forwarding"
+     ],
+     "paraphrases": [
+      "The role of provider edge routers in an MPLS Layer 3 VPN and how VRFs are created on Cisco routers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The role of provider edge routers in an MPLS Layer 3 VPN and how VRFs are created on Cisco routers."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D2-T02",
+     "topic_number": 2,
+     "title": "Route distinguishers and route targets",
+     "aliases": [
+      "rd",
+      "rt",
+      "route distinguisher",
+      "route target",
+      "route-target export",
+      "route-target import",
+      "overlapping addresses"
+     ],
+     "paraphrases": [
+      "How the route distinguisher makes customer routes unique and how route target import and export control which VRFs receive them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the route distinguisher makes customer routes unique and how route target import and export control which VRFs receive them."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D2-T03",
+     "topic_number": 3,
+     "title": "MP-BGP and the VPNv4 address family",
+     "aliases": [
+      "mp-bgp",
+      "mpbgp",
+      "multiprotocol bgp",
+      "vpnv4",
+      "address-family vpnv4",
+      "show ip bgp vpnv4",
+      "vpn routes"
+     ],
+     "paraphrases": [
+      "How multiprotocol BGP carries VPNv4 routes between PE routers and how to view that table."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How multiprotocol BGP carries VPNv4 routes between PE routers and how to view that table."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "MPLS-VPN-D3",
+   "chapter_number": 3,
+   "title": "MPLS traffic engineering and Layer 2 VPN",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "MPLS-VPN-D3-T01",
+     "topic_number": 1,
+     "title": "MPLS traffic engineering, RSVP-TE and backup LSPs",
+     "aliases": [
+      "mpls te",
+      "traffic engineering",
+      "rsvp-te",
+      "rsvp",
+      "te tunnel",
+      "backup lsp",
+      "fast reroute",
+      "frr",
+      "lsp redundancy"
+     ],
+     "paraphrases": [
+      "Why MPLS traffic engineering is used, what RSVP-TE does and costs, and how backup LSPs give redundancy."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why MPLS traffic engineering is used, what RSVP-TE does and costs, and how backup LSPs give redundancy."
+      }
+     ]
+    },
+    {
+     "topic_id": "MPLS-VPN-D3-T02",
+     "topic_number": 2,
+     "title": "VPLS and pseudowires",
+     "aliases": [
+      "vpls",
+      "virtual private lan service",
+      "pseudowire",
+      "l2vpn",
+      "layer 2 vpn",
+      "mac learning vpls",
+      "ethernet over mpls"
+     ],
+     "paraphrases": [
+      "How VPLS emulates an Ethernet LAN over MPLS using pseudowires and how PEs learn MAC addresses."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How VPLS emulates an Ethernet LAN over MPLS using pseudowires and how PEs learn MAC addresses."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

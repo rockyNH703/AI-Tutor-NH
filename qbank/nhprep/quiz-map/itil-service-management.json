@@ -1,0 +1,151 @@
+{
+ "category": "itil-service-management",
+ "book_id": "itil_service_management",
+ "questions": {
+  "7bfd3d87-fa5f-4d43-87e6-249f61ce8d16": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c1f586d8-e9d5-48ec-87d0-24456d45475b": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e33a80b3-c3da-4626-b6f0-9dd43293c673": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fcd623fb-b4d0-49e0-914a-7c6fb411a9d4": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3c633f8d-7303-4578-8d1c-a327c8928c31": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "c0b7a7c4-e62d-45e4-b966-1b2c535d6fa5": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "fe36b996-8593-441f-a583-493e7b54441d": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3a324290-df27-494b-94fd-1be18f98c1f6": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c89ba1e0-7788-48f7-8c24-16fe565ecaac": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a93b09be-4612-43f0-815d-779d4ceccd28": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ef5febd5-a135-4ad7-9296-193b44c75d79": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6b35517c-f28b-4da3-8191-cea18fc85489": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ace6861d-e3ce-446f-876e-8de0af4ae5d2": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "571f3aff-4692-48de-ad02-62f24d48ef1e": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9a09c4db-c858-4fb9-b368-fb6d1fa4f914": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ff1701df-d82c-4d3e-b5bc-4e5e55903a76": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "906ff9dc-34ff-4266-a04b-1bc5eaa3f3bc": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "45d4919e-2ba5-4f62-a07c-887754937a3c": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "7dfa8c09-9e35-4032-8660-131ff8ca8233": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4fb0f6d5-cc24-4454-9ab1-a71dae5a70f8": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d0108397-a85a-4349-a5e5-ba67879c4a3d": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "eaa0b1ca-fc78-4986-97cd-2a9f3a136896": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "fd08f887-13e7-486e-b9ba-f1b9418a100c": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D4-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f2ff00be-5d35-4e32-aa76-dae129e286c6": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "929baf6a-3188-4ae7-8579-4c34501ba938": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c258bff4-1475-41f1-99c9-d4ae811f6121": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "caa81e64-a9a3-40e2-b7ed-78a6043c3678": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7767448d-944e-4322-953b-7d70a27942cf": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T02",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "6b32d0c3-1758-42e8-963c-660175939809": {
+   "topic_id": "ITIL-SERVICE-MANAGEMENT-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

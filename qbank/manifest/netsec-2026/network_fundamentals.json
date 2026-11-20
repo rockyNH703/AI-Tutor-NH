@@ -1,0 +1,391 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "network_fundamentals",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Network Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NETWORK-FUNDAMENTALS-D1",
+   "chapter_number": 1,
+   "title": "Network models, media and devices",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D1-T01",
+     "topic_number": 1,
+     "title": "OSI and TCP/IP models and layer functions",
+     "aliases": [
+      "osi model",
+      "tcp/ip model",
+      "osi layers",
+      "seven layers",
+      "open systems interconnection",
+      "network layers",
+      "transport layer",
+      "session layer",
+      "data link layer",
+      "layer functions"
+     ],
+     "paraphrases": [
+      "The seven OSI layers, the four TCP/IP layers, how they map to each other and what each layer is responsible for."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The seven OSI layers, the four TCP/IP layers, how they map to each other and what each layer is responsible for."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D1-T02",
+     "topic_number": 2,
+     "title": "Encapsulation and protocol data units",
+     "aliases": [
+      "encapsulation",
+      "decapsulation",
+      "pdu",
+      "protocol data unit",
+      "segment packet frame bit",
+      "headers and trailers"
+     ],
+     "paraphrases": [
+      "How data gains headers as it moves down the stack and what the PDU is called at each layer."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How data gains headers as it moves down the stack and what the PDU is called at each layer."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D1-T03",
+     "topic_number": 3,
+     "title": "Copper and fiber cabling standards",
+     "aliases": [
+      "cabling",
+      "utp",
+      "cat5e",
+      "cat6",
+      "cat6a",
+      "fiber optic",
+      "twisted pair",
+      "cable length",
+      "100 meter limit",
+      "physical media"
+     ],
+     "paraphrases": [
+      "Copper UTP categories, their speeds and distance limits, and the properties of fiber optic cable."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Copper UTP categories, their speeds and distance limits, and the properties of fiber optic cable."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D1-T04",
+     "topic_number": 4,
+     "title": "Switches, routers and hubs by OSI layer",
+     "aliases": [
+      "switch",
+      "router",
+      "hub",
+      "layer 2 device",
+      "network devices",
+      "mac address forwarding",
+      "switching basics"
+     ],
+     "paraphrases": [
+      "Which layer common network devices work at and how a switch forwards frames by MAC address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Which layer common network devices work at and how a switch forwards frames by MAC address."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D1-T05",
+     "topic_number": 5,
+     "title": "Media access control: CSMA/CD and CSMA/CA",
+     "aliases": [
+      "csma/cd",
+      "csma/ca",
+      "collision detection",
+      "collision avoidance",
+      "shared medium",
+      "media access",
+      "collisions"
+     ],
+     "paraphrases": [
+      "How Ethernet and Wi-Fi share a medium using carrier sense with collision detection or collision avoidance."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Ethernet and Wi-Fi share a medium using carrier sense with collision detection or collision avoidance."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D1-T06",
+     "topic_number": 6,
+     "title": "Wi-Fi 802.11 standards and WPA2/WPA3 security",
+     "aliases": [
+      "wifi",
+      "wi-fi",
+      "802.11",
+      "802.11ac",
+      "802.11n",
+      "wireless standards",
+      "wpa2",
+      "wpa3",
+      "wireless security"
+     ],
+     "paraphrases": [
+      "The 802.11 wireless standards with their bands and speeds, and what WPA3 improves over WPA2."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The 802.11 wireless standards with their bands and speeds, and what WPA3 improves over WPA2."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-FUNDAMENTALS-D2",
+   "chapter_number": 2,
+   "title": "IPv4 addressing and routing",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D2-T01",
+     "topic_number": 1,
+     "title": "IPv4 address classes and default masks",
+     "aliases": [
+      "ip address classes",
+      "class a",
+      "class b",
+      "class c",
+      "classful addressing",
+      "default subnet mask",
+      "ipv4 classes"
+     ],
+     "paraphrases": [
+      "Identifying the class of an IPv4 address and the default subnet mask that goes with each class."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Identifying the class of an IPv4 address and the default subnet mask that goes with each class."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D2-T02",
+     "topic_number": 2,
+     "title": "Subnetting, CIDR notation and binary math",
+     "aliases": [
+      "subnetting",
+      "cidr",
+      "subnet mask",
+      "usable hosts",
+      "broadcast address",
+      "host range",
+      "number of subnets",
+      "binary conversion",
+      "prefix length",
+      "vlsm"
+     ],
+     "paraphrases": [
+      "Converting between masks and prefixes, counting subnets and hosts, finding host ranges and broadcast addresses, and decimal to binary conversion."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Converting between masks and prefixes, counting subnets and hosts, finding host ranges and broadcast addresses, and decimal to binary conversion."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D2-T03",
+     "topic_number": 3,
+     "title": "Default gateway, static vs dynamic routing and the routing table",
+     "aliases": [
+      "default gateway",
+      "static routing",
+      "dynamic routing",
+      "routing table",
+      "show ip route",
+      "ip routing basics",
+      "routes"
+     ],
+     "paraphrases": [
+      "What a default gateway does, how static routing differs from dynamic routing, and how to view a Cisco routing table."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a default gateway does, how static routing differs from dynamic routing, and how to view a Cisco routing table."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-FUNDAMENTALS-D3",
+   "chapter_number": 3,
+   "title": "Transport and network services",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D3-T01",
+     "topic_number": 1,
+     "title": "TCP and UDP: handshake, windowing and reliability",
+     "aliases": [
+      "tcp",
+      "udp",
+      "tcp vs udp",
+      "three-way handshake",
+      "3-way handshake",
+      "syn ack",
+      "tcp window size",
+      "flow control",
+      "connection-oriented"
+     ],
+     "paraphrases": [
+      "How TCP sets up connections and controls flow, and how it differs from connectionless UDP."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How TCP sets up connections and controls flow, and how it differs from connectionless UDP."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D3-T02",
+     "topic_number": 2,
+     "title": "Well-known port numbers",
+     "aliases": [
+      "port numbers",
+      "well-known ports",
+      "tcp ports",
+      "udp ports",
+      "http port 80",
+      "dns port 53",
+      "ntp port 123"
+     ],
+     "paraphrases": [
+      "The standard port numbers used by common application protocols such as HTTP, DNS and NTP."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The standard port numbers used by common application protocols such as HTTP, DNS and NTP."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D3-T03",
+     "topic_number": 3,
+     "title": "DNS records, queries and nslookup",
+     "aliases": [
+      "dns",
+      "domain name system",
+      "a record",
+      "dns records",
+      "recursive query",
+      "iterative query",
+      "nslookup",
+      "name resolution"
+     ],
+     "paraphrases": [
+      "How DNS resolves names, the difference between recursive and iterative queries, record types and the nslookup tool."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DNS resolves names, the difference between recursive and iterative queries, record types and the nslookup tool."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D3-T04",
+     "topic_number": 4,
+     "title": "DHCP DORA process and relay agents",
+     "aliases": [
+      "dhcp",
+      "dora",
+      "discover offer request acknowledge",
+      "dhcp relay",
+      "ip helper-address",
+      "dynamic ip assignment"
+     ],
+     "paraphrases": [
+      "How a client gets an address through Discover, Offer, Request and Acknowledge, and how a relay agent forwards DHCP across subnets."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a client gets an address through Discover, Offer, Request and Acknowledge, and how a relay agent forwards DHCP across subnets."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-FUNDAMENTALS-D3-T05",
+     "topic_number": 5,
+     "title": "SNMP versions and security",
+     "aliases": [
+      "snmp",
+      "snmpv3",
+      "snmp v2c",
+      "simple network management protocol",
+      "network monitoring",
+      "snmp versions"
+     ],
+     "paraphrases": [
+      "The SNMP versions and which one adds authentication and encryption."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The SNMP versions and which one adds authentication and encryption."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

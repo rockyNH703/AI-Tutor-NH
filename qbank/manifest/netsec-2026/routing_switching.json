@@ -1,0 +1,441 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "routing_switching",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Routing and Switching Essentials",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "ROUTING-SWITCHING-D1",
+   "chapter_number": 1,
+   "title": "LAN switching",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ROUTING-SWITCHING-D1-T01",
+     "topic_number": 1,
+     "title": "VLANs, 802.1Q trunking, native VLAN and VTP",
+     "aliases": [
+      "vlan",
+      "vlans",
+      "trunk",
+      "trunking",
+      "802.1q",
+      "dot1q",
+      "native vlan",
+      "vtp",
+      "vlan trunking protocol",
+      "switchport mode trunk",
+      "vlan range"
+     ],
+     "paraphrases": [
+      "Creating VLANs, their numbering ranges, configuring 802.1Q trunk ports, the untagged native VLAN and VTP for sharing VLANs between switches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating VLANs, their numbering ranges, configuring 802.1Q trunk ports, the untagged native VLAN and VTP for sharing VLANs between switches."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D1-T02",
+     "topic_number": 2,
+     "title": "Spanning Tree and RSTP root bridge and port states",
+     "aliases": [
+      "stp",
+      "spanning tree",
+      "spanning tree protocol",
+      "rstp",
+      "rapid spanning tree",
+      "802.1d",
+      "802.1w",
+      "root bridge",
+      "port states",
+      "discarding state"
+     ],
+     "paraphrases": [
+      "How STP and RSTP elect a root bridge and move ports through blocking, discarding, learning and forwarding states to keep a loop-free topology."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How STP and RSTP elect a root bridge and move ports through blocking, discarding, learning and forwarding states to keep a loop-free topology."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D1-T03",
+     "topic_number": 3,
+     "title": "PortFast and BPDU Guard on access ports",
+     "aliases": [
+      "portfast",
+      "port fast",
+      "bpdu guard",
+      "bpduguard",
+      "err-disabled",
+      "errdisable",
+      "edge port",
+      "stp protection"
+     ],
+     "paraphrases": [
+      "Using PortFast to bring access ports straight to forwarding and BPDU Guard to shut down a port that unexpectedly receives BPDUs."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using PortFast to bring access ports straight to forwarding and BPDU Guard to shut down a port that unexpectedly receives BPDUs."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D1-T04",
+     "topic_number": 4,
+     "title": "EtherChannel and LACP link aggregation",
+     "aliases": [
+      "etherchannel",
+      "ether channel",
+      "lacp",
+      "pagp",
+      "port-channel",
+      "port channel",
+      "link aggregation",
+      "channel-group",
+      "802.3ad"
+     ],
+     "paraphrases": [
+      "Bundling parallel links into one logical port-channel with LACP or PAgP, its configuration commands and the limit on active member links."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Bundling parallel links into one logical port-channel with LACP or PAgP, its configuration commands and the limit on active member links."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D1-T05",
+     "topic_number": 5,
+     "title": "Inter-VLAN routing with router-on-a-stick and SVIs",
+     "aliases": [
+      "inter-vlan routing",
+      "intervlan routing",
+      "router on a stick",
+      "router-on-a-stick",
+      "roas",
+      "svi",
+      "switched virtual interface",
+      "subinterface",
+      "layer 3 switch routing"
+     ],
+     "paraphrases": [
+      "Routing traffic between VLANs using 802.1Q subinterfaces on a router or switched virtual interfaces on a Layer 3 switch."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Routing traffic between VLANs using 802.1Q subinterfaces on a router or switched virtual interfaces on a Layer 3 switch."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ROUTING-SWITCHING-D2",
+   "chapter_number": 2,
+   "title": "IP routing fundamentals",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ROUTING-SWITCHING-D2-T01",
+     "topic_number": 1,
+     "title": "Static routes, floating static routes and administrative distance",
+     "aliases": [
+      "static route",
+      "static routing",
+      "ip route",
+      "floating static route",
+      "administrative distance",
+      "ad",
+      "backup route",
+      "default route"
+     ],
+     "paraphrases": [
+      "Configuring static routes with ip route, backup floating static routes, and how administrative distance ranks route sources."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configuring static routes with ip route, backup floating static routes, and how administrative distance ranks route sources."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D2-T02",
+     "topic_number": 2,
+     "title": "Route redistribution and seed metrics",
+     "aliases": [
+      "redistribution",
+      "route redistribution",
+      "redistribute",
+      "seed metric",
+      "default metric",
+      "mutual redistribution",
+      "external routes"
+     ],
+     "paraphrases": [
+      "Exchanging routes between routing protocols with redistribution and the seed metric given to routes imported into a protocol."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Exchanging routes between routing protocols with redistribution and the seed metric given to routes imported into a protocol."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ROUTING-SWITCHING-D3",
+   "chapter_number": 3,
+   "title": "OSPF and EIGRP",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ROUTING-SWITCHING-D3-T01",
+     "topic_number": 1,
+     "title": "OSPF areas, backbone area 0, stub areas and LSA types",
+     "aliases": [
+      "ospf areas",
+      "area 0",
+      "backbone area",
+      "stub area",
+      "totally stubby",
+      "lsa",
+      "lsa types",
+      "type 3 lsa",
+      "summary lsa",
+      "multi-area ospf"
+     ],
+     "paraphrases": [
+      "Multi-area OSPF design with the backbone area, stub area behaviour and which LSA types carry intra-area, summary and external routes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Multi-area OSPF design with the backbone area, stub area behaviour and which LSA types carry intra-area, summary and external routes."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D3-T02",
+     "topic_number": 2,
+     "title": "OSPF neighbor states, adjacency and DR/BDR election",
+     "aliases": [
+      "ospf neighbor states",
+      "ospf adjacency",
+      "2-way",
+      "exstart",
+      "exchange state",
+      "full state",
+      "dr",
+      "bdr",
+      "designated router",
+      "dr election"
+     ],
+     "paraphrases": [
+      "The OSPF neighbor state machine from Down to Full and how the designated router reduces adjacencies on broadcast segments."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The OSPF neighbor state machine from Down to Full and how the designated router reduces adjacencies on broadcast segments."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D3-T03",
+     "topic_number": 3,
+     "title": "OSPF configuration and cost metric",
+     "aliases": [
+      "ospf configuration",
+      "router ospf",
+      "ospf network command",
+      "ospf cost",
+      "ospf metric",
+      "reference bandwidth",
+      "auto-cost",
+      "enable ospf"
+     ],
+     "paraphrases": [
+      "Enabling OSPF on interfaces with network statements and how OSPF cost is derived from reference bandwidth divided by interface bandwidth."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Enabling OSPF on interfaces with network statements and how OSPF cost is derived from reference bandwidth divided by interface bandwidth."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D3-T04",
+     "topic_number": 4,
+     "title": "EIGRP metric, variance load balancing and named mode",
+     "aliases": [
+      "eigrp metric",
+      "composite metric",
+      "k values",
+      "bandwidth and delay",
+      "variance",
+      "unequal cost load balancing",
+      "eigrp named mode",
+      "named eigrp",
+      "classic eigrp"
+     ],
+     "paraphrases": [
+      "How EIGRP computes its composite metric from bandwidth and delay, unequal-cost load balancing with variance, and classic versus named mode configuration."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How EIGRP computes its composite metric from bandwidth and delay, unequal-cost load balancing with variance, and classic versus named mode configuration."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D3-T05",
+     "topic_number": 5,
+     "title": "EIGRP DUAL, successors and feasible successors",
+     "aliases": [
+      "eigrp dual",
+      "dual",
+      "diffusing update algorithm",
+      "successor",
+      "feasible successor",
+      "feasibility condition",
+      "feasible distance",
+      "reported distance",
+      "fd",
+      "rd"
+     ],
+     "paraphrases": [
+      "How the DUAL algorithm picks the successor and loop-free backup feasible successors using the feasibility condition on reported and feasible distance."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the DUAL algorithm picks the successor and loop-free backup feasible successors using the feasibility condition on reported and feasible distance."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "ROUTING-SWITCHING-D4",
+   "chapter_number": 4,
+   "title": "BGP",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "ROUTING-SWITCHING-D4-T01",
+     "topic_number": 1,
+     "title": "BGP peering: eBGP vs iBGP, session states and next-hop-self",
+     "aliases": [
+      "bgp",
+      "ebgp",
+      "ibgp",
+      "bgp neighbor",
+      "bgp peering",
+      "bgp states",
+      "established state",
+      "next-hop-self",
+      "bgp next hop",
+      "border gateway protocol"
+     ],
+     "paraphrases": [
+      "Forming eBGP and iBGP peerings, the BGP finite state machine up to Established, and fixing iBGP next hops with next-hop-self."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Forming eBGP and iBGP peerings, the BGP finite state machine up to Established, and fixing iBGP next hops with next-hop-self."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D4-T02",
+     "topic_number": 2,
+     "title": "BGP best path selection and attributes",
+     "aliases": [
+      "bgp path selection",
+      "bgp best path",
+      "bgp attributes",
+      "weight",
+      "local preference",
+      "as path",
+      "as-path length",
+      "med",
+      "origin"
+     ],
+     "paraphrases": [
+      "The order in which BGP compares attributes such as weight, local preference, AS path, origin and MED to choose a best path."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The order in which BGP compares attributes such as weight, local preference, AS path, origin and MED to choose a best path."
+      }
+     ]
+    },
+    {
+     "topic_id": "ROUTING-SWITCHING-D4-T03",
+     "topic_number": 3,
+     "title": "BGP route reflectors and iBGP full-mesh scaling",
+     "aliases": [
+      "route reflector",
+      "bgp route reflector",
+      "route-reflector-client",
+      "rr client",
+      "ibgp full mesh",
+      "ibgp scaling"
+     ],
+     "paraphrases": [
+      "Using route reflectors and their clients to avoid the iBGP full-mesh requirement and how they are configured."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using route reflectors and their clients to avoid the iBGP full-mesh requirement and how they are configured."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

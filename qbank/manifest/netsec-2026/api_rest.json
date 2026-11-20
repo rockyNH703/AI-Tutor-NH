@@ -1,0 +1,293 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "api_rest",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "API and REST Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "API-REST-D1",
+   "chapter_number": 1,
+   "title": "HTTP methods, status codes and data formats",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "API-REST-D1-T01",
+     "topic_number": 1,
+     "title": "HTTP methods and idempotency (GET, POST, PUT, PATCH, DELETE)",
+     "aliases": [
+      "http methods",
+      "http verbs",
+      "get post put patch",
+      "put vs patch",
+      "idempotent methods",
+      "idempotency",
+      "crud operations",
+      "partial update"
+     ],
+     "paraphrases": [
+      "Which HTTP method creates, reads, replaces or partially updates a resource, and which methods are idempotent."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Which HTTP method creates, reads, replaces or partially updates a resource, and which methods are idempotent."
+      }
+     ]
+    },
+    {
+     "topic_id": "API-REST-D1-T02",
+     "topic_number": 2,
+     "title": "HTTP status codes (2xx, 4xx, 5xx)",
+     "aliases": [
+      "status codes",
+      "http response codes",
+      "201 created",
+      "403 forbidden",
+      "404 not found",
+      "500 internal server error",
+      "4xx errors",
+      "5xx errors"
+     ],
+     "paraphrases": [
+      "What common HTTP response codes such as 201, 403, 404 and 500 mean for an API client."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What common HTTP response codes such as 201, 403, 404 and 500 mean for an API client."
+      }
+     ]
+    },
+    {
+     "topic_id": "API-REST-D1-T03",
+     "topic_number": 3,
+     "title": "JSON data types and the Content-Type header",
+     "aliases": [
+      "json",
+      "json syntax",
+      "json arrays",
+      "json boolean",
+      "json data types",
+      "content-type header",
+      "media type",
+      "application/json"
+     ],
+     "paraphrases": [
+      "How JSON represents arrays, booleans and other values, and how the Content-Type header declares the format of a request body."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How JSON represents arrays, booleans and other values, and how the Content-Type header declares the format of a request body."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "API-REST-D2",
+   "chapter_number": 2,
+   "title": "REST API design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "API-REST-D2-T01",
+     "topic_number": 1,
+     "title": "REST constraints: statelessness and uniform interface",
+     "aliases": [
+      "rest",
+      "restful api",
+      "rest constraints",
+      "rest principles",
+      "stateless api",
+      "statelessness",
+      "uniform interface",
+      "representational state transfer"
+     ],
+     "paraphrases": [
+      "The architectural constraints that make an API RESTful, especially stateless requests and a uniform interface to resources."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The architectural constraints that make an API RESTful, especially stateless requests and a uniform interface to resources."
+      }
+     ]
+    },
+    {
+     "topic_id": "API-REST-D2-T02",
+     "topic_number": 2,
+     "title": "API pagination (limit, offset, cursor and Link header)",
+     "aliases": [
+      "pagination",
+      "paging",
+      "cursor pagination",
+      "offset pagination",
+      "limit parameter",
+      "link header",
+      "next page url"
+     ],
+     "paraphrases": [
+      "How APIs split large result sets into pages using limit, offset or cursors and point to the next and previous pages."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How APIs split large result sets into pages using limit, offset or cursors and point to the next and previous pages."
+      }
+     ]
+    },
+    {
+     "topic_id": "API-REST-D2-T03",
+     "topic_number": 3,
+     "title": "API rate limiting, 429 and Retry-After",
+     "aliases": [
+      "rate limiting",
+      "throttling",
+      "429 too many requests",
+      "retry-after",
+      "token bucket",
+      "api quotas",
+      "request limits"
+     ],
+     "paraphrases": [
+      "How APIs limit request rates with algorithms like token bucket and tell clients when to retry after a 429 response."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How APIs limit request rates with algorithms like token bucket and tell clients when to retry after a 429 response."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "API-REST-D3",
+   "chapter_number": 3,
+   "title": "API authentication and authorization",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "API-REST-D3-T01",
+     "topic_number": 1,
+     "title": "API authentication methods: Basic Auth, API keys and bearer tokens",
+     "aliases": [
+      "api authentication",
+      "basic auth",
+      "basic authentication",
+      "base64 credentials",
+      "api key",
+      "api key header",
+      "bearer token",
+      "authorization header"
+     ],
+     "paraphrases": [
+      "How clients prove identity to an API with Basic Auth, API keys sent in headers, or bearer tokens."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How clients prove identity to an API with Basic Auth, API keys sent in headers, or bearer tokens."
+      }
+     ]
+    },
+    {
+     "topic_id": "API-REST-D3-T02",
+     "topic_number": 2,
+     "title": "OAuth 2.0 delegated authorization",
+     "aliases": [
+      "oauth",
+      "oauth 2.0",
+      "oauth2",
+      "delegated authorization",
+      "third-party access",
+      "access token"
+     ],
+     "paraphrases": [
+      "What OAuth 2.0 is for: letting third-party applications access user data without sharing the user's credentials."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What OAuth 2.0 is for: letting third-party applications access user data without sharing the user's credentials."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "API-REST-D4",
+   "chapter_number": 4,
+   "title": "API tools: curl and Postman",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "API-REST-D4-T01",
+     "topic_number": 1,
+     "title": "Sending API requests with curl",
+     "aliases": [
+      "curl",
+      "curl options",
+      "curl -d",
+      "curl post",
+      "curl headers",
+      "command line http"
+     ],
+     "paraphrases": [
+      "Using curl options to send request bodies, headers and methods when calling an API from the command line."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using curl options to send request bodies, headers and methods when calling an API from the command line."
+      }
+     ]
+    },
+    {
+     "topic_id": "API-REST-D4-T02",
+     "topic_number": 2,
+     "title": "Postman environments and variables",
+     "aliases": [
+      "postman",
+      "postman environments",
+      "postman variables",
+      "postman collections",
+      "api testing tool"
+     ],
+     "paraphrases": [
+      "Using Postman environments to switch between sets of variables when testing APIs in different contexts."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using Postman environments to switch between sets of variables when testing APIs in different contexts."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

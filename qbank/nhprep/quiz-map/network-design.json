@@ -1,0 +1,193 @@
+{
+ "category": "network-design",
+ "book_id": "network_design",
+ "questions": {
+  "0d5519a3-6aee-4dfe-b81c-03992f8ebfe9": {
+   "topic_id": "NETWORK-DESIGN-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "88ec774e-5ab7-493c-a91e-89a2c855b557": {
+   "topic_id": "NETWORK-DESIGN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "235fdc3a-9de0-4c67-a791-2fed8c02ece0": {
+   "topic_id": "NETWORK-DESIGN-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4fa5d5a9-b376-4757-8db7-d54986b2521b": {
+   "topic_id": "NETWORK-DESIGN-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c75d2125-66fa-492a-abd4-1a250806bfd5": {
+   "topic_id": "NETWORK-DESIGN-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ec2125ee-3d42-4bd9-a88e-ecce424d41d3": {
+   "topic_id": "NETWORK-DESIGN-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "15584514-afb6-40ab-a4b8-a80aee627c0f": {
+   "topic_id": "NETWORK-DESIGN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8c9b3ec4-7c5a-4a7a-af16-572101b63159": {
+   "topic_id": "NETWORK-DESIGN-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c4c0063b-3651-4dcb-af63-8369029907df": {
+   "topic_id": "NETWORK-DESIGN-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "6358659d-6276-40bd-948f-89de7628b34d": {
+   "topic_id": "NETWORK-DESIGN-D3-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "aef76b57-57f5-4589-83cd-3fd5c321ef73": {
+   "topic_id": "NETWORK-DESIGN-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ad187748-22b5-468b-a992-f71725f51849": {
+   "topic_id": "NETWORK-DESIGN-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "76ba068f-dad1-4dae-aef9-e580d9651b9e": {
+   "topic_id": "NETWORK-DESIGN-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e694da46-2fa8-484e-abc3-80fb3cac2ca3": {
+   "topic_id": "NETWORK-DESIGN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0b00460c-406d-45a8-9e01-d1d8901ed734": {
+   "topic_id": "NETWORK-DESIGN-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "ede437f5-46f7-4ee4-ad8b-89381e2dd386": {
+   "topic_id": "NETWORK-DESIGN-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "671b746a-c655-43f8-9492-4ea6906bcc31": {
+   "topic_id": "NETWORK-DESIGN-D1-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): A and B state the same distinguishing fact from opposite sides; both are correct.; A and B state the same true distinction from opposite sides, so both are equally defensible."
+  },
+  "bab74d9a-4454-4940-aa17-8986cd6b90bc": {
+   "topic_id": "NETWORK-DESIGN-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cfb9557d-4314-45ae-af5f-21ac89106fb3": {
+   "topic_id": "NETWORK-DESIGN-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cbea36cf-624b-44bc-b2a6-13969421bf5d": {
+   "topic_id": "NETWORK-DESIGN-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6f31e83c-0a07-4be7-a62d-b1a70dc5f457": {
+   "topic_id": "NETWORK-DESIGN-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "f96d9672-d7aa-4d1c-b9fc-6aa76efe9282": {
+   "topic_id": "NETWORK-DESIGN-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): OSPF, EIGRP, BGP and RIP all do ECMP; nothing makes OSPF uniquely correct.; OSPF, EIGRP, BGP (maximum-paths) and RIP all do ECMP; OSPF is not uniquely correct."
+  },
+  "201a1a5e-1111-4e24-b427-379c3d4a7c2f": {
+   "topic_id": "NETWORK-DESIGN-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "40f51602-7a26-4819-bb64-d6eb64f01161": {
+   "topic_id": "NETWORK-DESIGN-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d5ede274-6770-4284-aafb-50e86289660f": {
+   "topic_id": "NETWORK-DESIGN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "175e7161-7ed8-4e7d-a7d6-73241d8b828b": {
+   "topic_id": "NETWORK-DESIGN-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "0342eb82-8fae-4bee-9862-ec2cb3b96a71": {
+   "topic_id": "NETWORK-DESIGN-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "137c6e3f-6b54-4921-bfdf-8fb3c57b9bb9": {
+   "topic_id": "NETWORK-DESIGN-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "96b616ea-fda1-4ce2-966b-f101443ee237": {
+   "topic_id": "NETWORK-DESIGN-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d2771012-b2e4-4626-b7d1-34f5987e8176": {
+   "topic_id": "NETWORK-DESIGN-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7990ba46-756f-4b60-abfb-b573a17b6f2f": {
+   "topic_id": "NETWORK-DESIGN-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "23a05e48-1133-47cc-8c49-49817dbf7c45": {
+   "topic_id": "NETWORK-DESIGN-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "650da622-eb54-4fd1-9682-ffe8353275d1": {
+   "topic_id": "NETWORK-DESIGN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c678f6c3-199b-4973-9fb7-213c30916f07": {
+   "topic_id": "NETWORK-DESIGN-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "11e10c5a-c2cc-4524-b2d7-9c1702be2f29": {
+   "topic_id": "NETWORK-DESIGN-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "bad378d1-fc29-468b-980e-e70c44440597": {
+   "topic_id": "NETWORK-DESIGN-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b2dcb5c1-815d-4317-9a2e-f26520f5e3c5": {
+   "topic_id": "NETWORK-DESIGN-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  }
+ }
+}

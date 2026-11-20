@@ -1,0 +1,203 @@
+{
+ "category": "ai-fundamentals",
+ "book_id": "ai_fundamentals",
+ "questions": {
+  "25b62015-e72b-42c5-9aea-be09726e7f82": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b9f227e2-f0bb-4f26-9d72-a119741f12da": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "711894f8-e670-4b73-bcfe-a34ab7094ff1": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "117d1679-dca6-43ae-ab4a-1683a420a1e9": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "54612915-8638-4502-b18a-114221cdbba2": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8ccdb78d-07fd-4902-bb51-20556577ef56": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9a60c1f5-70c9-4a2d-94ba-5b81837b69f2": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "463f0807-9267-46c7-b4bb-75921a0e8bf9": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25e2790a-7cf6-4805-9849-61716602772a": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "29f9981e-0aa0-4b03-a34a-674800b9a259": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "bed7bd05-ee11-41ef-94b6-bfc806396574": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "1ce7aaec-c5eb-49cf-b12c-f0408b09b313": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8d82d2d7-6c5a-41fa-9dc0-618991987b66": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "12976dd8-172c-4eea-95c7-88e44ac2a771": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e0e491ef-fd65-4f22-bbf6-501f1bc9d783": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "2a3c5cdf-872c-4e0a-b79a-49355dfeecd1": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "109f49c3-f86a-4e27-9089-f3911d6eb521": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7c22ebfc-9fb3-4901-914c-1dcc848ac8b0": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0845076d-7d40-4215-a0de-d2c806bcf716": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "90b62e56-c1ee-4354-9657-086014df3327": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T02",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Failure prediction is commonly classification; regression fits only an unstated time-to-failure framing.; Failure prediction is commonly framed as classification (fail within window); regression fits only time-to-failure, which the s"
+  },
+  "cccc746d-4aaf-482a-93ce-1c01b77cd8df": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a621359d-f4f7-46a5-8145-5f2ecb81e2ba": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "6e9142ac-b152-420c-bf98-05266a0a6546": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): WordPiece is also a subword tokenizer that handles OOV words, so A and B both fit.; WordPiece is also a subword tokenizer that handles OOV words, so A and B are equally correct."
+  },
+  "9ea29fc1-9de8-4958-8126-0cefa0342523": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T04",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "dbd3b797-c510-4625-9433-46fa873027df": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "c2067b59-dc4a-4eb8-aeff-c7ab1094f614": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "e89293da-26a2-4e17-8834-8e318f658eaa": {
+   "topic_id": "AI-FUNDAMENTALS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4574f6e2-bfc4-4c87-a31c-a24b5c81d017": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1d05ef19-7009-4756-a9a5-466faa3c20e9": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "18d3436a-ff29-44dd-9d42-25d239eec1cc": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "99334841-44dd-4288-afd2-c9bb6d67778b": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "82eb3cae-f274-4e8f-8546-dab293fad67c": {
+   "topic_id": "AI-FUNDAMENTALS-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "803694e7-c048-4c78-af2e-6f42aaa77506": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1898a9ef-077f-4c3e-973a-562b8e4e8af0": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T05",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "d2390755-01a2-4b4e-ad53-8cfe743bf777": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cf434d66-39d6-4f9f-9c88-743c399a097a": {
+   "topic_id": "AI-FUNDAMENTALS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "010434ec-f6cd-4d57-822c-6ef5c6ba356a": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "cb605472-fc4f-4db8-89fe-0911c3f234e1": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T02",
+   "difficulty": "hard",
+   "competency": "application"
+  },
+  "d3bbcb69-8226-4e2d-be44-73258637bbf2": {
+   "topic_id": "AI-FUNDAMENTALS-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

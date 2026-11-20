@@ -1,0 +1,403 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ddos_web_security",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "DDoS and Web Application Security",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "DDOS-WEB-SECURITY-D1",
+   "chapter_number": 1,
+   "title": "DDoS attacks and mitigation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D1-T01",
+     "topic_number": 1,
+     "title": "Volumetric UDP and DNS amplification attacks",
+     "aliases": [
+      "udp amplification",
+      "dns amplification",
+      "reflection attack",
+      "amplification ddos",
+      "volumetric ddos",
+      "udp flood",
+      "reflected ddos",
+      "open resolver abuse"
+     ],
+     "paraphrases": [
+      "How attackers use spoofed UDP queries to servers such as DNS resolvers to reflect and amplify traffic that floods a victim's bandwidth."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How attackers use spoofed UDP queries to servers such as DNS resolvers to reflect and amplify traffic that floods a victim's bandwidth."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D1-T02",
+     "topic_number": 2,
+     "title": "SYN flood attacks and half-open connections",
+     "aliases": [
+      "syn flood",
+      "tcp syn flood",
+      "half-open connections",
+      "syn attack",
+      "tcp handshake attack",
+      "syn cookies",
+      "backlog exhaustion"
+     ],
+     "paraphrases": [
+      "How a SYN flood abuses the TCP three-way handshake to exhaust server connection resources, and how to spot it from TCP connection states."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a SYN flood abuses the TCP three-way handshake to exhaust server connection resources, and how to spot it from TCP connection states."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D1-T03",
+     "topic_number": 3,
+     "title": "Slowloris and low-and-slow application-layer attacks",
+     "aliases": [
+      "slowloris",
+      "low and slow attack",
+      "slow http attack",
+      "partial http requests",
+      "layer 7 ddos",
+      "application layer ddos",
+      "http connection exhaustion"
+     ],
+     "paraphrases": [
+      "How Slowloris keeps many partial HTTP connections open to exhaust a web server's connection pool."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Slowloris keeps many partial HTTP connections open to exhaust a web server's connection pool."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D1-T04",
+     "topic_number": 4,
+     "title": "DDoS mitigation with blackholing and scrubbing centers",
+     "aliases": [
+      "blackholing",
+      "rtbh",
+      "remotely triggered black hole",
+      "null routing",
+      "scrubbing center",
+      "traffic scrubbing",
+      "ddos mitigation",
+      "ddos defense challenges"
+     ],
+     "paraphrases": [
+      "Network-side DDoS mitigation choices such as dropping traffic to a target, diverting traffic to scrubbing, and the capacity challenge of defending."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Network-side DDoS mitigation choices such as dropping traffic to a target, diverting traffic to scrubbing, and the capacity challenge of defending."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D1-T05",
+     "topic_number": 5,
+     "title": "Using a CDN to absorb DDoS traffic",
+     "aliases": [
+      "cdn",
+      "content delivery network",
+      "cdn ddos protection",
+      "anycast",
+      "cdn absorption",
+      "edge network ddos"
+     ],
+     "paraphrases": [
+      "Why a globally distributed CDN can absorb and spread DDoS traffic away from the origin server."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why a globally distributed CDN can absorb and spread DDoS traffic away from the origin server."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D1-T06",
+     "topic_number": 6,
+     "title": "Rate limiting requests on Nginx",
+     "aliases": [
+      "rate limiting",
+      "nginx rate limit",
+      "limit_req_zone",
+      "limit_req",
+      "limit_conn",
+      "request throttling",
+      "http rate limiting"
+     ],
+     "paraphrases": [
+      "Configuring request rate limiting on a web server such as Nginx to blunt floods of HTTP requests."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configuring request rate limiting on a web server such as Nginx to blunt floods of HTTP requests."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DDOS-WEB-SECURITY-D2",
+   "chapter_number": 2,
+   "title": "Web application attacks",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D2-T01",
+     "topic_number": 1,
+     "title": "SQL injection types: union-based, error-based and blind",
+     "aliases": [
+      "sql injection",
+      "sqli",
+      "union based sql injection",
+      "blind sql injection",
+      "boolean based sqli",
+      "time based sqli",
+      "error based sqli",
+      "inferential sql injection"
+     ],
+     "paraphrases": [
+      "The main SQL injection techniques and how union, error, boolean and time-based variants retrieve or infer data."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The main SQL injection techniques and how union, error, boolean and time-based variants retrieve or infer data."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D2-T02",
+     "topic_number": 2,
+     "title": "Cross-site scripting: reflected and stored XSS",
+     "aliases": [
+      "xss",
+      "cross site scripting",
+      "stored xss",
+      "reflected xss",
+      "persistent xss",
+      "dom xss",
+      "output encoding",
+      "input sanitization"
+     ],
+     "paraphrases": [
+      "How reflected and stored XSS run attacker script in a victim's browser and how sanitization and encoding defend against it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How reflected and stored XSS run attacker script in a victim's browser and how sanitization and encoding defend against it."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D2-T03",
+     "topic_number": 3,
+     "title": "Cross-site request forgery and anti-CSRF tokens",
+     "aliases": [
+      "csrf",
+      "xsrf",
+      "cross site request forgery",
+      "anti csrf token",
+      "csrf token",
+      "session riding",
+      "samesite cookies"
+     ],
+     "paraphrases": [
+      "How CSRF tricks a logged-in browser into unwanted actions and how anti-CSRF tokens stop it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How CSRF tricks a logged-in browser into unwanted actions and how anti-CSRF tokens stop it."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D2-T04",
+     "topic_number": 4,
+     "title": "Path traversal and directory traversal attacks",
+     "aliases": [
+      "path traversal",
+      "directory traversal",
+      "dot dot slash",
+      "../ attack",
+      "file path manipulation",
+      "local file inclusion",
+      "lfi"
+     ],
+     "paraphrases": [
+      "How path traversal uses sequences like ../ to read files outside the intended web directory."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How path traversal uses sequences like ../ to read files outside the intended web directory."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D2-T05",
+     "topic_number": 5,
+     "title": "Server-side request forgery (SSRF)",
+     "aliases": [
+      "ssrf",
+      "server side request forgery",
+      "internal service access",
+      "metadata endpoint attack",
+      "url fetch abuse"
+     ],
+     "paraphrases": [
+      "How SSRF makes a server send requests to internal services that should not be reachable from outside."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How SSRF makes a server send requests to internal services that should not be reachable from outside."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "DDOS-WEB-SECURITY-D3",
+   "chapter_number": 3,
+   "title": "Web application defenses",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D3-T01",
+     "topic_number": 1,
+     "title": "Input validation: allowlist versus denylist",
+     "aliases": [
+      "input validation",
+      "whitelist validation",
+      "blacklist validation",
+      "allowlist",
+      "denylist",
+      "data validation",
+      "server side validation"
+     ],
+     "paraphrases": [
+      "Why applications validate input and how allowlist and denylist approaches differ in security."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why applications validate input and how allowlist and denylist approaches differ in security."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D3-T02",
+     "topic_number": 2,
+     "title": "Web application firewalls: security models and rules",
+     "aliases": [
+      "waf",
+      "web application firewall",
+      "positive security model",
+      "negative security model",
+      "waf rules",
+      "modsecurity",
+      "waf sql injection rule"
+     ],
+     "paraphrases": [
+      "What a WAF does for HTTP traffic, positive versus negative security models, and writing rules against attacks such as SQL injection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a WAF does for HTTP traffic, positive versus negative security models, and writing rules against attacks such as SQL injection."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D3-T03",
+     "topic_number": 3,
+     "title": "Content Security Policy (CSP)",
+     "aliases": [
+      "csp",
+      "content security policy",
+      "csp header",
+      "script-src",
+      "allowed content sources",
+      "xss mitigation header"
+     ],
+     "paraphrases": [
+      "How a Content Security Policy declares which content sources a browser may load, limiting XSS impact."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a Content Security Policy declares which content sources a browser may load, limiting XSS impact."
+      }
+     ]
+    },
+    {
+     "topic_id": "DDOS-WEB-SECURITY-D3-T04",
+     "topic_number": 4,
+     "title": "CORS and the Access-Control-Allow-Origin header",
+     "aliases": [
+      "cors",
+      "cross origin resource sharing",
+      "access-control-allow-origin",
+      "cors misconfiguration",
+      "same origin policy",
+      "cross origin requests"
+     ],
+     "paraphrases": [
+      "How CORS headers control which origins may read a server's resources and what goes wrong when they are not validated."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How CORS headers control which origins may read a server's resources and what goes wrong when they are not validated."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

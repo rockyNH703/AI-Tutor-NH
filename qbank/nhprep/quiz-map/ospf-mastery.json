@@ -1,0 +1,150 @@
+{
+ "category": "ospf-mastery",
+ "book_id": "ospf_mastery",
+ "questions": {
+  "38c215b8-3f87-41ca-9227-66f9bebbe4bb": {
+   "topic_id": "OSPF-MASTERY-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8f86b1dd-8d5d-4c8f-931a-64292aca73b8": {
+   "topic_id": "OSPF-MASTERY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1d812702-d0ad-40f9-9614-a71ca95d962a": {
+   "topic_id": "OSPF-MASTERY-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "34f06cbe-dbc2-46b0-8cc0-e70ae22aada4": {
+   "topic_id": "OSPF-MASTERY-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): C describes Init; 2-way means bidirectional hellos, and DR election happens in 2-way, so C is wrong.; Receiving the first hello is the Init state; 2-Way means bidirectional hellos, where DR/BDR election happens, so C is wrong."
+  },
+  "1e13ed6a-b08c-4633-8b46-781d51524122": {
+   "topic_id": "OSPF-MASTERY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "18d4db47-7cd9-4938-a625-340ec2668ba9": {
+   "topic_id": "OSPF-MASTERY-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a102ffa9-4eb4-44be-b8f4-517519f7612a": {
+   "topic_id": "OSPF-MASTERY-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d1e46d74-8841-40b2-b3c8-dffcea0cd63d": {
+   "topic_id": "OSPF-MASTERY-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "dfcfb220-4aa1-48bf-a40b-5087bec18761": {
+   "topic_id": "OSPF-MASTERY-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "5ca2676c-2463-464b-85d2-05ccfd23fea5": {
+   "topic_id": "OSPF-MASTERY-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d821e71c-f75e-4173-8201-131b53903656": {
+   "topic_id": "OSPF-MASTERY-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d4ac86e1-9df8-41de-ac80-9ac26d9d9597": {
+   "topic_id": "OSPF-MASTERY-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "db4c52a5-cbe9-4bb6-8aa2-55916862f6f2": {
+   "topic_id": "OSPF-MASTERY-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "df90905b-8447-4359-b81d-34132fb1967f": {
+   "topic_id": "OSPF-MASTERY-D3-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "6ccd7280-e901-4ee2-b986-f18cd090d53d": {
+   "topic_id": "OSPF-MASTERY-D2-T05",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): Area 0 cannot be a virtual link's transit area, so the keyed command is invalid.; A virtual link is 'area transit-area> virtual-link rid>' and area 0 cannot be the transit area, so the keyed command is wrong."
+  },
+  "8bf9c015-0967-46f9-9f61-e7e78a18f2e0": {
+   "topic_id": "OSPF-MASTERY-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ac4c2a6c-a229-4bbc-8f25-b7b47bd1d0dc": {
+   "topic_id": "OSPF-MASTERY-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0a55fa4b-afc5-44bc-858d-f710c2426165": {
+   "topic_id": "OSPF-MASTERY-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2e277bc7-493f-434f-8d72-26eb05a30da7": {
+   "topic_id": "OSPF-MASTERY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a9a73f32-f3e0-4c97-b9b2-357efbd1fd5d": {
+   "topic_id": "OSPF-MASTERY-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "104769f8-1dcd-4f50-8263-1d4224e1d55a": {
+   "topic_id": "OSPF-MASTERY-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "2c6b80b8-ea6f-4ecb-8398-3a24d30e1b82": {
+   "topic_id": "OSPF-MASTERY-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dd9249cc-75ff-4bd5-83e2-0b597987a04d": {
+   "topic_id": "OSPF-MASTERY-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): A stub area also receives only summary (Type 3) LSAs and no externals; totally stubby gets only the default summary.; A stub area also gets only intra-area plus summary LSAs (no Type 5), while totally stubby gets only a default summa"
+  },
+  "f4074780-dacf-4130-901b-50d05f38a090": {
+   "topic_id": "OSPF-MASTERY-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "096264cd-c9f7-4c3e-8d1f-8a3f0e7e943f": {
+   "topic_id": "OSPF-MASTERY-D2-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): B (blocks all external routes) is strictly true, while C is imprecise because totally stubby also blocks Type 3 except the default.; B is strictly true; C is imprecise since totally stubby blocks Type 3 except the default summary, so"
+  },
+  "139fb9b7-e4c3-4d7b-b3d3-b019141bc0b3": {
+   "topic_id": "OSPF-MASTERY-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0b768a3c-8f41-4684-8566-4c15845a5dc4": {
+   "topic_id": "OSPF-MASTERY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b7a3d69c-6a67-4928-8ee6-e11dab89ff2b": {
+   "topic_id": "OSPF-MASTERY-D1-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  }
+ }
+}

@@ -1,0 +1,156 @@
+{
+ "category": "prompt-engineering",
+ "book_id": "prompt_engineering",
+ "questions": {
+  "ce7ce1bc-cf4f-40b5-9b63-36196fd23073": {
+   "topic_id": "PROMPT-ENGINEERING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a570eaa1-a9a6-400e-b7df-091ad4c97345": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ef02a280-df05-4769-a2d4-d25ab4ed667e": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "a166c82f-f379-4279-9d61-fb6aa641f19e": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "74a5bc16-7f40-4cda-8a71-e903e3ac7dcc": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c732fcd0-f1e2-48c1-a936-f114d280288f": {
+   "topic_id": "PROMPT-ENGINEERING-D4-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "438ce5f4-d13d-4b71-b0fb-c5af676587b0": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "da8f6c37-aa11-4b6c-8b42-4c4229496d15": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T05",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "2f548a91-93fd-4501-ab9d-8534082b67be": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "d831c97d-ec15-44c6-9321-a1e8fc21a9c5": {
+   "topic_id": "PROMPT-ENGINEERING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "44878d0a-d322-47dd-990e-6217ba38ecd8": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d83dfb7c-c6e4-49c8-8bb3-10220d588a45": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d5a47d8b-451f-48bd-b77e-83e2d2a942d8": {
+   "topic_id": "PROMPT-ENGINEERING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a955bde0-8ca8-4a36-886c-8a25b8703ef0": {
+   "topic_id": "PROMPT-ENGINEERING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25f66b86-c260-4613-9f91-6c36de6b8a0f": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "134fa99e-38c0-462b-baeb-77f2c22cb296": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "9e6ede16-13be-4396-a870-4b945202a0a7": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eed83bed-d6f7-4753-ae17-9ce8872b37bf": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "66cdd90b-6c4a-44c1-a290-76964ed99d7d": {
+   "topic_id": "PROMPT-ENGINEERING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "531d6877-b446-4622-9b62-436f6ca43da7": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "87028fe9-1bb1-476a-98d5-0192d7c5c6f9": {
+   "topic_id": "PROMPT-ENGINEERING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "167dd41e-8029-4cd1-afad-a89ae74dc1cf": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T04",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "fe00c0e0-19a7-4b2e-8850-b74f63c0a4e9": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T04",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "53383a6a-d0e9-415f-8f2c-b1410604ecd4": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T05",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "d4b99e4a-0f0a-4251-a973-ddce498560b1": {
+   "topic_id": "PROMPT-ENGINEERING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1850ac8a-56a5-4d4b-84c5-e7347a882889": {
+   "topic_id": "PROMPT-ENGINEERING-D4-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "e374f735-c670-4da8-910a-4e09dc746c7d": {
+   "topic_id": "PROMPT-ENGINEERING-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a065e17e-91d7-42c8-a66a-ed70031d6535": {
+   "topic_id": "PROMPT-ENGINEERING-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "8e21a4a1-47f5-4681-8de6-da524c7c052e": {
+   "topic_id": "PROMPT-ENGINEERING-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a10a5cfa-0b8a-4c02-bf6c-a27de2bfcd0e": {
+   "topic_id": "PROMPT-ENGINEERING-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

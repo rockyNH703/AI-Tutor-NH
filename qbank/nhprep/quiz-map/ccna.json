@@ -1,0 +1,206 @@
+{
+ "category": "ccna",
+ "book_id": "ccna",
+ "questions": {
+  "930c950d-ac45-42ba-b433-4db7b4357992": {
+   "topic_id": "CCNA-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "3679cfe9-5614-4e94-9240-967ffa8f7af0": {
+   "topic_id": "CCNA-D5-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ab2aa920-528e-463d-baf9-4dcdb0b85f4e": {
+   "topic_id": "CCNA-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "628b52c3-6660-41fd-aaaa-749f286efa40": {
+   "topic_id": "CCNA-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cfd14663-fdad-4966-be6e-9434173e3b3e": {
+   "topic_id": "CCNA-D1-T08",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1436822b-2f2c-4f10-b206-08ad783728cc": {
+   "topic_id": "CCNA-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "0eb24847-972a-4b89-88f2-20a1c10321a1": {
+   "topic_id": "CCNA-D5-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d0cb1f4a-c6f1-4a72-85a2-77fc03756e4a": {
+   "topic_id": "CCNA-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a5f5e981-6df7-4de2-9ae5-b60f47709211": {
+   "topic_id": "CCNA-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25149d30-fda0-4e48-ba46-b5c08220c5f5": {
+   "topic_id": "CCNA-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ea6fd3a6-c315-4e9f-adc1-fd3d03bf6567": {
+   "topic_id": "CCNA-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f0fc5179-01fd-4665-ab2a-2085fd27a2d3": {
+   "topic_id": "CCNA-D6-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "324b8e10-fa91-409c-92d1-1c775fc5a1f1": {
+   "topic_id": "CCNA-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3e073ae0-f3ec-4455-b2d1-2ce016a3ff67": {
+   "topic_id": "CCNA-D3-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8fe3e24e-68fc-43b9-aa6a-9f56ee356ee7": {
+   "topic_id": "CCNA-D6-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1c2f9e24-0a1b-43e8-984d-92d19aaaa771": {
+   "topic_id": "CCNA-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "1aecc266-343e-4b90-84be-88135891728b": {
+   "topic_id": "CCNA-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d511509f-6d1c-4172-8d01-ecc9ab612cbf": {
+   "topic_id": "CCNA-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8d70f783-90a5-4322-a35b-4f0d631055b0": {
+   "topic_id": "CCNA-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "927c3891-2dbf-41b0-bbbd-24762f4e650b": {
+   "topic_id": "CCNA-D6-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3821adb5-65ad-4585-bfa2-8594e669ec39": {
+   "topic_id": "CCNA-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d4a52c2e-d304-4b16-b82d-6a140941674f": {
+   "topic_id": "CCNA-D1-T09",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a3341c08-85c4-4c25-b40e-881abe73d185": {
+   "topic_id": "CCNA-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7b3b001c-3162-43c0-85c3-513e8bdab04f": {
+   "topic_id": "CCNA-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b2237283-99e1-4199-84e2-2df6c9a8c944": {
+   "topic_id": "CCNA-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "eb1ccde8-d2c0-4fe3-ad50-1bf3ad9f24f4": {
+   "topic_id": "CCNA-D1-T08",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "31f20635-0d77-49b4-97f4-595952684e4e": {
+   "topic_id": "CCNA-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "6bf74e9a-6167-472a-95f2-d8489fe9b0ed": {
+   "topic_id": "CCNA-D3-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5198c1a8-b4f3-4df3-970c-522a4b4adba9": {
+   "topic_id": "CCNA-D1-T11",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d584264f-e409-4cc6-842d-f9e1f591a1fd": {
+   "topic_id": "CCNA-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5a88c577-f076-4e23-be93-6a6baffbe34e": {
+   "topic_id": "CCNA-D1-T11",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "558b0707-bce4-4f88-9414-d90999f3e621": {
+   "topic_id": "CCNA-D2-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0e4d0a7d-e2ea-4a99-a3fd-c67e95410365": {
+   "topic_id": "CCNA-D5-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "157794f8-db2b-4621-a9e7-d667c09044b3": {
+   "topic_id": "CCNA-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4385682d-ffb8-4ad0-9135-a965822379e7": {
+   "topic_id": "CCNA-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "772ee65a-b617-4a66-ab6d-60777ef1588b": {
+   "topic_id": "CCNA-D3-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "34c096b5-8913-412f-beff-b6ebd1e18eaf": {
+   "topic_id": "CCNA-D1-T11",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "49143921-a49e-47c5-8f1c-6c8dc9e52c99": {
+   "topic_id": "CCNA-D3-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "77a07195-dc4a-48bc-bb12-c7755b7757d6": {
+   "topic_id": "CCNA-D1-T11",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4a0a65df-d718-4577-8777-db171f1c22f1": {
+   "topic_id": "CCNA-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

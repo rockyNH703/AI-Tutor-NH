@@ -1,0 +1,382 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "checkpoint",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Check Point Firewall Administration",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CHECKPOINT-D1",
+   "chapter_number": 1,
+   "title": "Security policy and NAT",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CHECKPOINT-D1-T01",
+     "topic_number": 1,
+     "title": "Check Point security policy rules, actions and tracking",
+     "aliases": [
+      "check point rule base",
+      "access control policy",
+      "policy layer",
+      "rule action accept drop",
+      "track option",
+      "cleanup rule",
+      "implicit drop",
+      "security policy rules"
+     ],
+     "paraphrases": [
+      "How Check Point access control rules and policy layers match traffic, what Accept and Drop do, the default implicit drop and logging with the Track column."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Check Point access control rules and policy layers match traffic, what Accept and Drop do, the default implicit drop and logging with the Track column."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D1-T02",
+     "topic_number": 2,
+     "title": "Check Point policy installation and verification",
+     "aliases": [
+      "install policy",
+      "policy package",
+      "install_policy",
+      "verify installed policy",
+      "fw stat policy",
+      "policy push"
+     ],
+     "paraphrases": [
+      "Installing a security policy on a gateway and checking which policy is installed."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Installing a security policy on a gateway and checking which policy is installed."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D1-T03",
+     "topic_number": 3,
+     "title": "Check Point NAT: Hide NAT and Static NAT",
+     "aliases": [
+      "hide nat",
+      "static nat",
+      "check point nat",
+      "source nat",
+      "destination nat",
+      "auto nat",
+      "manual nat",
+      "port forwarding"
+     ],
+     "paraphrases": [
+      "Translating addresses on a Check Point gateway, hiding internal hosts behind one address or mapping a public address to a server."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Translating addresses on a Check Point gateway, hiding internal hosts behind one address or mapping a public address to a server."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CHECKPOINT-D2",
+   "chapter_number": 2,
+   "title": "Software blades and threat prevention",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CHECKPOINT-D2-T01",
+     "topic_number": 1,
+     "title": "Threat Emulation sandboxing",
+     "aliases": [
+      "threat emulation",
+      "sandblast",
+      "sandbox",
+      "file emulation",
+      "zero day malware",
+      "te blade"
+     ],
+     "paraphrases": [
+      "The Threat Emulation blade that runs files and URLs in a sandbox to detect malicious behaviour before they enter the network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Threat Emulation blade that runs files and URLs in a sandbox to detect malicious behaviour before they enter the network."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D2-T02",
+     "topic_number": 2,
+     "title": "Anti-Bot blade and botnet protection",
+     "aliases": [
+      "anti-bot",
+      "anti bot",
+      "botnet",
+      "command and control",
+      "c2 traffic",
+      "bot detection"
+     ],
+     "paraphrases": [
+      "The Anti-Bot blade that detects infected hosts and blocks their communication with command-and-control servers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Anti-Bot blade that detects infected hosts and blocks their communication with command-and-control servers."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D2-T03",
+     "topic_number": 3,
+     "title": "IPS and Threat Prevention blades overview",
+     "aliases": [
+      "ips blade",
+      "intrusion prevention",
+      "threat prevention",
+      "threat prevention policy",
+      "cpstat ips",
+      "ips stat"
+     ],
+     "paraphrases": [
+      "What the Threat Prevention blades protect against and how to check the IPS blade status."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the Threat Prevention blades protect against and how to check the IPS blade status."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D2-T04",
+     "topic_number": 4,
+     "title": "HTTPS Inspection and SSL decryption",
+     "aliases": [
+      "https inspection",
+      "ssl inspection",
+      "tls decryption",
+      "ssl decryption",
+      "outbound https inspection",
+      "ssl forward proxy"
+     ],
+     "paraphrases": [
+      "Decrypting and inspecting HTTPS traffic so the gateway can apply security policy to encrypted connections."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Decrypting and inspecting HTTPS traffic so the gateway can apply security policy to encrypted connections."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D2-T05",
+     "topic_number": 5,
+     "title": "Application Control and URL Filtering",
+     "aliases": [
+      "application control",
+      "app control",
+      "url filtering",
+      "appi",
+      "application blade",
+      "content awareness"
+     ],
+     "paraphrases": [
+      "Identifying applications in traffic and allowing or blocking them according to policy."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Identifying applications in traffic and allowing or blocking them according to policy."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D2-T06",
+     "topic_number": 6,
+     "title": "Identity Awareness and user-based policy",
+     "aliases": [
+      "identity awareness",
+      "user based policy",
+      "access roles",
+      "ad query",
+      "captive portal",
+      "identity collector"
+     ],
+     "paraphrases": [
+      "Identifying the users behind connections so rules can match on user identity instead of only IP addresses."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Identifying the users behind connections so rules can match on user identity instead of only IP addresses."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CHECKPOINT-D3",
+   "chapter_number": 3,
+   "title": "High availability and VPN",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CHECKPOINT-D3-T01",
+     "topic_number": 1,
+     "title": "ClusterXL high availability and load sharing",
+     "aliases": [
+      "clusterxl",
+      "check point cluster",
+      "high availability",
+      "active standby",
+      "load sharing",
+      "active active",
+      "cluster members",
+      "cphaprob"
+     ],
+     "paraphrases": [
+      "ClusterXL modes, active-standby high availability versus load sharing, and how many members a cluster supports."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "ClusterXL modes, active-standby high availability versus load sharing, and how many members a cluster supports."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D3-T02",
+     "topic_number": 2,
+     "title": "Check Point IPsec site-to-site and remote access VPN",
+     "aliases": [
+      "site to site vpn",
+      "ipsec vpn",
+      "remote access vpn",
+      "vpn community",
+      "mesh community",
+      "star community",
+      "vpn tu",
+      "vpn topology"
+     ],
+     "paraphrases": [
+      "Site-to-site versus remote access VPNs, VPN community topologies and checking tunnels with vpn tu."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Site-to-site versus remote access VPNs, VPN community topologies and checking tunnels with vpn tu."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CHECKPOINT-D4",
+   "chapter_number": 4,
+   "title": "Monitoring and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CHECKPOINT-D4-T01",
+     "topic_number": 1,
+     "title": "Gateway status commands: fw stat and cpstat",
+     "aliases": [
+      "fw stat",
+      "cpstat",
+      "gateway status",
+      "firewall statistics",
+      "check point cli commands",
+      "gaia expert commands"
+     ],
+     "paraphrases": [
+      "CLI commands that show a gateway's installed policy, status and performance statistics."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "CLI commands that show a gateway's installed policy, status and performance statistics."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D4-T02",
+     "topic_number": 2,
+     "title": "Traffic capture and connectivity testing with fw monitor",
+     "aliases": [
+      "fw monitor",
+      "packet capture",
+      "traffic capture",
+      "check point troubleshooting",
+      "connectivity test",
+      "fw ping"
+     ],
+     "paraphrases": [
+      "Capturing packets as they pass the firewall inspection points and testing connectivity through the gateway."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Capturing packets as they pass the firewall inspection points and testing connectivity through the gateway."
+      }
+     ]
+    },
+    {
+     "topic_id": "CHECKPOINT-D4-T03",
+     "topic_number": 3,
+     "title": "SmartEvent and SmartView log monitoring",
+     "aliases": [
+      "smartevent",
+      "smartview",
+      "smartview monitor",
+      "security events",
+      "event correlation",
+      "log analysis"
+     ],
+     "paraphrases": [
+      "Using SmartEvent and SmartView to analyse security events and monitor logs in real time."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using SmartEvent and SmartView to analyse security events and monitor logs in real time."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

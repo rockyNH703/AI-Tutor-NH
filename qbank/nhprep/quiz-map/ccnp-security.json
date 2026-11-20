@@ -1,0 +1,235 @@
+{
+ "category": "ccnp-security",
+ "book_id": "ccnp_security",
+ "questions": {
+  "05e6e038-ed00-401b-bd5a-0236dc228e02": {
+   "topic_id": "CCNP-SECURITY-D1-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): SHA-512 has a larger digest and at least equal collision resistance, so D is as defensible as C.; SHA-512 offers at least the collision resistance of SHA-256, so D is at least as defensible."
+  },
+  "f5291b6a-3f71-437b-bcde-4692144ade83": {
+   "topic_id": "CCNP-SECURITY-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "47505f45-7c94-4896-a27a-c12928205a3b": {
+   "topic_id": "CCNP-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1f136fde-e67f-440e-bd85-1f7cc417fc16": {
+   "topic_id": "CCNP-SECURITY-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2f031cbb-f63e-4383-b177-a6cd2b9b6d62": {
+   "topic_id": "CCNP-SECURITY-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "52a708dd-0c52-42bb-a4b5-40b79af660ee": {
+   "topic_id": "CCNP-SECURITY-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): The rule matches any TCP traffic to port 80 regardless of protocol, so C is correct and B overstates it.; The rule header matches any TCP traffic to destination port 80, which is option C, not HTTP specifically."
+  },
+  "f428d122-e3b8-442d-9bd7-3d1d1ac334a2": {
+   "topic_id": "CCNP-SECURITY-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "57fc36b2-acaf-4d89-8c51-094acced1f12": {
+   "topic_id": "CCNP-SECURITY-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1b8e368c-ca9d-4052-8fd5-f7a4adfe5c13": {
+   "topic_id": "CCNP-SECURITY-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3454ad0b-f615-4388-bbd4-8b9be06ee779": {
+   "topic_id": "CCNP-SECURITY-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fd366292-6215-42fe-9482-305f425a7265": {
+   "topic_id": "CCNP-SECURITY-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "95041234-6068-460c-acc6-1b9f7adefddb": {
+   "topic_id": "CCNP-SECURITY-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6f0dfbcc-a7d9-49a3-b74a-02ea0e918ba4": {
+   "topic_id": "CCNP-SECURITY-D2-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): FTD uses show managers (or sftunnel-status); show management connection is not a documented FTD command.; FTD checks its FMC registration with show managers (sftunnel status in expert mode); show management connection is not an FTD comman"
+  },
+  "9dc45391-e0b6-45e2-8b9c-a8e3571d2477": {
+   "topic_id": "CCNP-SECURITY-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d30e6925-9749-4ac9-87d4-df4ce2f07a67": {
+   "topic_id": "CCNP-SECURITY-D2-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "47ccb5d4-f979-4c49-9135-61a5160ba740": {
+   "topic_id": "CCNP-SECURITY-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "7e91e26e-b248-4648-9133-1fb5f2af7bb6": {
+   "topic_id": "CCNP-SECURITY-D2-T05",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "917b691a-cb70-4628-b6d2-b08cf3ef1737": {
+   "topic_id": "CCNP-SECURITY-D2-T06",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b740efd6-6cb6-4d9b-9dbf-c1500f123273": {
+   "topic_id": "CCNP-SECURITY-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6259a0d7-3003-4e6a-8a55-3359b71351b3": {
+   "topic_id": "CCNP-SECURITY-D3-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "12de3912-efd0-4f72-8075-7fe9424f3f63": {
+   "topic_id": "CCNP-SECURITY-D4-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "402a1f34-db53-45cb-9e2b-2e499320be0c": {
+   "topic_id": "CCNP-SECURITY-D4-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ad36737f-7946-4c99-85dd-4f99903a9b76": {
+   "topic_id": "CCNP-SECURITY-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4e7578ba-eb34-4144-b6ad-94ddfaa0d6c2": {
+   "topic_id": "CCNP-SECURITY-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "19912160-1721-4f0d-be04-61b3c1913b4c": {
+   "topic_id": "CCNP-SECURITY-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "97c1cbae-8294-43e3-8849-98af84daf818": {
+   "topic_id": "CCNP-SECURITY-D1-T05",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "a5b28be7-22c6-4421-a28d-f1d3f2b65372": {
+   "topic_id": "CCNP-SECURITY-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9ccb67ea-2645-4553-a6aa-1183ad414303": {
+   "topic_id": "CCNP-SECURITY-D1-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "237a862c-b2fb-4d71-895a-0dc2ea6366a8": {
+   "topic_id": "CCNP-SECURITY-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "988848ee-5e93-4daa-8cd2-140d454f5405": {
+   "topic_id": "CCNP-SECURITY-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "17efc678-d665-46fa-9a5c-dbf9b79b52b3": {
+   "topic_id": "CCNP-SECURITY-D1-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0035fb8a-d784-42ae-8a98-1a8706db22c4": {
+   "topic_id": "CCNP-SECURITY-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c429635c-23fc-44c3-aba8-2377cd3a1fd9": {
+   "topic_id": "CCNP-SECURITY-D4-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "af89b209-57c7-4eae-b88a-c4eb4f85a0ea": {
+   "topic_id": "CCNP-SECURITY-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "44121fea-0a82-469b-ac13-e92817f9b4d8": {
+   "topic_id": "CCNP-SECURITY-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0a8c76d3-e52e-4c1b-b584-7a94c2b22177": {
+   "topic_id": "CCNP-SECURITY-D4-T03",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "5c5df722-bb31-458a-97cb-17078d773683": {
+   "topic_id": "CCNP-SECURITY-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "afc7fb39-5f3e-41ea-9dab-19b8cf5ad1a6": {
+   "topic_id": "CCNP-SECURITY-D2-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "66e447c8-2ccd-46e4-b668-951f787c2bc3": {
+   "topic_id": "CCNP-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0ae02ee1-0c2c-48f2-8773-5e808a01816f": {
+   "topic_id": "CCNP-SECURITY-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "f25efdb7-ea3d-4891-a6ed-7f310f27d962": {
+   "topic_id": "CCNP-SECURITY-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "10fbf705-ed00-4aa8-a096-09b4c4d0eae6": {
+   "topic_id": "CCNP-SECURITY-D2-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Many-to-one is dynamic PAT, which ASA supports in both object NAT and twice NAT, so C and D are equally defensible.; Many-to-one is PAT, which on ASA can be configured as object NAT or twice NAT, so D is not uniquely right."
+  },
+  "c386c630-cf42-4e17-a1f0-5a111abe8307": {
+   "topic_id": "CCNP-SECURITY-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "12589698-359d-46d1-aae1-bdc6fccb2093": {
+   "topic_id": "CCNP-SECURITY-D3-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "2578bacb-2267-498c-8629-725db42b9927": {
+   "topic_id": "CCNP-SECURITY-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

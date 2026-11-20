@@ -1,0 +1,143 @@
+{
+ "category": "wireless-networking",
+ "book_id": "wireless_networking",
+ "questions": {
+  "70deccbf-d4e9-4fbf-a4b3-b8fe56048a3f": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e06857d9-19d8-4ad2-b8f0-7b9bb6a3ef2b": {
+   "topic_id": "WIRELESS-NETWORKING-D4-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "ff9dfd0b-64d6-48de-a4b2-b919d4faa83a": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "86985bd5-502c-4059-89a2-a54495f3267c": {
+   "topic_id": "WIRELESS-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "ffe94651-b266-4a0b-9a42-157584df9825": {
+   "topic_id": "WIRELESS-NETWORKING-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "da6f6310-ed94-423d-8206-b9b7435313c8": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dfc03deb-07c2-492e-bcb7-678c0112ab7c": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "227b0ff1-b02e-4545-8db4-43edc68d8afa": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0bd0957a-dfff-4bf8-8421-98f0aba6cb13": {
+   "topic_id": "WIRELESS-NETWORKING-D4-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7896c7c1-b19b-4259-8c39-55e739afb368": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): The count depends on the regulatory domain; with channel 144 the US has 25, so the maximum in D is at least as defensible as 23.; 23 is the older US count and 25 the current US count including channel 144, and both are offered."
+  },
+  "c6dd9ce1-d653-48b8-b15a-e5ae80be9626": {
+   "topic_id": "WIRELESS-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "7cf71c09-67d9-415a-892d-bf2230075e8a": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "25554cae-9433-42ce-bc71-77e8aaf4f297": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "1d1e3d1c-a834-4cb5-a3a0-a6c9c8aa4cb9": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "262e5244-9d70-4e17-aa5e-e9c52fb55b81": {
+   "topic_id": "WIRELESS-NETWORKING-D4-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "b017b4fc-ba6c-44e9-b147-cb75fac7eab2": {
+   "topic_id": "WIRELESS-NETWORKING-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7312a29f-045c-4a7f-a882-b54ae8f6ce95": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d486d18c-9c54-4374-82a5-1af9532be32a": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a15c6ac4-fd02-46fa-b8d7-a1d7b291d23c": {
+   "topic_id": "WIRELESS-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c925c771-f5e8-4a38-9df1-494ef2f225a0": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "stored answer judged wrong (two reviews): 'capwap enable' is not a Cisco AP command; lightweight APs run CAPWAP by default, so the keyed answer is incorrect.; 'capwap enable' is not a Cisco AP command; lightweight APs run CAPWAP by default, so the keyed answer is incorrect."
+  },
+  "55878323-5250-4738-8772-e416896867c8": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "e77fb01b-0788-4a9b-b7e1-6462191619e7": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "e9ba8a88-9740-4fd6-bd93-249099ff2e71": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c8fadf04-4600-41a9-8314-be0b9ca4dc8c": {
+   "topic_id": "WIRELESS-NETWORKING-D4-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "04f4d386-a659-4fc0-ac52-9d4782234acb": {
+   "topic_id": "WIRELESS-NETWORKING-D1-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "5c8a8e2f-fb60-4f62-ad8d-b32648532bf3": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "97b796d3-0e8d-4765-a1dd-7bb894775efa": {
+   "topic_id": "WIRELESS-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  }
+ }
+}

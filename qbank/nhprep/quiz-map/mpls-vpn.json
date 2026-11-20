@@ -1,0 +1,141 @@
+{
+ "category": "mpls-vpn",
+ "book_id": "mpls_vpn",
+ "questions": {
+  "8dae1a6f-40e4-4783-8bdb-1074bc2b0463": {
+   "topic_id": "MPLS-VPN-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "581065e7-8c98-481a-8380-6c6f49a75bc8": {
+   "topic_id": "MPLS-VPN-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1d2e2b09-badc-4d17-865c-8cda8fcb8ed2": {
+   "topic_id": "MPLS-VPN-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "16befbbb-4633-4be5-90da-542856bb1f1f": {
+   "topic_id": "MPLS-VPN-D1-T05",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): A missing label can equally indicate a down LDP session or MPLS not enabled; the generic A is not uniquely best.; A missing label is as plausibly read as the LDP session being down or MPLS not enabled as a generic forwarding fault."
+  },
+  "4dcf8f83-703f-46df-a017-04f1b11e6c2d": {
+   "topic_id": "MPLS-VPN-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Limited scalability (per-LSP state, tunnel mesh) is as classic an RSVP-TE drawback as configuration complexity.; Limited scalability (N-squared tunnels, per-LSP state) is at least as classic an RSVP-TE drawback as configuration compl"
+  },
+  "0e3ba759-fb1b-4572-a439-8f357b274af9": {
+   "topic_id": "MPLS-VPN-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4b8b4575-dbec-4742-b3d0-2b4c8626d3ab": {
+   "topic_id": "MPLS-VPN-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "dbfec54c-01fa-47f4-bf14-c03e50161bf5": {
+   "topic_id": "MPLS-VPN-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "4980d9de-1393-4cc3-9b21-0e6dcee6f1b6": {
+   "topic_id": "MPLS-VPN-D2-T01",
+   "difficulty": "easy",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): Both 'ip vrf' and 'vrf definition' create a VRF on current IOS.; Both 'ip vrf' and 'vrf definition' create a VRF on IOS, the latter being the current multi-AF form."
+  },
+  "8437d546-aca9-4c4d-9568-88f5460ebd45": {
+   "topic_id": "MPLS-VPN-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): RFC 5036 describes LDP as the procedures by which LSRs establish LSPs, so A is as defensible as C.; RFC 5036 defines LDP as the procedures by which LSRs establish LSPs, so A is as defensible as C."
+  },
+  "a7e865dc-1935-42a5-8700-82d7467d6963": {
+   "topic_id": "MPLS-VPN-D1-T03",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "30ddee84-0aec-4814-b554-068080ba9dbe": {
+   "topic_id": "MPLS-VPN-D1-T05",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): An unreachable PE loopback (no IGP route to the FEC) is a classic LSP failure cause, as defensible as the vague A.; No IGP route to the remote PE loopback is a standard LSP failure cause, as defensible as the vague 'incorrect label d"
+  },
+  "1adfc7bb-3051-408c-93aa-bf0dc1c6374e": {
+   "topic_id": "MPLS-VPN-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2cf0453a-5eee-47ff-98ce-f3085fbbf294": {
+   "topic_id": "MPLS-VPN-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d30898c6-42fd-4da1-969c-a881c111f65d": {
+   "topic_id": "MPLS-VPN-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9d3019ce-33e9-4441-a8f0-32134a0e4b90": {
+   "topic_id": "MPLS-VPN-D1-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "8148c525-f1c1-435c-b249-fe0683b3e408": {
+   "topic_id": "MPLS-VPN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "952eb126-36cf-45de-a756-b3f8539f6cbd": {
+   "topic_id": "MPLS-VPN-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "df1a4431-d67e-4557-acae-ef96f49b1835": {
+   "topic_id": "MPLS-VPN-D1-T05",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "6f421baf-cd57-4a49-89ef-dec8c005e199": {
+   "topic_id": "MPLS-VPN-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "63724f9a-aa5a-43af-a55a-88570cfc37c2": {
+   "topic_id": "MPLS-VPN-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "2aaebff7-f8db-4795-afcc-10c4b52e0d66": {
+   "topic_id": "MPLS-VPN-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "307bd3c0-f0b0-48b9-964a-0e694a4e0036": {
+   "topic_id": "MPLS-VPN-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9036c8d4-776a-4a67-a178-e5301e2cd97c": {
+   "topic_id": "MPLS-VPN-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9f0c0213-997a-461d-9452-8d91dd586827": {
+   "topic_id": "MPLS-VPN-D3-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "47f2e8f2-164c-47ab-84c5-b5000948d8c9": {
+   "topic_id": "MPLS-VPN-D2-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  }
+ }
+}

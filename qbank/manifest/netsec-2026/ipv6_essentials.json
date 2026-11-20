@@ -1,0 +1,382 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "ipv6_essentials",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "IPv6 Essentials",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "IPV6-ESSENTIALS-D1",
+   "chapter_number": 1,
+   "title": "IPv6 addressing",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "IPV6-ESSENTIALS-D1-T01",
+     "topic_number": 1,
+     "title": "IPv6 address notation and compression",
+     "aliases": [
+      "ipv6 notation",
+      "ipv6 compression",
+      "double colon",
+      "leading zeros",
+      "ipv6 shorthand",
+      "abbreviating ipv6 addresses",
+      "ipv6 address format"
+     ],
+     "paraphrases": [
+      "How IPv6 addresses are written in hexadecimal blocks and shortened by dropping leading zeros and using the double colon once."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How IPv6 addresses are written in hexadecimal blocks and shortened by dropping leading zeros and using the double colon once."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D1-T02",
+     "topic_number": 2,
+     "title": "IPv6 unicast address types: link-local, global unicast and unique local",
+     "aliases": [
+      "link-local address",
+      "fe80",
+      "global unicast address",
+      "gua",
+      "2000 /3",
+      "unique local address",
+      "ula",
+      "fc00 /7",
+      "ipv6 address types"
+     ],
+     "paraphrases": [
+      "The IPv6 unicast address types, their prefixes and scope: link-local fe80 /10, global unicast 2000 /3 and unique local fc00 /7."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The IPv6 unicast address types, their prefixes and scope: link-local fe80 /10, global unicast 2000 /3 and unique local fc00 /7."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D1-T03",
+     "topic_number": 3,
+     "title": "IPv6 multicast addresses",
+     "aliases": [
+      "ipv6 multicast",
+      "ff00 /8",
+      "multicast address",
+      "ipv6 one to many",
+      "ipv6 multicast scope"
+     ],
+     "paraphrases": [
+      "IPv6 multicast addresses in ff00 /8 that deliver one packet to many receivers, replacing IPv4 broadcast."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "IPv6 multicast addresses in ff00 /8 that deliver one packet to many receivers, replacing IPv4 broadcast."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D1-T04",
+     "topic_number": 4,
+     "title": "IPv6 subnetting and prefix length design",
+     "aliases": [
+      "ipv6 subnetting",
+      "ipv6 prefix length",
+      "/64 subnet",
+      "ipv6 addressing plan",
+      "ipv6 subnet design",
+      "/48 site prefix"
+     ],
+     "paraphrases": [
+      "Choosing IPv6 prefix lengths and planning subnets, including why each LAN subnet uses a /64."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing IPv6 prefix lengths and planning subnets, including why each LAN subnet uses a /64."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "IPV6-ESSENTIALS-D2",
+   "chapter_number": 2,
+   "title": "Address autoconfiguration and Neighbor Discovery",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "IPV6-ESSENTIALS-D2-T01",
+     "topic_number": 1,
+     "title": "SLAAC and EUI-64 interface identifiers",
+     "aliases": [
+      "slaac",
+      "stateless address autoconfiguration",
+      "eui-64",
+      "eui64",
+      "ipv6 address autoconfig",
+      "interface identifier",
+      "u/l bit",
+      "modified eui-64"
+     ],
+     "paraphrases": [
+      "How hosts build their own IPv6 addresses with SLAAC from a router-advertised prefix and an EUI-64 interface identifier derived from the MAC address."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How hosts build their own IPv6 addresses with SLAAC from a router-advertised prefix and an EUI-64 interface identifier derived from the MAC address."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D2-T02",
+     "topic_number": 2,
+     "title": "Stateful and stateless DHCPv6",
+     "aliases": [
+      "dhcpv6",
+      "stateful dhcpv6",
+      "stateless dhcpv6",
+      "dhcp for ipv6",
+      "dhcpv6 server",
+      "managed flag",
+      "other config flag"
+     ],
+     "paraphrases": [
+      "How stateful DHCPv6 assigns and tracks addresses while stateless DHCPv6 only hands out extra options alongside SLAAC."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How stateful DHCPv6 assigns and tracks addresses while stateless DHCPv6 only hands out extra options alongside SLAAC."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D2-T03",
+     "topic_number": 3,
+     "title": "NDP router discovery: Router Solicitation and Router Advertisement",
+     "aliases": [
+      "router advertisement",
+      "router solicitation",
+      "ra message",
+      "rs message",
+      "ipv6 router discovery",
+      "icmpv6 type 133",
+      "icmpv6 type 134"
+     ],
+     "paraphrases": [
+      "How hosts find routers and learn prefixes and parameters through ICMPv6 Router Solicitation and Router Advertisement messages."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How hosts find routers and learn prefixes and parameters through ICMPv6 Router Solicitation and Router Advertisement messages."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D2-T04",
+     "topic_number": 4,
+     "title": "NDP neighbor discovery and address resolution: NS and NA",
+     "aliases": [
+      "ndp",
+      "neighbor discovery protocol",
+      "neighbor solicitation",
+      "neighbor advertisement",
+      "ns message",
+      "na message",
+      "ipv6 address resolution",
+      "ipv6 arp replacement",
+      "neighbor cache"
+     ],
+     "paraphrases": [
+      "How the Neighbor Discovery Protocol finds neighbors on a link and resolves IPv6 addresses to link-layer addresses with NS and NA messages."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the Neighbor Discovery Protocol finds neighbors on a link and resolves IPv6 addresses to link-layer addresses with NS and NA messages."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "IPV6-ESSENTIALS-D3",
+   "chapter_number": 3,
+   "title": "IPv6 on Cisco IOS: configuration, routing and security",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "IPV6-ESSENTIALS-D3-T01",
+     "topic_number": 1,
+     "title": "Enabling, verifying and troubleshooting IPv6 on Cisco IOS",
+     "aliases": [
+      "ipv6 unicast-routing",
+      "ipv6 routing command",
+      "show ipv6 interface",
+      "ipv6 on cisco router",
+      "ipv6 interface configuration",
+      "ipv6 troubleshooting",
+      "link-local connectivity"
+     ],
+     "paraphrases": [
+      "Turning on IPv6 routing on a Cisco router, checking interface addresses and status with show commands, and basic link-level troubleshooting."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Turning on IPv6 routing on a Cisco router, checking interface addresses and status with show commands, and basic link-level troubleshooting."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D3-T02",
+     "topic_number": 2,
+     "title": "OSPFv3 for IPv6 routing",
+     "aliases": [
+      "ospfv3",
+      "ospf for ipv6",
+      "ipv6 dynamic routing",
+      "ipv6 router ospf",
+      "ospf version 3"
+     ],
+     "paraphrases": [
+      "OSPFv3 as the link-state routing protocol that exchanges IPv6 routes between routers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "OSPFv3 as the link-state routing protocol that exchanges IPv6 routes between routers."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D3-T03",
+     "topic_number": 3,
+     "title": "IPv6 access control lists",
+     "aliases": [
+      "ipv6 acl",
+      "ipv6 access-list",
+      "show ipv6 access-lists",
+      "ipv6 traffic filter",
+      "ipv6 traffic-filter",
+      "deny ipv6 host"
+     ],
+     "paraphrases": [
+      "Writing IPv6 access lists to permit or deny traffic by source and destination and verifying them on a Cisco device."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Writing IPv6 access lists to permit or deny traffic by source and destination and verifying them on a Cisco device."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "IPV6-ESSENTIALS-D4",
+   "chapter_number": 4,
+   "title": "IPv4 to IPv6 transition",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "IPV6-ESSENTIALS-D4-T01",
+     "topic_number": 1,
+     "title": "Dual-stack IPv4 and IPv6",
+     "aliases": [
+      "dual stack",
+      "dual-stack router",
+      "ipv4 and ipv6 together",
+      "dual stack issues",
+      "running both ip versions"
+     ],
+     "paraphrases": [
+      "Running IPv4 and IPv6 side by side on the same devices and the common problems that come with it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Running IPv4 and IPv6 side by side on the same devices and the common problems that come with it."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D4-T02",
+     "topic_number": 2,
+     "title": "IPv6 over IPv4 tunneling and 6to4",
+     "aliases": [
+      "6to4",
+      "6to4 tunnel",
+      "ipv6 tunneling",
+      "ipv6 over ipv4",
+      "tunnel mode ipv6ip",
+      "2002 /16"
+     ],
+     "paraphrases": [
+      "Carrying IPv6 packets across an IPv4 network by encapsulating them in IPv4, as 6to4 tunnels do."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Carrying IPv6 packets across an IPv4 network by encapsulating them in IPv4, as 6to4 tunnels do."
+      }
+     ]
+    },
+    {
+     "topic_id": "IPV6-ESSENTIALS-D4-T03",
+     "topic_number": 3,
+     "title": "NAT64 translation",
+     "aliases": [
+      "nat64",
+      "dns64",
+      "ipv6 to ipv4 translation",
+      "ipv6-only clients to ipv4 servers",
+      "64:ff9b /96"
+     ],
+     "paraphrases": [
+      "How NAT64 translates between IPv6 and IPv4 so IPv6-only clients can reach IPv4-only servers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How NAT64 translates between IPv6 and IPv4 so IPv6-only clients can reach IPv4-only servers."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

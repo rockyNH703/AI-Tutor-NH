@@ -1,0 +1,300 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "tcp_ip",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "TCP/IP Deep Dive",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "TCP-IP-D1",
+   "chapter_number": 1,
+   "title": "Transport layer: TCP and UDP",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TCP-IP-D1-T01",
+     "topic_number": 1,
+     "title": "TCP vs UDP: connection-oriented and connectionless transport",
+     "aliases": [
+      "tcp vs udp",
+      "udp",
+      "connectionless",
+      "connection-oriented",
+      "user datagram protocol",
+      "transport protocols",
+      "reliable vs unreliable transport"
+     ],
+     "paraphrases": [
+      "How TCP and UDP differ and which applications use each transport."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How TCP and UDP differ and which applications use each transport."
+      }
+     ]
+    },
+    {
+     "topic_id": "TCP-IP-D1-T02",
+     "topic_number": 2,
+     "title": "TCP three-way handshake and connection setup",
+     "aliases": [
+      "three-way handshake",
+      "3-way handshake",
+      "tcp handshake",
+      "syn syn-ack ack",
+      "tcp connection establishment",
+      "sequence numbers",
+      "syn retransmission"
+     ],
+     "paraphrases": [
+      "How TCP opens a connection with SYN, SYN-ACK and ACK, including sequence numbers and lost SYN handling."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How TCP opens a connection with SYN, SYN-ACK and ACK, including sequence numbers and lost SYN handling."
+      }
+     ]
+    },
+    {
+     "topic_id": "TCP-IP-D1-T03",
+     "topic_number": 3,
+     "title": "TCP flags and connection teardown",
+     "aliases": [
+      "tcp flags",
+      "syn flag",
+      "fin flag",
+      "rst flag",
+      "psh flag",
+      "tcp teardown",
+      "connection termination",
+      "tcp reset"
+     ],
+     "paraphrases": [
+      "What the SYN, FIN, RST and PSH flags mean and how a TCP connection is closed or reset."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the SYN, FIN, RST and PSH flags mean and how a TCP connection is closed or reset."
+      }
+     ]
+    },
+    {
+     "topic_id": "TCP-IP-D1-T04",
+     "topic_number": 4,
+     "title": "TCP flow control, sliding window and congestion control",
+     "aliases": [
+      "flow control",
+      "sliding window",
+      "tcp window",
+      "receive window",
+      "rwnd",
+      "congestion control",
+      "window advertisement"
+     ],
+     "paraphrases": [
+      "How TCP paces data with the receiver window and sliding window, and how this differs from congestion control."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How TCP paces data with the receiver window and sliding window, and how this differs from congestion control."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TCP-IP-D2",
+   "chapter_number": 2,
+   "title": "IP layer: IPv4 header, MTU and fragmentation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TCP-IP-D2-T01",
+     "topic_number": 1,
+     "title": "IPv4 header fields: TTL and Protocol",
+     "aliases": [
+      "ip header",
+      "ipv4 header",
+      "ttl",
+      "time to live",
+      "protocol field",
+      "protocol number",
+      "ip header fields"
+     ],
+     "paraphrases": [
+      "What the TTL and Protocol fields of the IPv4 header do."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the TTL and Protocol fields of the IPv4 header do."
+      }
+     ]
+    },
+    {
+     "topic_id": "TCP-IP-D2-T02",
+     "topic_number": 2,
+     "title": "MTU, IP fragmentation and Path MTU Discovery",
+     "aliases": [
+      "mtu",
+      "maximum transmission unit",
+      "fragmentation",
+      "ip fragmentation",
+      "pmtud",
+      "path mtu discovery",
+      "mf bit",
+      "df bit",
+      "identification field",
+      "1500 bytes"
+     ],
+     "paraphrases": [
+      "How packets larger than the MTU are fragmented, which header fields track fragments, and how PMTUD avoids fragmentation."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How packets larger than the MTU are fragmented, which header fields track fragments, and how PMTUD avoids fragmentation."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TCP-IP-D3",
+   "chapter_number": 3,
+   "title": "ICMP and ARP",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TCP-IP-D3-T01",
+     "topic_number": 1,
+     "title": "ICMP message types, ping and traceroute",
+     "aliases": [
+      "icmp",
+      "ping",
+      "traceroute",
+      "echo request",
+      "time exceeded",
+      "destination unreachable",
+      "icmp type 11",
+      "icmp type 3"
+     ],
+     "paraphrases": [
+      "The main ICMP message types and how ping and traceroute use them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The main ICMP message types and how ping and traceroute use them."
+      }
+     ]
+    },
+    {
+     "topic_id": "TCP-IP-D3-T02",
+     "topic_number": 2,
+     "title": "ARP requests, replies, gratuitous ARP and ARP poisoning",
+     "aliases": [
+      "arp",
+      "address resolution protocol",
+      "gratuitous arp",
+      "arp reply",
+      "arp request",
+      "arp poisoning",
+      "arp spoofing",
+      "ip to mac"
+     ],
+     "paraphrases": [
+      "How ARP resolves IP addresses to MAC addresses, gratuitous ARP, and how ARP poisoning intercepts traffic."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How ARP resolves IP addresses to MAC addresses, gratuitous ARP, and how ARP poisoning intercepts traffic."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "TCP-IP-D4",
+   "chapter_number": 4,
+   "title": "Ports, sockets and DNS",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "TCP-IP-D4-T01",
+     "topic_number": 1,
+     "title": "Port numbers, ephemeral ports and sockets",
+     "aliases": [
+      "ports",
+      "port numbers",
+      "well-known ports",
+      "ephemeral ports",
+      "sockets",
+      "socket pair",
+      "port 80",
+      "port 53"
+     ],
+     "paraphrases": [
+      "Well-known and ephemeral port ranges and how sockets let one server port serve many clients."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Well-known and ephemeral port ranges and how sockets let one server port serve many clients."
+      }
+     ]
+    },
+    {
+     "topic_id": "TCP-IP-D4-T02",
+     "topic_number": 2,
+     "title": "DNS queries, transport and record types",
+     "aliases": [
+      "dns",
+      "domain name system",
+      "recursive query",
+      "a record",
+      "cname",
+      "dns records",
+      "dns over udp",
+      "name resolution"
+     ],
+     "paraphrases": [
+      "How DNS resolves names, which transport it uses, and the difference between A and CNAME records."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How DNS resolves names, which transport it uses, and the difference between A and CNAME records."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

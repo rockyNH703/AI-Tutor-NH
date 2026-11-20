@@ -1,0 +1,284 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "workplace_communication",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "general",
+  "language": "english",
+  "title": "Workplace Communication for Network Engineers",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "WORKPLACE-COMMUNICATION-D1",
+   "chapter_number": 1,
+   "title": "Incident reporting and root cause analysis",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D1-T01",
+     "topic_number": 1,
+     "title": "Incident report structure and sections",
+     "aliases": [
+      "incident report",
+      "incident write-up",
+      "incident documentation",
+      "what happened section",
+      "impact scope",
+      "post-incident report",
+      "incident summary report"
+     ],
+     "paraphrases": [
+      "How an incident report is organised, starting with what happened and moving through actions taken, impact and root cause."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an incident report is organised, starting with what happened and moving through actions taken, impact and root cause."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D1-T02",
+     "topic_number": 2,
+     "title": "Root cause analysis (RCA) documents",
+     "aliases": [
+      "rca",
+      "root cause analysis",
+      "root cause",
+      "contributing factors",
+      "preventive actions",
+      "corrective actions",
+      "postmortem",
+      "post mortem",
+      "5 whys"
+     ],
+     "paraphrases": [
+      "Writing an RCA that separates symptoms from the underlying cause, lists contributing factors and states corrective and preventive actions."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Writing an RCA that separates symptoms from the underlying cause, lists contributing factors and states corrective and preventive actions."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "WORKPLACE-COMMUNICATION-D2",
+   "chapter_number": 2,
+   "title": "Stakeholder and escalation communication",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D2-T01",
+     "topic_number": 1,
+     "title": "Outage summaries for management",
+     "aliases": [
+      "outage summary",
+      "outage report for management",
+      "executive summary",
+      "management update",
+      "business impact summary",
+      "outage communication"
+     ],
+     "paraphrases": [
+      "Summarising an outage for managers with the focus on business impact, timeline and prevention rather than technical detail or jargon."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Summarising an outage for managers with the focus on business impact, timeline and prevention rather than technical detail or jargon."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D2-T02",
+     "topic_number": 2,
+     "title": "Explaining technical issues to non-technical stakeholders",
+     "aliases": [
+      "non-technical stakeholders",
+      "technical jargon",
+      "translating jargon",
+      "business language",
+      "analogies",
+      "explaining to business users",
+      "stakeholder communication"
+     ],
+     "paraphrases": [
+      "Translating technical terms into business impact and relatable analogies for people without a technical background."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Translating technical terms into business impact and relatable analogies for people without a technical background."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D2-T03",
+     "topic_number": 3,
+     "title": "Writing escalation emails",
+     "aliases": [
+      "escalation email",
+      "escalation",
+      "impact statement",
+      "email subject line",
+      "escalating an issue",
+      "urgent email",
+      "what was tried"
+     ],
+     "paraphrases": [
+      "Composing an escalation email with an urgent subject line, a clear business impact statement and the specific actions already tried."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Composing an escalation email with an urgent subject line, a clear business impact statement and the specific actions already tried."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D2-T04",
+     "topic_number": 4,
+     "title": "SBAR communication format",
+     "aliases": [
+      "sbar",
+      "situation background assessment recommendation",
+      "sbar format",
+      "structured briefing",
+      "sbar model"
+     ],
+     "paraphrases": [
+      "The Situation, Background, Assessment, Recommendation framework for brief structured updates."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Situation, Background, Assessment, Recommendation framework for brief structured updates."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "WORKPLACE-COMMUNICATION-D3",
+   "chapter_number": 3,
+   "title": "Operational documentation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D3-T01",
+     "topic_number": 1,
+     "title": "Shift and project handover documentation",
+     "aliases": [
+      "handover",
+      "handover document",
+      "handoff notes",
+      "shift handover",
+      "ongoing issues",
+      "credentials location",
+      "turnover document"
+     ],
+     "paraphrases": [
+      "What a handover document contains, such as ongoing unresolved issues, pending changes, contacts and where credentials are kept."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What a handover document contains, such as ongoing unresolved issues, pending changes, contacts and where credentials are kept."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D3-T02",
+     "topic_number": 2,
+     "title": "Writing knowledge base articles",
+     "aliases": [
+      "knowledge base article",
+      "kb article",
+      "kb",
+      "knowledge article",
+      "runbook article",
+      "verification section",
+      "how-to article"
+     ],
+     "paraphrases": [
+      "Structuring a KB article from the problem description and symptoms through the solution steps to verification."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Structuring a KB article from the problem description and symptoms through the solution steps to verification."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D3-T03",
+     "topic_number": 3,
+     "title": "Network diagrams: physical vs logical",
+     "aliases": [
+      "network diagram",
+      "physical diagram",
+      "logical diagram",
+      "physical vs logical",
+      "topology diagram",
+      "ip addressing in diagrams",
+      "network documentation"
+     ],
+     "paraphrases": [
+      "The difference between physical and logical network diagrams and what details such as IP addressing they show."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between physical and logical network diagrams and what details such as IP addressing they show."
+      }
+     ]
+    },
+    {
+     "topic_id": "WORKPLACE-COMMUNICATION-D3-T04",
+     "topic_number": 4,
+     "title": "Change request documentation",
+     "aliases": [
+      "change request",
+      "cr",
+      "rfc",
+      "change management",
+      "rollback plan",
+      "risk assessment",
+      "testing plan",
+      "change ticket"
+     ],
+     "paraphrases": [
+      "The parts of a change request, including the description, risk assessment of potential impacts, testing plan with expected outcomes and rollback plan."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The parts of a change request, including the description, risk assessment of potential impacts, testing plan with expected outcomes and rollback plan."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

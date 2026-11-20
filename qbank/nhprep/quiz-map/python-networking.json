@@ -1,0 +1,153 @@
+{
+ "category": "python-networking",
+ "book_id": "python_networking",
+ "questions": {
+  "f13ee549-35eb-4eb4-8f51-e962d700173c": {
+   "topic_id": "PYTHON-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): A bare except also correctly handles exceptions, so A and C are both valid.; A bare try/except (A) also correctly handles exceptions in valid Python; C is only best practice."
+  },
+  "04304f91-d5d2-4662-a5b1-eb7d912dd3af": {
+   "topic_id": "PYTHON-NETWORKING-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d1a9e58c-e32d-40af-814a-6a72a254a34d": {
+   "topic_id": "PYTHON-NETWORKING-D2-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "e8012ef8-66b5-4cca-80f6-0562e6bb68b1": {
+   "topic_id": "PYTHON-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c644d512-ad21-49e5-972e-5e1549e0331a": {
+   "topic_id": "PYTHON-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ad8dfc8f-38c9-4ae4-bd20-555db0e19b2c": {
+   "topic_id": "PYTHON-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "ea24cf7d-27fa-467a-a355-a43ac8fcc005": {
+   "topic_id": "PYTHON-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fd5db5e5-612b-441a-b985-f99c5ba133c7": {
+   "topic_id": "PYTHON-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "988b1c89-55fe-4afe-b03f-3fbf7d5ef164": {
+   "topic_id": "PYTHON-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "3408bb07-30ce-43d9-9002-1a0ef0ebaa88": {
+   "topic_id": "PYTHON-NETWORKING-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "9da4d933-429f-46b9-8b3d-ec45ea7d04c3": {
+   "topic_id": "PYTHON-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6976108c-cfd2-43e9-81e5-acf380c873f8": {
+   "topic_id": "PYTHON-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "fd69059f-4ef2-4054-ba84-bfe1051213c4": {
+   "topic_id": "PYTHON-NETWORKING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "08f104de-58a4-4606-8e72-9b4239a65a18": {
+   "topic_id": "PYTHON-NETWORKING-D1-T03",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "1bb9871d-bb73-41d9-8ada-8ae81ee2bd4e": {
+   "topic_id": "PYTHON-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7cf34afb-e151-4f19-a1fd-716a3233e7c0": {
+   "topic_id": "PYTHON-NETWORKING-D1-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d821dd05-398d-42a4-a541-fa5d91075e10": {
+   "topic_id": "PYTHON-NETWORKING-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0c1e0c0c-1c70-4e73-a1a3-07a953b83f6c": {
+   "topic_id": "PYTHON-NETWORKING-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "5ed04890-6d47-4fac-adc6-068db0b40515": {
+   "topic_id": "PYTHON-NETWORKING-D3-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "af8394a2-1957-4d30-ac7a-c696bc185f8b": {
+   "topic_id": "PYTHON-NETWORKING-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "12a12b4c-e537-4e87-b313-ad157b979d7f": {
+   "topic_id": "PYTHON-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "69b16c5e-d59a-496c-aef2-f5da68dc12d6": {
+   "topic_id": "PYTHON-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "82cc6cff-9133-457c-9ff2-c4c5a50ee0de": {
+   "topic_id": "PYTHON-NETWORKING-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "514e96cc-770d-4128-849b-eb0d91c94c34": {
+   "topic_id": "PYTHON-NETWORKING-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "a68ba708-1f00-48e6-9bf9-fc9b5f4a3578": {
+   "topic_id": "PYTHON-NETWORKING-D1-T04",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "73aadb74-d7ca-43b6-9952-e78b6ee924d2": {
+   "topic_id": "PYTHON-NETWORKING-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "a92bda64-ccf3-4a76-8c9f-6b165fca2f60": {
+   "topic_id": "PYTHON-NETWORKING-D1-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): logger.log(level, msg) and the keyword form are equally valid ways to log at a given level.; logger.log(level, msg) (A) and keyword form logging.log(level=..., msg=...) (D) are equally valid forms as B."
+  },
+  "f9e9102d-0861-4587-a835-471abc5be66a": {
+   "topic_id": "PYTHON-NETWORKING-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "1bcaf1ba-b482-4e30-8fcf-1dc5e3d386fc": {
+   "topic_id": "PYTHON-NETWORKING-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

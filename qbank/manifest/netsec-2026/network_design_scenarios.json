@@ -1,0 +1,375 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "network_design_scenarios",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "Network Design Scenarios",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NETWORK-DESIGN-SCENARIOS-D1",
+   "chapter_number": 1,
+   "title": "QoS design for converged networks",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D1-T01",
+     "topic_number": 1,
+     "title": "DSCP marking and priority for voice and video",
+     "aliases": [
+      "dscp",
+      "dscp marking",
+      "expedited forwarding",
+      "ef",
+      "assured forwarding",
+      "af41",
+      "voice qos",
+      "video qos",
+      "traffic priority",
+      "per-hop behavior",
+      "phb"
+     ],
+     "paraphrases": [
+      "Which DSCP classes such as EF and AF suit voice and video and which traffic gets the highest priority in a converged network."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Which DSCP classes such as EF and AF suit voice and video and which traffic gets the highest priority in a converged network."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D1-T02",
+     "topic_number": 2,
+     "title": "QoS classification and applying a service policy",
+     "aliases": [
+      "qos classification",
+      "traffic classification",
+      "mqc",
+      "modular qos cli",
+      "service-policy",
+      "policy-map",
+      "class-map",
+      "qos policy"
+     ],
+     "paraphrases": [
+      "The order of QoS steps starting with identifying traffic types, and attaching a policy-map to an interface with service-policy on Cisco IOS."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The order of QoS steps starting with identifying traffic types, and attaching a policy-map to an interface with service-policy on Cisco IOS."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-DESIGN-SCENARIOS-D2",
+   "chapter_number": 2,
+   "title": "Campus, WAN and wireless design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D2-T01",
+     "topic_number": 1,
+     "title": "SD-WAN versus MPLS for branch WAN design",
+     "aliases": [
+      "sd-wan",
+      "sdwan",
+      "mpls",
+      "mpls vs sd-wan",
+      "branch wan",
+      "application aware routing",
+      "dynamic path selection",
+      "wan design"
+     ],
+     "paraphrases": [
+      "Choosing between MPLS and SD-WAN for branch offices, including application-aware path selection and performance monitoring."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing between MPLS and SD-WAN for branch offices, including application-aware path selection and performance monitoring."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D2-T02",
+     "topic_number": 2,
+     "title": "Three-tier campus design and departmental VLAN segmentation",
+     "aliases": [
+      "three-tier campus",
+      "3-tier campus",
+      "campus design",
+      "vlan segmentation",
+      "departmental vlans",
+      "core distribution access",
+      "broadcast domains"
+     ],
+     "paraphrases": [
+      "Segmenting users into per-department VLANs in a core, distribution and access campus design."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Segmenting users into per-department VLANs in a core, distribution and access campus design."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D2-T03",
+     "topic_number": 3,
+     "title": "IP address planning, subnet sizing and summarization",
+     "aliases": [
+      "ip addressing plan",
+      "ip address planning",
+      "subnet sizing",
+      "subnetting",
+      "route summarization",
+      "cidr",
+      "prefix length",
+      "address blocks"
+     ],
+     "paraphrases": [
+      "Sizing subnets for a host count and planning contiguous address blocks across sites so routes can be summarized."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Sizing subnets for a host count and planning contiguous address blocks across sites so routes can be summarized."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D2-T04",
+     "topic_number": 4,
+     "title": "HSRP first-hop redundancy configuration",
+     "aliases": [
+      "hsrp",
+      "hot standby router protocol",
+      "fhrp",
+      "first hop redundancy",
+      "standby ip",
+      "virtual gateway",
+      "gateway redundancy"
+     ],
+     "paraphrases": [
+      "Configuring an HSRP group and its virtual IP address on a Cisco router for default-gateway redundancy."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Configuring an HSRP group and its virtual IP address on a Cisco router for default-gateway redundancy."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D2-T05",
+     "topic_number": 5,
+     "title": "Warehouse wireless design: AP placement, coverage and channels",
+     "aliases": [
+      "wireless design",
+      "wlan design",
+      "ap placement",
+      "access point placement",
+      "warehouse wifi",
+      "coverage vs capacity",
+      "channel planning",
+      "co-channel interference",
+      "wireless site survey"
+     ],
+     "paraphrases": [
+      "Placing access points in a large or high-ceiling warehouse to balance coverage, capacity and user density while choosing channels to limit interference."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Placing access points in a large or high-ceiling warehouse to balance coverage, capacity and user density while choosing channels to limit interference."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-DESIGN-SCENARIOS-D3",
+   "chapter_number": 3,
+   "title": "Data center fabric design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D3-T01",
+     "topic_number": 1,
+     "title": "Spine-leaf underlay routing with BGP",
+     "aliases": [
+      "spine-leaf",
+      "spine leaf",
+      "clos fabric",
+      "underlay routing",
+      "bgp underlay",
+      "ebgp data center",
+      "data center routing"
+     ],
+     "paraphrases": [
+      "Why BGP is commonly chosen as the underlay routing protocol in large spine-leaf data center fabrics."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Why BGP is commonly chosen as the underlay routing protocol in large spine-leaf data center fabrics."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D3-T02",
+     "topic_number": 2,
+     "title": "ECMP load balancing in spine-leaf fabrics",
+     "aliases": [
+      "ecmp",
+      "equal-cost multipath",
+      "equal cost multi path",
+      "load balancing",
+      "multipath",
+      "fabric load sharing"
+     ],
+     "paraphrases": [
+      "How equal-cost multipath spreads traffic across the parallel links between leaf and spine switches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How equal-cost multipath spreads traffic across the parallel links between leaf and spine switches."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D3-T03",
+     "topic_number": 3,
+     "title": "VXLAN overlay for data center network virtualization",
+     "aliases": [
+      "vxlan",
+      "virtual extensible lan",
+      "overlay network",
+      "network virtualization",
+      "vxlan evpn",
+      "dc overlay"
+     ],
+     "paraphrases": [
+      "Using VXLAN as the overlay on a spine-leaf fabric for scalable, isolated virtual networks."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using VXLAN as the overlay on a spine-leaf fabric for scalable, isolated virtual networks."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETWORK-DESIGN-SCENARIOS-D4",
+   "chapter_number": 4,
+   "title": "Security and resilience design",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D4-T01",
+     "topic_number": 1,
+     "title": "DMZ design for public web servers",
+     "aliases": [
+      "dmz",
+      "demilitarized zone",
+      "dual firewall",
+      "screened subnet",
+      "waf",
+      "web application firewall",
+      "reverse proxy",
+      "ddos mitigation",
+      "rate limiting"
+     ],
+     "paraphrases": [
+      "Protecting public web servers in a DMZ with a dual-firewall layout, a web application firewall and a rate-limiting reverse proxy against DDoS."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Protecting public web servers in a DMZ with a dual-firewall layout, a web application firewall and a rate-limiting reverse proxy against DDoS."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D4-T02",
+     "topic_number": 2,
+     "title": "Disaster recovery replication: synchronous vs asynchronous and RPO",
+     "aliases": [
+      "synchronous replication",
+      "asynchronous replication",
+      "rpo",
+      "recovery point objective",
+      "data replication",
+      "dr replication",
+      "replication latency"
+     ],
+     "paraphrases": [
+      "Choosing synchronous or asynchronous replication for a DR site against an RPO target and the latency cost of synchronous writes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Choosing synchronous or asynchronous replication for a DR site against an RPO target and the latency cost of synchronous writes."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETWORK-DESIGN-SCENARIOS-D4-T03",
+     "topic_number": 3,
+     "title": "DR site types and automatic failover",
+     "aliases": [
+      "disaster recovery",
+      "dr site",
+      "hot site",
+      "warm site",
+      "cold site",
+      "rto",
+      "recovery time objective",
+      "dns failover",
+      "automatic failover"
+     ],
+     "paraphrases": [
+      "Hot, warm and cold DR sites and their recovery times, and automatic failover to the DR site such as DNS failover."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Hot, warm and cold DR sites and their recovery times, and automatic failover to the DR site such as DNS failover."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

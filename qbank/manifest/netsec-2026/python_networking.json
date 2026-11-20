@@ -1,0 +1,282 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "python_networking",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "Python for Network Engineers",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "PYTHON-NETWORKING-D1",
+   "chapter_number": 1,
+   "title": "Python fundamentals for automation scripts",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PYTHON-NETWORKING-D1-T01",
+     "topic_number": 1,
+     "title": "Python exception handling with try and except",
+     "aliases": [
+      "exceptions",
+      "exception handling",
+      "try except",
+      "try catch",
+      "error handling",
+      "filenotfounderror",
+      "multiple exceptions",
+      "except exception as e"
+     ],
+     "paraphrases": [
+      "Catching single and multiple exceptions with try and except blocks, and the errors Python raises such as FileNotFoundError."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Catching single and multiple exceptions with try and except blocks, and the errors Python raises such as FileNotFoundError."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D1-T02",
+     "topic_number": 2,
+     "title": "Python logging module and log levels",
+     "aliases": [
+      "logging",
+      "logging module",
+      "log levels",
+      "logging.error",
+      "logging.log",
+      "python logs"
+     ],
+     "paraphrases": [
+      "Writing log messages with the logging module at error and other specific levels."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Writing log messages with the logging module at error and other specific levels."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D1-T03",
+     "topic_number": 3,
+     "title": "Script structure: for loops over devices and argparse arguments",
+     "aliases": [
+      "argparse",
+      "command-line arguments",
+      "cli arguments",
+      "for loop",
+      "loops",
+      "iterate devices",
+      "multi-device loop"
+     ],
+     "paraphrases": [
+      "Iterating over a list of devices with a for loop and parsing command-line arguments with argparse."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Iterating over a list of devices with a for loop and parsing command-line arguments with argparse."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D1-T04",
+     "topic_number": 4,
+     "title": "Regular expressions with the re module",
+     "aliases": [
+      "regex",
+      "regular expressions",
+      "re module",
+      "re.findall",
+      "re.search",
+      "pattern matching"
+     ],
+     "paraphrases": [
+      "Extracting text from strings and device output with re.findall and re.search, and what they return."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Extracting text from strings and device output with re.findall and re.search, and what they return."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PYTHON-NETWORKING-D2",
+   "chapter_number": 2,
+   "title": "Data formats and REST APIs",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PYTHON-NETWORKING-D2-T01",
+     "topic_number": 1,
+     "title": "JSON in Python: load, loads, dump and dumps",
+     "aliases": [
+      "json",
+      "json module",
+      "json.loads",
+      "json.dumps",
+      "json.load",
+      "jsondecodeerror",
+      "serialize json",
+      "parse json"
+     ],
+     "paraphrases": [
+      "Converting between JSON text, files and Python dictionaries and handling invalid JSON."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Converting between JSON text, files and Python dictionaries and handling invalid JSON."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D2-T02",
+     "topic_number": 2,
+     "title": "REST API calls with requests and HTTP methods",
+     "aliases": [
+      "rest api",
+      "requests library",
+      "requests.get",
+      "http methods",
+      "get put post delete",
+      "http status codes",
+      "404 not found"
+     ],
+     "paraphrases": [
+      "Calling REST APIs from Python, choosing the HTTP method for each action and troubleshooting status codes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Calling REST APIs from Python, choosing the HTTP method for each action and troubleshooting status codes."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "PYTHON-NETWORKING-D3",
+   "chapter_number": 3,
+   "title": "Network device automation libraries",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "PYTHON-NETWORKING-D3-T01",
+     "topic_number": 1,
+     "title": "Netmiko SSH connections and configuration commands",
+     "aliases": [
+      "netmiko",
+      "connecthandler",
+      "send_config_set",
+      "send_command",
+      "netmikotimeoutexception",
+      "netmiko exceptions",
+      "device_type"
+     ],
+     "paraphrases": [
+      "Opening SSH sessions with ConnectHandler, its parameters, pushing configuration with send_config_set and catching Netmiko connection errors."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Opening SSH sessions with ConnectHandler, its parameters, pushing configuration with send_config_set and catching Netmiko connection errors."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D3-T02",
+     "topic_number": 2,
+     "title": "Paramiko SSH client: exec_command and invoke_shell",
+     "aliases": [
+      "paramiko",
+      "exec_command",
+      "invoke_shell",
+      "sshclient",
+      "paramiko ssh",
+      "interactive shell"
+     ],
+     "paraphrases": [
+      "Running remote commands and opening interactive shell sessions with the Paramiko SSH library."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Running remote commands and opening interactive shell sessions with the Paramiko SSH library."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D3-T03",
+     "topic_number": 3,
+     "title": "NAPALM getters and connection handling",
+     "aliases": [
+      "napalm",
+      "get_facts",
+      "get_interfaces",
+      "get_bgp_neighbors",
+      "napalm getters",
+      "napalm close",
+      "napalm driver"
+     ],
+     "paraphrases": [
+      "Using NAPALM getter methods for facts, interfaces and BGP neighbors, and closing the driver connection."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using NAPALM getter methods for facts, interfaces and BGP neighbors, and closing the driver connection."
+      }
+     ]
+    },
+    {
+     "topic_id": "PYTHON-NETWORKING-D3-T04",
+     "topic_number": 4,
+     "title": "Parsing device output with Cisco Genie and pyATS",
+     "aliases": [
+      "genie",
+      "pyats",
+      "genie parser",
+      "structured data",
+      "parse show output",
+      "cisco genie"
+     ],
+     "paraphrases": [
+      "Turning raw show command output into structured data with the Genie parsers."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Turning raw show command output into structured data with the Genie parsers."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

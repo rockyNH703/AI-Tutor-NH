@@ -1,0 +1,382 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "qos_traffic",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "routing_switching",
+  "language": "english",
+  "title": "QoS and Traffic Management",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "QOS-TRAFFIC-D1",
+   "chapter_number": 1,
+   "title": "QoS fundamentals, marking and trust",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "QOS-TRAFFIC-D1-T01",
+     "topic_number": 1,
+     "title": "Voice traffic QoS requirements: delay, jitter and latency troubleshooting",
+     "aliases": [
+      "voice qos",
+      "voip qos",
+      "voice delay",
+      "voice jitter",
+      "one-way delay 150ms",
+      "jitter 30ms",
+      "voice latency",
+      "voice quality requirements"
+     ],
+     "paraphrases": [
+      "The delay and jitter budgets voice needs and how to troubleshoot high voice latency."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The delay and jitter budgets voice needs and how to troubleshoot high voice latency."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D1-T02",
+     "topic_number": 2,
+     "title": "DiffServ model and per-hop behavior (PHB)",
+     "aliases": [
+      "diffserv",
+      "differentiated services",
+      "phb",
+      "per-hop behavior",
+      "per hop behaviour",
+      "diffserv model"
+     ],
+     "paraphrases": [
+      "How the DiffServ model gives each packet a forwarding treatment at every hop through per-hop behaviors."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the DiffServ model gives each packet a forwarding treatment at every hop through per-hop behaviors."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D1-T03",
+     "topic_number": 3,
+     "title": "DSCP marking: EF, AF classes and default values",
+     "aliases": [
+      "dscp",
+      "dscp values",
+      "dscp marking",
+      "ef",
+      "expedited forwarding",
+      "dscp 46",
+      "af",
+      "assured forwarding",
+      "af11",
+      "best effort dscp 0"
+     ],
+     "paraphrases": [
+      "DSCP code points such as EF 46 and the AF classes, and the effect of wrong markings on priority."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "DSCP code points such as EF 46 and the AF classes, and the effect of wrong markings on priority."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D1-T04",
+     "topic_number": 4,
+     "title": "QoS trust boundaries and trusting DSCP on switch ports",
+     "aliases": [
+      "trust boundary",
+      "qos trust",
+      "mls qos trust dscp",
+      "mls qos",
+      "trust dscp",
+      "mark at the edge",
+      "edge marking"
+     ],
+     "paraphrases": [
+      "Where to place trust boundaries, marking at the network edge, and trusting incoming DSCP on Catalyst ports."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Where to place trust boundaries, marking at the network edge, and trusting incoming DSCP on Catalyst ports."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "QOS-TRAFFIC-D2",
+   "chapter_number": 2,
+   "title": "Congestion management and avoidance",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "QOS-TRAFFIC-D2-T01",
+     "topic_number": 1,
+     "title": "Low Latency Queuing (LLQ) strict priority",
+     "aliases": [
+      "llq",
+      "low latency queuing",
+      "priority queue",
+      "strict priority queuing",
+      "priority command",
+      "voice priority queue"
+     ],
+     "paraphrases": [
+      "How LLQ adds a strict priority queue to CBWFQ so voice is sent first."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How LLQ adds a strict priority queue to CBWFQ so voice is sent first."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D2-T02",
+     "topic_number": 2,
+     "title": "CBWFQ class-based bandwidth guarantees",
+     "aliases": [
+      "cbwfq",
+      "class-based weighted fair queuing",
+      "bandwidth guarantee",
+      "bandwidth command",
+      "minimum bandwidth",
+      "class bandwidth"
+     ],
+     "paraphrases": [
+      "How CBWFQ reserves a minimum bandwidth for each traffic class during congestion."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How CBWFQ reserves a minimum bandwidth for each traffic class during congestion."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D2-T03",
+     "topic_number": 3,
+     "title": "Weighted Fair Queuing (WFQ) compared with FIFO, CBWFQ and LLQ",
+     "aliases": [
+      "wfq",
+      "weighted fair queuing",
+      "fair queuing",
+      "fifo",
+      "queuing methods",
+      "flow-based queuing"
+     ],
+     "paraphrases": [
+      "How flow-based WFQ shares bandwidth dynamically and how it differs from the other queuing methods."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How flow-based WFQ shares bandwidth dynamically and how it differs from the other queuing methods."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D2-T04",
+     "topic_number": 4,
+     "title": "WRED congestion avoidance and random early drop",
+     "aliases": [
+      "wred",
+      "red",
+      "weighted random early detection",
+      "random early detection",
+      "congestion avoidance",
+      "tail drop",
+      "early drop"
+     ],
+     "paraphrases": [
+      "How WRED drops packets probabilistically by average queue depth to avoid congestion and tail drop."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How WRED drops packets probabilistically by average queue depth to avoid congestion and tail drop."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "QOS-TRAFFIC-D3",
+   "chapter_number": 3,
+   "title": "Traffic shaping and policing",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "QOS-TRAFFIC-D3-T01",
+     "topic_number": 1,
+     "title": "Traffic shaping versus traffic policing",
+     "aliases": [
+      "shaping vs policing",
+      "traffic shaping",
+      "shape average",
+      "shaping buffers",
+      "rate limiting comparison",
+      "shaper"
+     ],
+     "paraphrases": [
+      "The difference between shaping, which buffers excess traffic, and policing, which drops or remarks it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The difference between shaping, which buffers excess traffic, and policing, which drops or remarks it."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D3-T02",
+     "topic_number": 2,
+     "title": "Traffic policing and the police command",
+     "aliases": [
+      "policing",
+      "police command",
+      "traffic policing",
+      "rate limit",
+      "policer",
+      "exceed action",
+      "cir"
+     ],
+     "paraphrases": [
+      "Rate limiting with the police command and what happens to traffic that exceeds the configured rate."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Rate limiting with the police command and what happens to traffic that exceeds the configured rate."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "QOS-TRAFFIC-D4",
+   "chapter_number": 4,
+   "title": "QoS configuration with MQC",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "QOS-TRAFFIC-D4-T01",
+     "topic_number": 1,
+     "title": "MQC class-maps and match criteria",
+     "aliases": [
+      "class-map",
+      "class map",
+      "match access-group",
+      "mqc classification",
+      "match criteria",
+      "traffic classification"
+     ],
+     "paraphrases": [
+      "Creating class-maps and matching traffic with criteria such as an ACL."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating class-maps and matching traffic with criteria such as an ACL."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D4-T02",
+     "topic_number": 2,
+     "title": "MQC policy-maps for traffic classes",
+     "aliases": [
+      "policy-map",
+      "policy map",
+      "mqc",
+      "modular qos cli",
+      "voice policy-map",
+      "qos policy"
+     ],
+     "paraphrases": [
+      "Creating policy-maps that apply actions such as priority to classified traffic."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating policy-maps that apply actions such as priority to classified traffic."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D4-T03",
+     "topic_number": 3,
+     "title": "Applying QoS with service-policy on interfaces",
+     "aliases": [
+      "service-policy",
+      "service policy",
+      "service-policy input",
+      "service-policy output",
+      "apply policy-map",
+      "attach qos policy"
+     ],
+     "paraphrases": [
+      "Attaching a policy-map to an interface in a direction with the service-policy command."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Attaching a policy-map to an interface in a direction with the service-policy command."
+      }
+     ]
+    },
+    {
+     "topic_id": "QOS-TRAFFIC-D4-T04",
+     "topic_number": 4,
+     "title": "QoS policy design steps",
+     "aliases": [
+      "qos design",
+      "qos policy design",
+      "identify traffic types",
+      "qos planning",
+      "qos deployment steps"
+     ],
+     "paraphrases": [
+      "The order of work when designing a QoS policy, starting with identifying traffic types."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The order of work when designing a QoS policy, starting with identifying traffic types."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

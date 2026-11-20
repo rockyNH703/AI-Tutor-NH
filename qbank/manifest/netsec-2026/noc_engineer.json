@@ -1,0 +1,421 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "noc_engineer",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "general",
+  "language": "english",
+  "title": "NOC Engineer Essentials",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NOC-ENGINEER-D1",
+   "chapter_number": 1,
+   "title": "Network monitoring and logging",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NOC-ENGINEER-D1-T01",
+     "topic_number": 1,
+     "title": "SNMP versions and community strings",
+     "aliases": [
+      "snmp",
+      "snmpv3",
+      "snmp v2c",
+      "snmp v1",
+      "community string",
+      "snmp security",
+      "snmp authentication",
+      "snmp encryption"
+     ],
+     "paraphrases": [
+      "The differences between SNMP v1, v2c and v3, community strings and the security SNMPv3 adds."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The differences between SNMP v1, v2c and v3, community strings and the security SNMPv3 adds."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D1-T02",
+     "topic_number": 2,
+     "title": "SNMP operations, traps, MIBs and polling",
+     "aliases": [
+      "snmp get",
+      "getnext",
+      "getbulk",
+      "snmp trap",
+      "mib",
+      "oid",
+      "management information base",
+      "snmp polling",
+      "polling interval"
+     ],
+     "paraphrases": [
+      "How SNMP managers read OIDs with GET and GETNEXT, how MIBs describe OIDs, how agents send traps, and how often to poll."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How SNMP managers read OIDs with GET and GETNEXT, how MIBs describe OIDs, how agents send traps, and how often to poll."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D1-T03",
+     "topic_number": 3,
+     "title": "Syslog, event logs and log management",
+     "aliases": [
+      "syslog",
+      "syslog severity",
+      "log aggregation",
+      "log retention",
+      "windows event id",
+      "event id 4624",
+      "event logs",
+      "siem logs",
+      "log correlation"
+     ],
+     "paraphrases": [
+      "Syslog severity levels, Windows security event IDs, log aggregation, retention policies and correlating logs with SNMP traps."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Syslog severity levels, Windows security event IDs, log aggregation, retention policies and correlating logs with SNMP traps."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D1-T04",
+     "topic_number": 4,
+     "title": "NetFlow and monitoring dashboard KPIs",
+     "aliases": [
+      "netflow",
+      "flow monitoring",
+      "sflow",
+      "ipfix",
+      "monitoring dashboard",
+      "network kpi",
+      "latency monitoring",
+      "traffic analysis"
+     ],
+     "paraphrases": [
+      "Collecting traffic flow data with NetFlow and choosing key performance indicators such as latency for NOC dashboards."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Collecting traffic flow data with NetFlow and choosing key performance indicators such as latency for NOC dashboards."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D1-T05",
+     "topic_number": 5,
+     "title": "NTP stratum and time synchronization",
+     "aliases": [
+      "ntp",
+      "network time protocol",
+      "ntp stratum",
+      "stratum 1",
+      "time sync",
+      "clock synchronization"
+     ],
+     "paraphrases": [
+      "How the NTP stratum hierarchy ranks time sources and why accurate time matters for operations."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How the NTP stratum hierarchy ranks time sources and why accurate time matters for operations."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NOC-ENGINEER-D2",
+   "chapter_number": 2,
+   "title": "Incident and service management",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NOC-ENGINEER-D2-T01",
+     "topic_number": 1,
+     "title": "ITIL incident lifecycle and priority matrix",
+     "aliases": [
+      "itil",
+      "incident management",
+      "incident lifecycle",
+      "priority matrix",
+      "impact and urgency",
+      "p1 p2 p3",
+      "incident priority",
+      "ticket triage"
+     ],
+     "paraphrases": [
+      "The steps of ITIL incident management from logging onward and how impact and urgency set incident priority."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The steps of ITIL incident management from logging onward and how impact and urgency set incident priority."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D2-T02",
+     "topic_number": 2,
+     "title": "Post-incident review and root cause analysis",
+     "aliases": [
+      "rca",
+      "root cause analysis",
+      "post-incident review",
+      "postmortem",
+      "5 whys",
+      "fishbone diagram",
+      "ishikawa"
+     ],
+     "paraphrases": [
+      "Reviewing incidents after resolution and using methods such as the 5 Whys and fishbone diagrams to find root causes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Reviewing incidents after resolution and using methods such as the 5 Whys and fishbone diagrams to find root causes."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D2-T03",
+     "topic_number": 3,
+     "title": "SLA, SLI and MTTR operational metrics",
+     "aliases": [
+      "sla",
+      "sli",
+      "slo",
+      "mttr",
+      "mean time to repair",
+      "service level indicator",
+      "service level agreement",
+      "noc metrics"
+     ],
+     "paraphrases": [
+      "Service level indicators and agreements and incident metrics such as mean time to repair."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Service level indicators and agreements and incident metrics such as mean time to repair."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D2-T04",
+     "topic_number": 4,
+     "title": "Change management and firmware upgrade records",
+     "aliases": [
+      "change management",
+      "change request",
+      "firmware upgrade",
+      "change control",
+      "audit trail",
+      "maintenance window"
+     ],
+     "paraphrases": [
+      "Recording changes such as firmware upgrades in a change management tool for traceability and rollback."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Recording changes such as firmware upgrades in a change management tool for traceability and rollback."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NOC-ENGINEER-D3",
+   "chapter_number": 3,
+   "title": "Network troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NOC-ENGINEER-D3-T01",
+     "topic_number": 1,
+     "title": "Troubleshooting methodology and physical layer testing",
+     "aliases": [
+      "troubleshooting methodology",
+      "top-down approach",
+      "bottom-up approach",
+      "divide and conquer",
+      "osi troubleshooting",
+      "cable tester",
+      "physical layer"
+     ],
+     "paraphrases": [
+      "Structured troubleshooting approaches along the OSI model and checking cables with a cable tester."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Structured troubleshooting approaches along the OSI model and checking cables with a cable tester."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D3-T02",
+     "topic_number": 2,
+     "title": "Ping, traceroute, ARP and routing table commands",
+     "aliases": [
+      "ping",
+      "traceroute",
+      "tracert",
+      "arp -a",
+      "arp cache",
+      "route command",
+      "routing table",
+      "icmp"
+     ],
+     "paraphrases": [
+      "Using ping, traceroute, arp and route commands to test reachability, paths, ARP caches and routing tables."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using ping, traceroute, arp and route commands to test reachability, paths, ARP caches and routing tables."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D3-T03",
+     "topic_number": 3,
+     "title": "Duplex mismatch, STP TCNs and duplicate IP issues",
+     "aliases": [
+      "duplex mismatch",
+      "speed duplex",
+      "stp tcn",
+      "topology change notification",
+      "spanning tree",
+      "duplicate ip",
+      "ip conflict",
+      "interface errors"
+     ],
+     "paraphrases": [
+      "Diagnosing speed and duplex mismatches, spanning tree topology change floods and duplicate IP address conflicts."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Diagnosing speed and duplex mismatches, spanning tree topology change floods and duplicate IP address conflicts."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D3-T04",
+     "topic_number": 4,
+     "title": "BGP and OSPF adjacency troubleshooting",
+     "aliases": [
+      "bgp session down",
+      "bgp neighbor",
+      "as number mismatch",
+      "ospf exstart",
+      "ospf mtu mismatch",
+      "ospf neighbor stuck",
+      "routing adjacency"
+     ],
+     "paraphrases": [
+      "Finding why BGP sessions fail to establish or OSPF neighbors stall, for example AS number or MTU mismatches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Finding why BGP sessions fail to establish or OSPF neighbors stall, for example AS number or MTU mismatches."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NOC-ENGINEER-D4",
+   "chapter_number": 4,
+   "title": "NOC automation and infrastructure",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NOC-ENGINEER-D4-T01",
+     "topic_number": 1,
+     "title": "NOC automation with Ansible, Netmiko and webhooks",
+     "aliases": [
+      "ansible",
+      "ansible ad-hoc",
+      "netmiko",
+      "python network automation",
+      "config backup",
+      "webhook",
+      "alert integration",
+      "noc automation"
+     ],
+     "paraphrases": [
+      "Automating NOC tasks with Ansible ad-hoc commands, Netmiko configuration backups and webhook alerts."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Automating NOC tasks with Ansible ad-hoc commands, Netmiko configuration backups and webhook alerts."
+      }
+     ]
+    },
+    {
+     "topic_id": "NOC-ENGINEER-D4-T02",
+     "topic_number": 2,
+     "title": "Out-of-band management and UPS power redundancy",
+     "aliases": [
+      "out-of-band management",
+      "oob",
+      "console server",
+      "ups",
+      "uninterruptible power supply",
+      "power redundancy",
+      "data center power"
+     ],
+     "paraphrases": [
+      "Keeping access and power during outages with out-of-band management channels and UPS units."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Keeping access and power during outages with out-of-band management channels and UPS units."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,433 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "netdevops",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "NetDevOps Fundamentals",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "NETDEVOPS-D1",
+   "chapter_number": 1,
+   "title": "Version control with Git",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETDEVOPS-D1-T01",
+     "topic_number": 1,
+     "title": "Git repository basics: init, log and .gitignore",
+     "aliases": [
+      "git basics",
+      "git init",
+      "git log",
+      "gitignore",
+      ".gitignore",
+      "commit history",
+      "git repository",
+      "version control"
+     ],
+     "paraphrases": [
+      "Creating a Git repository, viewing commit history and excluding files from tracking."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating a Git repository, viewing commit history and excluding files from tracking."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D1-T02",
+     "topic_number": 2,
+     "title": "Git branching and the GitFlow workflow",
+     "aliases": [
+      "git branch",
+      "git checkout -b",
+      "gitflow",
+      "git flow",
+      "develop branch",
+      "feature branch",
+      "branching strategy"
+     ],
+     "paraphrases": [
+      "Creating and switching branches and how GitFlow uses develop, feature, release and hotfix branches."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Creating and switching branches and how GitFlow uses develop, feature, release and hotfix branches."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D1-T03",
+     "topic_number": 3,
+     "title": "Git merge, rebase and merge conflicts",
+     "aliases": [
+      "git merge",
+      "git rebase",
+      "merge vs rebase",
+      "merge conflict",
+      "git merge --continue",
+      "resolve conflicts"
+     ],
+     "paraphrases": [
+      "Combining branches by merging or rebasing and finishing a merge after resolving conflicts."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Combining branches by merging or rebasing and finishing a merge after resolving conflicts."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETDEVOPS-D2",
+   "chapter_number": 2,
+   "title": "Configuration management and infrastructure as code",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETDEVOPS-D2-T01",
+     "topic_number": 1,
+     "title": "Ansible playbooks, conditionals and error handling",
+     "aliases": [
+      "ansible",
+      "ansible playbook",
+      "ansible-playbook",
+      "ansible when",
+      "ignore_errors",
+      "ansible conditionals",
+      "ansible tasks"
+     ],
+     "paraphrases": [
+      "Running Ansible playbooks and controlling task execution with conditions and error handling."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Running Ansible playbooks and controlling task execution with conditions and error handling."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D2-T02",
+     "topic_number": 2,
+     "title": "Ansible roles and code reuse",
+     "aliases": [
+      "ansible roles",
+      "ansible role",
+      "ansible galaxy",
+      "reusable playbooks",
+      "role structure"
+     ],
+     "paraphrases": [
+      "Organizing tasks, handlers and variables into reusable Ansible roles."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Organizing tasks, handlers and variables into reusable Ansible roles."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D2-T03",
+     "topic_number": 3,
+     "title": "Terraform workflow: init, apply and import",
+     "aliases": [
+      "terraform",
+      "terraform init",
+      "terraform apply",
+      "terraform import",
+      "terraform plan",
+      "terraform commands",
+      "iac workflow"
+     ],
+     "paraphrases": [
+      "The Terraform command workflow for initializing, applying changes and importing existing infrastructure."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The Terraform command workflow for initializing, applying changes and importing existing infrastructure."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D2-T04",
+     "topic_number": 4,
+     "title": "Terraform state files and input variables",
+     "aliases": [
+      "terraform state",
+      "tfstate",
+      "state file",
+      "terraform variables",
+      "input variables",
+      "variable block"
+     ],
+     "paraphrases": [
+      "How Terraform tracks managed resources in its state file and how input variables are declared."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How Terraform tracks managed resources in its state file and how input variables are declared."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETDEVOPS-D3",
+   "chapter_number": 3,
+   "title": "Network APIs and model-driven programmability",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETDEVOPS-D3-T01",
+     "topic_number": 1,
+     "title": "REST APIs, HTTP methods, status codes and curl",
+     "aliases": [
+      "rest",
+      "rest api",
+      "restful",
+      "http methods",
+      "http status codes",
+      "get post put",
+      "404",
+      "curl",
+      "crud"
+     ],
+     "paraphrases": [
+      "Using HTTP methods to create, read and update resources in REST APIs, reading status codes and sending requests with curl."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using HTTP methods to create, read and update resources in REST APIs, reading status codes and sending requests with curl."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D3-T02",
+     "topic_number": 2,
+     "title": "JSON data format and structure",
+     "aliases": [
+      "json",
+      "javascript object notation",
+      "json object",
+      "key value pairs",
+      "data serialization",
+      "data formats"
+     ],
+     "paraphrases": [
+      "How JSON represents structured data as key-value objects and arrays."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How JSON represents structured data as key-value objects and arrays."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D3-T03",
+     "topic_number": 3,
+     "title": "NETCONF operations and transport",
+     "aliases": [
+      "netconf",
+      "get-config",
+      "edit-config",
+      "netconf port 830",
+      "netconf over ssh",
+      "rfc 6241",
+      "netconf rpc"
+     ],
+     "paraphrases": [
+      "NETCONF protocol operations for reading and changing device configuration and its SSH transport on port 830."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "NETCONF protocol operations for reading and changing device configuration and its SSH transport on port 830."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D3-T04",
+     "topic_number": 4,
+     "title": "YANG data modeling: containers, leaves and lists",
+     "aliases": [
+      "yang",
+      "yang model",
+      "yang list",
+      "yang container",
+      "yang leaf",
+      "data modeling",
+      "rfc 7950"
+     ],
+     "paraphrases": [
+      "The YANG language building blocks used to model network device configuration and state."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The YANG language building blocks used to model network device configuration and state."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D3-T05",
+     "topic_number": 5,
+     "title": "gNMI and model-driven streaming telemetry",
+     "aliases": [
+      "gnmi",
+      "grpc network management interface",
+      "streaming telemetry",
+      "model-driven telemetry",
+      "mdt",
+      "grpc",
+      "openconfig"
+     ],
+     "paraphrases": [
+      "Using gNMI over gRPC to stream telemetry and manage network devices as an alternative to SNMP polling."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Using gNMI over gRPC to stream telemetry and manage network devices as an alternative to SNMP polling."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "NETDEVOPS-D4",
+   "chapter_number": 4,
+   "title": "Containers and CI/CD pipelines",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "NETDEVOPS-D4-T01",
+     "topic_number": 1,
+     "title": "Dockerfile instructions and building images",
+     "aliases": [
+      "docker",
+      "dockerfile",
+      "docker build",
+      "docker image",
+      "cmd instruction",
+      "container image"
+     ],
+     "paraphrases": [
+      "Writing Dockerfile instructions such as CMD and building container images with docker build."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Writing Dockerfile instructions such as CMD and building container images with docker build."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D4-T02",
+     "topic_number": 2,
+     "title": "Docker volumes and Docker Compose files",
+     "aliases": [
+      "docker volume",
+      "docker volumes",
+      "docker compose",
+      "docker-compose",
+      "docker-compose.yml",
+      "persistent data",
+      "compose file"
+     ],
+     "paraphrases": [
+      "Persisting container data with volumes and defining multi-container services in a Compose file."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Persisting container data with volumes and defining multi-container services in a Compose file."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D4-T03",
+     "topic_number": 3,
+     "title": "CI/CD pipeline stages for network changes: lint and validate",
+     "aliases": [
+      "ci/cd",
+      "cicd",
+      "network ci/cd",
+      "continuous integration",
+      "pipeline stages",
+      "lint stage",
+      "validate stage",
+      "linting"
+     ],
+     "paraphrases": [
+      "The stages of a network change pipeline, such as linting and validation before deployment."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The stages of a network change pipeline, such as linting and validation before deployment."
+      }
+     ]
+    },
+    {
+     "topic_id": "NETDEVOPS-D4-T04",
+     "topic_number": 4,
+     "title": "GitHub Actions workflows and jobs",
+     "aliases": [
+      "github actions",
+      "gha",
+      "github workflow",
+      "workflow yaml",
+      "actions jobs",
+      "jobs key"
+     ],
+     "paraphrases": [
+      "Defining GitHub Actions workflows in YAML with jobs and steps."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Defining GitHub Actions workflows in YAML with jobs and steps."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

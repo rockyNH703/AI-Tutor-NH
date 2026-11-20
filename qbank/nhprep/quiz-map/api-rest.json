@@ -1,0 +1,127 @@
+{
+ "category": "api-rest",
+ "book_id": "api_rest",
+ "questions": {
+  "f71d79c8-16d7-4e81-ad28-e664a5a52331": {
+   "topic_id": "API-REST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3b349820-d603-4331-8f13-3c5503e91128": {
+   "topic_id": "API-REST-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "678e2a80-dc33-46ce-aaf2-ddd05f833d2c": {
+   "topic_id": "API-REST-D4-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "34d6da11-b060-4e86-8a43-d98fc0dd313c": {
+   "topic_id": "API-REST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "70468311-2067-4eba-b24c-0ee24d10da4d": {
+   "topic_id": "API-REST-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "7a1a0767-5207-4504-b1cd-e0a4593d2c42": {
+   "topic_id": "API-REST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "3bd69e0a-95ec-4180-bf96-23a1dd4e586b": {
+   "topic_id": "API-REST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d4189e69-9ddc-4d8d-b022-e5f88d55bf52": {
+   "topic_id": "API-REST-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "fa6e35b5-42ff-4acd-8b3f-0b796f4d1c75": {
+   "topic_id": "API-REST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "293d58e2-4486-45e0-866b-011275b4452f": {
+   "topic_id": "API-REST-D1-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "e03e2174-bd5a-4b2c-9355-f232f072b2e8": {
+   "topic_id": "API-REST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "aaa52c08-b050-461b-8b9d-b80ca0c079fa": {
+   "topic_id": "API-REST-D1-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "7bffd9e1-9220-4895-a937-d951f677d7a9": {
+   "topic_id": "API-REST-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "687a7859-9408-4290-9270-9eb1e65f437f": {
+   "topic_id": "API-REST-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "d5d654dd-64e4-44d3-b450-3700573a46e8": {
+   "topic_id": "API-REST-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "353fc011-a17a-4e42-9eb0-793a420afb64": {
+   "topic_id": "API-REST-D3-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): API key header names are vendor-specific and Authorization: Bearer is at least as common as API-Key.; API key header names are vendor-specific and 'Authorization: Bearer' is equally common, so A is as defensible as B."
+  },
+  "1bc667e6-82a9-465a-8c7a-306c34521ab3": {
+   "topic_id": "API-REST-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "559e3e5e-661d-434e-ac17-80ecb1fa695b": {
+   "topic_id": "API-REST-D2-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "603c0fd2-38cb-4a7b-9b08-c8a1b24478f1": {
+   "topic_id": "API-REST-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "90d806fb-c458-4b01-82dc-49ccad38ed3a": {
+   "topic_id": "API-REST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "34f1a2f9-f90b-4e13-83bd-48fcb7e7dfbb": {
+   "topic_id": "API-REST-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "622cb685-5366-40b1-874b-ce19c6ab08e3": {
+   "topic_id": "API-REST-D2-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "c83e2405-10ab-4d60-ae85-032fd43caff2": {
+   "topic_id": "API-REST-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "c309a2d2-8f72-4be7-ae12-a1d636d261d4": {
+   "topic_id": "API-REST-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

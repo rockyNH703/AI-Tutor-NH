@@ -1,0 +1,260 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "cicd_infrastructure",
+  "curriculum": "netsec",
+  "class_level": 2,
+  "subject_code": "automation",
+  "language": "english",
+  "title": "CI/CD for Network Infrastructure",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "CICD-INFRASTRUCTURE-D1",
+   "chapter_number": 1,
+   "title": "CI/CD pipeline platforms",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D1-T01",
+     "topic_number": 1,
+     "title": "GitLab CI pipeline keywords: stages, script, artifacts and cache",
+     "aliases": [
+      "gitlab ci",
+      "gitlab-ci.yml",
+      ".gitlab-ci.yml",
+      "gitlab pipeline",
+      "gitlab stages",
+      "gitlab artifacts",
+      "gitlab cache",
+      "gitlab script"
+     ],
+     "paraphrases": [
+      "How a .gitlab-ci.yml file orders jobs into stages, runs commands in script, passes files with artifacts and reuses dependencies with cache."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a .gitlab-ci.yml file orders jobs into stages, runs commands in script, passes files with artifacts and reuses dependencies with cache."
+      }
+     ]
+    },
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D1-T02",
+     "topic_number": 2,
+     "title": "GitHub Actions workflow syntax: on, runs-on, env and run steps",
+     "aliases": [
+      "github actions",
+      "gha",
+      "github workflow",
+      "workflow yaml",
+      "runs-on",
+      "on trigger",
+      "github actions env",
+      "ubuntu-latest runner",
+      "run step"
+     ],
+     "paraphrases": [
+      "How a GitHub Actions workflow file sets its triggers, picks a runner, defines environment variables and runs scripts in steps."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a GitHub Actions workflow file sets its triggers, picks a runner, defines environment variables and runs scripts in steps."
+      }
+     ]
+    },
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D1-T03",
+     "topic_number": 3,
+     "title": "CI/CD pipeline stages and manual approval gates",
+     "aliases": [
+      "pipeline stages",
+      "deploy stage",
+      "manual approval",
+      "approval gate",
+      "build test deploy",
+      "cicd pipeline",
+      "continuous deployment"
+     ],
+     "paraphrases": [
+      "What the typical build, test and deploy stages do and how a manual approval gate holds a pipeline until a person approves it."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What the typical build, test and deploy stages do and how a manual approval gate holds a pipeline until a person approves it."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CICD-INFRASTRUCTURE-D2",
+   "chapter_number": 2,
+   "title": "Network change validation",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D2-T01",
+     "topic_number": 1,
+     "title": "Pre-change validation with yamllint and Batfish",
+     "aliases": [
+      "pre-change testing",
+      "yamllint",
+      "yaml lint",
+      "batfish",
+      "config analysis",
+      "offline config analysis",
+      "syntax validation"
+     ],
+     "paraphrases": [
+      "Checking network changes before they are applied, from YAML syntax linting to offline configuration analysis with Batfish."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Checking network changes before they are applied, from YAML syntax linting to offline configuration analysis with Batfish."
+      }
+     ]
+    },
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D2-T02",
+     "topic_number": 2,
+     "title": "Golden configuration compliance checks",
+     "aliases": [
+      "golden config",
+      "golden configuration",
+      "compliance check",
+      "config compliance",
+      "config drift",
+      "configuration standard"
+     ],
+     "paraphrases": [
+      "Comparing device configurations against a predefined golden standard to confirm they follow policy."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Comparing device configurations against a predefined golden standard to confirm they follow policy."
+      }
+     ]
+    },
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D2-T03",
+     "topic_number": 3,
+     "title": "Post-change verification: ping and interface status checks",
+     "aliases": [
+      "post-change verification",
+      "post-change testing",
+      "ping test",
+      "connectivity check",
+      "interface status",
+      "ip link show",
+      "change verification"
+     ],
+     "paraphrases": [
+      "Confirming after a change that it was applied correctly, using connectivity tests and interface status checks."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Confirming after a change that it was applied correctly, using connectivity tests and interface status checks."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "CICD-INFRASTRUCTURE-D3",
+   "chapter_number": 3,
+   "title": "GitOps, secrets and rollback",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D3-T01",
+     "topic_number": 1,
+     "title": "GitOps pull-based deployment and ArgoCD",
+     "aliases": [
+      "gitops",
+      "argocd",
+      "argo cd",
+      "pull-based deployment",
+      "pull deployment",
+      "kubernetes deployment",
+      "git as source of truth"
+     ],
+     "paraphrases": [
+      "How GitOps uses Git as the source of truth with an agent such as ArgoCD that watches the repository and applies changes."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How GitOps uses Git as the source of truth with an agent such as ArgoCD that watches the repository and applies changes."
+      }
+     ]
+    },
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D3-T02",
+     "topic_number": 2,
+     "title": "Secrets management in pipelines with HashiCorp Vault",
+     "aliases": [
+      "hashicorp vault",
+      "vault",
+      "secrets management",
+      "pipeline secrets",
+      "api keys in ci",
+      "credential storage"
+     ],
+     "paraphrases": [
+      "Storing and handing out passwords, API keys and other secrets to pipelines securely with HashiCorp Vault."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Storing and handing out passwords, API keys and other secrets to pipelines securely with HashiCorp Vault."
+      }
+     ]
+    },
+    {
+     "topic_id": "CICD-INFRASTRUCTURE-D3-T03",
+     "topic_number": 3,
+     "title": "Automated rollback and git revert",
+     "aliases": [
+      "rollback",
+      "automated rollback",
+      "git revert",
+      "revert commit",
+      "undo change",
+      "rollback strategy"
+     ],
+     "paraphrases": [
+      "Undoing a bad change by reverting the commit in Git and rerunning the pipeline to restore the previous state."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Undoing a bad change by reverting the commit in Git and rerunning the pipeline to restore the previous state."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

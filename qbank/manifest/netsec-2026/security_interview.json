@@ -1,0 +1,429 @@
+{
+ "syllabus_version": {
+  "code": "netsec-2026",
+  "curriculum": "netsec",
+  "academic_session": "2026_27",
+  "title": "NetSec AI certification question bank 2026",
+  "source_url": "https://nhprep.com/"
+ },
+ "book": {
+  "book_id": "security_interview",
+  "curriculum": "netsec",
+  "class_level": 1,
+  "subject_code": "security",
+  "language": "english",
+  "title": "Security Interview Q&A",
+  "edition": "NHprep quiz bank 2026"
+ },
+ "chapters": [
+  {
+   "chapter_id": "SECURITY-INTERVIEW-D1",
+   "chapter_number": 1,
+   "title": "Security fundamentals and attacker behaviour",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SECURITY-INTERVIEW-D1-T01",
+     "topic_number": 1,
+     "title": "CIA triad: confidentiality, integrity and availability",
+     "aliases": [
+      "cia triad",
+      "cia",
+      "confidentiality integrity availability",
+      "integrity",
+      "confidentiality",
+      "availability",
+      "security triad"
+     ],
+     "paraphrases": [
+      "The three core security goals and what each one protects."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The three core security goals and what each one protects."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D1-T02",
+     "topic_number": 2,
+     "title": "Vulnerabilities, exploits and zero-day attacks",
+     "aliases": [
+      "vulnerability",
+      "exploit",
+      "zero-day",
+      "zero day",
+      "0-day",
+      "vulnerability vs exploit",
+      "unpatched vulnerability"
+     ],
+     "paraphrases": [
+      "How a weakness differs from the method that abuses it, and what makes an exploit a zero-day."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a weakness differs from the method that abuses it, and what makes an exploit a zero-day."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D1-T03",
+     "topic_number": 3,
+     "title": "Cyber kill chain stages and lateral movement",
+     "aliases": [
+      "cyber kill chain",
+      "kill chain",
+      "lockheed martin kill chain",
+      "actions on objectives",
+      "lateral movement",
+      "reconnaissance",
+      "weaponization",
+      "command and control"
+     ],
+     "paraphrases": [
+      "The stages of an attack from reconnaissance to actions on objectives, and how attackers move inside a network after initial access."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The stages of an attack from reconnaissance to actions on objectives, and how attackers move inside a network after initial access."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D1-T04",
+     "topic_number": 4,
+     "title": "Defense in depth strategy",
+     "aliases": [
+      "defense in depth",
+      "defence in depth",
+      "layered security",
+      "layered defense",
+      "security layers"
+     ],
+     "paraphrases": [
+      "Protecting a network with multiple overlapping layers of security controls instead of a single safeguard."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Protecting a network with multiple overlapping layers of security controls instead of a single safeguard."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SECURITY-INTERVIEW-D2",
+   "chapter_number": 2,
+   "title": "Network and application security controls",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SECURITY-INTERVIEW-D2-T01",
+     "topic_number": 1,
+     "title": "Firewalls and web application firewalls (WAF)",
+     "aliases": [
+      "firewall",
+      "waf",
+      "web application firewall",
+      "http filtering",
+      "unauthorized traffic",
+      "packet filtering"
+     ],
+     "paraphrases": [
+      "What network firewalls do with unauthorized traffic and how a WAF filters and monitors HTTP traffic to web applications."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "What network firewalls do with unauthorized traffic and how a WAF filters and monitors HTTP traffic to web applications."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D2-T02",
+     "topic_number": 2,
+     "title": "IDS vs IPS: intrusion detection and prevention",
+     "aliases": [
+      "ids",
+      "ips",
+      "intrusion detection system",
+      "intrusion prevention system",
+      "ids vs ips",
+      "passive vs active detection"
+     ],
+     "paraphrases": [
+      "How an intrusion detection system alerts on threats while an intrusion prevention system actively blocks them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How an intrusion detection system alerts on threats while an intrusion prevention system actively blocks them."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D2-T03",
+     "topic_number": 3,
+     "title": "TLS handshake and the ClientHello message",
+     "aliases": [
+      "tls handshake",
+      "tls",
+      "ssl handshake",
+      "clienthello",
+      "client hello",
+      "serverhello",
+      "cipher suites"
+     ],
+     "paraphrases": [
+      "How a TLS session starts with the ClientHello and what it offers, such as the supported cipher suites."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a TLS session starts with the ClientHello and what it offers, such as the supported cipher suites."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D2-T04",
+     "topic_number": 4,
+     "title": "SQL injection attacks and prevention",
+     "aliases": [
+      "sql injection",
+      "sqli",
+      "union based sql injection",
+      "parameterized queries",
+      "prepared statements",
+      "injection attack"
+     ],
+     "paraphrases": [
+      "Common SQL injection techniques such as UNION and how parameterized queries prevent them."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Common SQL injection techniques such as UNION and how parameterized queries prevent them."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D2-T05",
+     "topic_number": 5,
+     "title": "802.1X port-based authentication roles",
+     "aliases": [
+      "802.1x",
+      "dot1x",
+      "supplicant",
+      "authenticator",
+      "authentication server",
+      "port-based network access control",
+      "pnac",
+      "eap"
+     ],
+     "paraphrases": [
+      "The supplicant, authenticator and authentication server roles in 802.1X network access control."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The supplicant, authenticator and authentication server roles in 802.1X network access control."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D2-T06",
+     "topic_number": 6,
+     "title": "Multi-factor authentication (MFA)",
+     "aliases": [
+      "mfa",
+      "multi-factor authentication",
+      "multifactor authentication",
+      "2fa",
+      "two-factor authentication"
+     ],
+     "paraphrases": [
+      "How requiring two or more verification factors makes unauthorized access harder."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How requiring two or more verification factors makes unauthorized access harder."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SECURITY-INTERVIEW-D3",
+   "chapter_number": 3,
+   "title": "Security operations and incident response",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SECURITY-INTERVIEW-D3-T01",
+     "topic_number": 1,
+     "title": "SIEM and SOAR in the SOC",
+     "aliases": [
+      "siem",
+      "soar",
+      "security information and event management",
+      "security orchestration automation and response",
+      "siem vs soar",
+      "soc tools"
+     ],
+     "paraphrases": [
+      "How a SIEM collects and analyzes security data and a SOAR platform automates incident response."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "How a SIEM collects and analyzes security data and a SOAR platform automates incident response."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D3-T02",
+     "topic_number": 2,
+     "title": "Ransomware incident response: contain, assess, eradicate, recover",
+     "aliases": [
+      "ransomware",
+      "ransomware response",
+      "incident response",
+      "ransomware containment",
+      "eradication",
+      "recovery",
+      "isolate infected systems"
+     ],
+     "paraphrases": [
+      "The steps for handling a ransomware incident, from isolating infected systems and assessing impact to eradication and recovery."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "The steps for handling a ransomware incident, from isolating infected systems and assessing impact to eradication and recovery."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D3-T03",
+     "topic_number": 3,
+     "title": "Troubleshooting user access to network resources",
+     "aliases": [
+      "access troubleshooting",
+      "cannot access resource",
+      "user permissions",
+      "access denied",
+      "access rights"
+     ],
+     "paraphrases": [
+      "Where to start when a user reports they cannot reach a network resource."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Where to start when a user reports they cannot reach a network resource."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "chapter_id": "SECURITY-INTERVIEW-D4",
+   "chapter_number": 4,
+   "title": "Linux server hardening and troubleshooting",
+   "max_questions": 5000,
+   "topics": [
+    {
+     "topic_id": "SECURITY-INTERVIEW-D4-T01",
+     "topic_number": 1,
+     "title": "Linux SSH hardening and failed SSH connections",
+     "aliases": [
+      "ssh",
+      "ssh hardening",
+      "permitrootlogin",
+      "disable root login",
+      "sshd_config",
+      "ssh troubleshooting",
+      "ssh connection failed"
+     ],
+     "paraphrases": [
+      "Securing SSH by disabling root login and troubleshooting SSH connections that fail."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Securing SSH by disabling root login and troubleshooting SSH connections that fail."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D4-T02",
+     "topic_number": 2,
+     "title": "Linux firewall and SELinux status commands",
+     "aliases": [
+      "selinux",
+      "getenforce",
+      "sestatus",
+      "ufw",
+      "ufw status",
+      "firewall-cmd",
+      "iptables",
+      "linux firewall"
+     ],
+     "paraphrases": [
+      "Commands that show whether SELinux is enforcing and what state the Linux host firewall is in."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Commands that show whether SELinux is enforcing and what state the Linux host firewall is in."
+      }
+     ]
+    },
+    {
+     "topic_id": "SECURITY-INTERVIEW-D4-T03",
+     "topic_number": 3,
+     "title": "Linux user accounts and security logging",
+     "aliases": [
+      "linux users",
+      "/etc/passwd",
+      "list users",
+      "getent passwd",
+      "linux logging",
+      "audit logs",
+      "user activity monitoring"
+     ],
+     "paraphrases": [
+      "Listing local user accounts and using logging to monitor user activity when hardening a Linux server."
+     ],
+     "lessons": [],
+     "concepts": [
+      {
+       "concept_tag": "core",
+       "learning_objective": "Listing local user accounts and using logging to monitor user activity when hardening a Linux server."
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

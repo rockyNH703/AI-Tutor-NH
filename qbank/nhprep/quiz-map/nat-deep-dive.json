@@ -1,0 +1,145 @@
+{
+ "category": "nat-deep-dive",
+ "book_id": "nat_deep_dive",
+ "questions": {
+  "07cf63ee-bae1-4cf1-8114-36c4a2886a57": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "9a4ae3c7-5107-4dbb-a04f-2014aa484a3d": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "cebfe8ba-5e8b-4744-9dfc-daae5741f8d6": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "4a40c66a-6e78-4227-9567-b4170699c37c": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): NAT64 translates IPv6 to IPv4 (option B), not the reverse.; NAT64 (RFC 6146) translates IPv6 to IPv4 so IPv6-only clients reach IPv4 servers; B is correct."
+  },
+  "ea7ab643-56aa-4b23-bda2-e09f75365a22": {
+   "topic_id": "NAT-DEEP-DIVE-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "4ca0a120-be0f-4416-8d85-379fd529b68c": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding",
+   "dispute": "stored answer judged wrong (two reviews): NAT64 lets IPv6-only clients reach IPv4 servers (option B).; The standard NAT64 use case is IPv6-only clients reaching IPv4 servers (option B)."
+  },
+  "c70d58d4-fe1e-4c16-92d5-bb2b5d27e056": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "f5e3c4d9-3b15-4a63-9909-75059dba4871": {
+   "topic_id": "NAT-DEEP-DIVE-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "79139dcb-cc22-473e-96d6-f3f0152f06fa": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b7709635-bd84-49c9-9039-cc492f7c3b15": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8e55d546-6908-4a89-8bdf-c5789c853b9b": {
+   "topic_id": "NAT-DEEP-DIVE-D1-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "151e667b-e9d1-4e35-a529-d5d49d296527": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T02",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): Verifying the NAT ACL is the classic specific check and is as defensible as the generic 'check the NAT configuration'.; Verifying the NAT ACL is a classic specific step and is as defensible as the generic 'check the NAT configuration"
+  },
+  "3fbf2431-8483-4f46-b5ba-a8486f02b8c5": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "26b39b71-1874-4173-ba9c-56a30ea9eb7f": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "173df24a-9d8f-4454-aa76-ac3fa1be5975": {
+   "topic_id": "NAT-DEEP-DIVE-D4-T01",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "a7249aa5-47e4-422a-97ed-844e9df27aa6": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T01",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "656baad5-217b-43d9-bdca-60811f543126": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "86925d38-145a-4fd3-afc7-4b25fde77a0b": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ea293702-a62d-4915-a260-05fcb2552273": {
+   "topic_id": "NAT-DEEP-DIVE-D1-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "ec855196-b2c8-4bfb-a222-10a92a79fc5a": {
+   "topic_id": "NAT-DEEP-DIVE-D4-T02",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "681746ff-104f-4960-b355-465ec180b322": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0798aea1-5c46-4769-b7e7-9ce79916ef73": {
+   "topic_id": "NAT-DEEP-DIVE-D4-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  },
+  "61a7a9f9-ce01-488b-81bd-f4599ec3d512": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c625420f-91d4-431b-8960-e11e9481bd36": {
+   "topic_id": "NAT-DEEP-DIVE-D1-T01",
+   "difficulty": "hard",
+   "competency": "knowledge_understanding"
+  },
+  "bc73893f-fa56-44b3-86ea-1c2b2f88edc0": {
+   "topic_id": "NAT-DEEP-DIVE-D3-T01",
+   "difficulty": "hard",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): The pool-based 'ip nat inside source list NAT-ACL pool NAT-Pool' is an equally valid ACL-driven NAT command.; The pool form 'ip nat inside source list NAT-ACL pool NAT-Pool' also uses the ACL correctly."
+  },
+  "fdc0f9f0-ffa6-44ae-9b58-7b2e59e241bc": {
+   "topic_id": "NAT-DEEP-DIVE-D2-T03",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "8570d13d-ae21-4853-abcb-473ca61d103b": {
+   "topic_id": "NAT-DEEP-DIVE-D4-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  }
+ }
+}

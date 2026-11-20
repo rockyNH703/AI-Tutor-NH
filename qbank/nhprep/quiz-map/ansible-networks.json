@@ -1,0 +1,169 @@
+{
+ "category": "ansible-networks",
+ "book_id": "ansible_networks",
+ "questions": {
+  "14645613-8958-4395-8aeb-ca4a0e12a5be": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "6a7fa68d-aa06-482d-be9b-8b17b1b62eeb": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): The flow-mapping form in C is equally valid YAML for host variables.; The YAML flow mapping in C is semantically identical to the block mapping in A."
+  },
+  "f33d3af1-3a72-4e24-9a0e-6461de73acd5": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): handlers/main.yaml (and main.json) are also loaded, so A is not uniquely valid.; Ansible also loads handlers/main.yaml (and main.json); main.yml is only convention."
+  },
+  "74fea353-8b25-4a60-91a3-0074c2589109": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "51d940cf-b56d-4ca6-868d-9f9202ec0454": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c6a964e4-0f03-4a48-a5c0-5de14d98c427": {
+   "topic_id": "ANSIBLE-NETWORKS-D4-T01",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): A and C differ only by YAML quoting and both parse to the same parents string.; A and C differ only by optional YAML quoting; both are valid parents values."
+  },
+  "4ee64fb7-5dfd-4d18-8c4c-941782decbc5": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T05",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "082fd406-381c-48f4-bfc1-609e89b40914": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "4d7f0e5b-9484-404a-94f1-5183b7a7dade": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "5579024c-8e3d-41cc-8191-fba2a728cc0a": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "8e81c13d-f72a-42d6-9c03-8162af261310": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): ansible-playbook accepts -i after the playbook path, so A and B are equivalent.; ansible-playbook accepts -i before or after the playbook path, so A and B both work."
+  },
+  "fcf178b1-7626-4b01-aab7-6d7920280f7d": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "df91e076-9ebf-4987-adc9-9b8671929788": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T04",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "156e8c9e-a645-4a66-92b8-b17785e02bd3": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T03",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "stored answer judged wrong (two reviews): The stem asks for with_items; A is the correct with_items form while B uses loop.; The question asks for with_items; option A is the valid with_items form while keyed B uses loop."
+  },
+  "8c4f8803-fd20-4b80-ab2d-d661ff6b2538": {
+   "topic_id": "ANSIBLE-NETWORKS-D4-T01",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation"
+  },
+  "1b619039-18e9-40ed-9551-936cb6c83c9c": {
+   "topic_id": "ANSIBLE-NETWORKS-D4-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d751064f-cd28-4a04-b833-9079dd3e6329": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T04",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "1fe72d16-9b0b-4148-934e-9a293ccfd380": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding",
+   "dispute": "more than one defensible answer (two reviews): Ansible loads defaults/main.yml, main.yaml and main.json, so A, C and D are all valid.; Ansible loads defaults/main.yml, main.yaml or main.json, so C and D are also valid."
+  },
+  "f3da5765-29db-44f9-87ac-a6046233c239": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "2f558d3b-9954-4639-8e2a-65d4b870cdf1": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T04",
+   "difficulty": "hard",
+   "competency": "analysis_evaluation",
+   "dispute": "more than one defensible answer (two reviews): The undefined-variable error names the variable, so checking its definitions (A) is at least as apt as verbosity (D).; The undefined-variable error already names the variable, so checking its definitions is at least as direct as rais"
+  },
+  "0c2195d6-ce33-4e99-b4c5-a24a5cdf449f": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T02",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "72350fe9-ef40-488e-bce7-740caff69152": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "c876065a-e347-48d9-ae5f-9f93809fbbb9": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T04",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "0d8935ea-0566-4e46-bdf1-4114c571b5aa": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T03",
+   "difficulty": "medium",
+   "competency": "application",
+   "dispute": "more than one defensible answer (two reviews): A and C are identical to the shell for a single-word string.; The shell strips the quotes, so A and C run identically and both are correct."
+  },
+  "d733c9bc-147f-486e-9488-6312dd5bcad2": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T02",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "d86f40ac-4da6-47c2-a7ee-b4dbcdc14a28": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T01",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "b5599dd9-e68b-4a67-b3ab-a33719759786": {
+   "topic_id": "ANSIBLE-NETWORKS-D2-T05",
+   "difficulty": "medium",
+   "competency": "knowledge_understanding"
+  },
+  "57ac27ec-8838-43db-a109-20df8d314ccd": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T01",
+   "difficulty": "easy",
+   "competency": "application"
+  },
+  "88450e56-7dcd-4406-978c-b67d3f324f00": {
+   "topic_id": "ANSIBLE-NETWORKS-D1-T03",
+   "difficulty": "easy",
+   "competency": "knowledge_understanding"
+  },
+  "143f476e-12f1-4815-b6d5-fc6143e85c43": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T02",
+   "difficulty": "medium",
+   "competency": "application"
+  },
+  "0610ec2f-6696-49c3-84d3-c7b460547415": {
+   "topic_id": "ANSIBLE-NETWORKS-D3-T01",
+   "difficulty": "medium",
+   "competency": "analysis_evaluation"
+  }
+ }
+}
