@@ -112,6 +112,8 @@ def test_a_disguised_nhprep_link_is_text_as_a_link_and_as_a_bare_url(disguised):
         ({"titleParens": "Sushil", "aboutBy": None, "slugToken": None}, ("Sushil", "title")),
         ({"titleParens": None, "aboutBy": "Admin", "slugToken": "amit"}, ("Amit", "slug")),
         ({"titleParens": "Tamil", "aboutBy": "Admin", "slugToken": "b30"}, None),
+        ({"titleParens": None, "aboutBy": "Mr.NIKUNJ", "slugToken": "mrnikunj"}, ("Nikunj", "description")),
+        ({"titleParens": None, "aboutBy": "LAW", "slugToken": "sah"}, ("Law Sah", "slug")),
     ],
 )
 def test_trainers_resolve_only_through_the_alias_table(hints, expected):
@@ -119,6 +121,24 @@ def test_trainers_resolve_only_through_the_alias_table(hints, expected):
         {"type": "course", "schema": 1, "slug": "c", "title": "C", "trainerHints": hints, "lessonCount": 0}
     )
     assert resolve_trainer(course) == expected
+
+
+@pytest.mark.parametrize(
+    ("slug", "expected"),
+    [
+        ("rohith-checkpoint", "Rohith"),
+        ("darsh-sd-access", "Darsh"),
+        ("vishal-ccna-cd", "Vishal"),
+        ("ccna-lab-01", None),
+    ],
+)
+def test_a_trainer_leading_the_slug_resolves_through_the_alias_table(slug, expected):
+    hints = {"titleParens": None, "aboutBy": None, "slugToken": slug.rsplit("-", 1)[-1]}
+    course = CourseRecord.model_validate(
+        {"type": "course", "schema": 1, "slug": slug, "title": "T", "trainerHints": hints, "lessonCount": 0}
+    )
+    found = resolve_trainer(course)
+    assert (found and found[0]) == expected
 
 
 @pytest.mark.parametrize(

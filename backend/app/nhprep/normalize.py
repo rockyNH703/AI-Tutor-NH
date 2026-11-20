@@ -45,8 +45,20 @@ TRAINER_ALIASES = {
     "amit": "Amit",
     "mohnish": "Mohnish",
     "nikunj": "Nikunj",
+    "mrnikunj": "Nikunj",
     "vishal": "Vishal",
     "chetan": "Chetan",
+    # Confirmed by the owner on 2026-11-20 ("All correct"). "sah" for Law Sah: the token "law" is an ordinary word.
+    "bharath": "Bharath",
+    "mrbharath": "Bharath",
+    "pankaj": "Pankaj",
+    "sanjay": "Sanjay",
+    "sharath": "Sharath",
+    "vineet": "Vineet",
+    "avinash": "Avinash",
+    "rohith": "Rohith",
+    "darsh": "Darsh",
+    "sah": "Law Sah",
 }
 # Explicit course slug -> track (plan §8.1); a course not listed has no track.
 COURSE_TRACKS = {
@@ -165,7 +177,14 @@ def content_hash(value: Any) -> str:
 def resolve_trainer(course: CourseRecord) -> tuple[str, str] | None:
     """(display name, provenance) from the export's hints, in order, each only through TRAINER_ALIASES."""
     hints = course.trainerHints
-    for provenance, hint in (("title", hints.titleParens), ("description", hints.aboutBy), ("slug", hints.slugToken)):
+    first = course.slug.split("-", 1)[0]  # "rohith-checkpoint", "darsh-sd-access": the name leads the slug
+    candidates = (
+        ("title", hints.titleParens),
+        ("description", hints.aboutBy),
+        ("slug", hints.slugToken),
+        ("slug", first),
+    )
+    for provenance, hint in candidates:
         token = re.sub("[^a-z]", "", (hint or "").lower())
         if token in TRAINER_ALIASES:
             return TRAINER_ALIASES[token], provenance
