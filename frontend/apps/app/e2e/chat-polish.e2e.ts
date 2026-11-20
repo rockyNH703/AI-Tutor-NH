@@ -232,9 +232,17 @@ test("a long rich reply streams evenly, never half-typed, within budget, and end
   await waitForHydration(page);
   await watchReplies(page);
   const started = Date.now();
-  await sendAndWait(page, RICH);
+  // ~330 words at the fake model's 50 ms each stream for ~17 s; the default 30 s left too little for the reply
+  // to be saved when the shared test database is busy.
+  await sendAndWait(page, RICH, 60_000);
   const seconds = (Date.now() - started) / 1000;
   const watch = await watched(page);
+  // A new account's first answer starts its streak, and its celebration opens over the page once the chat is
+  // still. Close it before reading the reply: the reads below are evaluate()s, which the pageGuard's locator
+  // handler never runs before (it guards only actions and auto-waiting assertions), so they raced the dialog.
+  const celebration = page.locator("[data-celebration$='-dialog']");
+  if (await celebration.waitFor({ timeout: 10_000 }).then(() => true, () => false)) await page.keyboard.press("Escape");
+  await expect(celebration).toHaveCount(0);
 
   // Never a maths error or a raw ** / $$ on screen, and finished blocks are never redrawn.
   expect(watch.katexErrors, "katex errors while streaming").toBe(0);

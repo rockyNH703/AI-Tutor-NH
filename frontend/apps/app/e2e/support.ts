@@ -196,12 +196,12 @@ export async function waitForIdle(page: Page, timeout = 30_000): Promise<void> {
   await expect(lastReply(page)).toHaveAttribute("aria-busy", "false", { timeout });
 }
 
-/** Send `text` and wait for the whole reply. */
-export async function sendAndWait(page: Page, text: string): Promise<void> {
+/** Send `text` and wait for the whole reply (`timeout`: for a reply that takes long to stream and save). */
+export async function sendAndWait(page: Page, text: string, timeout = 30_000): Promise<void> {
   const before = await replies(page).count();
   await send(page, text);
   await expect(replies(page)).toHaveCount(before + 1);
-  await waitForIdle(page);
+  await waitForIdle(page, timeout);
 }
 
 /**
