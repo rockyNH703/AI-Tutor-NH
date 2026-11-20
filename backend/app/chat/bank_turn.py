@@ -68,6 +68,24 @@ async def _last_bank(session: AsyncSession, conversation_id: uuid.UUID) -> dict 
     return found if isinstance(found, dict) else None
 
 
+def referent(earlier: list[str]) -> list[tuple[str, str]]:
+    """What "this" points at, from the chat's last three user messages (newest first), as steps to try in order:
+    ("sentence", text) an ordinary message, read loosely; ("topic", words) an earlier quiz request's named topic;
+    ("last", "") the latest bank test's topics. A quiz request settles it: "next 5" or "quiz me on this" means the
+    test it got, never its words read as a sentence (session 1, 2026-11-20: "...the BGP in the Real World course",
+    "next 5", then "Quiz me on this" served Wireless)."""
+    steps: list[tuple[str, str]] = []
+    for sentence in earlier[:3]:
+        asked = parse(sentence)
+        if asked is None:
+            steps.append(("sentence", sentence))
+            continue
+        named = asked.route != "next" and not asked.refers_to_chat and asked.topic
+        steps.append(("topic", asked.topic) if named else ("last", ""))
+        break
+    return steps
+
+
 async def _topics(
     session: AsyncSession,
     request: Request,
@@ -82,8 +100,12 @@ async def _topics(
             session, request.topic, track=request.track, goal=goal, entitled=entitled, loose=request.lesson_named
         )
     if request.refers_to_chat:
-        for sentence in earlier[:3]:  # the newest first
-            found = await finder.find(session, sentence, track=request.track, goal=goal, entitled=entitled, loose=True)
+        for kind, text in referent(earlier):
+            if kind == "last":
+                break
+            found = await finder.find(
+                session, text, track=request.track, goal=goal, entitled=entitled, loose=kind == "sentence"
+            )
             if found.status in ("confident", "broad"):
                 return found
         if last and last.get("topicIds"):
