@@ -1,6 +1,6 @@
 # Environment variables
 
-> Checked on 2026-10-29 against `backend/app/settings.py` (then 147 fields; 164 with the question bank's and NHprep's,
+> Checked on 2026-10-29 against `backend/app/settings.py` (then 147 fields; 165 with the question bank's and NHprep's,
 > 2026-11-20), `deploy-netsec/env/*.example`,
 > `frontend/apps/app/src/env.mjs`, `src/lib/auth/`, `src/lib/server/config.ts`, `src/lib/legal.ts`, the Sentry and
 > Playwright configs and `backend/tests/conftest.py`. Every name below exists in that code; none is invented.
@@ -145,7 +145,7 @@ database `netsec_learning_e2e_test` (loopback and `*_test` only), the fake provi
 
 ## API settings
 
-All 164 fields of `Settings` (`backend/app/settings.py`), in the file's own order. The name is the field's name in
+All 165 fields of `Settings` (`backend/app/settings.py`), in the file's own order. The name is the field's name in
 capitals (`database_url` is `DATABASE_URL`).
 
 **Secret** marks a value that must never be printed or committed. "Declared but not read" means the field exists
@@ -409,13 +409,14 @@ their vectors from recall until they are recreated or re-embedded.
 | `NHPREP_MODE` | off/qa/on | `off` | NHprep video courses (app/nhprep, [nhprep.md](nhprep.md)): lesson cards in the chat and `/v1/nhprep`, for NetworkersHome students only. `off`: nobody (every route 404, stored cards hidden); `qa`: only `NHPREP_QA_EMAILS`; `on`: every student. Read at startup: a change is a restart. |
 | `NHPREP_QA_EMAILS` | comma-separated emails | empty | The accounts `NHPREP_MODE=qa` serves (still only NetworkersHome students). `qa` without any is refused in production. |
 | `NHPREP_PLAYBACK` | one of `off` \| `secret` \| `endpoint` | `off` | How a lesson video gets its short-lived `videos.nhprep.com` link: `secret` (NHprep's signing secret) or `endpoint` (NHprep signs). Neither signer exists yet, so the API refuses to start with them and production refuses anything but `off`; with `off` every video is `not_configured`. |
+| `NHPREP_VIDEO_SIGNING_SECRET` | secret string | empty | Option (A): NHprep's link-signing secret for `NHPREP_PLAYBACK=secret`, written into `/etc/netsecai/api.env` by the owner only; production refuses `secret` without it. Held as a masked secret: never logged, printed or put in argv. |
 | `NHPREP_FIND_TIMEOUT_S` | number (gt 0, le 10) | `1.0` | One deadline for the NHprep finder on a chat turn (its query embedding plus every SQL leg); past it the normal turn answers. |
 | `NHPREP_REQUESTS_PER_MINUTE` | integer (ge 1, le 10000) | `600` | Per student, on every `/v1/nhprep` route (in process). |
 | `NHPREP_PLAYBACKS_PER_MINUTE` | integer (ge 1, le 600) | `20` | Per student, on `POST /v1/nhprep/lessons/{id}/playback`, on top of the route limit. |
 
 ## What the production template lists
 
-`deploy-netsec/env/api.env.example` lists 69 of the 164 API settings (every name in it exists in `Settings`); the
+`deploy-netsec/env/api.env.example` lists 70 of the 165 API settings (every name in it exists in `Settings`); the
 others keep their defaults above unless set. Not in the template, among others: the `VOICE_*` limits and rollout
 switches (`VOICE_QA_EMAILS`, `VOICE_ACK`, `VOICE_PARALLEL_ROUTING`, `VOICE_SERVER_SPEECH`), `QUESTION_BANK_TESTS`,
 `ADAPTIVE_CHAT_TESTS`, `MEMORY_AUTOMATIC_PROPOSALS` and the `MEMORY_WORKER_*` bounds, the `RAG_*` tuning values, and

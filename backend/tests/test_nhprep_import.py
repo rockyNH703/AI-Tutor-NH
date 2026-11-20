@@ -287,8 +287,11 @@ async def test_a_lost_lock_stops_the_run_marks_it_failed_and_a_rerun_completes(d
                 async with db.engine.connect() as other:
                     await other.execute(
                         text(
+                            # only this test database's holder: the key is server-wide, and other *_test databases
+                            # (a parallel import, another session's run) must never lose their lock
                             "SELECT pg_terminate_backend(pid) FROM pg_locks WHERE locktype = 'advisory' AND granted "
-                            "AND ((classid::bigint << 32) | objid::bigint) = :k"
+                            "AND ((classid::bigint << 32) | objid::bigint) = :k "
+                            "AND database = (SELECT oid FROM pg_database WHERE datname = current_database())"
                         ),
                         {"k": NHPREP_LOCK_KEY},
                     )

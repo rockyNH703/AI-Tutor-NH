@@ -42,8 +42,9 @@ def build_signer(settings: Settings) -> VideoSigner | None:
     """The signer NHPREP_PLAYBACK names; None when off (every video is then not_configured)."""
     if settings.nhprep_playback == "off":
         return None
-    # shortcut: neither signer is written yet (Revision 5, D9); write (A) or (B) here, ~20 lines plus a pinned vector,
-    # when the company answers, and lift the refusal in Settings.validate_for_env.
+    # shortcut: neither signer is written yet (Revision 5). (A) signs with settings.nhprep_video_signing_secret:
+    # write it here, ~20 lines plus a pinned vector, when NHprep gives its recipe, and lift the refusal in
+    # Settings.validate_for_env.
     raise RuntimeError(f"NHPREP_PLAYBACK={settings.nhprep_playback} has no signer yet; set NHPREP_PLAYBACK=off")
 
 

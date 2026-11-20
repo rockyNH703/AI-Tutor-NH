@@ -135,6 +135,17 @@ def test_no_signer_can_be_switched_on_before_it_exists(mode):
     make_settings(**PRODUCTION_LIKE).validate_for_env()  # off (the default) is valid
 
 
+def test_secret_mode_needs_its_secret_and_never_shows_it():
+    with pytest.raises(RuntimeError, match="NHPREP_PLAYBACK=secret needs NHPREP_VIDEO_SIGNING_SECRET"):
+        make_settings(**{**PRODUCTION_LIKE, "nhprep_playback": "secret"}).validate_for_env()
+    fake = "e2e-only-video-" + "signing-secret"
+    settings = make_settings(**{**PRODUCTION_LIKE, "nhprep_playback": "secret", "nhprep_video_signing_secret": fake})
+    with pytest.raises(RuntimeError) as refused:  # still refused: the signer itself waits for NHprep's recipe
+        settings.validate_for_env()
+    assert "needs NHPREP_VIDEO_SIGNING_SECRET" not in str(refused.value) and fake not in str(refused.value)
+    assert fake not in repr(settings) and fake not in str(settings.model_dump())
+
+
 def test_qa_mode_needs_its_list_in_production():
     with pytest.raises(RuntimeError, match="NHPREP_MODE=qa needs NHPREP_QA_EMAILS"):
         make_settings(**{**PRODUCTION_LIKE, "nhprep_mode": "qa"}).validate_for_env()

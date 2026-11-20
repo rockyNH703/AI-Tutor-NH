@@ -313,6 +313,8 @@ class Settings(BaseSettings):
     # How a video gets its short-lived link: off (none plays; the card says so), secret (NHprep's signing secret) or
     # endpoint (NHprep signs). Production refuses both until their signer exists (app/nhprep/playback.py).
     nhprep_playback: Literal["off", "secret", "endpoint"] = "off"
+    # (A) "secret": NHprep's link-signing secret, written into /etc/netsecai/api.env by the owner only; never logged.
+    nhprep_video_signing_secret: SecretStr | None = None
     # One deadline for the whole NHprep finder on a chat turn (its query embedding plus every SQL leg).
     nhprep_find_timeout_s: float = Field(default=1.0, gt=0, le=10)
     # Per user, on every /v1/nhprep route; a playback also counts against its own, lower limit.
@@ -522,6 +524,10 @@ class Settings(BaseSettings):
             problems.append("QUESTION_BANK_TURN=qa needs QUESTION_BANK_QA_EMAILS")
         if self.nhprep_mode == "qa" and not self.nhprep_qa_list:
             problems.append("NHPREP_MODE=qa needs NHPREP_QA_EMAILS")
+        if self.nhprep_playback == "secret" and not (
+            self.nhprep_video_signing_secret and self.nhprep_video_signing_secret.get_secret_value().strip()
+        ):
+            problems.append("NHPREP_PLAYBACK=secret needs NHPREP_VIDEO_SIGNING_SECRET")
         if self.nhprep_playback != "off":  # the company has not chosen how NetSec gets a signature (Revision 5)
             problems.append("NHPREP_PLAYBACK must be off: no video signer exists yet")
         if not (self.ollalink_stt_url.startswith("https://") and self.ollalink_tts_url.startswith("https://")):

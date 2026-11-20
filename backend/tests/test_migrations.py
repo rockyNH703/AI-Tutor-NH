@@ -854,7 +854,10 @@ def test_migration_0027_adds_the_nhprep_tables_and_refuses_to_drop_imports():
         before = run(_snapshot(NHPREP_TABLES))
 
         alembic("upgrade", NHPREP)
-        assert run(_snapshot(NHPREP_TABLES)) == before  # nothing outside the new tables changed
+        after = run(_snapshot(NHPREP_TABLES))  # nothing outside the new tables changed (but the version row)
+        assert {t: v for t, v in after.items() if t != "alembic_version"} == {
+            t: v for t, v in before.items() if t != "alembic_version"
+        }
         embedding = run(
             _query(
                 "SELECT format_type(atttypid, atttypmod) AS t FROM pg_attribute "
