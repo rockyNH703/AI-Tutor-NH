@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import io
 import json
 import uuid
@@ -158,6 +159,22 @@ def test_read_export_checks_bytes_counts_and_completeness_and_counts_rejects():
     broken[4]["lessonCount"] = 2  # a course whose lesson list is short: not complete
     export = bundle(broken)
     assert export.rejects["lesson:slug"] == 1 and L2 in export.present_lesson_ids and not export.complete
+
+
+def test_the_import_cli_writes_only_to_a_local_test_database_or_as_an_operator_outside_a_deploy():
+    spec = importlib.util.spec_from_file_location(
+        "nhprep_import_cli", Path(__file__).parents[1] / "scripts" / "nhprep_import.py"
+    )
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+    refuse = cli.target_refusal
+    local = {"database": "netsec_nhprep_eval_test", "host": "127.0.0.1", "deploying": False}
+    assert refuse(apply=True, operator=None, **local) is None
+    assert refuse(apply=False, operator=None, database="netsecai", host="127.0.0.1", deploying=True) is None  # dry run
+    assert "target" in refuse(apply=True, operator=None, database="netsecai", host="127.0.0.1", deploying=False)
+    assert "target" in refuse(apply=True, operator=None, database="x_test", host="10.1.50.94", deploying=False)
+    assert refuse(apply=True, operator="ops", database="netsecai", host="127.0.0.1", deploying=False) is None
+    assert "deploying" in refuse(apply=True, operator="ops", database="netsecai", host="127.0.0.1", deploying=True)
 
 
 def test_an_underscore_upload_name_is_a_lesson_and_its_day_is_read_from_it():

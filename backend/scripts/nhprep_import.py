@@ -30,6 +30,19 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 OPERATOR = re.compile(r"[a-z0-9][a-z0-9_.-]{0,79}")
 SHA256 = re.compile(r"[0-9a-fA-F]{64}")
+LOOPBACK = {"127.0.0.1", "localhost", "::1"}
+DEPLOY_MARKER = Path("/run/netsecai-deploying")  # deploy-netsec/server/update.sh holds it while it resets the app
+
+
+def target_refusal(*, apply: bool, operator: str | None, database: str, host: str, deploying: bool) -> str | None:
+    """Writes go to a loopback *_test database, or (--operator) to production outside a deploy (spec r2-ops §4.3)."""
+    if not apply:
+        return None
+    if operator is None and not (database.endswith("_test") and host in LOOPBACK):
+        return "target: without --operator, --apply writes only to a loopback *_test database"
+    if operator is not None and deploying:
+        return "deploying: a NetSec deploy is in progress; run again after it"
+    return None
 
 
 def _source(src: str) -> tuple[bytes, dict[str, Any] | None]:
@@ -70,6 +83,17 @@ async def run(args: argparse.Namespace, export: Any, vectors: Any, emit: TextIO 
     database = db.engine.url.database or ""
     backup = f"backup:{Path(args.backup).name}" if args.backup else (args.backup_waiver and "waiver")
     operator = args.operator or "local"
+    refusal = target_refusal(
+        apply=args.apply,
+        operator=args.operator,
+        database=database,
+        host=db.engine.url.host or "",
+        deploying=args.deploying,
+    )
+    if refusal:
+        await db.dispose()
+        print(f"REFUSED {refusal}")
+        return 1
     try:
         if args.purge:
             counts = await purge(db, operator=operator, reason=args.reason, apply=args.apply)
@@ -129,6 +153,7 @@ def main() -> None:
     problem = _check_args(args)
     if problem:
         parser.error(problem)
+    args.deploying = DEPLOY_MARKER.exists()  # read before the event loop: a blocking call
     export = vectors = None
     if not args.purge:
         export = read_export(*_source(args.src), args.sha256)
