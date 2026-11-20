@@ -306,6 +306,18 @@ class Settings(BaseSettings):
     # NetworkersHome students: verified emails at these domains (comma-separated, exact, case-folded) get the
     # NHprep-derived bank and NHprep content (app/access/students.py). Empty: nobody (fails closed).
     nhprep_allowed_email_domains: str = "networkershome.com"
+    # NHprep video courses (app/nhprep; plan rev 4 §8.8, Revision 5): lesson cards in the chat and /v1/nhprep, for
+    # NetworkersHome students only (app/nhprep/access.py). Rollout off -> qa (only NHPREP_QA_EMAILS) -> on.
+    nhprep_mode: Literal["off", "qa", "on"] = "off"
+    nhprep_qa_emails: str = ""
+    # How a video gets its short-lived link: off (none plays; the card says so), secret (NHprep's signing secret) or
+    # endpoint (NHprep signs). Production refuses both until their signer exists (app/nhprep/playback.py).
+    nhprep_playback: Literal["off", "secret", "endpoint"] = "off"
+    # One deadline for the whole NHprep finder on a chat turn (its query embedding plus every SQL leg).
+    nhprep_find_timeout_s: float = Field(default=1.0, gt=0, le=10)
+    # Per user, on every /v1/nhprep route; a playback also counts against its own, lower limit.
+    nhprep_requests_per_minute: int = Field(default=600, ge=1, le=10_000)
+    nhprep_playbacks_per_minute: int = Field(default=20, ge=1, le=600)
 
     @field_validator("default_timezone")
     @classmethod
@@ -354,6 +366,10 @@ class Settings(BaseSettings):
     @property
     def question_bank_qa_list(self) -> frozenset[str]:
         return frozenset(e.strip().lower() for e in self.question_bank_qa_emails.split(",") if e.strip())
+
+    @property
+    def nhprep_qa_list(self) -> frozenset[str]:
+        return frozenset(e.strip().lower() for e in self.nhprep_qa_emails.split(",") if e.strip())
 
     def question_bank_turn_allows(self, email: str) -> bool:
         """QUESTION_BANK_TURN for this account: `on` everyone, `qa` only the listed accounts, `off` nobody."""
@@ -504,6 +520,10 @@ class Settings(BaseSettings):
             problems.append("VOICE_MODE=qa needs VOICE_QA_EMAILS")
         if self.question_bank_turn == "qa" and not self.question_bank_qa_list:
             problems.append("QUESTION_BANK_TURN=qa needs QUESTION_BANK_QA_EMAILS")
+        if self.nhprep_mode == "qa" and not self.nhprep_qa_list:
+            problems.append("NHPREP_MODE=qa needs NHPREP_QA_EMAILS")
+        if self.nhprep_playback != "off":  # the company has not chosen how NetSec gets a signature (Revision 5)
+            problems.append("NHPREP_PLAYBACK must be off: no video signer exists yet")
         if not (self.ollalink_stt_url.startswith("https://") and self.ollalink_tts_url.startswith("https://")):
             problems.append("OLLALINK_STT_URL and OLLALINK_TTS_URL must be https:// (the key travels with every call)")
         tracing_names = ("LANGCHAIN_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_TRACING")

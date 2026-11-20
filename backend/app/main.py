@@ -48,6 +48,9 @@ from app.logging import configure_logging, get_logger
 from app.memory.recall import MemoryRecall
 from app.memory.router import router as memory_router
 from app.middleware import ClassifierWarmMiddleware, RequestContextMiddleware
+from app.nhprep.chat import build_chat
+from app.nhprep.playback import VideoSigner, build_signer
+from app.nhprep.router import router as nhprep_router
 from app.notifications.router import router as notifications_router
 from app.progress.router import router as progress_router
 from app.rag.embeddings import build_embeddings, embedding_model_id, is_configured
@@ -124,6 +127,7 @@ def create_app(
     embeddings: Embeddings | None = None,
     intents: IntentClassifier | None = None,
     voice: VoiceProvider | None = None,
+    nhprep_signer: VideoSigner | None = None,
 ) -> FastAPI:
     settings = settings or get_settings()
     settings.validate_for_env()
@@ -187,6 +191,7 @@ def create_app(
             memory=app.state.memory_recall,
             voice=app.state.voice,
             voice_budget=app.state.voice_budget,
+            nhprep=build_chat(app.state.db, settings, app.state.embeddings),  # the app's own (masked) embeddings
         )
         # Files never delay startup or stop chat: the worker recovers and tests its sandbox in the
         # background, and files stay unavailable until that passes. Tests drive it directly.
@@ -213,6 +218,7 @@ def create_app(
                 "knowledge": "ncert" if ncert else "pgvector",
                 "intents": settings.intent_router,
                 "scope": settings.study_scope,
+                "nhprep": settings.nhprep_mode,
                 # Voice limits on calls at once are counted in this process (app/voice/router.py InFlight).
                 "voice": settings.voice_mode if app.state.voice else "off",
                 "voice_concurrency": "per process",
@@ -265,6 +271,11 @@ def create_app(
     app.state.unsubscribe_limiter = SlidingWindowLimiter(limit=30, window_s=60)
     # Practice-test actions per user (answers, mock-exam saves): checked before the reply's row lock.
     app.state.assessment_limiter = SlidingWindowLimiter(limit=120, window_s=60)
+    # NHprep (app/nhprep/router.py): every route per user; a playback asks for a signed video link, so it has its own.
+    app.state.nhprep_limiter = SlidingWindowLimiter(limit=settings.nhprep_requests_per_minute, window_s=60)
+    app.state.nhprep_playback_limiter = SlidingWindowLimiter(limit=settings.nhprep_playbacks_per_minute, window_s=60)
+    # NHprep's video links (app/nhprep/playback.py): None while NHPREP_PLAYBACK=off; tests pass a fake signer.
+    app.state.nhprep_signer = nhprep_signer if nhprep_signer is not None else build_signer(settings)
     # Voice mode (app/voice): OllaLink's speech, only when VOICE_MODE is not off and it is configured.
     app.state.voice = voice if voice is not None else build_voice(settings)
     app.state.voice_calls = InFlight()
@@ -312,4 +323,5 @@ def create_app(
     app.include_router(files_router)
     app.include_router(knowledge_router)
     app.include_router(study_router)
+    app.include_router(nhprep_router)  # always mounted (the contract); every route checks NHPREP_MODE itself
     return app

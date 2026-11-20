@@ -57,6 +57,7 @@ from app.memory.commands import (
     request_hash,
 )
 from app.memory.recall import MemoryRecall
+from app.nhprep.chat import Card, NhprepChat, nhprep_allows
 from app.progress.activity import record_question
 from app.progress.learning import is_meaningful, now, record_learning, tutor_progress
 from app.qbank import bank_tests, chat_tests
@@ -175,6 +176,9 @@ class PreparedTurn:
     usage_id: uuid.UUID | None = None  # the turn's usage_events row (closed even if its chat is deleted)
     # The certification bank's own reply to a quiz request (app/chat/bank_turn.py): no model, no search.
     served: bank_turn.Served | None = None
+    # A regeneration of an NHprep card (app/nhprep/chat.py): the replaced reply's metadata.nhprep, so the finder runs
+    # again; None for every other turn (a regenerated model reply stays the model's, decided once).
+    nhprep: dict | None = None
 
     def meta_event(self) -> ChatEvent:
         return ChatEvent(
@@ -208,6 +212,7 @@ class ChatService:
         memory: MemoryRecall | None = None,
         voice: VoiceProvider | None = None,
         voice_budget: SpeechBudget | None = None,
+        nhprep: NhprepChat | None = None,
     ) -> None:
         self.db = db
         self.settings = settings
@@ -217,6 +222,7 @@ class ChatService:
         self.memory = memory
         self.voice = voice  # voice mode's speech (app/voice): the first words of a voice reply (_speak_first)
         self.voice_budget = voice_budget
+        self.nhprep = nhprep  # NHprep's lesson cards (app/nhprep/chat.py); None: NHPREP_MODE off
 
     # ------------------------------------------------------------------ prepare
     async def _sweep_stale(
@@ -541,6 +547,7 @@ class ChatService:
         await repo.touch(conversation.id)
         await session.commit()
         await session.refresh(conversation)
+        nhprep = (last.metadata_ or {}).get("nhprep")
         return PreparedTurn(
             user,
             conversation,
@@ -564,6 +571,7 @@ class ChatService:
             intent=intent,
             scope=scope,
             usage_id=usage.id,
+            nhprep=nhprep if isinstance(nhprep, dict) else None,
         )
 
     def _reused_intent(self, last: Message, question: str) -> dict | None:
@@ -997,6 +1005,7 @@ class ChatService:
         reading: asyncio.Task | None = None  # the intent router's reading, started beside the scope (_parallel)
         ahead: asyncio.Task | None = None  # the knowledge search, started ahead of the graph
         speaking: asyncio.Task | None = None  # the server's first words (server_speech)
+        card: Card | None = None  # NHprep's lesson card (_app_turn)
         planning = turn.server_speech
         options = GenerationOptions(
             model=turn.config.model,
@@ -1016,14 +1025,17 @@ class ChatService:
                     conversation.pop()  # but the model answers the question afresh, without them
             if not query:
                 query = next((message.content for message in reversed(conversation) if message.role == "user"), "")
-            # A quiz request the bank answers itself is decided first: no recall, classifier or search runs.
-            turn.served = await self._app_turn(turn, conversation, query)
-            memories = await self._memories(turn.user.id, query) if turn.served is None else []
+            # A quiz request the bank answers itself, or an NHprep lesson card, is decided first: no recall, classifier
+            # or search runs.
+            found = await self._app_turn(turn, conversation, query)
+            turn.served = found if isinstance(found, bank_turn.Served) else None
+            card = found if isinstance(found, Card) else None
+            memories = await self._memories(turn.user.id, query) if found is None else []
             # Voice turns (VOICE_PARALLEL_ROUTING): the router's reading and the knowledge search start now, beside the
             # study scope, not after it: the same requests on the same words, so the same decisions (OllaLink answers
             # them one after another anyway). A redirect cancels both; an intent that turns the search off drops it.
             prepared = turn.config.retrieval
-            if turn.served is None and self._parallel(turn):
+            if found is None and self._parallel(turn):
                 reading = asyncio.ensure_future(self.intents.classify(conversation, turn.attached_kinds))
                 ahead = asyncio.ensure_future(
                     self.rag_graph.prefetch(
@@ -1036,7 +1048,7 @@ class ChatService:
                         }
                     )
                 )
-            if turn.served is None:
+            if found is None:
                 scope, scope_shadow = await self._scope(turn, conversation, generation)
                 turn.scope = scope
             decision = _decision(scope)
@@ -1044,6 +1056,10 @@ class ChatService:
                 ttft_ms = int((time.monotonic() - started) * 1000)
                 pieces.append(turn.served.text)
                 await generation.queue.put(ChatEvent("token", {"text": turn.served.text}))
+            elif card is not None:  # NHprep's card: a fixed line, the lesson's ids in metadata, no model and no search
+                ttft_ms = int((time.monotonic() - started) * 1000)
+                pieces.append(card.copy)
+                await generation.queue.put(ChatEvent("token", {"text": card.copy}))
             elif decision == REDIRECT:  # not learning: the app's own short reply, without the model or a search
                 language = dict(turn.student.preferences).get("language") if turn.student else None
                 text = redirect_copy(turn.user_message.content if turn.user_message is not None else "", language)
@@ -1197,6 +1213,10 @@ class ChatService:
             "timing": _pre_llm(turn.received_at, request_sent["at"]),
             # The certification bank's reply (app/chat/bank_turn.py): its topics, questions and timings.
             "bank": turn.served.bank if turn.served is not None else None,
+            # Public (NHprep's students only): the lesson card this reply shows, ids only (app/nhprep/chat.py).
+            "nhprep": card.public if card is not None else None,
+            # Internal: why NHprep answered (status, counts, per-leg ms); never text.
+            "nhprepTrace": card.trace if card is not None else None,
         }
         metadata = {k: v for k, v in metadata.items() if v is not None}
         log.info(
@@ -1244,7 +1264,9 @@ class ChatService:
                 )
             else:
                 done = {
-                    "message": message_out(message).model_dump(mode="json", by_alias=True),
+                    "message": message_out(message, nhprep=nhprep_allows(turn.user, self.settings)).model_dump(
+                        mode="json", by_alias=True
+                    ),
                     "conversation": conversation_out(conversation).model_dump(mode="json", by_alias=True),
                 }
                 if learning is not None:  # this answer made today a learning day (committed)
@@ -1285,18 +1307,22 @@ class ChatService:
 
     async def _app_turn(
         self, turn: PreparedTurn, conversation: list[ChatMessage], query: str
-    ) -> bank_turn.Served | None:
-        """The certification bank's reply to a message that clearly asks for a quiz (QUESTION_BANK_TURN), or None
-        for every other turn. Text turns only; a failure leaves the turn to the model."""
-        if not self.settings.question_bank_tests or turn.voice or turn.attached_kinds or turn.command is not None:
+    ) -> bank_turn.Served | Card | None:
+        """The certification bank's reply to a message that clearly asks for a quiz (QUESTION_BANK_TURN), else
+        NHprep's lesson card for one that asks for an NHprep lesson or its study aids (NHPREP_MODE), or None for
+        every other turn. Text turns only; a failure leaves the turn to the model."""
+        if turn.voice or turn.attached_kinds or turn.command is not None:
             return None
-        if not self.settings.question_bank_turn_allows(turn.user.email or ""):
-            return None
-        request = bank_turn.wants(query)
-        if request is None:
-            return None
+        request = None
+        if self.settings.question_bank_tests and self.settings.question_bank_turn_allows(turn.user.email or ""):
+            request = bank_turn.wants(query)
         users = [message.content for message in reversed(conversation) if message.role == "user"]
         earlier = users[1:4] if users and users[0] == query else users[:3]
+        if request is None:
+            # NHprep: a new message, or the regeneration of an NHprep card (its finder runs again).
+            if self.nhprep is None or (turn.user_message is None and turn.nhprep is None):
+                return None
+            return await self.nhprep.answer(turn.user, query, earlier, turn.assistant_id)
         goal = certification_code(turn.student.certification_goal) if turn.student else None
         try:
             async with self.db.sessionmaker() as session:

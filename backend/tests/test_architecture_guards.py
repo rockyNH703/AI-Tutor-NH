@@ -195,8 +195,10 @@ def test_nhprep_stays_out_of_the_shared_knowledge_store_the_model_and_the_chat()
             continue
         reached = {m for m in _imports(module) if m.startswith("app.nhprep")}
         allowed = {"app.nhprep.chat"} if app_dir / "chat" in module.parents else set()
+        if module == app_dir / "conversations" / "router.py":
+            allowed = {"app.nhprep.access"}  # a reply's card is shown only to a reader NHprep is for
         if module.name == "main.py":
-            allowed = {"app.nhprep.router", "app.nhprep.service", "app.nhprep.chat"}  # finalised with L4
+            allowed = {"app.nhprep.router", "app.nhprep.chat", "app.nhprep.playback"}
         assert reached <= allowed, (module.relative_to(app_dir), reached - allowed)
 
 

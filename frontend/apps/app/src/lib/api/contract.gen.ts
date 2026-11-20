@@ -648,6 +648,40 @@ export const CONTRACT = {
       ]
     }
   },
+  "NhprepItemOut": {
+    "kind": {
+      "enum": [
+        "note",
+        "flashcard",
+        "cheat_sheet",
+        "interview_question"
+      ]
+    }
+  },
+  "NhprepLessonOut": {
+    "video": {
+      "enum": [
+        "ready",
+        "no_video",
+        "not_configured"
+      ]
+    }
+  },
+  "NhprepPlaybackOut": {
+    "reason": {
+      "enum": [
+        "not_configured",
+        "no_video",
+        "signing_failed"
+      ]
+    },
+    "status": {
+      "enum": [
+        "ready",
+        "unavailable"
+      ]
+    }
+  },
   "NotificationPreferencesOut": {
     "delivery": {
       "enum": [

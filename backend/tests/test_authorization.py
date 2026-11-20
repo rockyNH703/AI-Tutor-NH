@@ -222,3 +222,16 @@ async def test_files_are_per_user(client, app):
     assert stolen.json()["error"]["fields"] == [{"field": "attachmentIds", "reason": "not_found"}]
     mine = await client.get(f"/v1/files/{file_id}", headers=alice["headers"])
     assert mine.status_code == 200 and mine.json()["status"] == "ready"
+
+
+async def test_nhprep_is_a_404_for_an_account_it_is_not_for():
+    """NHprep's catalog is the same for every student; for anyone else every route is a missing resource (404),
+    before any id, query or body is checked (tests/test_nhprep_api.py has the full rule)."""
+    from tests.test_nhprep_api import assert_all_404, nhprep_app, seed, student
+
+    async with nhprep_app() as (app, client):
+        lessons = await seed(app)
+        lesson = next(iter(lessons.values()))
+        await assert_all_404(client, (await register(client, app))["headers"], lesson)
+        found = await client.get(f"/v1/nhprep/lessons/{lesson}", headers=await student(client, app))
+        assert found.status_code == 200, found.text

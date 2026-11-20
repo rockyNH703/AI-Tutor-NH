@@ -22,6 +22,7 @@ from app.db.models import Conversation, Message
 from app.db.session import get_session
 from app.errors import NotFound
 from app.logging import get_logger
+from app.nhprep.access import nhprep_allows
 
 router = APIRouter(prefix="/v1/conversations", tags=["conversations"])
 log = get_logger("app.assessments")
@@ -42,10 +43,16 @@ def nhprep_derived(metadata: dict | None) -> bool:
 
 
 def message_out(
-    m: Message, attachments=(), withdrawn: frozenset[str] = frozenset(), *, entitled: bool = True
+    m: Message,
+    attachments=(),
+    withdrawn: frozenset[str] = frozenset(),
+    *,
+    entitled: bool = True,
+    nhprep: bool = False,
 ) -> MessageOut:
     """A message as its reader may see it. `entitled`: the reader is a NetworkersHome student
-    (app/access/students.py); for anyone else an NHprep-derived reply is one neutral line, with no test or cards."""
+    (app/access/students.py); for anyone else an NHprep-derived reply is one neutral line, with no test or cards.
+    `nhprep`: NHprep is for the reader now (app/nhprep/access.py); else its card stays hidden (NHPREP_MODE off)."""
     if not entitled and m.role == "assistant" and nhprep_derived(m.metadata_):
         return MessageOut(
             id=m.id,
@@ -57,7 +64,7 @@ def message_out(
             metadata={},
             attachments=[],
         )
-    metadata = public_metadata(m.metadata_, m.id, m.status, m.content if m.role == "assistant" else "")
+    metadata = public_metadata(m.metadata_, m.id, m.status, m.content if m.role == "assistant" else "", nhprep=nhprep)
     if withdrawn and metadata.get("citations"):
         metadata["citations"] = [_redacted(citation, withdrawn) for citation in metadata["citations"]]
     return MessageOut(
@@ -89,7 +96,12 @@ def _redacted(citation: dict, withdrawn: frozenset[str]) -> dict:
 
 
 def public_metadata(
-    metadata: dict | None, message_id: uuid.UUID | None = None, status: str | None = None, content: str = ""
+    metadata: dict | None,
+    message_id: uuid.UUID | None = None,
+    status: str | None = None,
+    content: str = "",
+    *,
+    nhprep: bool = False,
 ) -> dict:
     # Only fields a client may rely on; internal diagnostics stay server-side.
     allowed = ("model", "errorCode", "finishReason", "citations", "assessmentError")
@@ -110,6 +122,9 @@ def public_metadata(
             "source": bank.get("source"),
             "next": bool(bank.get("setId")) and bank.get("more", True) is not False,
         }
+    card = (metadata or {}).get("nhprep")
+    if nhprep and isinstance(card, dict):  # NHprep's lesson card (app/nhprep/chat.py): ids only; nhprepTrace stays
+        public["nhprep"] = card
     return public
 
 
@@ -197,6 +212,7 @@ async def list_messages(
     rows, older = await repo.messages_page(conversation_id, limit, before)
     attachments = await repo.attachments([m.id for m in rows if m.role == "user"])
     withdrawn = await repo.withdrawn_documents(_cited_documents(rows))
-    entitled = is_nh_student(principal.user, request.app.state.settings)
-    items = [message_out(m, attachments.get(m.id, ()), withdrawn, entitled=entitled) for m in rows]
+    settings = request.app.state.settings
+    entitled, cards = is_nh_student(principal.user, settings), nhprep_allows(principal.user, settings)
+    items = [message_out(m, attachments.get(m.id, ()), withdrawn, entitled=entitled, nhprep=cards) for m in rows]
     return MessagePage(items=items, next_cursor=older)

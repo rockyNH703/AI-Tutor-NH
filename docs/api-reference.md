@@ -258,6 +258,21 @@ Shapes and rules: [api-contract.md, Voice](api-contract.md#voice).
 | POST | `/v1/voice/speech` | session | `/api/v1/voice/speech` (file response, voice class) | `app/voice/router.py` `speak` |
 | POST | `/v1/voice/transcriptions` | session | `/api/v1/voice/transcriptions` (raw upload, voice class) | `app/voice/router.py` `transcribe` |
 
+### NHprep
+
+NetworkersHome students only (`app/nhprep/access.py`: `NHPREP_MODE`, a verified address at
+`NHPREP_ALLOWED_EMAIL_DOMAINS`, and for `qa` also `NHPREP_QA_EMAILS`). For anyone else, and for everyone while
+`NHPREP_MODE=off`, every route is 404 `not_found` before any id, query or body is validated. Ids are NetSec's own:
+no GET carries an NHprep id, page URL or video link. A chat reply's lesson card is `metadata.nhprep` (ids only,
+every key always present, pinned by `backend/tests/fixtures/nhprep/cards.json`), shown only to such a reader.
+
+| Method | Path | Sign-in | Browser (web app) | Source |
+|---|---|---|---|---|
+| GET | `/v1/nhprep/lessons?ids=` | session | `/api/v1/nhprep/lessons` | `app/nhprep/router.py` `list_lessons` (1-10 comma-separated ids; summaries in the order asked, missing or removed left out) |
+| GET | `/v1/nhprep/lessons/{lesson_id}` | session | `/api/v1/nhprep/lessons/{lesson_id}` | `app/nhprep/router.py` `get_lesson` (course, trainers, previous/next, sections with `startSeconds`, per-kind `availability`, `video`: `ready`/`no_video`/`not_configured`, `removed`) |
+| GET | `/v1/nhprep/lessons/{lesson_id}/items?kind=` | session | `/api/v1/nhprep/lessons/{lesson_id}/items` | `app/nhprep/router.py` `list_lesson_items` (`note`, `flashcard`, `cheat_sheet`, `interview_question`; 404 for a removed lesson) |
+| POST | `/v1/nhprep/lessons/{lesson_id}/playback` | session | `/api/v1/nhprep/lessons/{lesson_id}/playback` | `app/nhprep/router.py` `lesson_playback` (`{status: "ready", src, expiresIn}` with `src` checked to be `https://videos.nhprep.com/{videoId}.mp4?…`, or `{status: "unavailable", reason: "not_configured" \| "no_video" \| "signing_failed"}`; `Cache-Control: no-store`; never logged or stored) |
+
 ### Notifications
 
 Shapes and rules: [api-contract.md, Notifications](api-contract.md#notifications).
@@ -338,6 +353,7 @@ conversation instead. Full rules: [api-contract.md, "Server-Sent Events"](api-co
 | File Library | 25 MB per upload (by type), 100 MB per student, 500 files, 5 being read, 20 uploads per 15 minutes and 30 a day | API ([api-contract.md, "Files"](api-contract.md#files-the-file-library)) |
 | Voice | transcriptions 20/min and 400/day; speech 120/min and 3000/day; 1 and 2 at once per student, 8 and 16 in all; 8,000 characters of speech per reply; audio up to 1 MiB and 60 s | API (`auth_attempts`, plus counters in the process) |
 | Tutor preview | 60 a minute | API, in-process limiter |
+| NHprep | 600 requests a minute per student (`NHPREP_REQUESTS_PER_MINUTE`), of which 20 playbacks (`NHPREP_PLAYBACKS_PER_MINUTE`); an outsider's 404 takes no slot | API, in-process limiters |
 | Practice-test answers, saves and submits | 120 a minute per user, checked before the reply is locked | API, in-process limiter (`assessment_limiter`) |
 | Activity reports | 6 a minute | API, in-process limiter |
 | Study beats and actions | 30 a minute each | API, in-process limiters |

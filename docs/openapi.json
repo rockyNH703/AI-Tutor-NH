@@ -4276,6 +4276,376 @@
         "title": "MistakesOut",
         "type": "object"
       },
+      "NhprepChapterOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "startSeconds": {
+            "title": "Startseconds",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "startSeconds"
+        ],
+        "title": "NhprepChapterOut",
+        "type": "object"
+      },
+      "NhprepCourseOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "title": "NhprepCourseOut",
+        "type": "object"
+      },
+      "NhprepItemList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NhprepItemOut"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "NhprepItemList",
+        "type": "object"
+      },
+      "NhprepItemOut": {
+        "description": "note: title + Markdown; flashcard: front (title) + back; cheat_sheet: one line of Markdown;\ninterview_question: question (title) + model answer (with its scenario first, when there is one).",
+        "properties": {
+          "bodyMd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bodymd"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "note",
+              "flashcard",
+              "cheat_sheet",
+              "interview_question"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "bodyMd"
+        ],
+        "title": "NhprepItemOut",
+        "type": "object"
+      },
+      "NhprepLessonList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NhprepLessonSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "NhprepLessonList",
+        "type": "object"
+      },
+      "NhprepLessonOut": {
+        "properties": {
+          "availability": {
+            "additionalProperties": {
+              "enum": [
+                "present",
+                "absent",
+                "unavailable",
+                "error"
+              ],
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "note",
+                "flashcard",
+                "cheat_sheet",
+                "interview_question"
+              ]
+            },
+            "title": "Availability",
+            "type": "object"
+          },
+          "chapters": {
+            "items": {
+              "$ref": "#/components/schemas/NhprepChapterOut"
+            },
+            "title": "Chapters",
+            "type": "array"
+          },
+          "course": {
+            "$ref": "#/components/schemas/NhprepCourseOut"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "durationSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationseconds"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "lessonCount": {
+            "title": "Lessoncount",
+            "type": "integer"
+          },
+          "nextLessonId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextlessonid"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "previousLessonId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previouslessonid"
+          },
+          "removed": {
+            "title": "Removed",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trainers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Trainers",
+            "type": "array"
+          },
+          "video": {
+            "enum": [
+              "ready",
+              "no_video",
+              "not_configured"
+            ],
+            "title": "Video",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "course",
+          "trainers",
+          "position",
+          "lessonCount",
+          "durationSeconds",
+          "description",
+          "chapters",
+          "availability",
+          "previousLessonId",
+          "nextLessonId",
+          "video",
+          "removed"
+        ],
+        "title": "NhprepLessonOut",
+        "type": "object"
+      },
+      "NhprepLessonSummary": {
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/NhprepCourseOut"
+          },
+          "durationSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationseconds"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "lessonCount": {
+            "title": "Lessoncount",
+            "type": "integer"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "trainers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Trainers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "course",
+          "trainers",
+          "position",
+          "lessonCount",
+          "durationSeconds"
+        ],
+        "title": "NhprepLessonSummary",
+        "type": "object"
+      },
+      "NhprepPlaybackOut": {
+        "description": "ready: a short-lived https://videos.nhprep.com/{videoId}.mp4 link and its seconds left; else why not.",
+        "properties": {
+          "expiresIn": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresin"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_configured",
+                  "no_video",
+                  "signing_failed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "src": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Src"
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "NhprepPlaybackOut",
+        "type": "object"
+      },
       "NotificationOut": {
         "properties": {
           "body": {
@@ -10257,6 +10627,197 @@
         "tags": [
           "chat",
           "feedback"
+        ]
+      }
+    },
+    "/v1/nhprep/lessons": {
+      "get": {
+        "description": "Summaries in the order asked; a missing or removed lesson is left out.",
+        "operationId": "list_lessons_v1_nhprep_lessons_get",
+        "parameters": [
+          {
+            "description": "1-10 lesson ids, comma-separated",
+            "in": "query",
+            "name": "ids",
+            "required": true,
+            "schema": {
+              "description": "1-10 lesson ids, comma-separated",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(?:,[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}){0,9}$",
+              "title": "Ids",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NhprepLessonList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Lessons",
+        "tags": [
+          "nhprep"
+        ]
+      }
+    },
+    "/v1/nhprep/lessons/{lesson_id}": {
+      "get": {
+        "operationId": "get_lesson_v1_nhprep_lessons__lesson_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NhprepLessonOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Lesson",
+        "tags": [
+          "nhprep"
+        ]
+      }
+    },
+    "/v1/nhprep/lessons/{lesson_id}/items": {
+      "get": {
+        "operationId": "list_lesson_items_v1_nhprep_lessons__lesson_id__items_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "note",
+                "flashcard",
+                "cheat_sheet",
+                "interview_question"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NhprepItemList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Lesson Items",
+        "tags": [
+          "nhprep"
+        ]
+      }
+    },
+    "/v1/nhprep/lessons/{lesson_id}/playback": {
+      "post": {
+        "description": "A fresh, short-lived link to the lesson's video, or why it can't play here. Never cached, stored or logged.",
+        "operationId": "lesson_playback_v1_nhprep_lessons__lesson_id__playback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "lesson_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Lesson Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NhprepPlaybackOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lesson Playback",
+        "tags": [
+          "nhprep"
         ]
       }
     },
