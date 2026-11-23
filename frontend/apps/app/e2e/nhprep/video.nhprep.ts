@@ -56,6 +56,44 @@ test("Play asks for one link and plays it; Jump to seeks the same player without
   await expectAccessible22(page, "[data-nhprep-slot]");
 });
 
+test("the native player: Play from the match, keyboard pause and play, to the end, Jump to replays, fullscreen, phone width", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const matched: Card = { ...CARD, matchedItemId: SHORT.chapters?.[1]?.id ?? null };
+  const stub = await stubNhprep(page, lessons(3, SHORT));
+  await page.goto(`/c/${await chatWithCards(page, [matched])}`);
+  await waitForHydration(page);
+  const card = slot(page);
+  await card.getByRole("button", { name: "Play from 0:02" }).click();
+  const video = card.locator("video");
+  const state = () => video.evaluate((element) => ({ paused: (element as HTMLVideoElement).paused, ended: (element as HTMLVideoElement).ended }));
+  await expect.poll(() => currentTime(video)).toBeGreaterThanOrEqual(2);
+  await expect(video).toBeFocused();
+
+  await page.keyboard.press("Space"); // the browser's own controls own the keyboard
+  await expect.poll(async () => (await state()).paused).toBe(true);
+  const held = await currentTime(video);
+  await page.waitForTimeout(500);
+  expect(await currentTime(video)).toBeCloseTo(held, 1);
+  await page.keyboard.press("Space");
+  await expect.poll(async () => (await state()).ended, { timeout: 15_000 }).toBe(true);
+
+  await card.getByRole("button", { name: /Why static routes/ }).click();
+  await expect.poll(async () => (await state()).paused).toBe(false);
+  await expect.poll(() => currentTime(video)).toBeGreaterThan(0.2);
+  expect(posts(stub.calls)).toHaveLength(1); // the ended video replays with the same link
+
+  await video.dblclick(); // the native controls' fullscreen
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement?.tagName ?? null)).toBe("VIDEO");
+  await page.evaluate(() => document.exitFullscreen());
+  await expect.poll(() => page.evaluate(() => document.fullscreenElement)).toBeNull();
+
+  const box = await video.boundingBox();
+  expect(box?.width ?? 0).toBeGreaterThan(200);
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(390);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expectAccessible22(page, "[data-nhprep-slot]");
+});
+
 test("an expired link (410): one new link, resumed at the saved time", async ({ page }) => {
   const gone = new Set([videoSrc(1)]);
   const { stub, card } = await open(page, gone);
