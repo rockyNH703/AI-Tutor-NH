@@ -177,6 +177,13 @@ class Settings(BaseSettings):
     # The primary's reading goes to the escalation model when its confidence is below this (or its label could turn
     # the message away, or it failed, or the message tries to steer the classifier).
     decision_escalate_below: float = Field(default=0.85, ge=0, le=1)
+    # Under a second (owner, 2026-11-23): the reply waits at most this long for the primary's reading (the knowledge
+    # search runs beside it); the escalation model reads in the background, for the streak and the record only.
+    decision_wait_s: float = Field(default=0.9, gt=0, le=5)
+    # The primary alone turns a message away from this confidence (0 of 457 in-scope eval cases redirected at 0.9).
+    decision_redirect_alone: float = Field(default=0.9, ge=0, le=1)
+    # While users use the app, one tiny request keeps the primary's connection warm after this many quiet seconds.
+    decision_warm_after_s: float = Field(default=45.0, ge=0, le=3600)
     # While students use the app, one small warm-up to Ollalink when nothing was sent for this long, so a
     # message after a quiet spell is not slow (IntentClassifier.nudge). 0: never.
     ollalink_warm_after_s: float = Field(default=45.0, ge=0, le=3600)

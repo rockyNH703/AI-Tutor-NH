@@ -133,6 +133,7 @@ class Scope:
     follow_up: bool | None = None
     escalated: bool = False
     models: tuple[str, ...] = ()
+    confirmed: str | None = None  # the decision both decision models together reach (the record; not applied)
 
     def record(self, applied: bool) -> dict:
         """messages.metadata.scope (internal): what was read, and whether this turn used it."""
@@ -153,6 +154,7 @@ class Scope:
                 "followUp": self.follow_up,
                 "escalated": self.escalated,
                 "models": list(self.models),
+                "confirmedDecision": self.confirmed,
             }
         return found
 

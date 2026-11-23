@@ -256,6 +256,21 @@ def combine(primary: Reading, escalation: Reading | None, *, min_redirect: float
     )
 
 
+def early(primary: Reading, *, redirect_alone: float, min_redirect: float, min_confidence: float) -> Scope:
+    """The decision a reply uses at once, from the primary's reading alone (2026-11-23, owner: under a second): an
+    unrelated reading turns the message away only from DECISION_REDIRECT_ALONE (measured: 0 of 457 in-scope cases
+    redirected at 0.9); below it the tutor answers with POLICY. The escalation model still reads doubtful messages,
+    in the background, for the streak and the record (`combine`)."""
+    verdict = primary.verdict
+    if verdict is None:
+        return Scope(None, reason=primary.reason, reads_study=True, models=(primary.model,))
+    if verdict.scope == "unrelated" and verdict.confidence < redirect_alone:
+        found = Scope(ALLOW_STUDY, verdict.scope, verdict.confidence, "not_confirmed")
+    else:
+        found = decide_best(verdict.scope, verdict.confidence, min_redirect, min_confidence, DECISION_OF_LABEL)
+    return replace(found, reads_study=True, intent=verdict.intent, follow_up=verdict.follow_up, models=(primary.model,))
+
+
 def _reason(error: BaseException) -> str:
     if isinstance(error, TimeoutError | LLMTimeout):
         return "timeout"
@@ -285,7 +300,13 @@ class DecisionClassifier:
         escalate_below: float,
         min_redirect: float,
         min_confidence: float,
+        redirect_alone: float = 0.9,
+        warm_after_s: float = 0.0,
     ) -> None:
+        self.redirect_alone = max(redirect_alone, min_redirect)
+        self.warm_after_s = warm_after_s
+        self._used = 0.0
+        self._warming: asyncio.Task | None = None
         self.provider = provider
         self.primary_model = primary_model
         self.escalation_model = escalation_model
@@ -308,7 +329,45 @@ class DecisionClassifier:
             escalate_below=settings.decision_escalate_below,
             min_redirect=settings.scope_min_redirect,
             min_confidence=settings.scope_min_confidence,
+            redirect_alone=settings.decision_redirect_alone,
+            warm_after_s=settings.decision_warm_after_s,
         )
+
+    def nudge(self) -> None:
+        """A user is using the app: when the primary model has not been asked for warm_after_s, one tiny request in
+        the background keeps its connection (TLS, OpenRouter's routing) warm, so the next message is not a cold
+        start (1.6 s cold against ~0.4 s warm, measured 2026-11-23). Never retried; one at a time."""
+        now = time.monotonic()
+        if not self.warm_after_s or now - self._used < self.warm_after_s or now < self._paused_until:
+            return
+        if self._warming is not None and not self._warming.done():
+            return
+        self._used = now
+        self._warming = asyncio.get_running_loop().create_task(self._warm())
+
+    async def _warm(self) -> None:
+        options = GenerationOptions(model=self.primary_model, temperature=0.0, max_output_tokens=1)
+        try:
+            await self._complete([ChatMessage("user", "ok")], options, 10.0)
+        except Exception as error:  # noqa: BLE001 - a warm-up is best effort
+            log.info("decision classifier warm-up failed", extra={"error_type": type(error).__name__})
+
+    def begin(
+        self, conversation: list[ChatMessage], attachments: tuple[str, ...] = ()
+    ) -> tuple[asyncio.Future, asyncio.Task]:
+        """Start reading a message: (the early decision, set as soon as the primary answers; the final reading, with
+        the escalation model's verdict when one was needed). The chat waits only for the first, briefly."""
+        first: asyncio.Future = asyncio.get_running_loop().create_future()
+        return first, asyncio.ensure_future(self._final(conversation, attachments, first))
+
+    async def _final(
+        self, conversation: list[ChatMessage], attachments: tuple[str, ...], first: asyncio.Future
+    ) -> Scope:
+        try:
+            return await self.scope(conversation, attachments, first)
+        finally:
+            if not first.done():  # never left pending, whatever happened
+                first.set_result(Scope(None, reason="internal_error", reads_study=True))
 
     def options(self, model: str) -> GenerationOptions:
         """The request for one model: deterministic where the model allows it, a strict JSON schema, and a small
@@ -368,18 +427,22 @@ class DecisionClassifier:
                     await close()
         return "".join(pieces), (usage.input_tokens if usage else None, usage.output_tokens if usage else None)
 
-    async def scope(self, conversation: list[ChatMessage], attachments: tuple[str, ...] = ()) -> Scope:
+    async def scope(
+        self, conversation: list[ChatMessage], attachments: tuple[str, ...] = (), first: asyncio.Future | None = None
+    ) -> Scope:
         """The study scope of the conversation's latest message. Never raises (but when cancelled): a failure is no
         decision, with the reason. Logged as metadata only."""
         started = time.perf_counter()
         try:
-            found, details = await self._scope(conversation, attachments)
+            found, details = await self._scope(conversation, attachments, first)
         except Exception as error:  # noqa: BLE001 - the scope never fails a turn
             found, details = (
                 Scope(None, reason="internal_error", reads_study=True),
                 {"error_type": type(error).__name__},
             )
         found = replace(found, latency_ms=int((time.perf_counter() - started) * 1000))
+        if first is not None and not first.done():
+            first.set_result(found)
         failed = found.decision is None
         log.log(
             logging.WARNING if failed and found.reason not in ("empty", "paused") else logging.INFO,
@@ -402,20 +465,36 @@ class DecisionClassifier:
         )
         return found
 
-    async def _scope(self, conversation: list[ChatMessage], attachments: tuple[str, ...]) -> tuple[Scope, dict]:
+    async def _scope(
+        self, conversation: list[ChatMessage], attachments: tuple[str, ...], first: asyncio.Future | None = None
+    ) -> tuple[Scope, dict]:
         if time.monotonic() < self._paused_until:
-            return Scope(None, reason="paused", reads_study=True), {}
+            return Scope(None, reason="paused", reads_study=True), {}  # `first`: resolved by _final / scope()
         masked = [replace(message, content=mask_secrets(message.content)[0]) for message in conversation]
         text = text_for(masked, attachments, always_context=True)
         if not text:
             return Scope(None, reason="empty", reads_study=True), {}
+        self._used = time.monotonic()
         primary = await self.read(self.primary_model, text, self.primary_timeout_s)
+        now = early(
+            primary,
+            redirect_alone=self.redirect_alone,
+            min_redirect=self.min_redirect,
+            min_confidence=self.min_confidence,
+        )
+        if first is not None and not first.done():
+            first.set_result(replace(now, latency_ms=primary.latency_ms))
         steering = steers(text.rsplit("Current message: ", 1)[-1])
         escalation = None
         if needs_escalation(primary, steering, self.escalate_below):
             escalation = await self.read(self.escalation_model, text, self.escalation_timeout_s)
         self._note(primary, escalation)
-        found = combine(primary, escalation, min_redirect=self.min_redirect, min_confidence=self.min_confidence)
+        both = combine(primary, escalation, min_redirect=self.min_redirect, min_confidence=self.min_confidence)
+        # The reply used the early decision; the final reading adds the conclusive study flag (the streak), the
+        # escalation, and what both models together would have decided (`confirmed`, for the record).
+        found = replace(now, study=both.study, escalated=both.escalated, models=both.models, confirmed=both.decision)
+        if both.decision is None and now.decision is None:
+            found = replace(found, reason=both.reason)
         details = {
             "primary_status": primary.reason or "ok",
             "primary_ms": primary.latency_ms,

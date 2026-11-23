@@ -120,20 +120,49 @@ async def test_doubtful_or_negative_readings_are_read_again_by_the_escalation_mo
     assert provider.models() == [PRIMARY, SOL] and found.escalated is True and found.models == (PRIMARY, SOL)
 
 
-async def test_a_message_is_turned_away_only_when_both_models_agree():
+async def test_the_primary_alone_turns_a_message_away_only_when_sure():
     both = classifier(by_words({}, verdict("unrelated", False, "other", confidence=0.97)))[0]
     found = await both.scope(ask("Who won the IPL match yesterday?"))
-    assert (found.decision, found.study, found.best) == (REDIRECT, False, "unrelated")
+    assert (found.decision, found.study, found.best, found.confirmed) == (REDIRECT, False, "unrelated", REDIRECT)
 
-    # The escalation model reads it as study: answered, and its reading decides the credit.
+    # Sure (>= DECISION_REDIRECT_ALONE): turned away at once; the escalation model, in the background, still decides
+    # the credit and the record (`confirmed`).
     second_disagrees = by_words({}, verdict("unrelated", False, confidence=0.97), {"": verdict("study", True)})
     found = await classifier(second_disagrees)[0].scope(ask("python cookies tutorial"))
-    assert (found.decision, found.study) == (ALLOW_STUDY, True)
+    assert (found.decision, found.study, found.confirmed) == (REDIRECT, True, ALLOW_STUDY)
 
-    # A doubtful primary and an unrelated escalation: never turned away on one model's word.
-    unsure = by_words({}, verdict("study", True, confidence=0.6), {"": verdict("unrelated", False, confidence=0.9)})
+    # Not sure enough: answered (POLICY holds), never turned away.
+    unsure = by_words(
+        {}, verdict("unrelated", False, confidence=0.85), {"": verdict("unrelated", False, confidence=0.9)}
+    )
     found = await classifier(unsure)[0].scope(ask("shell beach trip"))
     assert (found.decision, found.reason, found.study) == (ALLOW_STUDY, "not_confirmed", False)
+
+
+async def test_the_reply_waits_only_for_the_primary():
+    import asyncio
+
+    release = asyncio.Event()
+
+    class SlowSecond:
+        name = "slow"
+
+        def __init__(self, inner):
+            self.inner = inner
+
+        async def stream(self, messages, options):
+            if options.model == SOL:
+                await release.wait()  # the escalation model has not answered yet
+            return await self.inner.stream(messages, options)
+
+    reader, provider = classifier(lambda model, current: verdict("mixed", True, confidence=0.9))
+    reader.provider = SlowSecond(provider)
+    first, final = reader.begin(ask("Explain BGP and suggest a movie"))
+    early = await asyncio.wait_for(first, 1.0)  # resolved by the primary alone
+    assert early.decision == PARTIAL_ALLOW and not final.done()
+    release.set()
+    found = await final
+    assert (found.decision, found.escalated, found.study) == (PARTIAL_ALLOW, True, True)
 
 
 @pytest.mark.parametrize(
@@ -184,7 +213,7 @@ async def test_failures_never_turn_a_message_away_and_never_earn_credit():
         return LLMAuthError("moderation") if model == SOL else unrelated(model, current)
 
     found = await classifier(refused)[0].scope(ask("who won the match"))
-    assert (found.decision, found.study, found.reason) == (ALLOW_STUDY, None, "escalation_refused")
+    assert (found.decision, found.study, found.confirmed) == (REDIRECT, None, ALLOW_STUDY)
 
     # A doubtful study reading whose escalation times out: answered, no credit (owner: no credit on an outage).
     def slow_second(model, current):

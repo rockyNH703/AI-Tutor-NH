@@ -204,6 +204,7 @@ def create_app(
             nhprep=build_chat(app.state.db, settings, app.state.embeddings),  # the app's own (masked) embeddings
             scope=reader,
         )
+        app.state.scope_reader = reader  # kept warm by signed-in requests (ClassifierWarmMiddleware)
         # Files never delay startup or stop chat: the worker recovers and tests its sandbox in the
         # background, and files stay unavailable until that passes. Tests drive it directly.
         app.state.file_worker = FileWorker(app.state.db, settings, app.state.embeddings)

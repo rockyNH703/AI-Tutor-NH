@@ -128,6 +128,10 @@ class ClassifierWarmMiddleware:
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] == "http":
             classifier = getattr(scope["app"].state, "classifier", None) if "app" in scope else None
-            if classifier is not None and any(name == b"authorization" for name, _ in scope["headers"]):
+            signed_in = any(name == b"authorization" for name, _ in scope["headers"])
+            if classifier is not None and signed_in:
                 classifier.nudge()
+            reader = getattr(scope["app"].state, "scope_reader", None) if "app" in scope else None
+            if reader is not None and reader is not classifier and signed_in:
+                reader.nudge()
         await self.app(scope, receive, send)

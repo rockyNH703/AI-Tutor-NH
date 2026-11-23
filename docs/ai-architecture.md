@@ -177,8 +177,10 @@ flowchart LR
   Strict JSON (a schema, checked field by field), masked like every model call, the last exchange as context.
 - **Fixed rules come first:** small talk (only greetings and acknowledgements, or emoji) and a file sent without a
   question are answered as they are, with no model, and never earn streak credit.
-- **Turned away only when both models agree** the message is unrelated (one model's confidence never decides it);
-  any failure is no decision: the tutor answers with the policy.
+- **Under a second** (owner, 2026-11-23): a reply waits at most `DECISION_WAIT_S` (0.9 s) for DeepSeek's reading,
+  beside the knowledge search; GPT-6.2 Sol reads doubtful messages in the background and decides only the streak
+  credit and the record. DeepSeek alone turns a message away from `DECISION_REDIRECT_ALONE` (0.9); any failure or a
+  slower reading is no decision: the tutor answers with the policy.
 - **The streak** (`app/chat/service.py` `_earns_learning`): with the scope on, only a reading with `study` true
   earns the day's credit (a mixed message's study part and a follow-up count; greetings, app help, off-topic,
   gibberish, a same-day repeat and an inconclusive reading do not).

@@ -40,7 +40,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app.intents.classifier import text_for  # noqa: E402
-from app.intents.decision import Reading, Verdict, combine, needs_escalation, steers  # noqa: E402
+from app.intents.decision import Reading, Verdict, combine, early, needs_escalation, steers  # noqa: E402
 from app.intents.scope import REDIRECT  # noqa: E402
 from app.llm.base import ChatMessage  # noqa: E402
 from app.llm.redact import mask_secrets  # noqa: E402
@@ -88,9 +88,10 @@ async def record(cases: list[dict], out: Path) -> None:
     settings = get_settings()
     reader = DecisionClassifier.from_settings(build_decision_llm(settings), settings)
     done = set()
-    if out.exists():  # resumable: cases already recorded are not paid for twice
-        done = {json.loads(line)["id"] for line in out.read_text(encoding="utf-8").splitlines() if line.strip()}
-    with out.open("a", encoding="utf-8") as stream:
+    if out.exists():  # noqa: ASYNC240 - resumable: recorded cases are not paid for twice (a CLI: one small read)
+        lines = out.read_text(encoding="utf-8").splitlines()  # noqa: ASYNC240
+        done = {json.loads(line)["id"] for line in lines if line.strip()}
+    with out.open("a", encoding="utf-8") as stream:  # noqa: ASYNC230 - a CLI writing its one output file
         for case in cases:
             if case["id"] in done or ruled(case):
                 continue
@@ -135,15 +136,23 @@ def decide(case: dict, raw: dict | None, policy: dict) -> dict:
         escalation = _reading(raw["escalation"], policy["escalation_timeout_s"])
     found = combine(primary, escalation, min_redirect=policy["min_redirect"], min_confidence=policy["min_confidence"])
     final = escalation.verdict if escalation is not None and escalation.verdict is not None else primary.verdict
+    # What the reply uses: the primary's early decision, if it answered within DECISION_WAIT_S (else none).
+    now = early(
+        primary,
+        redirect_alone=policy["redirect_alone"],
+        min_redirect=policy["min_redirect"],
+        min_confidence=policy["min_confidence"],
+    )
+    applied = now.decision if primary.latency_ms <= policy["wait_s"] * 1000 else None
     return {
-        "decision": found.decision,
+        "decision": applied,
         "label": final.scope if final else None,
         "study": found.study,
         "follow_up": final.follow_up if final else None,
-        "ms": primary.latency_ms + (escalation.latency_ms if escalation else 0),
+        "ms": min(primary.latency_ms, int(policy["wait_s"] * 1000)),  # the reply waits for the primary only
         "cost": _cost(primary) + (_cost(escalation) if escalation else 0.0),
         "escalated": escalation is not None,
-        "failed": found.decision is None,
+        "failed": applied is None,
     }
 
 
@@ -285,6 +294,8 @@ def main() -> None:
         "min_confidence": pick(args.min_confidence, defaults.scope_min_confidence),
         "primary_timeout_s": pick(args.primary_timeout_s, defaults.decision_primary_timeout_s),
         "escalation_timeout_s": pick(args.escalation_timeout_s, defaults.decision_escalation_timeout_s),
+        "redirect_alone": defaults.decision_redirect_alone,
+        "wait_s": defaults.decision_wait_s,
     }
     raws = {}
     for line in args.readings.read_text(encoding="utf-8").splitlines():

@@ -187,6 +187,9 @@ class PreparedTurn:
     # A regeneration of an NHprep card (app/nhprep/chat.py): the replaced reply's metadata.nhprep, so the finder runs
     # again; None for every other turn (a regenerated model reply stays the model's, decided once).
     nhprep: dict | None = None
+    # The decision models' final reading (escalation included), still running while the reply streams: the streak's
+    # study flag and the record come from it (_scope, _run).
+    scope_final: asyncio.Task | None = None
 
     def meta_event(self) -> ChatEvent:
         return ChatEvent(
@@ -961,6 +964,22 @@ class ChatService:
             found = Scope(ALLOW_STUDY, reason="hint_only", source="rule")
         else:
             found = settled(is_meaningful(question), turn.attached_kinds)
+        if found is None and isinstance(reader, DecisionClassifier):
+            first, final = reader.begin(conversation, turn.attached_kinds)
+            if mode == "shadow":
+                return None, final
+            turn.scope_final = final
+            try:  # at most DECISION_WAIT_S: a slower reading leaves this reply without a decision (POLICY still holds)
+                ok, found = await self._wait(
+                    asyncio.wait_for(asyncio.shield(first), self.settings.decision_wait_s), generation
+                )
+            except TimeoutError:
+                ok, found = True, Scope(None, reason="slow", reads_study=True)
+            if not ok:
+                return None, None
+            if found.decision == REDIRECT and turn.tests:
+                found = Scope(ALLOW_STUDY, found.best, found.confidence, "practice", found.source, found.latency_ms)
+            return found.record(mode == "on"), None
         if found is None:
             if reader is None:
                 return None, None
@@ -1215,6 +1234,29 @@ class ChatService:
             if isinstance(routed, Routed):
                 question = turn.user_message.content
                 intent = {**routed.record(False, "classifier"), "bankMenu": _bank_menu(turn.bank, question, None)}
+        if turn.scope_final is not None:  # the final reading: the streak's study flag and the record
+            final = None
+            if status == "cancelled":  # a stopped reply earns nothing: no need to wait for the reading
+                turn.scope_final.cancel()
+            else:
+                # gather: a reading that failed or was cancelled is returned, never raised into this turn
+                waited = asyncio.gather(turn.scope_final, return_exceptions=True)
+                try:
+                    (final,) = await asyncio.wait_for(waited, timeout=self.settings.decision_escalation_timeout_s + 1)
+                except TimeoutError:  # no reading in time: no credit
+                    final = None
+            applied = bool(scope and scope.get("applied"))
+            if isinstance(final, Scope) and scope is not None:
+                scope = {
+                    **final.record(applied),
+                    "decision": scope["decision"],
+                    "applied": applied,
+                    "best": scope.get("best"),
+                    "confidence": scope.get("confidence"),
+                    "reason": scope.get("reason"),
+                }
+            elif scope is not None:
+                scope = {**scope, "study": None}
         if scope_shadow is not None:  # recorded, never applied
             if status == "cancelled":
                 scope_shadow.cancel()

@@ -300,6 +300,9 @@ and does nothing today.
 | `DECISION_ESCALATION_MODEL` | string | `openai/gpt-6.2-sol` | Reads again what the primary doubts: a label that could turn the message away (unrelated, mixed, unclear), a confidence below `DECISION_ESCALATE_BELOW`, a failure, or a message that tries to steer the classifier. |
 | `DECISION_PRIMARY_TIMEOUT_S` | number (gt 0, le 20) | `3.0` | The primary's deadline (one retry of invalid output fits inside it). |
 | `DECISION_ESCALATION_TIMEOUT_S` | number (gt 0, le 30) | `6.0` | The escalation model's deadline. Past it: answered, never redirected, no streak credit. |
+| `DECISION_WAIT_S` | number (gt 0, le 5) | `0.9` | The most a reply waits for the primary's reading (the knowledge search runs beside it). Slower: the reply goes on with the policy and no decision; the streak still follows the final reading. |
+| `DECISION_REDIRECT_ALONE` | number (ge 0, le 1) | `0.9` | The primary alone turns a message away from this confidence (0 of 457 in-scope eval cases at 0.9); the escalation model then reads it in the background, for the streak and the record. |
+| `DECISION_WARM_AFTER_S` | number (ge 0, le 3600) | `45.0` | While users are signed in, one tiny request keeps the primary's connection warm after this many quiet seconds. 0: never. |
 | `DECISION_ESCALATE_BELOW` | number (ge 0, le 1) | `0.85` | The primary's confidence below which the escalation model reads the message too; chosen with scripts/eval_decision_scope.py. |
 | `OLLALINK_WARM_AFTER_S` | number (ge 0, le 3600) | `45.0` | While users use the app, one small warm-up to Ollalink when nothing was sent for this long, so a message after a quiet spell is not slow (IntentClassifier.nudge). 0: never. |
 
