@@ -221,6 +221,7 @@ class ProgramTurn:
     context: ProgramContext
     curriculum: Curriculum
     books: tuple[str, ...]
+    question: str = ""  # the student's message this turn (the tutor block's title check)
 
     @property
     def courses(self) -> tuple[uuid.UUID, ...]:

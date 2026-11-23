@@ -407,7 +407,7 @@ class ChatService:
             scoped=self.settings.study_scope == "on",
             scope=scope,
             voice=voice,
-            program=tutor_block(program.context) if program is not None else "",
+            program=tutor_block(program.context, program.question) if program is not None else "",
             curriculum=program.curriculum if program is not None else None,
         )
 
@@ -496,6 +496,8 @@ class ChatService:
                 command_replay=replay,
             )
         program_turn = await self._program_turn(session, user, conversation)
+        if program_turn is not None:
+            program_turn = replace(program_turn, question=text)
         await self._check_turn_allowed(session, user.id, conversation.id)
         attached = await files.resolve_attachments(session, user.id, list(attachment_ids or []))
 
@@ -613,6 +615,8 @@ class ChatService:
             )
         )
         question = asked[0] if asked else ""
+        if program_turn is not None:
+            program_turn = replace(program_turn, question=question)
         intent = self._reused_intent(last, question)
         applied = intent["id"] if intent else None
         scope = self._reused_scope(last)

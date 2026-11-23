@@ -57,7 +57,7 @@ CASES: list[tuple[str, str, int, str, str, int | None]] = [
     ("p2m6-in-1", P2, 6, "in", "How do I create a firewall policy on a FortiGate?", None),
     ("p2m6-in-2", P2, 6, "in", "How does FortiGate HA (FGCP) work?", None),
     ("p2m6-in-3", P2, 6, "in", "How do I configure an IPsec site-to-site VPN on FortiOS?", None),
-    ("p2m6-other", P2, 6, "other", "What is OSPF's LSA type 3 used for?", 1),
+    ("p2m6-other", P2, 6, "other", "How does OMP advertise routes in Cisco SD-WAN?", 4),
     ("p2m6-unc", P2, 6, "uncovered", "How does Cisco ISE posture assessment work?", None),
     ("p1m4-in-1", P1, 4, "in", "What is the difference between a security group and a NACL in AWS?", None),
     ("p1m4-in-2", P1, 4, "in", "How does an AWS VPC route table decide where traffic goes?", None),
@@ -118,7 +118,7 @@ async def _run(args: argparse.Namespace) -> int:
                 # Never added to the session: only its program, month and mode are read.
                 turn = await chat_turn(session, Conversation(program_id=program.id, module_id=module.id, mode="tutor"))
             config = resolve_assistant_config(
-                None, None, None, program=tutor_block(turn.context), curriculum=turn.curriculum
+                None, None, None, program=tutor_block(turn.context, question), curriculum=turn.curriculum
             )
             documents = {str(item) for item in turn.curriculum.documents}
             courses = {str(item) for item in turn.curriculum.courses}

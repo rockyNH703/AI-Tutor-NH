@@ -25,7 +25,7 @@ from app.db.models import (
     ProgramModuleCourse,
     ProgramModuleDocument,
 )
-from app.programs.prompt import ProgramContext, tutor_block
+from app.programs.prompt import ProgramContext, months_naming, tutor_block
 from app.programs.service import normalize_invoice
 from app.rag.embeddings import embedding_model_id
 from app.rag.lexical import build_lexical_query
@@ -418,6 +418,46 @@ def test_a_month_tutor_points_to_other_months_and_labels_general_answers():
     assert "- Month 1: Networking Fundamentals & CCNA Core" in block
     assert "mock interview" in tutor_block(replace(context, mode="interview"))
     assert "This isn't covered in your program material." in tutor_block(replace(context, month=None, month_title=None))
+
+
+NETWORK_SECURITY = (  # migration 0029's titles, verbatim
+    (1, "Networking Foundations - CCNA 200-301"),
+    (2, "CCNP ENCOR-350-401 (Core)"),
+    (3, "CCNP ENARSI-300-410 (Advanced)"),
+    (4, "CCNP SDWAN - Viptela Stack"),
+    (5, "PaloAlto NGFW - Next-Generation Firewall"),
+    (6, "FortiGate - NSE-4 - Next-Generation Firewall"),
+    (7, "Cloud Firewalls, NOC & AI SOC, SASE, ZTA"),
+    (8, "AI in Network Security + Project"),
+)
+
+
+@pytest.mark.parametrize(
+    ("month", "question", "named"),
+    [
+        (2, "How do I configure VDOMs on a FortiGate?", [6]),
+        (4, "How do Palo Alto zone protection profiles work?", [5]),
+        (5, "How do I build a device template in Cisco vManage?", [4]),
+        (6, "How does OMP advertise routes in Cisco SD-WAN?", [4]),
+        (1, "What does ENARSI cover beyond ENCOR?", [2, 3]),
+        # Broad words never name a month ("Advanced", "Security", "Network", "routing", "next-generation firewall").
+        (2, "How do I use commit confirmed on Juniper Junos?", []),
+        (6, "How does Cisco ISE posture assessment work?", []),
+        (1, "What is an advanced next-generation firewall for network security routing?", []),
+        # This month's own title names it: answered here, never pointed away.
+        (6, "How does FortiGate HA work, compared with Palo Alto?", []),
+    ],
+)
+def test_the_title_check_names_only_months_whose_title_names_the_topic(month, question, named):
+    title = dict(NETWORK_SECURITY)[month]
+    context = ProgramContext(uuid.uuid4(), "network-security-ai", TITLE, month, title, "tutor", NETWORK_SECURITY)
+    assert [number for number, _ in months_naming(context, question)] == named
+    block = tutor_block(context, question)
+    if named:
+        assert f"names the topic of Month {named[0]}:" in block
+    else:
+        assert "no other month's title names this question's topic" in block
+    assert "do not answer it, not even briefly" in block
 
 
 def test_module_tutor_eval_rules():
