@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { ChatView } from "@/features/chat/chat-view";
 import { isProgramSlug, monthNumber } from "@/features/programs/route-params";
+import { programPlaceOpen } from "@/lib/server/session";
 
 /**
  * The program's Q&A chat (every month). The chat lives in this LAYOUT, like the (chat) group's: a new chat getting its id moves the URL to
@@ -19,6 +20,7 @@ export default async function Layout({
   const { slug, month } = await params;
   const number = null;
   if (!isProgramSlug(slug) || false) notFound();
+  if (!(await programPlaceOpen(slug, number))) notFound();
   return (
     <>
       <ChatView place={{ program: slug, month: number, mode: "tutor" }} />
