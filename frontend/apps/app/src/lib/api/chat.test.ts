@@ -104,6 +104,30 @@ describe("streamChat", () => {
     expect(JSON.parse(String(calls[0]?.init.body)).clientRequestId).toMatch(/^[0-9a-f-]{36}$/);
   });
 
+  test("a new program chat sends its place; an existing chat never does", async () => {
+    const { impl, calls } = fakeFetch([frame("done", DONE)]);
+    await streamChat({ message: "Hi", program: "networking-ai", month: 2, tutorMode: "interview" }, {}, { fetchImpl: impl });
+    expect(JSON.parse(String(calls[0]?.init.body))).toMatchObject({
+      message: "Hi",
+      program: "networking-ai",
+      month: 2,
+      tutorMode: "interview",
+    });
+    const qna = fakeFetch([frame("done", DONE)]);
+    await streamChat({ message: "Hi", program: "networking-ai", tutorMode: "tutor" }, {}, { fetchImpl: qna.impl });
+    const sent = JSON.parse(String(qna.calls[0]?.init.body));
+    expect(sent).toMatchObject({ program: "networking-ai", tutorMode: "tutor" });
+    expect("month" in sent).toBe(false); // the program's Q&A has no month
+    const later = fakeFetch([frame("done", DONE)]);
+    await streamChat(
+      { message: "Hi", conversationId: CONVERSATION_ID, program: "networking-ai", month: 2, tutorMode: "tutor" },
+      {},
+      { fetchImpl: later.impl },
+    );
+    const again = JSON.parse(String(later.calls[0]?.init.body));
+    expect(["program", "month", "tutorMode"].some((field) => field in again)).toBe(false); // the API answers 422
+  });
+
   test("an existing chat preserves a caller retry id", async () => {
     const { impl, calls } = fakeFetch([frame("done", DONE)]);
     await streamChat(

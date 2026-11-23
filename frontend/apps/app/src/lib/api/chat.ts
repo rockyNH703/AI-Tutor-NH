@@ -205,6 +205,12 @@ export function streamChat(
     ? { conversationId: request.conversationId, message: request.message }
     : { message: request.message };
   body.clientRequestId = request.clientRequestId ?? crypto.randomUUID();
+  if (!request.conversationId && request.program !== undefined) {
+    // A new program chat's place (the server binds it; with a conversationId it would be a 422).
+    body.program = request.program;
+    if (request.month !== undefined) body.month = request.month;
+    if (request.tutorMode !== undefined) body.tutorMode = request.tutorMode;
+  }
   if (request.attachmentIds?.length) body.attachmentIds = request.attachmentIds;
   if (request.mode !== undefined) body.mode = request.mode;
   if (request.speechFormat !== undefined) body.speechFormat = request.speechFormat;
