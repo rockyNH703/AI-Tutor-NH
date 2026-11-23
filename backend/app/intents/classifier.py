@@ -242,10 +242,14 @@ def _masked_conversation(conversation: list[ChatMessage]) -> list[ChatMessage]:
     return [replace(message, content=mask_secrets(message.content)[0]) for message in conversation]
 
 
-def text_for(conversation: list[ChatMessage], attachments: tuple[str, ...] = ()) -> str:
+def text_for(
+    conversation: list[ChatMessage], attachments: tuple[str, ...] = (), *, always_context: bool = False
+) -> str:
     """What is classified: the latest message, with the kinds of the files it attaches; for a short
     follow-up, the message before it and the end of the assistant's reply too, labelled context only. One
-    line each, so only the last line starts with "Current message". At most about 1,100 characters."""
+    line each, so only the last line starts with "Current message". At most about 1,100 characters.
+    `always_context` (the decision models): the context lines whenever there is an earlier message, so a longer
+    follow-up ("what if I change the configuration?") and a change of topic are read against the chat too."""
     users = [index for index, message in enumerate(conversation) if message.role == "user" and message.content.strip()]
     if not users:
         return ""
@@ -255,7 +259,8 @@ def text_for(conversation: list[ChatMessage], attachments: tuple[str, ...] = ())
     if kinds:
         current += f" (attached: {', '.join(kinds)})"
     lines = []
-    if len(users) > 1 and len(latest.split()) <= FOLLOW_UP_MAX_WORDS and len(latest) <= FOLLOW_UP_MAX_CHARS:
+    short = len(latest.split()) <= FOLLOW_UP_MAX_WORDS and len(latest) <= FOLLOW_UP_MAX_CHARS
+    if len(users) > 1 and (always_context or short):
         lines.append(
             f"Previous message (context only): {_clip(_flat(conversation[users[-2]].content), *PREVIOUS_CHARS)}"
         )

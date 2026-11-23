@@ -148,8 +148,9 @@ on 2026-10-26 and are not yet re-verified for NetSec):
 - **One model call per turn:** no graph retries; `FallbackProvider` switches only before the first token.
 - **Kept but off by default** (each needs the owner's decision in production): `TUTOR_INTERACTIVE_BLOCKS` (MCQ,
   quiz, fill-blank, flashcards, graph and diagram widgets, and question-bank tests in the chat; the web app renders
-  them either way), `TUTOR_TEACHING_POLICY`, `INTENT_ROUTER` and `STUDY_SCOPE` (Ollalink classifiers; the
-  2026-10-29 taxonomy needs a new `eval_intents.py` run before `on`), `VOICE_MODE` (English only),
+  them either way), `TUTOR_TEACHING_POLICY`, `INTENT_ROUTER` (Ollalink; the 2026-10-29 taxonomy needs a new
+  `eval_intents.py` run before `on`), `STUDY_SCOPE` (since 2026-11-23 read by OpenRouter decision models, masked:
+  `app/intents/decision.py`; on only after its held-out eval; only study earns streak credit), `VOICE_MODE` (English only),
   `MEMORY_RECALL_ENABLED` and `MEMORY_AUTOMATIC_PROPOSALS` (explicit memory APIs are on), the jobs worker.
 - **Interactive learning blocks (2026-11-18), dormant in production:** the web app draws them, but nothing teaches
   the model to write them (no prompt change), and `QUESTION_BANK_TESTS` (on in production) still turns a test the
@@ -277,7 +278,7 @@ does not see `Depends(...)` or SQL). Commands and boundaries: [docs/graphify.md]
 ## Repo hygiene
 
 - The root files `dummy_acc.txt`, `git.txt`, `google_auth.txt`, `NHprep.txt`, `nhprep_google_signin.txt`,
-  `ollalink.txt`, `ollastack.txt`, `ollima.txt` and `openrouter.txt` hold live keys and credentials. They are git-ignored (`*.txt`); **never open, print or commit
+  `ollalink.txt`, `ollastack.txt`, `ollima.txt`, `openrouter.txt` and `dummy_non_nh_acc.txt` hold live keys and credentials. They are git-ignored (`*.txt`); **never open, print or commit
   them**, and never copy their values anywhere. The same goes for every `.env*` file.
 - `.claude/settings.local.json` (per-user permission rules) is git-ignored; `.claude/skills/` holds the vendored security skills.
 - `.gitattributes` forces LF (`* text=auto eol=lf`), for the shell scripts and for Biome.

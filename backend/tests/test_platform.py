@@ -112,7 +112,16 @@ def test_production_refuses_unsafe_configuration():
         ({"embedding_base_url": "http://provider.example/v1"}, "EMBEDDING_BASE_URL"),
         ({"ncert_kb_base_url": "http://127.0.0.1:4200", "ncert_kb_api_key": "key"}, "NCERT_KB_"),
         ({"intent_router": "on", "ollalink_api_key": "key"}, "INTENT_ROUTER=on"),
-        ({"study_scope": "shadow", "ollalink_api_key": "key"}, "STUDY_SCOPE must be off"),
+        (
+            {"study_scope": "on", "study_scope_classifier": "ollalink", "ollalink_api_key": "key"},
+            "STUDY_SCOPE_CLASSIFIER=decision",
+        ),
+        ({"study_scope": "on"}, "STUDY_SCOPE needs DECISION_API_KEY"),
+        (
+            {"study_scope": "on", "decision_api_key": "k", "decision_base_url": "http://openrouter.example/v1"},
+            "DECISION_BASE_URL",
+        ),
+        ({"study_scope": "on", "decision_api_key": "k", "decision_escalation_model": " "}, "DECISION_ESCALATION_MODEL"),
     ],
 )
 def test_production_refuses_unsafe_provider_configuration(overrides, problem):
@@ -130,6 +139,20 @@ def test_production_allows_shadow_intent_and_explicit_loopback_provider_urls():
             "embedding_base_url": "http://localhost:11434/v1",
         }
     ).validate_for_env()
+
+
+def test_production_allows_the_study_scope_with_the_decision_models_on_the_fallbacks_openrouter_key():
+    settings = make_settings(
+        **{**PRODUCTION_LIKE, "study_scope": "on", "llm_fallback_model": "m", "llm_fallback_api_key": "or-key"}
+    )
+    settings.validate_for_env()
+    assert settings.decision_key == "or-key" and settings.study_scope_enabled
+    # Its own key wins; a different base URL never borrows the fallback's key.
+    assert make_settings(**{**PRODUCTION_LIKE, "decision_api_key": "own"}).decision_key == "own"
+    other = make_settings(
+        **{**PRODUCTION_LIKE, "llm_fallback_api_key": "or-key", "decision_base_url": "https://other.example/v1"}
+    )
+    assert other.decision_key == ""
 
 
 @pytest.mark.parametrize("name", ["LANGCHAIN_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_TRACING"])

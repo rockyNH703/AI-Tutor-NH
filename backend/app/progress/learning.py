@@ -29,11 +29,11 @@ import zoneinfo
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, select, text, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import ActivityDay, LearningDailyActivity, QbSetItem
+from app.db.models import ActivityDay, Conversation, LearningDailyActivity, Message, QbSetItem
 from app.learning.context import TutorProgress
 from app.notifications.inbox import notify
 from app.progress import activity
@@ -82,6 +82,40 @@ def is_meaningful(text: str) -> bool:
     if not words or all(word in SMALL_TALK for word in words):
         return False
     return len(words) >= 3 or sum(len(word) for word in words) >= 12
+
+
+def is_small_talk(text: str) -> bool:
+    """Nothing to read but greetings and acknowledgements (or no words at all: emoji, punctuation). The study scope's
+    decision models read every other message, however short ("Explain OSPF")."""
+    words = _WORD.findall(text.lower())
+    return not words or all(word in SMALL_TALK for word in words)
+
+
+def _normalised(text: str) -> str:
+    return " ".join(_WORD.findall(text.lower()))
+
+
+async def repeated_today(session: AsyncSession, user_id: uuid.UUID, message: Message, asked_at: datetime) -> bool:
+    """Whether the student already sent this same message (same words, ignoring case, spacing and punctuation)
+    earlier on the India day it was asked (`asked_at`, the day the credit is for): a repeat earns no new learning
+    credit. The streak is counted in days, so repeats never add days; this keeps the calendar's intensity honest."""
+    wanted = _normalised(message.content)
+    if not wanted or message.created_at is None:
+        return False
+    start = datetime.combine(learning_date(asked_at), time(0, 0), LEARNING_ZONE).astimezone(UTC)
+    rows = await session.scalars(
+        select(Message.content)
+        .join(Conversation, Conversation.id == Message.conversation_id)
+        .where(
+            Conversation.user_id == user_id,
+            Message.role == "user",
+            Message.created_at >= start,
+            Message.created_at < start + ONE_DAY,
+            # Strictly earlier (ties broken by id): of two identical messages sent at once, exactly one counts.
+            tuple_(Message.created_at, Message.id) < tuple_(message.created_at, message.id),
+        )
+    )
+    return any(_normalised(content) == wanted for content in rows)
 
 
 def intensity(interactions: int) -> int:

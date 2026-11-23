@@ -20,7 +20,7 @@ import asyncio
 import base64
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
@@ -42,6 +42,7 @@ from app.db.session import Database
 from app.errors import Conflict, NotFound, RateLimited, ServiceUnavailable, ValidationFailed
 from app.files import service as files
 from app.intents.classifier import HINT_ONLY, IntentClassifier, Routed, explicit_hint_only
+from app.intents.decision import DecisionClassifier
 from app.intents.scope import ALLOW_STUDY, INSTRUCTIONS, NOT_LEARNING, REDIRECT, Scope, redirect_copy, settled
 from app.intents.scope import stored as stored_scope
 from app.intents.taxonomy import BANK_INTENTS, INTENTS
@@ -59,7 +60,14 @@ from app.memory.commands import (
 from app.memory.recall import MemoryRecall
 from app.nhprep.chat import Card, NhprepChat, nhprep_allows
 from app.progress.activity import record_question
-from app.progress.learning import is_meaningful, now, record_learning, tutor_progress
+from app.progress.learning import (
+    is_meaningful,
+    is_small_talk,
+    now,
+    record_learning,
+    repeated_today,
+    tutor_progress,
+)
 from app.qbank import bank_tests, chat_tests
 from app.settings import Settings
 from app.voice import first_speech
@@ -213,12 +221,16 @@ class ChatService:
         voice: VoiceProvider | None = None,
         voice_budget: SpeechBudget | None = None,
         nhprep: NhprepChat | None = None,
+        scope: DecisionClassifier | IntentClassifier | None = None,
     ) -> None:
         self.db = db
         self.settings = settings
         self.rag_graph = rag_graph  # compiled LangGraph graph (app.rag.graph.build_rag_graph)
         self.generations = generations
         self.intents = intents  # None: no classifier (INTENT_ROUTER off, or no key)
+        # Who reads the study scope (STUDY_SCOPE): the decision models (app/intents/decision.py), else Ollalink's
+        # classifier (the router's); None: no reader.
+        self.scope_reader = scope if scope is not None else intents
         self.memory = memory
         self.voice = voice  # voice mode's speech (app/voice): the first words of a voice reply (_speak_first)
         self.voice_budget = voice_budget
@@ -824,6 +836,16 @@ class ChatService:
             and not explicit_hint_only(turn.user_message.content)
         )
 
+    def _prefetch_beside_scope(self, turn: PreparedTurn) -> bool:
+        """A new message the decision models will read (STUDY_SCOPE on, not small talk) that searches knowledge."""
+        return (
+            self.settings.study_scope == "on"
+            and isinstance(self.scope_reader, DecisionClassifier)
+            and turn.user_message is not None
+            and turn.config.retrieval is not None
+            and not is_small_talk(turn.user_message.content)
+        )
+
     def _parallel(self, turn: PreparedTurn) -> bool:
         """Voice turns (VOICE_PARALLEL_ROUTING): the intent router and the search start beside the study scope."""
         return (
@@ -929,16 +951,22 @@ class ChatService:
         if mode == "off" or turn.user_message is None:
             return turn.scope, None
         question = turn.user_message.content
-        if explicit_hint_only(question):
+        reader = self.scope_reader
+        if isinstance(reader, DecisionClassifier):
+            # The decision models read every message but small talk, however short ("Explain OSPF"), and decide
+            # whether it is study; the rules' own messages are never study (no streak credit).
+            found = settled(not is_small_talk(question), turn.attached_kinds)
+            found = replace(found, study=False, reads_study=True) if found is not None else None
+        elif explicit_hint_only(question):
             found = Scope(ALLOW_STUDY, reason="hint_only", source="rule")
         else:
             found = settled(is_meaningful(question), turn.attached_kinds)
         if found is None:
-            if self.intents is None:
+            if reader is None:
                 return None, None
             if mode == "shadow":
-                return None, asyncio.ensure_future(self.intents.scope(conversation, turn.attached_kinds))
-            ok, found = await self._wait(self.intents.scope(conversation, turn.attached_kinds), generation)
+                return None, asyncio.ensure_future(reader.scope(conversation, turn.attached_kinds))
+            ok, found = await self._wait(reader.scope(conversation, turn.attached_kinds), generation)
             if not ok:  # stopped while reading: the turn stops at once
                 return None, None
             if found.decision == REDIRECT and turn.tests:  # the chat has a test or an exercise: most likely about it
@@ -1035,8 +1063,12 @@ class ChatService:
             # study scope, not after it: the same requests on the same words, so the same decisions (OllaLink answers
             # them one after another anyway). A redirect cancels both; an intent that turns the search off drops it.
             prepared = turn.config.retrieval
-            if found is None and self._parallel(turn):
-                reading = asyncio.ensure_future(self.intents.classify(conversation, turn.attached_kinds))
+            # The decision models (STUDY_SCOPE on) take about a second: the knowledge search runs beside them, as on a
+            # voice turn; a redirect cancels it, and a decision's own line in the prompt does not change the search.
+            beside_scope = found is None and self._prefetch_beside_scope(turn)
+            if found is None and (self._parallel(turn) or beside_scope):
+                if self._parallel(turn):
+                    reading = asyncio.ensure_future(self.intents.classify(conversation, turn.attached_kinds))
                 ahead = asyncio.ensure_future(
                     self.rag_graph.prefetch(
                         {
@@ -1517,9 +1549,12 @@ class ChatService:
             if (
                 final_status == "complete"
                 and turn.user_message is not None
-                and is_meaningful(turn.user_message.content)
+                and self._earns_learning(metadata.get("scope"), turn.user_message.content)
                 and not turned_away
                 and served is None  # asking for a quiz is not learning; its answers are (record_practice)
+                and not await repeated_today(
+                    session, turn.user.id, await session.get(Message, turn.user_message.id), turn.asked_at or now()
+                )
             ):
                 learning = await self._side_effect(
                     session, "learning_day", turn, lambda: record_learning(session, turn.user.id, now(), turn.asked_at)
@@ -1558,6 +1593,15 @@ class ChatService:
             message = await session.get(Message, turn.assistant_id)
             conversation = await session.get(Conversation, turn.conversation.id)
             return message, conversation, learning
+
+    def _earns_learning(self, scope: dict | None, text: str) -> bool:
+        """Whether a fully answered message is genuine study (the streak's rule). With STUDY_SCOPE on and the decision
+        models' reading recorded, only `study` true counts: greetings, app help, off-topic, gibberish and a reading
+        that did not conclude (an outage: the owner's "No credit") never do. Otherwise (scope off or shadow, Ollalink,
+        an NHprep card or a bank turn, which are not read) a meaningful question counts, as before."""
+        if self.settings.study_scope == "on" and scope is not None and "study" in scope:
+            return scope["study"] is True
+        return is_meaningful(text)
 
     @staticmethod
     async def _supersede_replaced(session: AsyncSession, turn: PreparedTurn) -> None:

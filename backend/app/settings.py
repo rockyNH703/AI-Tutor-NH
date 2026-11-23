@@ -163,6 +163,20 @@ class Settings(BaseSettings):
     # scripts/eval_scope.py on the dev split (no learning request there above 0.31 for unrelated).
     scope_min_redirect: float = Field(default=0.5, ge=0, le=1)
     scope_min_confidence: float = Field(default=0.5, ge=0, le=1)
+    # Who reads the scope: `decision` (app/intents/decision.py: OpenRouter's DeepSeek V4.1 Flash, escalating doubtful
+    # readings to GPT-6.2 Sol; masked; the only reader allowed in production) or `ollalink` (the legacy /v1/classify,
+    # kept but never evaluated for NetSec). The thresholds are chosen on backend/evals/scope (eval_decision_scope.py).
+    study_scope_classifier: Literal["decision", "ollalink"] = "decision"
+    decision_base_url: str = "https://openrouter.ai/api/v1"
+    # Empty: LLM_FALLBACK_API_KEY when DECISION_BASE_URL is the fallback's URL (the same OpenRouter account).
+    decision_api_key: SecretStr = SecretStr("")
+    decision_primary_model: str = "deepseek/deepseek-v4.1-flash-1017"
+    decision_escalation_model: str = "openai/gpt-6.2-sol"
+    decision_primary_timeout_s: float = Field(default=3.0, gt=0, le=20)
+    decision_escalation_timeout_s: float = Field(default=6.0, gt=0, le=30)
+    # The primary's reading goes to the escalation model when its confidence is below this (or its label could turn
+    # the message away, or it failed, or the message tries to steer the classifier).
+    decision_escalate_below: float = Field(default=0.85, ge=0, le=1)
     # While students use the app, one small warm-up to Ollalink when nothing was sent for this long, so a
     # message after a quiet spell is not slow (IntentClassifier.nudge). 0: never.
     ollalink_warm_after_s: float = Field(default=45.0, ge=0, le=3600)
@@ -357,9 +371,22 @@ class Settings(BaseSettings):
         return self.intent_router != "off" and bool(self.ollalink_api_key.get_secret_value())
 
     @property
+    def decision_key(self) -> str:
+        """The decision models' key: DECISION_API_KEY, else the fallback's OpenRouter key when the URLs are the same."""
+        own = self.decision_api_key.get_secret_value()
+        if own:
+            return own
+        same = self.decision_base_url.rstrip("/") == self.llm_fallback_base_url.rstrip("/")
+        return self.llm_fallback_api_key.get_secret_value() if same else ""
+
+    @property
     def study_scope_enabled(self) -> bool:
         """Whether messages are sent for their study scope (small talk and bare files need no classifier)."""
-        return self.study_scope != "off" and bool(self.ollalink_api_key.get_secret_value())
+        if self.study_scope == "off":
+            return False
+        if self.study_scope_classifier == "decision":
+            return bool(self.decision_key)
+        return bool(self.ollalink_api_key.get_secret_value())
 
     @property
     def voice_qa_list(self) -> frozenset[str]:
@@ -507,11 +534,18 @@ class Settings(BaseSettings):
         if self.intent_router == "on":
             problems.append("INTENT_ROUTER=on is not allowed in production; use off or shadow")
         if self.study_scope != "off":
-            problems.append("STUDY_SCOPE must be off in production")
+            if self.study_scope_classifier != "decision":
+                problems.append(
+                    "STUDY_SCOPE in production needs STUDY_SCOPE_CLASSIFIER=decision (Ollalink is not evaluated)"
+                )
+            if not self.decision_key:
+                problems.append("STUDY_SCOPE needs DECISION_API_KEY (or the fallback's OpenRouter key)")
+            if not self._provider_url_is_safe(self.decision_base_url):
+                problems.append("DECISION_BASE_URL must be HTTPS or explicit loopback")
+            if not (self.decision_primary_model.strip() and self.decision_escalation_model.strip()):
+                problems.append("STUDY_SCOPE needs DECISION_PRIMARY_MODEL and DECISION_ESCALATION_MODEL")
         if self.intent_router != "off" and not self.ollalink_api_key.get_secret_value():
             problems.append("INTENT_ROUTER needs OLLALINK_API_KEY")
-        if self.study_scope != "off" and not self.ollalink_api_key.get_secret_value():
-            problems.append("STUDY_SCOPE needs OLLALINK_API_KEY")
         if not self.ollalink_base_url.startswith("https://"):
             problems.append("OLLALINK_BASE_URL must be https:// (the key travels with every call)")
         if self.voice_provider == "fake":  # whatever VOICE_MODE says

@@ -37,7 +37,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-SCOPE_VERSION = "2026-10-29"
+SCOPE_VERSION = "2026-11-23"
 
 ALLOW_STUDY = "ALLOW_STUDY"
 ALLOW_SUPPORT = "ALLOW_SUPPORT"
@@ -123,10 +123,20 @@ class Scope:
     reason: str | None = None
     source: str = "classifier"  # classifier, rule, regenerate
     latency_ms: int = 0
+    # The decision models (app/intents/decision.py) also read whether answering it is genuine study (`study`: the
+    # streak's rule; None: no conclusive reading, so no credit), the kind of help asked (`intent`, a taxonomy GROUPS
+    # id), whether it is a follow-up, whether it was escalated and which models read it. Ollalink reads none of these:
+    # `study` stays out of its record, and the streak keeps its old rule for it.
+    study: bool | None = None
+    reads_study: bool = False
+    intent: str | None = None
+    follow_up: bool | None = None
+    escalated: bool = False
+    models: tuple[str, ...] = ()
 
     def record(self, applied: bool) -> dict:
         """messages.metadata.scope (internal): what was read, and whether this turn used it."""
-        return {
+        found = {
             "decision": self.decision,
             "best": self.best,
             "confidence": None if self.confidence is None else round(self.confidence, 4),
@@ -136,6 +146,15 @@ class Scope:
             "latencyMs": self.latency_ms,
             "version": SCOPE_VERSION,
         }
+        if self.reads_study:
+            found |= {
+                "study": self.study,
+                "intent": self.intent,
+                "followUp": self.follow_up,
+                "escalated": self.escalated,
+                "models": list(self.models),
+            }
+        return found
 
 
 def settled(meaningful: bool, attachments: tuple[str, ...]) -> Scope | None:
@@ -149,11 +168,22 @@ def settled(meaningful: bool, attachments: tuple[str, ...]) -> Scope | None:
 def decide(probabilities: dict[str, float], min_redirect: float, min_confidence: float) -> Scope:
     """The decision from the scope question's checked, renormalised probabilities."""
     best = max(OPTIONS, key=probabilities.__getitem__)  # max keeps the first of equals: study wins ties
-    confidence = probabilities[best]
+    return decide_best(best, probabilities[best], min_redirect, min_confidence)
+
+
+def decide_best(
+    best: str,
+    confidence: float,
+    min_redirect: float,
+    min_confidence: float,
+    decision_of: dict[str, str] = DECISION_OF,
+) -> Scope:
+    """The decision for one best label and its confidence: anything but study needs its floor (unrelated the higher
+    one), else the message is an in-scope request. Shared by both readers (the decision models add `chat`)."""
     floor = min_redirect if best == "unrelated" else min_confidence
-    if best != "study" and confidence < floor:
+    if decision_of[best] != ALLOW_STUDY and confidence < floor:
         return Scope(ALLOW_STUDY, best, confidence, "low_confidence")
-    return Scope(DECISION_OF[best], best, confidence)
+    return Scope(decision_of[best], best, confidence)
 
 
 def stored(metadata: dict | None) -> Scope | None:

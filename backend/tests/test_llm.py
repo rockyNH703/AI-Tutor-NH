@@ -85,6 +85,23 @@ async def test_openai_compatible_streams_text_and_usage():
     assert seen["body"]["messages"] == [{"role": "user", "content": "hi"}]
     assert seen["auth"] == "Bearer k"
     assert stream.info.name == "p" and stream.info.model == "m"
+    assert "response_format" not in seen["body"] and "reasoning" not in seen["body"]  # nothing extra by default
+
+
+async def test_extra_body_reaches_the_request_as_it_is():
+    seen = {}
+
+    def handler(request: httpx.Request):
+        seen["body"] = json.loads(request.content)
+        body = sse_body([chunk(content="{}"), chunk(finish="stop")])
+        return httpx.Response(200, headers={"content-type": "text/event-stream"}, content=body)
+
+    extra = {"response_format": {"type": "json_schema", "json_schema": {"name": "x"}}, "reasoning": {"effort": "low"}}
+    options = GenerationOptions(model="m2", temperature=0.0, max_output_tokens=50, extra_body=extra)
+    await collect(await provider(handler).stream(PROMPT, options))
+    assert seen["body"]["response_format"] == extra["response_format"]
+    assert seen["body"]["reasoning"] == {"effort": "low"}
+    assert seen["body"]["model"] == "m2" and seen["body"]["temperature"] == 0.0
 
 
 @pytest.mark.parametrize(

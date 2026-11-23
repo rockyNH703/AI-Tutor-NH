@@ -64,7 +64,9 @@ With `APP_ENV=production`, the API refuses to start (`Settings.validate_for_env`
 - `MEMORY_RECALL_ENABLED` or `MEMORY_AUTOMATIC_PROPOSALS` is on without `MEMORY_ENABLED`, or
   `MEMORY_WORKER_BACKOFF_MAX_S` is below `MEMORY_WORKER_BACKOFF_BASE_S`;
 - `NCERT_KB_BASE_URL` is neither `https://` nor loopback;
-- `INTENT_ROUTER`, `STUDY_SCOPE` or `VOICE_MODE` is on without `OLLALINK_API_KEY`;
+- `INTENT_ROUTER` or `VOICE_MODE` is on without `OLLALINK_API_KEY`;
+- `STUDY_SCOPE` is not `off` without `STUDY_SCOPE_CLASSIFIER=decision`, a decision key (`DECISION_API_KEY`, or the
+  fallback's OpenRouter key), an HTTPS `DECISION_BASE_URL` and both decision model ids;
 - `VOICE_MODE=qa` has no `VOICE_QA_EMAILS`;
 - an Ollalink URL is not `https://`.
 
@@ -288,9 +290,17 @@ and does nothing today.
 
 | Variable | Type / allowed | Default | What it does |
 |---|---|---|---|
-| `STUDY_SCOPE` | one of `off` \| `shadow` \| `on` | `off` | (app/intents/scope.py): is the latest message something NetSec AI helps with (network, security and infrastructure engineering, certification and lab practice)? One more Ollalink request, with the router's key, client and time limit. off: nothing is sent; shadow: read and recorded, never applied; on: unrelated requests are redirected. |
+| `STUDY_SCOPE` | one of `off` \| `shadow` \| `on` | `off` | (app/intents/scope.py, app/intents/decision.py): is the latest message something NetSec AI helps with, and is answering it genuine study (the streak's rule)? off: nothing is read; shadow: read and recorded, never applied; on: unrelated requests are redirected (both decision models must agree), and only study earns streak credit. |
 | `SCOPE_MIN_REDIRECT` | number (ge 0, le 1) | `0.5` | P(unrelated) needed to redirect, and P(support \| unclear \| mixed) needed to apply one: chosen with scripts/eval_scope.py on the dev split (measured on PadhAI's cases; NetSec needs its own). |
 | `SCOPE_MIN_CONFIDENCE` | number (ge 0, le 1) | `0.5` | P(support, unclear or mixed) needed to apply that scope decision. |
+| `STUDY_SCOPE_CLASSIFIER` | `decision` \| `ollalink` | `decision` | Who reads the scope: the decision models (OpenRouter, masked; the only reader allowed in production) or the legacy Ollalink `/v1/classify` (never evaluated for NetSec). |
+| `DECISION_BASE_URL` | string | `https://openrouter.ai/api/v1` | The decision models' OpenAI-compatible API. |
+| `DECISION_API_KEY` | string | empty | **Secret.** Empty: `LLM_FALLBACK_API_KEY` when `DECISION_BASE_URL` equals `LLM_FALLBACK_BASE_URL` (the same OpenRouter account). |
+| `DECISION_PRIMARY_MODEL` | string | `deepseek/deepseek-v4.1-flash-1017` | Reads every message that is not small talk (owner, 2026-11-23: the pinned snapshot). |
+| `DECISION_ESCALATION_MODEL` | string | `openai/gpt-6.2-sol` | Reads again what the primary doubts: a label that could turn the message away (unrelated, mixed, unclear), a confidence below `DECISION_ESCALATE_BELOW`, a failure, or a message that tries to steer the classifier. |
+| `DECISION_PRIMARY_TIMEOUT_S` | number (gt 0, le 20) | `3.0` | The primary's deadline (one retry of invalid output fits inside it). |
+| `DECISION_ESCALATION_TIMEOUT_S` | number (gt 0, le 30) | `6.0` | The escalation model's deadline. Past it: answered, never redirected, no streak credit. |
+| `DECISION_ESCALATE_BELOW` | number (ge 0, le 1) | `0.85` | The primary's confidence below which the escalation model reads the message too; chosen with scripts/eval_decision_scope.py. |
 | `OLLALINK_WARM_AFTER_S` | number (ge 0, le 3600) | `45.0` | While users use the app, one small warm-up to Ollalink when nothing was sent for this long, so a message after a quiet spell is not slow (IntentClassifier.nudge). 0: never. |
 
 ### Voice mode

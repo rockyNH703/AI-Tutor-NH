@@ -39,11 +39,12 @@ from app.greetings.refresh import GreetingRefresh
 from app.greetings.router import router as greetings_router
 from app.health import router as health_router
 from app.intents.classifier import IntentClassifier
+from app.intents.decision import DecisionClassifier
 from app.knowledge.router import UPLOAD_CHUNK_BYTES
 from app.knowledge.router import router as knowledge_router
 from app.learning.router import router as learning_router
 from app.llm.base import LLMProvider
-from app.llm.factory import build_llm
+from app.llm.factory import build_decision_llm, build_llm
 from app.logging import configure_logging, get_logger
 from app.memory.recall import MemoryRecall
 from app.memory.router import router as memory_router
@@ -128,6 +129,7 @@ def create_app(
     intents: IntentClassifier | None = None,
     voice: VoiceProvider | None = None,
     nhprep_signer: VideoSigner | None = None,
+    scope: DecisionClassifier | None = None,
 ) -> FastAPI:
     settings = settings or get_settings()
     settings.validate_for_env()
@@ -177,10 +179,18 @@ def create_app(
                 scope_min_confidence=settings.scope_min_confidence,
                 warm_after_s=settings.ollalink_warm_after_s,
             )
-            if settings.intent_router_enabled or settings.study_scope_enabled
+            if settings.intent_router_enabled
+            or (settings.study_scope_classifier == "ollalink" and settings.study_scope_enabled)
             else None
         )
         app.state.classifier = classifier  # nudged by signed-in requests (ClassifierWarmMiddleware)
+        # The study scope's reader: injected (tests), else the decision models (STUDY_SCOPE on or shadow with
+        # STUDY_SCOPE_CLASSIFIER=decision and a key), else Ollalink's classifier above (legacy).
+        reader = scope or (
+            DecisionClassifier.from_settings(build_decision_llm(settings), settings)
+            if settings.study_scope_classifier == "decision" and settings.study_scope_enabled
+            else None
+        )
         app.state.memory_recall = MemoryRecall(app.state.db, settings, app.state.embeddings)
         app.state.chat = ChatService(
             app.state.db,
@@ -192,6 +202,7 @@ def create_app(
             voice=app.state.voice,
             voice_budget=app.state.voice_budget,
             nhprep=build_chat(app.state.db, settings, app.state.embeddings),  # the app's own (masked) embeddings
+            scope=reader,
         )
         # Files never delay startup or stop chat: the worker recovers and tests its sandbox in the
         # background, and files stay unavailable until that passes. Tests drive it directly.

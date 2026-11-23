@@ -169,10 +169,19 @@ flowchart LR
 
 ### The study scope
 
-- **Settings:** `STUDY_SCOPE` is `off`, `shadow` or `on` (`app/intents/scope.py`). It asks one more choice
-  question within the router's first request: is the message for study, support, unclear, mixed or unrelated?
-- **Fixed rules come first:** small talk and a file sent without a question are learning requests, with no model
-  needed.
+- **Settings:** `STUDY_SCOPE` is `off`, `shadow` or `on` (`app/intents/scope.py`). Since 2026-11-23 the reader is
+  the decision models (`app/intents/decision.py`, `STUDY_SCOPE_CLASSIFIER=decision`): OpenRouter's DeepSeek V4.1
+  Flash reads every new message that is not small talk (study, support, chat, unclear, mixed or unrelated; whether
+  answering it is genuine study; the kind of help; whether it is a follow-up), and GPT-6.2 Sol reads it again when
+  the first reading could turn it away, is not confident, failed, or the message tries to steer the classifier.
+  Strict JSON (a schema, checked field by field), masked like every model call, the last exchange as context.
+- **Fixed rules come first:** small talk (only greetings and acknowledgements, or emoji) and a file sent without a
+  question are answered as they are, with no model, and never earn streak credit.
+- **Turned away only when both models agree** the message is unrelated (one model's confidence never decides it);
+  any failure is no decision: the tutor answers with the policy.
+- **The streak** (`app/chat/service.py` `_earns_learning`): with the scope on, only a reading with `study` true
+  earns the day's credit (a mixed message's study part and a follow-up count; greetings, app help, off-topic,
+  gibberish, a same-day repeat and an inconclusive reading do not).
 - **Decisions:**
   - `REDIRECT`, only when P(unrelated) reaches `SCOPE_MIN_REDIRECT`: the app's own reply, with no model, search or
     learning day;
@@ -249,7 +258,7 @@ The flow is in [request-lifecycle.md, "A voice turn"](request-lifecycle.md#a-voi
 | Flag | Code default | Production (as reported by the release session) |
 |---|---|---|
 | `INTENT_ROUTER` | `off` | `on`, with `INTENT_ROUTER_TIMEOUT_S=5` (owner's decision, 2026-10-23; confirmed 2026-10-26) |
-| `STUDY_SCOPE` | `off` | `on` (confirmed 2026-10-26) |
+| `STUDY_SCOPE` | `off` | PadhAI: `on` (2026-10-26). NetSec: decision models, turned on only after their held-out eval (2026-11-23) |
 | `VOICE_MODE` | `off` | `on` (confirmed 2026-10-26) |
 | `QUESTION_BANK_TESTS`, `ADAPTIVE_CHAT_TESTS` | `true` | not reported; the code defaults apply unless `api.env` overrides them |
 | `TUTOR_INTERACTIVE_BLOCKS`, `TUTOR_TEACHING_POLICY` | `false` | not reported here |

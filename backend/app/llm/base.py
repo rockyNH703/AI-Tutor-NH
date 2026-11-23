@@ -8,10 +8,10 @@ means composing providers, as `FallbackProvider` already does.
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping
 from contextvars import ContextVar
 from dataclasses import dataclass, field
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 Role = Literal["system", "user", "assistant"]
 
@@ -38,6 +38,9 @@ class GenerationOptions:
     model: str | None = None  # None = the provider's configured default
     temperature: float = 0.7
     max_output_tokens: int = 4096
+    # Extra request fields an OpenAI-compatible provider passes through as they are (the decision classifier's
+    # response_format and reasoning, app/intents/decision.py). Built by the server only, never from user input.
+    extra_body: Mapping[str, Any] | None = None
 
 
 @dataclass

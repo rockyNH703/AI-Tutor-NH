@@ -189,6 +189,17 @@ Read it before changing any of them. A decision marked **owner's rule** changes 
 - **Production (as reported, 2026-10-26):** both are on; the router's time cap is 5 s there (owner's decision,
   2026-10-23).
 
+### The study scope reads with two decision models, and only study earns the streak (2026-11-23)
+
+- **Why:** the owner wants NetSec AI to stay a technical learning assistant, and the streak to reward genuine study
+  only: before this, any meaningful message (a cricket question too) earned a learning day, and a short real
+  question ("Explain OSPF") did not.
+- **Decision:** OpenRouter's DeepSeek V4.1 Flash (pinned `-1017` snapshot) reads each message; GPT-6.2 Sol reads
+  doubtful ones again. A redirect needs both; a failed or inconclusive reading never redirects and never earns
+  credit (owner: "No credit" during an outage). Thresholds come from a labelled dev set and one held-out run
+  (`backend/evals/scope`, `scripts/eval_decision_scope.py`). JEV Router was considered and not used.
+- **Kept:** the Ollalink reader (`STUDY_SCOPE_CLASSIFIER=ollalink`), refused in production.
+
 ### Chat titles without a model
 
 - **Why:** no second model call per chat.

@@ -145,6 +145,19 @@ def test_the_progress_domain_is_reached_only_through_its_public_module():
         assert not reached, (module.name, reached)
 
 
+def test_the_decision_models_arrive_only_through_the_masked_factory():
+    """The study scope's decision classifier gets its models injected (app/llm/factory.py build_decision_llm, behind
+    RedactingProvider): it never builds a client of its own."""
+    imports = _imports(BACKEND / "app" / "intents" / "decision.py")
+    bad = {
+        m
+        for m in imports
+        if m.startswith(("openai", "httpx", "langchain"))
+        or m in {"app.llm.factory", "app.llm.openai_compatible", "app.llm.fallback"}
+    }
+    assert not bad, bad
+
+
 def test_the_question_bank_never_calls_a_model():
     """Questions are picked, served and checked by SQL and fixed rules only (docs/question_bank.md):
     the bank's code and its scripts import no model, retrieval, chat or HTTP client."""

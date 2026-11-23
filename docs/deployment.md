@@ -330,7 +330,8 @@ change plus an API restart, with the owner's approval:
 |---|---|---|
 | `TUTOR_INTERACTIVE_BLOCKS` | teaches the model the MCQ/quiz/fill-blank/flashcards/graph/diagram blocks and question-bank tests | a certification question bank; `eval_engineering.py` |
 | `TUTOR_TEACHING_POLICY` | coaching defaults (`app/chat/teaching.py`) | `eval_engineering.py` |
-| `INTENT_ROUTER`, `STUDY_SCOPE` | Ollalink classifiers (message text leaves unmasked) | new cases and `eval_intents.py` / `eval_scope.py` for the 2026-10-29 taxonomy |
+| `INTENT_ROUTER` | Ollalink classifier (message text leaves unmasked) | new cases and `eval_intents.py` for the 2026-10-29 taxonomy |
+| `STUDY_SCOPE` | OpenRouter decision models (masked: the message and the last exchange) | `eval_decision_scope.py` on `backend/evals/scope` (dev) and one held-out run; kill switch `STUDY_SCOPE=off` and an API restart |
 | `VOICE_MODE` (+ `VOICE_ACK`, `VOICE_PARALLEL_ROUTING`, `VOICE_SERVER_SPEECH`) | OllaLink speech, English only | a live check on `qa` accounts |
 | `MEMORY_RECALL_ENABLED`, `MEMORY_AUTOMATIC_PROPOSALS` | memory in chat, automatic memory proposals | [memory-evaluation.md](memory-evaluation.md) |
 | the jobs timer, `NOTIFICATIONS_MODE` | email to users | [Jobs worker](#jobs-worker) |

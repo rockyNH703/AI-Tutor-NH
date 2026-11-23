@@ -27,6 +27,27 @@ def build_llm(settings: Settings) -> LLMProvider:
     return RedactingProvider(_build_llm(settings))
 
 
+def build_decision_llm(settings: Settings) -> LLMProvider:
+    """The study scope's decision models (app/intents/decision.py): one OpenRouter connection whose default is the
+    primary model; the escalation model is chosen per request (GenerationOptions.model). Behind RedactingProvider,
+    like every model: secrets in the classified text are masked before OpenRouter sees it. The classifier's own
+    deadlines are tighter than these timeouts."""
+    timeout = max(settings.decision_primary_timeout_s, settings.decision_escalation_timeout_s)
+    return RedactingProvider(
+        OpenAICompatibleProvider(
+            name="openrouter-decision",
+            base_url=settings.decision_base_url,
+            api_key=settings.decision_key,
+            model=settings.decision_primary_model,
+            connect_timeout_s=min(3.0, timeout),
+            first_token_timeout_s=timeout,
+            total_timeout_s=timeout,
+            default_headers={"X-Title": settings.app_name},
+            http_client=_http_client(),
+        )
+    )
+
+
 def _build_llm(settings: Settings) -> LLMProvider:
     if settings.llm_provider == "fake":
         return FakeProvider(token_delay_s=settings.llm_fake_token_delay_s)

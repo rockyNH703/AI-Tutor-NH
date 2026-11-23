@@ -50,6 +50,7 @@ device configurations, logs and captures, which often contain secrets and intern
 | B2 | Web app (BFF) → API | `/v1/*` on `127.0.0.1:4400` with a bearer token; `/internal/auth/*` with `AUTH_INTERNAL_TOKEN` | Route allowlist; HMAC-verified cookie before the token is used; the API authorises every request |
 | B3 | Web app and API → PostgreSQL | `127.0.0.1:55432`; roles `netsecai_auth` (identity tables only), `netsecai_runtime`, `netsecai_migrator` | Loopback publish; least-privilege roles ([`database-grants.sh`](../../deploy-netsec/database-grants.sh)); bound SQL parameters |
 | B4 | API and jobs → LLM and embeddings providers | Prompts, history, file passages, memory text, search queries | HTTPS; secrets masked first **(released 0d868b7)**; one model call per turn; no tools |
+| B5b | API → OpenRouter decision models (STUDY_SCOPE) | The new message, the previous message and the end of the last reply, masked twice (mask_secrets, RedactingProvider); never the user's identity | HTTPS required in production; OpenRouter moderates GPT-6.2 Sol (a refusal is no decision, never a redirect) |
 | B5 | API → Ollalink and email providers | Classifier text, voice audio and text (off in the example env); email messages | HTTPS enforced in production for Ollalink; not masked |
 | B6 | API → file extractor | Uploaded bytes | Sandboxed transient systemd unit per file |
 | B7 | Release workstation → host | `deploy-netsec/deploy.sh` over SSH as root | Clean tree, GitHub `main` only, PASS receipt **(released 0d868b7)**, deploy lock, backup before migrations |

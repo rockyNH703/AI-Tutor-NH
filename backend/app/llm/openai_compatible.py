@@ -103,6 +103,8 @@ class OpenAICompatibleProvider:
         }
         if self.stream_usage:
             kwargs["stream_options"] = {"include_usage": True}
+        if options.extra_body:
+            kwargs["extra_body"] = dict(options.extra_body)
         started = time.monotonic()
         response = None
         try:
