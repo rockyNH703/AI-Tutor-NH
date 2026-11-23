@@ -49,7 +49,8 @@ export function ProgramChatHeader({ place, conversationId }: { place: ChatPlace;
           <ArrowLeft aria-hidden className="h-4 w-4" />
           {place.month === null ? "Program" : "Course Module"}
         </Link>
-        <div className="min-w-0 flex-1">
+        {/* At least 12rem, so on a phone New chat and History wrap to a second row instead of hiding the month. */}
+        <div className="min-w-0 flex-1 basis-48">
           <p className="truncate text-xs text-text-secondary">
             {program?.title ?? "NH program"}
             {place.mode === "interview" ? " · Mock interview" : ""}
