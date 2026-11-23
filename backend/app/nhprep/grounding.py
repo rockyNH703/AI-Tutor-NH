@@ -24,20 +24,15 @@ RRF_K = 60
 _VECTOR = NhprepSearchChunk.__table__.c.embedding.type
 _WORD = re.compile(r"[a-z0-9]+")
 
-_COLUMNS = """
-    c.id, c.lesson_id, c.course_id, c.kind, c.ordinal, c.content,
-    l.title AS lesson_title, co.title AS course_title
-"""
-_FROM = """
+# Literal SQL only (the security gate refuses SQL built from strings); both legs read the same columns and joins.
+DENSE = text(
+    """
+    SELECT c.id, c.lesson_id, c.course_id, c.kind, c.ordinal, c.content,
+           l.title AS lesson_title, co.title AS course_title,
+           1 - (c.embedding <=> :q) AS cosine
     FROM nhprep_search_chunks c
     JOIN nhprep_lessons l ON l.id = c.lesson_id AND l.removed_at IS NULL
     JOIN nhprep_courses co ON co.id = c.course_id AND co.removed_at IS NULL
-"""
-
-DENSE = text(
-    f"""
-    SELECT {_COLUMNS}, 1 - (c.embedding <=> :q) AS cosine
-    {_FROM}
     WHERE c.embedding_model = :model
       AND c.course_id = ANY(CAST(:courses AS uuid[]))
       AND c.kind = ANY(CAST(:kinds AS text[]))
@@ -47,9 +42,13 @@ DENSE = text(
 ).bindparams(bindparam("q", type_=_VECTOR))
 
 LEXICAL = text(
-    f"""
-    SELECT {_COLUMNS}, ts_rank_cd(c.content_tsv, query, 1) AS rank
-    {_FROM}
+    """
+    SELECT c.id, c.lesson_id, c.course_id, c.kind, c.ordinal, c.content,
+           l.title AS lesson_title, co.title AS course_title,
+           ts_rank_cd(c.content_tsv, query, 1) AS rank
+    FROM nhprep_search_chunks c
+    JOIN nhprep_lessons l ON l.id = c.lesson_id AND l.removed_at IS NULL
+    JOIN nhprep_courses co ON co.id = c.course_id AND co.removed_at IS NULL
     CROSS JOIN websearch_to_tsquery('english'::regconfig, CAST(:words AS text)) AS query
     WHERE c.course_id = ANY(CAST(:courses AS uuid[]))
       AND c.kind = ANY(CAST(:kinds AS text[]))
