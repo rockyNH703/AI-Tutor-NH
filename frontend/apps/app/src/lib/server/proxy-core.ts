@@ -5,7 +5,7 @@
  *
  * What it guarantees (backend docs/frontend-integration.md, plus the audit):
  *
- *   ALLOWLIST   Only routes in `lib/api/routes.ts` are forwarded; ids must be UUIDs;
+ *   ALLOWLIST   Only routes in `lib/api/routes.ts` are forwarded; ids must be UUIDs (a program slug or month has its own shape);
  *               only listed query params pass. Anything else is a 404 — this is not
  *               an open proxy.
  *   CSRF        Mutations must carry an `Origin` equal to the public origin (or, with

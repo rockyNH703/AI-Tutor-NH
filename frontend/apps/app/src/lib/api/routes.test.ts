@@ -234,4 +234,17 @@ describe("buildPath / matchRoute", () => {
     expect(() => buildPath("GET /v1/nhprep/lessons/{lesson_id}", { lesson_id: "ospf-areas" })).toThrow();
     expect(matchRoute("POST", `/v1/nhprep/lessons/${ID}/playback`)?.key).toBe("POST /v1/nhprep/lessons/{lesson_id}/playback");
   });
+
+  test("a program's slug and month are their own strict shapes, not UUIDs", () => {
+    const path = buildPath("GET /v1/programs/{slug}/months/{month}", { slug: "networking-ai", month: "12" });
+    expect(path).toBe("/v1/programs/networking-ai/months/12");
+    expect(matchRoute("GET", path)?.key).toBe("GET /v1/programs/{slug}/months/{month}");
+    expect(matchRoute("GET", "/v1/programs/networking-ai")?.key).toBe("GET /v1/programs/{slug}");
+    for (const [slug, month] of <[string, string][]>[["networking-ai", "0"], ["networking-ai", "13"], ["networking-ai", "1a"], ["..", "1"], ["Net", "1"], ["a--b", "1"]]) {
+      expect(() => buildPath("GET /v1/programs/{slug}/months/{month}", { slug, month })).toThrow();
+      expect(matchRoute("GET", `/v1/programs/${slug}/months/${month}`)).toBeNull();
+    }
+    // A slug is never accepted where an id belongs.
+    expect(matchRoute("GET", "/v1/conversations/networking-ai")).toBeNull();
+  });
 });

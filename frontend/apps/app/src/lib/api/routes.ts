@@ -201,15 +201,26 @@ export function isUuid(value: string): boolean {
   return UUID.test(value);
 }
 
+/** Path parameters that are not ids, each with its own strict shape (the API validates them again). */
+const SHAPES: Record<string, RegExp> = {
+  slug: /^(?=.{1,60}$)[a-z0-9]+(-[a-z0-9]+)*$/, // a program's slug
+  month: /^(1[0-2]|[1-9])$/, // a program month, 1 to 12
+};
+
+/** Every other path parameter is a backend id, a UUID. */
+function validParam(name: string, value: string): boolean {
+  return (SHAPES[name] ?? UUID).test(value);
+}
+
 /**
  * Fill a route pattern: `/v1/conversations/{conversation_id}` + `{conversation_id}`.
- * Throws on a missing or non-UUID id rather than sending a request that can only fail.
+ * Throws on a missing or malformed value rather than sending a request that can only fail.
  */
 export function buildPath(key: RouteKey, params: RouteParams = {}): string {
   const { pattern } = splitRouteKey(key);
   return pattern.replace(PARAM, (_, name: string) => {
     const value = params[name];
-    if (!value || !isUuid(value)) {
+    if (!value || !validParam(name, value)) {
       throw new Error(`Invalid "${name}" for ${key}`);
     }
     return encodeURIComponent(value);
@@ -238,7 +249,7 @@ export function matchRoute(
       const segment = segments[index] ?? "";
       const name = /^\{([a-z_]+)\}$/.exec(part)?.[1];
       if (name) {
-        if (!isUuid(segment)) {
+        if (!validParam(name, segment)) {
           ok = false;
           break;
         }
