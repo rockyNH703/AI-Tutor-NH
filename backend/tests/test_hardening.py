@@ -108,7 +108,7 @@ def test_defaults_and_a_zero_quota_kill_switch_are_accepted():
 
 # ------------------------------------------------------------- collection: a test file pytest skips cannot exist
 def test_every_python_file_in_tests_is_collected_or_a_known_helper():
-    helpers = {"__init__.py", "conftest.py"}
+    helpers = {"__init__.py", "conftest.py", "decision_fakes.py"}
     stray = sorted(
         path.name
         for path in (BACKEND / "tests").glob("*.py")
