@@ -56,6 +56,9 @@ MAX_PREFERENCES_BYTES = 4096
 # File Library uploads per student (app/files): per AUTH_WINDOW_MINUTES, and per day.
 FILES_UPLOADS_PER_WINDOW = 20
 FILES_UPLOADS_PER_DAY = 30
+INVOICE_CLAIMS_PER_HOUR = 5
+INVOICE_CLAIMS_PER_DAY = 20
+INVOICE_CLAIMS_PER_ADDRESS_DAY = 30
 # Password checks per account, wherever they happen (Better Auth's sign-in and change-password,
 # and the re-authentication here): the same scope, key and window in both runtimes.
 SIGNIN_SCOPE = "signin_email"
@@ -217,6 +220,16 @@ class AuthService:
         if await self._count_attempts("file_upload_user", key, minutes=24 * 60) >= FILES_UPLOADS_PER_DAY:
             raise RateLimited("You've reached today's upload limit. Please try again tomorrow.")
         await self._throttle("file_upload_user", key, FILES_UPLOADS_PER_WINDOW)
+        await self.db.commit()
+
+    async def throttle_invoice(self, user: User, ip: str | None) -> None:
+        """NH invoice claims (app/programs): 5 an hour and 20 a day per account, 30 a day per network address.
+        Counted before the invoice is looked up, so every guess costs an attempt; a refused attempt is not counted."""
+        key = str(user.id)
+        if await self._count_attempts("invoice_user", key, minutes=24 * 60) >= INVOICE_CLAIMS_PER_DAY:
+            raise RateLimited("Too many invoice attempts today. Please try again tomorrow.")
+        await self._throttle("invoice_user", key, INVOICE_CLAIMS_PER_HOUR, minutes=60)
+        await self._throttle("invoice_ip", ip, INVOICE_CLAIMS_PER_ADDRESS_DAY, minutes=24 * 60)
         await self.db.commit()
 
     async def throttle_voice(self, user: User, lane: str) -> None:

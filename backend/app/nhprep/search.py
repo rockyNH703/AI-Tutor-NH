@@ -380,14 +380,16 @@ async def answer(
     timeout_s: float = 1.0,
     *,
     tuning: Mapping[str, Any] | None = None,
+    within: Sequence[uuid.UUID] | None = None,
 ) -> FinderResult:
-    """The lesson the request names. Never raises: a timeout or error is a status, and the normal turn runs."""
+    """The lesson the request names. Never raises: a timeout or error is a status, and the normal turn runs.
+    `within`: a program chat's month (app/programs): only these courses, whatever the message names."""
     tuning = tuning or TUNING
     trace: dict[str, Any] = {"ms": {}, "counts": {}, "reasons": []}
     started = time.monotonic()
     try:
         async with asyncio.timeout(timeout_s):
-            result = await _find(db, embeddings, query, timeout_s, tuning, trace, started)
+            result = await _find(db, embeddings, query, timeout_s, tuning, trace, started, within)
     except TimeoutError:
         result = FinderResult("timeout", trace={**trace, "reason": "timeout"})
     except Exception as error:  # noqa: BLE001 - the finder never fails a turn
@@ -405,6 +407,7 @@ async def _find(
     tuning: Mapping[str, Any],
     trace: dict[str, Any],
     started: float,
+    within: Sequence[uuid.UUID] | None = None,
 ) -> FinderResult:
     model = _model(embeddings)
     vector = None
@@ -424,6 +427,10 @@ async def _find(
             },
         )
         courses, hinted = await _courses(session, query, trace)
+        if within is not None:  # a hard filter every leg applies; an empty one finds nothing
+            allowed = set(within)
+            courses = [course for course in (courses if courses is not None else within) if course in allowed]
+            hinted = ([course for course in hinted if course in allowed] or None) if hinted else None
         trace["ms"]["settings"] = _ms(s0)
         if query.trainer_hint and not courses:
             return FinderResult("none", trace={**trace, "reason": "trainer_unknown"})

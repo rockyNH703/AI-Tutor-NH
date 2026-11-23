@@ -214,6 +214,19 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
             ),
             {"u": uuid.UUID(user_id)},
         )
+        await db.execute(  # an NH invoice this student claimed (app/programs): the claim goes, the invoice stays
+            text(
+                "INSERT INTO nh_invoices (invoice_no, program_id) "
+                "SELECT 'NH-DELETION-TEST', id FROM programs WHERE slug = 'networking-ai'"
+            )
+        )
+        await db.execute(
+            text(
+                "INSERT INTO invoice_claims (user_id, invoice_id) "
+                "SELECT :u, id FROM nh_invoices WHERE invoice_no = 'NH-DELETION-TEST'"
+            ),
+            {"u": uuid.UUID(user_id)},
+        )
         await queue_email(  # an email waiting in the outbox for this student
             db,
             kind=WEEKLY_SUMMARY,

@@ -104,6 +104,7 @@ export class ConversationsStore {
 
   /** A conversation was created or changed (title, activity): put it in its place. */
   upsert(conversation: Conversation): void {
+    if (conversation.program) return; // a program chat lives in its month's history, never in this list
     const title = this.renamed.get(conversation.id);
     const next = title === undefined ? conversation : { ...conversation, title };
     const others = this.state.items.filter((item) => item.id !== conversation.id);

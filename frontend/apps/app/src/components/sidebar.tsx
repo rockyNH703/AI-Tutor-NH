@@ -12,6 +12,7 @@ import { PromptDialog } from "@v1/ui/prompt-dialog";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@v1/ui/tooltip";
 import { cn } from "@v1/ui/utils";
+import { usePrograms } from "@/features/programs/use-programs";
 import {
   Award,
   ChevronsUpDown,
@@ -24,6 +25,7 @@ import {
   Settings,
   Timer,
   Trash2,
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -139,6 +141,76 @@ function PlaceLink({
   );
 }
 
+const PROGRAM_AREAS = [
+  { path: "modules", label: "Course Module" },
+  { path: "qna", label: "QnA" },
+  { path: "quizzes", label: "Quizzes & Games" },
+  { path: "interviews", label: "Mock Interviews" },
+  { path: "videos", label: "Videos & Links" },
+] as const;
+
+/** Which area of a program an address is in (a month's chat belongs to Course Module, its interview to Mock Interviews). */
+function programArea(pathname: string, base: string): string | null {
+  if (!pathname.startsWith(`${base}/`)) return null;
+  const rest = pathname.slice(base.length + 1);
+  if (rest.startsWith("month/")) return rest.includes("/interview") ? "interviews" : "modules";
+  return rest.split("/")[0] ?? null;
+}
+
+/**
+ * "My Programs": the NH programs this account's invoices open (GET /v1/programs; nothing while it loads or fails, and
+ * nothing for anyone without one). The current program shows its five areas.
+ */
+function ProgramsNav({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
+  const { data } = usePrograms();
+  const pathname = usePathname() ?? "";
+  if (!data?.programs.length) return null;
+  return (
+    <nav
+      aria-labelledby="programs-heading"
+      className={cn("shrink-0 space-y-1", collapsed ? "flex flex-col items-center px-3 pb-3" : "px-3 pb-3")}
+    >
+      <h2
+        id="programs-heading"
+        className={cn("mb-2 px-3 text-2xs font-semibold uppercase tracking-[0.08em] text-text-secondary", collapsed && "sr-only")}
+      >
+        My Programs
+      </h2>
+      {data.programs.map((program) => {
+        const base = `/programs/${program.slug}`;
+        const area = programArea(pathname, base);
+        const inside = pathname === base || area !== null;
+        return (
+          <div key={program.slug} className="space-y-1">
+            <PlaceLink href={base} label={program.title} icon={GraduationCap} collapsed={collapsed} onNavigate={onNavigate} />
+            {inside && !collapsed && (
+              <ul className="ml-5 space-y-0.5 border-l border-border pl-2">
+                {PROGRAM_AREAS.map((item) => (
+                  <li key={item.path}>
+                    <Link
+                      href={`${base}/${item.path}`}
+                      onClick={onNavigate}
+                      aria-current={area === item.path ? "page" : undefined}
+                      className={cn(
+                        "focus-ring flex min-h-11 items-center rounded-lg px-3 text-sm transition-colors",
+                        area === item.path
+                          ? "bg-brand-soft font-semibold text-brand"
+                          : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function SidebarContent({
   collapsed = false,
   onNavigate,
@@ -251,6 +323,8 @@ export function SidebarContent({
           <PlaceLink href="/library" label="File Library" icon={FolderOpen} collapsed={collapsed} onNavigate={onNavigate} />
           <PlaceLink href="/study" label="Lab Activity" icon={Timer} collapsed={collapsed} onNavigate={onNavigate} />
         </div>
+
+        <ProgramsNav collapsed={collapsed} onNavigate={onNavigate} />
 
         {hub.length > 0 && (
           <nav aria-labelledby="hub-heading" className={cn("shrink-0 space-y-1", collapsed ? "px-3" : "px-3")}>

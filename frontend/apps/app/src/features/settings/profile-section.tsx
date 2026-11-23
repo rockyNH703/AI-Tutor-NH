@@ -22,6 +22,7 @@ import {
 } from "@/lib/api/identity";
 import { CODE_LENGTH, DISPLAY_NAME_MAX, type ProfileValues, type User } from "@/lib/api/types";
 import { deviceZone, supportedZones } from "@/lib/time-zones";
+import { NhEnrolmentCard } from "@/features/programs/invoice-flow";
 import { Field, Notice, SectionHeading, SettingsCard } from "./primitives";
 import { useUnsavedChanges } from "./use-unsaved-changes";
 
@@ -488,6 +489,7 @@ export function ProfileSection() {
         <PhotoCard />
         <NameAndZoneCard />
         <EmailCard />
+        <NhEnrolmentCard />
       </div>
     </>
   );

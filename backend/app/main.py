@@ -50,9 +50,11 @@ from app.memory.recall import MemoryRecall
 from app.memory.router import router as memory_router
 from app.middleware import ClassifierWarmMiddleware, RequestContextMiddleware
 from app.nhprep.chat import build_chat
+from app.nhprep.grounding import passages as nhprep_passages
 from app.nhprep.playback import VideoSigner, build_signer
 from app.nhprep.router import router as nhprep_router
 from app.notifications.router import router as notifications_router
+from app.programs.router import router as programs_router
 from app.progress.router import router as progress_router
 from app.rag.embeddings import build_embeddings, embedding_model_id, is_configured
 from app.rag.graph import RagDependencies, build_rag_graph
@@ -89,6 +91,7 @@ def build_rag(
             k = options.k or settings.rag_top_k
             return NcertRetriever(knowledge=ncert, k=k, classes=options.classes, subjects=options.subjects)
         return PgVectorRetriever(
+            grounding=_nhprep_grounding(options),
             store=store,
             embeddings=embeddings,
             scope=scope,
@@ -102,6 +105,27 @@ def build_rag(
             rrf_k=settings.rag_rrf_k,
             courses=list(options.courses) or None,
         )
+
+    def _nhprep_grounding(options: RetrievalOptions):
+        """A program chat's NHprep leg (owner decision D5): only when PROGRAMS_NHPREP_GROUNDING is on and the month
+        maps NHprep courses; the courses come from the chat service's curriculum, never from a request."""
+        curriculum = options.curriculum
+        if curriculum is None or not curriculum.courses or settings.programs_nhprep_grounding != "on":
+            return None
+        courses = curriculum.courses
+
+        async def grounding(question: str, vector: list[float]) -> list[dict]:
+            return await nhprep_passages(
+                db,
+                courses,
+                vector,
+                model,
+                question,
+                min_cosine=settings.rag_min_score,
+                ef_search=settings.rag_hnsw_ef_search,
+            )
+
+        return grounding
 
     async def has_knowledge(scope: AccessScope) -> bool:
         return ncert is not None or await store.has_chunks(scope, model)
@@ -336,4 +360,5 @@ def create_app(
     app.include_router(knowledge_router)
     app.include_router(study_router)
     app.include_router(nhprep_router)  # always mounted (the contract); every route checks NHPREP_MODE itself
+    app.include_router(programs_router)  # always mounted (the contract); every route checks PROGRAMS_MODE itself
     return app

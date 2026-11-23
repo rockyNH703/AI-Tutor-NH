@@ -42,6 +42,10 @@ Honest state (2026-10-29):
 - **NHprep video courses** (2026-11-20, `nhprep` branch, not released; `NHPREP_MODE` off, no video signer yet):
   lesson cards in the chat and `/v1/nhprep` for NetworkersHome students. Export, import, finder, playback,
   runbooks: [docs/nhprep.md](docs/nhprep.md).
+- **NH programs** (2026-11-23, `PROGRAMS_MODE` off until the owner's live checks): an NH invoice number, checked
+  against `nh_invoices` on every request, opens its program: month tutor chats isolated to the month's mapped
+  material, Q&A, quizzes, mock interviews, videos. Runbook: docs/deployment.md "NH programs" (`program_admin.py`);
+  API: docs/api-contract.md "NH programs".
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.
 

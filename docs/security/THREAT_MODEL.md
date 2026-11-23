@@ -154,6 +154,11 @@ the [production checklist](production-security-checklist.md#open-follow-ups).
     the owner's PC against robots.txt (owner-authorised, recorded) and makes quiz attempts on it. NHprep's video
     signing is not chosen; when it is, the signing secret shared with nhprep.com (option A) or the signing endpoint
     (option B) becomes a new secret or a new outbound call (B11-B13, P22-P24).
+13. **NH programs** (2026-11-23): an invoice number is a bearer secret for its program until claimed (generic
+    failures, rate limits, numbers never logged, only an HMAC prefix); month isolation rests on the stored
+    conversation's mapping (`AccessScope.documents`, the bank's `books`, NHprep `within`), never on the request;
+    NHprep text reaches the chat model in month tutors only, behind `PROGRAMS_NHPREP_GROUNDING` (basis
+    `owner-D5-month-tutors-2026-11-23`). **Test:** `test_programs.py`, `test_architecture_guards.py`.
 
 ## Mapping to OWASP and ASVS
 

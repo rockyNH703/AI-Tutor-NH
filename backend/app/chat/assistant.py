@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from typing import Any
 
 from app.chat.teaching import TEACHING_POLICY
 from app.db.models import Conversation, User
@@ -185,13 +186,15 @@ def system_prompt_for(
     scoped: bool = False,
     scope: str | None = None,
     voice: bool = False,
+    program: str = "",
 ) -> str:
     """The frozen prompt, then the coaching defaults, then what the user's settings add, then what
     the latest message asks for (`intent`, applied by the intent router), then the question bank's
     domains (on a turn that asks for a test), then the chat's practice tests as the app recorded them
     (app/assessments/state.py). Each part only when it says something. `bank` None: the model writes
     tests itself (QUESTION_BANK_TESTS off). `scoped` (STUDY_SCOPE on): the scope policy right after
-    the frozen prompt, with the line for this turn's `scope` decision, if it has one."""
+    the frozen prompt, with the line for this turn's `scope` decision, if it has one. `program`: a program chat's
+    tutor block (app/programs/prompt.py), right after them."""
     blocks = INTERACTIVE_BLOCKS if bank is None else BANK_BLOCKS
     prompt = f"{SYSTEM_PROMPT}\n\n{blocks}" if interactive else SYSTEM_PROMPT
     keep = prompt_block(scope) if scoped else ""
@@ -200,7 +203,9 @@ def system_prompt_for(
     spoken = VOICE_TURN if voice else ""
     asks = intent_block(intent)
     chapters = bank if interactive and bank else ""
-    return "\n\n".join(part for part in (prompt, keep, policy, instructions, spoken, asks, chapters, tests) if part)
+    return "\n\n".join(
+        part for part in (prompt, keep, program, policy, instructions, spoken, asks, chapters, tests) if part
+    )
 
 
 def retrieval_for(student: StudentContext | None) -> RetrievalOptions:
@@ -255,10 +260,13 @@ def resolve_assistant_config(
     scoped: bool = False,
     scope: str | None = None,
     voice: bool = False,
+    program: str = "",
+    curriculum: Any = None,
 ) -> AssistantConfig:
     """`intent`: what the intent router read in the latest message (app/intents/taxonomy.py); an intent
     answered from the app's own records searches no knowledge. `search` False: no knowledge search on
-    this turn (small talk that opens a chat). Attached files are read either way (app/rag/graph.py)."""
+    this turn (small talk that opens a chat). Attached files are read either way (app/rag/graph.py). `program` and
+    `curriculum`: a program chat's tutor block and month (app/programs), which replace the course boundary."""
     wanted = INTENTS.get(intent)
     search = search and (wanted is None or wanted.retrieval)
     return AssistantConfig(
@@ -272,6 +280,9 @@ def resolve_assistant_config(
             scoped=scoped,
             scope=scope,
             voice=voice,
+            program=program,
         ),
-        retrieval=retrieval_for(student) if search else None,
+        retrieval=(RetrievalOptions(curriculum=curriculum) if curriculum is not None else retrieval_for(student))
+        if search
+        else None,
     )

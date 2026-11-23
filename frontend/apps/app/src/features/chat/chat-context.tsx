@@ -82,15 +82,21 @@ export function ChatProvider({
       stores.attachments.rekey(draftKey, conversation.id);
       conversations.upsert(conversation);
       if (chat.activeKey !== conversation.id) return;
-      const path = `/c/${conversation.id}`;
+      // A program chat keeps its program's address: /programs/<slug>/month/<n> (or /qna), then /c/<id>.
+      const place = conversation.program;
+      const base = place
+        ? `/programs/${place.slug}/${place.month === null ? "qna" : `month/${place.month}`}`
+        : "";
+      const draftPath = place ? (place.mode === "interview" ? `${base}/interview` : base) : "/";
+      const path = `${place ? draftPath : ""}/c/${conversation.id}`;
       // "Close settings" comes back to this chat, however the next lines go (a replace below can
       // itself be overtaken by a click that follows it).
-      retargetAppPath("/", path);
+      retargetAppPath(draftPath, path);
       // Still looking at the draft, and not already on the way elsewhere? Give it its URL. The URL
       // alone can't tell: while Next loads the next page (Settings, on a slow server) it still says
       // "/", and a replace now would overtake that navigation and bring the student back here.
       // Both URLs render the same persistent chat view, so nothing remounts.
-      if (window.location.pathname === "/" && leaving.current() === null) router.replace(path);
+      if (window.location.pathname === draftPath && leaving.current() === null) router.replace(path);
     };
     chat.onConversationUpdated = (conversation) => conversations.upsert(conversation);
     chat.onReplyFinished = (done) => {

@@ -1167,6 +1167,34 @@
         "title": "BankAccessOut",
         "type": "object"
       },
+      "BankTopicOut": {
+        "properties": {
+          "book": {
+            "title": "Book",
+            "type": "string"
+          },
+          "chapter": {
+            "title": "Chapter",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "topicId": {
+            "title": "Topicid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topicId",
+          "title",
+          "chapter",
+          "book"
+        ],
+        "title": "BankTopicOut",
+        "type": "object"
+      },
       "CancelOut": {
         "properties": {
           "status": {
@@ -1438,6 +1466,33 @@
             "title": "Mode",
             "type": "string"
           },
+          "month": {
+            "anyOf": [
+              {
+                "maximum": 12.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month"
+          },
+          "program": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Program"
+          },
           "speechFormat": {
             "anyOf": [
               {
@@ -1453,6 +1508,21 @@
               }
             ],
             "title": "Speechformat"
+          },
+          "tutorMode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "tutor",
+                  "interview"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tutormode"
           }
         },
         "required": [
@@ -1486,6 +1556,43 @@
           "message"
         ],
         "title": "ChatResponse",
+        "type": "object"
+      },
+      "ClaimOut": {
+        "properties": {
+          "program": {
+            "$ref": "#/components/schemas/ProgramRef"
+          },
+          "status": {
+            "enum": [
+              "claimed",
+              "already"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "program"
+        ],
+        "title": "ClaimOut",
+        "type": "object"
+      },
+      "ClaimRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "invoiceNumber": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Invoicenumber",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invoiceNumber"
+        ],
+        "title": "ClaimRequest",
         "type": "object"
       },
       "ConceptMasteryOut": {
@@ -1555,6 +1662,16 @@
             "title": "Id",
             "type": "string"
           },
+          "program": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConversationProgramOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "title": {
             "title": "Title",
             "type": "string"
@@ -1600,6 +1717,54 @@
           "nextCursor"
         ],
         "title": "ConversationPage",
+        "type": "object"
+      },
+      "ConversationProgramOut": {
+        "description": "A program chat's place (app/programs): its program, its month (None: the program's QnA) and its mode.",
+        "properties": {
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month"
+          },
+          "monthTitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthtitle"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
+          "month",
+          "monthTitle",
+          "mode"
+        ],
+        "title": "ConversationProgramOut",
         "type": "object"
       },
       "CorrectMemoryRequest": {
@@ -4276,6 +4441,54 @@
         "title": "MistakesOut",
         "type": "object"
       },
+      "MonthDetailOut": {
+        "properties": {
+          "lessonIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Lessonids",
+            "type": "array"
+          },
+          "material": {
+            "$ref": "#/components/schemas/ProgramMaterial"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "program": {
+            "$ref": "#/components/schemas/ProgramRef"
+          },
+          "quizAvailable": {
+            "title": "Quizavailable",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/BankTopicOut"
+            },
+            "title": "Topics",
+            "type": "array"
+          }
+        },
+        "required": [
+          "program",
+          "month",
+          "title",
+          "material",
+          "lessonIds",
+          "topics",
+          "quizAvailable"
+        ],
+        "title": "MonthDetailOut",
+        "type": "object"
+      },
       "NhprepChapterOut": {
         "properties": {
           "id": {
@@ -5492,6 +5705,121 @@
           }
         },
         "title": "ProfileSet",
+        "type": "object"
+      },
+      "ProgramListOut": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "invoicePrompt": {
+            "title": "Invoiceprompt",
+            "type": "boolean"
+          },
+          "programs": {
+            "items": {
+              "$ref": "#/components/schemas/ProgramOut"
+            },
+            "title": "Programs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enabled",
+          "programs",
+          "invoicePrompt"
+        ],
+        "title": "ProgramListOut",
+        "type": "object"
+      },
+      "ProgramMaterial": {
+        "properties": {
+          "documents": {
+            "title": "Documents",
+            "type": "integer"
+          },
+          "lessons": {
+            "title": "Lessons",
+            "type": "integer"
+          },
+          "questions": {
+            "title": "Questions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "documents",
+          "lessons",
+          "questions"
+        ],
+        "title": "ProgramMaterial",
+        "type": "object"
+      },
+      "ProgramMonthOut": {
+        "properties": {
+          "material": {
+            "$ref": "#/components/schemas/ProgramMaterial"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "month",
+          "title",
+          "material"
+        ],
+        "title": "ProgramMonthOut",
+        "type": "object"
+      },
+      "ProgramOut": {
+        "properties": {
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/ProgramMonthOut"
+            },
+            "title": "Months",
+            "type": "array"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title",
+          "months"
+        ],
+        "title": "ProgramOut",
+        "type": "object"
+      },
+      "ProgramRef": {
+        "properties": {
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title"
+        ],
+        "title": "ProgramRef",
         "type": "object"
       },
       "ProgressDayOut": {
@@ -8067,6 +8395,7 @@
     },
     "/v1/conversations": {
       "get": {
+        "description": "Ordinary chats; with `program`, that program's QnA chats, or (with `month`) one month's chats, for an account\nwhose invoice opens the program (else 404, like a missing program).",
         "operationId": "list_conversations_v1_conversations_get",
         "parameters": [
           {
@@ -8096,6 +8425,42 @@
                 }
               ],
               "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "program",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 60,
+                  "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Program"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Month"
             }
           }
         ],
@@ -10632,7 +10997,7 @@
     },
     "/v1/nhprep/lessons": {
       "get": {
-        "description": "Summaries in the order asked; a missing or removed lesson is left out.",
+        "description": "Summaries in the order asked; a missing or removed lesson, or one the reader may not open, is left out.",
         "operationId": "list_lessons_v1_nhprep_lessons_get",
         "parameters": [
           {
@@ -11019,6 +11384,194 @@
         "summary": "Unsubscribe",
         "tags": [
           "notifications"
+        ]
+      }
+    },
+    "/v1/programs": {
+      "get": {
+        "description": "The programs this account's invoices open now (the sidebar), and whether to ask for an invoice.",
+        "operationId": "list_programs_v1_programs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramListOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Programs",
+        "tags": [
+          "programs"
+        ]
+      }
+    },
+    "/v1/programs/claims": {
+      "post": {
+        "description": "Claim an NH invoice for this account: 201 (claimed now), 200 (this account's already), else one generic 404\n(invoice_not_verified) whether it is unknown, revoked, expired or another account's. Counted before the lookup:\n5 an hour and 20 a day per account, 30 a day per network address.",
+        "operationId": "claim_invoice_v1_programs_claims_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimOut"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Claim Invoice",
+        "tags": [
+          "programs"
+        ]
+      }
+    },
+    "/v1/programs/invoice-prompt/dismiss": {
+      "post": {
+        "description": "\"Continue without an invoice\": the first-run prompt is not shown again (Settings can still add one).",
+        "operationId": "dismiss_invoice_prompt_v1_programs_invoice_prompt_dismiss_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Dismiss Invoice Prompt",
+        "tags": [
+          "programs"
+        ]
+      }
+    },
+    "/v1/programs/{slug}": {
+      "get": {
+        "operationId": "get_program_v1_programs__slug__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 60,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgramOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Program",
+        "tags": [
+          "programs"
+        ]
+      }
+    },
+    "/v1/programs/{slug}/months/{month}": {
+      "get": {
+        "operationId": "get_month_v1_programs__slug__months__month__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 60,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "title": "Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Month",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonthDetailOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Month",
+        "tags": [
+          "programs"
         ]
       }
     },

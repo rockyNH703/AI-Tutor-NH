@@ -69,6 +69,7 @@ FIND = text(
     LEFT JOIN served s ON s.topic_id = t.topic_id
     WHERE b.curriculum = 'netsec'
       AND (CAST(:track AS text) IS NULL OR b.book_id = :track)
+      AND (CAST(:books AS text[]) IS NULL OR b.book_id = ANY(CAST(:books AS text[])))
       AND (lower(t.title) = :phrase
            OR t.aliases @> ARRAY[CAST(:phrase AS text)]
            OR EXISTS (SELECT 1 FROM jsonb_array_elements(t.lessons) l WHERE lower(l->>'title') = :phrase)
@@ -92,6 +93,7 @@ TRACK = text(
     JOIN qb_books b ON b.book_id = c.book_id
     WHERE b.curriculum = 'netsec' AND (CAST(:track AS text) IS NULL OR b.book_id = :track)
       AND (CAST(:topic_ids AS text[]) IS NULL OR t.topic_id = ANY(CAST(:topic_ids AS text[])))
+      AND (CAST(:books AS text[]) IS NULL OR b.book_id = ANY(CAST(:books AS text[])))
     """
 )
 WORDS = text(
@@ -280,12 +282,14 @@ async def find(
     entitled: bool = False,
     need_questions: bool = True,
     loose: bool = False,
+    books: tuple[str, ...] | None = None,
 ) -> Found:
     """The topics a request names. `topic`: the request's topic words ("" for a whole track); `track`: a named
     certification; `goal`: the student's certification goal, a tie-breaker; `need_questions`: only topics with
     servable questions (False: topics alone, for the retrieval eval); `loose`: words from a sentence or a lesson
     title rather than a topic name, so the topics covering the most of them count (at least half)."""
     started = time.perf_counter()
+    allowed = list(books) if books is not None else None  # a program chat (app/programs): its month's tracks only
     known = await bank_words(session)
     words = corrected(words_of(topic, sentence=loose), known) if topic else []
     # Words the bank has never heard of ("kuch", "alternatives", "lite") can't be covered by any topic: the
@@ -295,13 +299,19 @@ async def find(
     words = kept or words
     timings = {"vocabularyMs": round((time.perf_counter() - started) * 1000, 2)}
     book = await _book_named(session, topic) if topic and not track else None
+    if book and allowed is not None and book not in allowed:  # a track outside the program chat's month
+        book = None
     if book:  # "quiz me on the OSPF Mastery course": that whole book (holdout5)
         track, words = book, []
     if not words:
-        rows = await session.execute(TRACK, {"track": track or goal, "entitled": entitled, "topic_ids": None})
+        rows = await session.execute(
+            TRACK, {"track": track or goal, "entitled": entitled, "topic_ids": None, "books": allowed}
+        )
         topics = [_row(row) for row in rows if row.available or not need_questions]
         if not topics and goal and not track:  # the goal track has nothing yet: every track
-            rows = await session.execute(TRACK, {"track": None, "entitled": entitled, "topic_ids": None})
+            rows = await session.execute(
+                TRACK, {"track": None, "entitled": entitled, "topic_ids": None, "books": allowed}
+            )
             topics = [_row(row) for row in rows if row.available or not need_questions]
         chosen = _choose_track(topics, track, goal)
         topics = sorted((t for t in topics if t.book_id == chosen), key=lambda t: (t.chapter_id, t.topic_id))
@@ -314,6 +324,7 @@ async def find(
         "any_word": " | ".join(re.sub(r"[^a-z0-9]", "", word) for word in words if re.sub(r"[^a-z0-9]", "", word)),
         "track": track,
         "entitled": entitled,
+        "books": allowed,
     }
     rows = await session.execute(FIND, params)
     timings["sqlMs"] = round((time.perf_counter() - started) * 1000, 2)

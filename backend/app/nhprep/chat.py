@@ -76,11 +76,22 @@ class NhprepChat:
         self.parse = parse  # app.nhprep.intent (lane L3): the cue parse, pure
         self.find = find  # app.nhprep.search (lane L3): the finder, bound to the database and masked embeddings
 
-    async def answer(self, user: Any, message: str, earlier: Sequence[str], reply_id: uuid.UUID) -> Card | None:
+    async def answer(
+        self,
+        user: Any,
+        message: str,
+        earlier: Sequence[str],
+        reply_id: uuid.UUID,
+        *,
+        within: Sequence[uuid.UUID] | None = None,
+    ) -> Card | None:
         """The card for this message, or None (not for this account, no NHprep cue, nothing found in time, an
-        error): the normal turn then runs. Never raises."""
+        error): the normal turn then runs. Never raises. `within`: a program chat's month (app/programs, whose access
+        the chat checked): only these courses, for an NH student whatever the email domain (owner decision D3)."""
         extra: dict[str, Any] = {"message_id": str(reply_id)}
-        if not nhprep_allows(user, self.settings):
+        if within is None and not nhprep_allows(user, self.settings):
+            return None
+        if within is not None and not within:
             return None
         try:
             query = self.parse(message, earlier)
@@ -102,7 +113,7 @@ class NhprepChat:
         started = time.monotonic()
         try:
             async with asyncio.timeout(self.settings.nhprep_find_timeout_s):
-                result = await self.find(query)
+                result = await (self.find(query) if within is None else self.find(query, within))
         except TimeoutError:
             result = FinderResult("timeout")
         except Exception as error:  # noqa: BLE001 - the finder never fails a turn: the model answers instead
@@ -131,5 +142,7 @@ def build_chat(db: Database, settings: Settings, embeddings: Any) -> NhprepChat 
 
     # The finder keeps its own deadline (the same setting); answer()'s is the backstop around it.
     return NhprepChat(
-        settings, intent.parse, lambda query: search.answer(db, embeddings, query, settings.nhprep_find_timeout_s)
+        settings,
+        intent.parse,
+        lambda query, within=None: search.answer(db, embeddings, query, settings.nhprep_find_timeout_s, within=within),
     )

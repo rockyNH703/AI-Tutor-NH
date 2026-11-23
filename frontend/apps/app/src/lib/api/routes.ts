@@ -140,7 +140,7 @@ export const ROUTES = {
   "PUT /v1/memories/{memory_id}": { auth: true, body: "CorrectMemoryRequest" },
   "DELETE /v1/memories/{memory_id}": { auth: true, body: "DeleteMemoryRequest" },
 
-  "GET /v1/conversations": { auth: true, query: ["limit", "cursor"] },
+  "GET /v1/conversations": { auth: true, query: ["limit", "cursor", "program", "month"] },
   "GET /v1/conversations/{conversation_id}": { auth: true },
   "PATCH /v1/conversations/{conversation_id}": { auth: true, body: "RenameConversationRequest" },
   "DELETE /v1/conversations/{conversation_id}": { auth: true },
@@ -169,6 +169,13 @@ export const ROUTES = {
   "GET /v1/nhprep/lessons/{lesson_id}": { auth: true },
   "GET /v1/nhprep/lessons/{lesson_id}/items": { auth: true, query: ["kind"] },
   "POST /v1/nhprep/lessons/{lesson_id}/playback": { auth: true },
+
+  // NH programs (features/programs): every answer comes from the account's NH invoices on the server.
+  "GET /v1/programs": { auth: true },
+  "POST /v1/programs/claims": { auth: true, body: "ClaimRequest" },
+  "POST /v1/programs/invoice-prompt/dismiss": { auth: true },
+  "GET /v1/programs/{slug}": { auth: true },
+  "GET /v1/programs/{slug}/months/{month}": { auth: true },
 
   "GET /v1/voice": { auth: true },
   "POST /v1/voice/transcriptions": { auth: true, query: ["seconds"], upload: VOICE_UPLOAD, voice: true },

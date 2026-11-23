@@ -9,6 +9,8 @@ import { APP_NAME } from "@/lib/brand";
 import { Announcer } from "./announcer";
 import { cn } from "@v1/ui/utils";
 
+import { ProgramChatHeader } from "@/features/programs/program-chat-header";
+import type { ChatPlace } from "@/lib/api/types";
 import { useChatEntry, useConversations, useStores } from "./chat-context";
 import { Composer } from "./composer";
 import { MessageList, isEmptyChat } from "./message-list";
@@ -29,11 +31,11 @@ const VoiceMode = dynamic(() => import("@/features/voice/voice-mode"), { ssr: fa
  * (no second composer, no remount: the text, focus and stream are untouched). Reduced motion
  * (the device's or the app's) makes the move immediate (globals.css).
  */
-export function ChatView() {
+export function ChatView({ place = null }: { place?: ChatPlace | null } = {}) {
   const params = useParams<{ conversationId?: string }>();
   const conversationId = params?.conversationId ?? null;
   const { chat } = useStores();
-  const [draftKey, setDraftKey] = useState(() => chat.freshDraftKey());
+  const [draftKey, setDraftKey] = useState(() => chat.freshDraftKey(place));
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch the reply renderer now, alongside the messages, not when the first
@@ -41,9 +43,10 @@ export function ChatView() {
   useEffect(() => preloadMessageContent(), []);
 
   // Arriving at "/" after the held draft has been used ("New chat"): take a fresh one.
+  const placeId = place ? `${place.program}/${place.month ?? "qna"}/${place.mode}` : "";
   useEffect(() => {
-    if (!conversationId) setDraftKey(chat.freshDraftKey());
-  }, [conversationId, chat]);
+    if (!conversationId) setDraftKey(chat.freshDraftKey(place));
+  }, [conversationId, chat, placeId]);
 
   const chatKey = conversationId ?? draftKey;
 
@@ -85,6 +88,7 @@ export function ChatView() {
           empty ? "grow" : "grow-0",
         )}
       />
+      {place && <ProgramChatHeader place={place} conversationId={conversationId} />}
       {/* Under voice mode the chat stays mounted (its draft and place kept) but cannot be reached. */}
       <div className="contents" inert={voiceOpen || undefined}>
         <MessageList chatKey={chatKey} scrollRef={scrollRef} />

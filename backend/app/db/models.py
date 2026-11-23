@@ -83,6 +83,8 @@ MEMORY_RECEIPT_STATUSES = ("started", "completed", "failed")
 MEMORY_MAX_CONTENT_CHARS = 2000
 CODE_PURPOSES = ("verify_email", "reset_password", "change_email")
 KNOWLEDGE_VISIBILITIES = ("owner_only", "selected", "global")
+INVOICE_STATUSES = ("active", "revoked", "refunded", "expired")
+CONVERSATION_MODES = ("tutor", "interview")
 KNOWLEDGE_RIGHTS_STATUSES = ("unverified", "approved", "revoked")
 KNOWLEDGE_IMPORT_STATUSES = ("open", "completed", "revoked", "expired")
 DOCUMENT_FILE_STATUSES = ("uploading", "ready", "rejected", "deleted")
@@ -199,6 +201,8 @@ class User(Base):
     image: Mapped[str | None] = mapped_column(Text)  # Better Auth's field; never filled (no Google photos)
     # Better Auth's two-step sign-in (0013): once true, every sign-in asks for the second step.
     two_factor_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    # When the first-run "NH invoice?" prompt was answered with "continue without" (app/programs, 0028); None: ask.
+    invoice_prompt_done_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class UserAvatar(Base):
@@ -666,6 +670,25 @@ class Conversation(Base):
     __table_args__ = (
         UniqueConstraint("id", "user_id", name="uq_conversations_id_user"),
         Index("ix_conversations_user_updated", "user_id", text("updated_at DESC"), "id"),
+        # A program chat (app/programs, 0028): its month stays inside its program; QnA has a program and no month.
+        ForeignKeyConstraint(
+            ["module_id", "program_id"],
+            ["program_modules.id", "program_modules.program_id"],
+            name="fk_conversations_module",
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("(program_id IS NULL) = (mode IS NULL)", name="ck_conversations_program_mode"),
+        CheckConstraint(f"mode IS NULL OR mode IN {CONVERSATION_MODES}", name="ck_conversations_mode"),
+        CheckConstraint("module_id IS NULL OR program_id IS NOT NULL", name="ck_conversations_module"),
+        Index(
+            "ix_conversations_user_program",
+            "user_id",
+            "program_id",
+            "module_id",
+            text("updated_at DESC"),
+            "id",
+            postgresql_where=text("program_id IS NOT NULL"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -678,6 +701,12 @@ class Conversation(Base):
     )
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _created()
+    # A program chat (QnA when module_id is None); set once, when the chat is created by a verified student.
+    program_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("programs.id", ondelete="RESTRICT")
+    )
+    module_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    mode: Mapped[str | None] = mapped_column(String(10))
 
 
 class Message(Base):
@@ -2465,3 +2494,116 @@ class NhprepSearchChunk(Base):
     embedding_model: Mapped[str] = mapped_column(String(200), nullable=False)
     content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
     created_at: Mapped[datetime] = _created()
+
+
+# ---------------------------------------------------------------- NH programs (app/programs, 0028)
+# The owner's invoice rows decide access; a claim only says which account entered an invoice. Access is read from
+# the invoice row on every request (status, valid_until, program), so editing the row takes effect at once.
+
+
+class Program(Base):
+    """One of NH's programs (seeded by 0029 from the owner's curriculum)."""
+
+    __tablename__ = "programs"
+    __table_args__ = (CheckConstraint("slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'", name="ck_programs_slug"),)
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    slug: Mapped[str] = mapped_column(String(60), nullable=False, unique=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    position: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class ProgramModule(Base):
+    """One month of a program: the unit of a month tutor, its history and its knowledge scope."""
+
+    __tablename__ = "program_modules"
+    __table_args__ = (
+        UniqueConstraint("program_id", "month", name="uq_program_modules_month"),
+        UniqueConstraint("id", "program_id", name="uq_program_modules_identity"),
+        CheckConstraint("month BETWEEN 1 AND 12", name="ck_program_modules_month"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    program_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("programs.id", ondelete="CASCADE"), nullable=False
+    )
+    month: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class ProgramModuleDocument(Base):
+    """A Knowledge Library document a month may search (one document, any number of months: no copies)."""
+
+    __tablename__ = "program_module_documents"
+    __table_args__ = (Index("ix_program_module_documents_document", "document_id"),)
+
+    module_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("program_modules.id", ondelete="CASCADE"), primary_key=True
+    )
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), primary_key=True
+    )
+
+
+class ProgramModuleBook(Base):
+    """A question-bank track a month's quizzes draw from."""
+
+    __tablename__ = "program_module_books"
+
+    module_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("program_modules.id", ondelete="CASCADE"), primary_key=True
+    )
+    book_id: Mapped[str] = mapped_column(Text, ForeignKey("qb_books.book_id", ondelete="CASCADE"), primary_key=True)
+
+
+class ProgramModuleCourse(Base):
+    """An NHprep course whose lessons belong to a month (videos, cards, interview questions, grounding)."""
+
+    __tablename__ = "program_module_courses"
+    __table_args__ = (Index("ix_program_module_courses_course", "course_id"),)
+
+    module_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("program_modules.id", ondelete="CASCADE"), primary_key=True
+    )
+    course_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("nhprep_courses.id", ondelete="CASCADE"), primary_key=True
+    )
+
+
+class NhInvoice(Base):
+    """An NH invoice, as the owner records it (SQL or scripts/program_admin.py): the source of truth for access."""
+
+    __tablename__ = "nh_invoices"
+    __table_args__ = (
+        CheckConstraint("invoice_no ~ '^[A-Z0-9/_.-]{3,40}$'", name="ck_nh_invoices_number"),
+        CheckConstraint(f"status IN {INVOICE_STATUSES}", name="ck_nh_invoices_status"),
+        Index("ix_nh_invoices_program", "program_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    invoice_no: Mapped[str] = mapped_column(String(40), nullable=False, unique=True)
+    program_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("programs.id", ondelete="RESTRICT"), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(10), nullable=False, server_default=text("'active'"))
+    valid_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class InvoiceClaim(Base):
+    """Which account entered an invoice: one account per invoice (the first valid claim wins)."""
+
+    __tablename__ = "invoice_claims"
+    __table_args__ = (Index("ix_invoice_claims_user", "user_id"),)
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    invoice_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("nh_invoices.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    claimed_at: Mapped[datetime] = _created()

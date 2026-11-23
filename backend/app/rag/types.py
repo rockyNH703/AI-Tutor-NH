@@ -12,10 +12,23 @@ class AccessScope:
     """Whose knowledge may be searched: global sources plus this user's private ones.
 
     user_id None = global sources only. Always derived from the verified session,
-    never from a request body.
+    never from a request body. `documents`: a program chat's month (app/programs): only these
+    Knowledge Library documents of approved global sources, nothing else (empty: nothing at all);
+    None: no such restriction.
     """
 
     user_id: uuid.UUID | None
+    documents: tuple[uuid.UUID, ...] | None = None
+
+
+@dataclass(frozen=True)
+class Curriculum:
+    """What a program chat may use (app/programs), resolved by the chat service from the stored
+    conversation and the owner's mapping, never from a request: the month's Knowledge Library
+    documents and NHprep courses (the grounding leg, PROGRAMS_NHPREP_GROUNDING)."""
+
+    documents: tuple[uuid.UUID, ...] = ()
+    courses: tuple[uuid.UUID, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -36,3 +49,5 @@ class RetrievalOptions:
     subjects: tuple[str, ...] = ()
     # The learner's course boundary (knowledge_courses slugs, from the Engineering Profile goal): () = every course.
     courses: tuple[str, ...] = ()
+    # A program chat (app/programs): only its month's material; the course boundary and every fallback are off.
+    curriculum: Curriculum | None = None

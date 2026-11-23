@@ -169,13 +169,15 @@ def build_rag_graph(deps: RagDependencies):
         if summary["status"] == "skipped":
             return {"retrieval_summary": summary}
         options = state["retrieval"]
-        scope = AccessScope(state.get("user_id"))
+        curriculum = options.curriculum if options is not None else None
+        scope = AccessScope(state.get("user_id"), curriculum.documents if curriculum is not None else None)
         started = time.perf_counter()
         documents: list[Document] = []
         timings: dict = {}
         try:
             async with asyncio.timeout(settings.rag_retrieval_timeout_s):
-                if not await deps.has_knowledge(scope):
+                # A month whose library has nothing may still have NHprep courses (the grounding leg).
+                if not await deps.has_knowledge(scope) and not (curriculum is not None and curriculum.courses):
                     summary = {"status": "skipped", "reason": "empty_knowledge_base"}
                 else:
                     retriever = deps.retriever_factory(scope, options)

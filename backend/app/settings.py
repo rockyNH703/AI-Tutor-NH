@@ -341,6 +341,15 @@ class Settings(BaseSettings):
     # Per user, on every /v1/nhprep route; a playback also counts against its own, lower limit.
     nhprep_requests_per_minute: int = Field(default=600, ge=1, le=10_000)
     nhprep_playbacks_per_minute: int = Field(default=20, ge=1, le=600)
+    # NH programs (app/programs): an NH invoice the student claims opens its program's area (month tutors, QnA,
+    # quizzes, interviews, videos). The owner's invoice rows decide access on every request. Rollout off (every program
+    # route and program chat is a 404) -> qa (only PROGRAMS_QA_EMAILS) -> on.
+    programs_mode: Literal["off", "qa", "on"] = "off"
+    programs_qa_emails: str = ""
+    # NHprep's notes, cheat sheets and interview questions as grounding for a month tutor (owner decision D5,
+    # 2026-11-23; egress basis owner-D5-month-tutors-2026-11-23): only in a verified program chat, only that month's
+    # mapped courses, masked like all model input. Off: month tutors ground on Knowledge Library documents only.
+    programs_nhprep_grounding: Literal["off", "on"] = "off"
 
     @field_validator("default_timezone")
     @classmethod
@@ -406,6 +415,18 @@ class Settings(BaseSettings):
     @property
     def nhprep_qa_list(self) -> frozenset[str]:
         return frozenset(e.strip().lower() for e in self.nhprep_qa_emails.split(",") if e.strip())
+
+    @property
+    def programs_qa_list(self) -> frozenset[str]:
+        return frozenset(e.strip().lower() for e in self.programs_qa_emails.split(",") if e.strip())
+
+    def programs_allow(self, email: str) -> bool:
+        """PROGRAMS_MODE for this account: `on` everyone (the invoice still decides each program), `qa` only the listed
+        accounts, `off` nobody. ASCII only, so lowercasing cannot fold a lookalike into a listed address."""
+        if self.programs_mode == "on":
+            return True
+        address = (email or "").strip()
+        return self.programs_mode == "qa" and address.isascii() and address.lower() in self.programs_qa_list
 
     def question_bank_turn_allows(self, email: str) -> bool:
         """QUESTION_BANK_TURN for this account: `on` everyone, `qa` only the listed accounts, `off` nobody."""
@@ -565,6 +586,8 @@ class Settings(BaseSettings):
             problems.append("QUESTION_BANK_TURN=qa needs QUESTION_BANK_QA_EMAILS")
         if self.nhprep_mode == "qa" and not self.nhprep_qa_list:
             problems.append("NHPREP_MODE=qa needs NHPREP_QA_EMAILS")
+        if self.programs_mode == "qa" and not self.programs_qa_list:
+            problems.append("PROGRAMS_MODE=qa needs PROGRAMS_QA_EMAILS")
         if self.nhprep_playback == "secret" and not (
             self.nhprep_video_signing_secret and self.nhprep_video_signing_secret.get_secret_value().strip()
         ):

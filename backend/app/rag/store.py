@@ -90,8 +90,21 @@ class ChunkInput:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
-def _live_in(passage_id, allowed_source_ids: list[uuid.UUID]):
-    """The passage is live (a published revision carries it) in at least one allowed source."""
+def _live_in(passage_id, allowed_source_ids: list[uuid.UUID], documents: tuple[uuid.UUID, ...] | None = None):
+    """The passage is live (a published revision carries it) in at least one allowed source; in a program chat
+    (`documents`), in one of its month's documents (indexed by passage: ix_knowledge_passage_occurrences_passage)."""
+    if documents is not None:
+        return (
+            select(KnowledgePassageOccurrence.passage_id)
+            .join(DocumentRevision, DocumentRevision.id == KnowledgePassageOccurrence.revision_id)
+            .where(
+                KnowledgePassageOccurrence.passage_id == passage_id,
+                KnowledgePassageOccurrence.document_id.in_(list(documents)),
+                KnowledgePassageOccurrence.source_id.in_(allowed_source_ids),
+                DocumentRevision.status == "published",
+            )
+            .exists()
+        )
     return (
         select(KnowledgePassageSource.passage_id)
         .where(
@@ -101,9 +114,13 @@ def _live_in(passage_id, allowed_source_ids: list[uuid.UUID]):
     )
 
 
-def _with_provenance(ranked, score_column: str, allowed_source_ids: list[uuid.UUID]):
+def _with_provenance(
+    ranked, score_column: str, allowed_source_ids: list[uuid.UUID], documents: tuple[uuid.UUID, ...] | None = None
+):
     """Canonical passage hits with where they appear: one published occurrence in an allowed source (lateral,
-    k rows only), shaped like a document_chunks row so citations keep book, page and section."""
+    k rows only), shaped like a document_chunks row so citations keep book, page and section. In a program chat
+    (`documents`) the occurrence is one of the month's documents, so a passage two books share cites the month's."""
+    in_month = KnowledgePassageOccurrence.document_id.in_(list(documents)) if documents is not None else true()
     occurrence = (
         select(
             KnowledgePassageOccurrence.document_id,
@@ -122,6 +139,7 @@ def _with_provenance(ranked, score_column: str, allowed_source_ids: list[uuid.UU
             KnowledgePassageOccurrence.passage_id == ranked.c.id,
             KnowledgePassageOccurrence.source_id.in_(allowed_source_ids),
             DocumentRevision.status == "published",
+            in_month,
         )
         .order_by(KnowledgePassageOccurrence.document_id, KnowledgePassageOccurrence.ordinal)
         .limit(1)
@@ -213,7 +231,17 @@ class KnowledgeStore:
         include_general: bool = True,
     ):
         """courses: the turn's course boundary (None = every course). General sources (no course) belong to
-        every course unless include_general is False (a foundation-course search adds only that course)."""
+        every course unless include_general is False (a foundation-course search adds only that course).
+        A program chat (scope.documents): only approved global sources holding the month's documents, never anyone's
+        private or granted ones; names and courses don't apply (the mapping is the boundary)."""
+        if scope.documents is not None:
+            holding = select(Document.source_id).where(Document.id.in_(list(scope.documents)))
+            return select(KnowledgeSource.id).where(
+                KnowledgeSource.rights_revoked_at.is_(None),
+                KnowledgeSource.visibility == "global",
+                KnowledgeSource.rights_status == "approved",
+                KnowledgeSource.id.in_(holding),
+            )
         if scope.user_id is None:
             visible = (KnowledgeSource.visibility == "global") & (KnowledgeSource.rights_status == "approved")
         else:
@@ -258,7 +286,10 @@ class KnowledgeStore:
             return tuple(sorted({slug for slug in found if slug not in courses}))
 
     async def has_chunks(self, scope: AccessScope, embedding_model: str) -> bool:
-        """Cheap check (indexed EXISTS) so an empty knowledge base never costs an embedding call."""
+        """Cheap check (indexed EXISTS) so an empty knowledge base never costs an embedding call. A program chat
+        whose month has no mapped document has nothing to search."""
+        if scope.documents is not None and not scope.documents:
+            return False
         try:
             async with self.db.sessionmaker() as session:
                 allowed = self._allowed_sources_query(scope, None).scalar_subquery()
@@ -296,8 +327,10 @@ class KnowledgeStore:
         allowed_source_ids: list[uuid.UUID],
         k: int,
         metadata_filter: dict[str, Any] | None = None,
+        documents: tuple[uuid.UUID, ...] | None = None,
     ):
-        """Nearest texts inside the allowed sources; titles are joined for the k hits only.
+        """Nearest texts inside the allowed sources; titles are joined for the k hits only. `documents`: a program
+        chat's month (every branch keeps to those documents, before ranking as well as in the citation).
 
         Two indexed branches, one statement: ingested documents (document_chunks) and Knowledge Library books
         (canonical passages, each stored and indexed once however many books carry it). Each orders by
@@ -317,6 +350,7 @@ class KnowledgeStore:
             .where(
                 DocumentChunk.embedding_model == embedding_model,
                 DocumentChunk.source_id.in_(allowed_source_ids),
+                DocumentChunk.document_id.in_(list(documents)) if documents is not None else true(),
             )
             .order_by(DocumentChunk.embedding.cosine_distance(vector))
             .limit(k)
@@ -330,13 +364,15 @@ class KnowledgeStore:
                 select(KnowledgePassageEmbedding.passage_id.label("id"), distance.label("distance"))
                 .where(
                     KnowledgePassageEmbedding.embedding_model == embedding_model,
-                    _live_in(KnowledgePassageEmbedding.passage_id, allowed_source_ids),
+                    _live_in(KnowledgePassageEmbedding.passage_id, allowed_source_ids, documents),
                 )
                 .order_by(distance)
                 .limit(k)
                 .subquery("near")
             )
-            branches.append(select(_with_provenance(near, "distance", allowed_source_ids).subquery("passage_hits")))
+            branches.append(
+                select(_with_provenance(near, "distance", allowed_source_ids, documents).subquery("passage_hits"))
+            )
         hits = union_all(*branches).cte("hits")
         return (
             select(
@@ -359,8 +395,9 @@ class KnowledgeStore:
         allowed_source_ids: list[uuid.UUID],
         k: int,
         metadata_filter: dict[str, Any] | None = None,
+        documents: tuple[uuid.UUID, ...] | None = None,
     ):
-        """Rank plain lexical query text against generated tsvectors with bound values."""
+        """Rank plain lexical query text against generated tsvectors with bound values (`documents`: as above)."""
         tsquery = _any_of(query)
         rank = func.ts_rank(DocumentChunk.content_tsv, tsquery).label("lexical_rank")
         chunks = (
@@ -377,6 +414,7 @@ class KnowledgeStore:
                 DocumentChunk.content_tsv.op("@@")(tsquery),
                 DocumentChunk.embedding_model == embedding_model,
                 DocumentChunk.source_id.in_(allowed_source_ids),
+                DocumentChunk.document_id.in_(list(documents)) if documents is not None else true(),
             )
             .order_by(rank.desc(), DocumentChunk.id)
             .limit(k)
@@ -399,14 +437,16 @@ class KnowledgeStore:
                 .where(
                     KnowledgePassage.content_tsv.op("@@")(tsquery),
                     vectorized,
-                    _live_in(KnowledgePassage.id, allowed_source_ids),
+                    _live_in(KnowledgePassage.id, allowed_source_ids, documents),
                 )
                 .order_by(passage_rank.desc(), KnowledgePassage.id)
                 .limit(k)
                 .subquery("ranked")
             )
             branches.append(
-                select(_with_provenance(ranked, "lexical_rank", allowed_source_ids).subquery("passage_lexical"))
+                select(
+                    _with_provenance(ranked, "lexical_rank", allowed_source_ids, documents).subquery("passage_lexical")
+                )
             )
         hits = union_all(*branches).cte("lexical_hits")
         return (
@@ -425,7 +465,11 @@ class KnowledgeStore:
 
     @staticmethod
     def concept_search_statement(
-        concept_keys: Sequence[str], embedding_model: str, allowed_source_ids: list[uuid.UUID], k: int
+        concept_keys: Sequence[str],
+        embedding_model: str,
+        allowed_source_ids: list[uuid.UUID],
+        k: int,
+        documents: tuple[uuid.UUID, ...] | None = None,
     ):
         """Book passages that mention the question's concepts (the concept graph): most of them covered first, then
         the most mentions. Live in an allowed source and embedded for this model, like the other legs."""
@@ -445,14 +489,14 @@ class KnowledgeStore:
             .where(
                 KnowledgeConcept.key.in_(list(concept_keys)),
                 vectorized,
-                _live_in(KnowledgePassageConcept.passage_id, allowed_source_ids),
+                _live_in(KnowledgePassageConcept.passage_id, allowed_source_ids, documents),
             )
             .group_by(KnowledgePassageConcept.passage_id)
             .order_by(covered.desc(), weight.desc(), KnowledgePassageConcept.passage_id)
             .limit(k)
             .subquery("concept_ranked")
         )
-        hits = select(_with_provenance(ranked, "concept_rank", allowed_source_ids).subquery("concept_rows"))
+        hits = select(_with_provenance(ranked, "concept_rank", allowed_source_ids, documents).subquery("concept_rows"))
         hits = hits.cte("concept_hits")
         return (
             select(
@@ -547,7 +591,9 @@ class KnowledgeStore:
                     return []
                 await self.apply_search_settings(session)
                 rows = (
-                    await session.execute(self.search_statement(vector, embedding_model, allowed, k, metadata_filter))
+                    await session.execute(
+                        self.search_statement(vector, embedding_model, allowed, k, metadata_filter, scope.documents)
+                    )
                 ).all()
         except RetrievalError:
             raise
@@ -594,7 +640,9 @@ class KnowledgeStore:
                     await self.apply_search_settings(session)
                     rows = (
                         await session.execute(
-                            self.search_statement(vector, embedding_model, allowed, dense_candidates, metadata_filter)
+                            self.search_statement(
+                                vector, embedding_model, allowed, dense_candidates, metadata_filter, scope.documents
+                            )
                         )
                     ).all()
                 return self._dense_hits(rows, min_score), int((time.perf_counter() - started) * 1000)
@@ -613,6 +661,7 @@ class KnowledgeStore:
                                     allowed,
                                     lexical_candidates,
                                     metadata_filter,
+                                    scope.documents,
                                 )
                             )
                         ).all()
@@ -627,7 +676,7 @@ class KnowledgeStore:
                 try:
                     async with self.db.sessionmaker() as session, session.begin():
                         statement = self.concept_search_statement(
-                            concept_keys, embedding_model, allowed, lexical_candidates
+                            concept_keys, embedding_model, allowed, lexical_candidates, scope.documents
                         )
                         rows = (await session.execute(statement)).all()
                     return self._lexical_hits(rows), int((time.perf_counter() - started) * 1000), "ok"

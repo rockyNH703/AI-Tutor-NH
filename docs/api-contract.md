@@ -560,6 +560,28 @@ and nothing is sent to OllaLink.
 - Nothing is stored: not the audio, not the speech. Logs carry sizes and times only. A client that goes away
   cancels its OllaLink call.
 
+## NH programs
+
+The NH program area (`app/programs`, 2026-11-23). Open only while `PROGRAMS_MODE` admits the account (`off`, `qa`
+with `PROGRAMS_QA_EMAILS`, `on`), and a program only while the account holds a claim on an invoice for it whose row
+in `nh_invoices` is `active` and not past `valid_until`, checked on every request. Anything else is 404 `not_found`.
+Every response is `Cache-Control: no-store`.
+
+| Route | Answer |
+|---|---|
+| `GET /v1/programs` | `{enabled, invoicePrompt, programs: [{slug, title, months: [{month, title, material}]}]}` |
+| `POST /v1/programs/claims` `{invoiceNumber}` | 201 claimed, 200 already this account's; 404 `invoice_not_verified` for every failure (unknown, inactive, expired, claimed by someone else); 429 `rate_limited` |
+| `POST /v1/programs/invoice-prompt/dismiss` | 204; the first-run question is not asked again |
+| `GET /v1/programs/{slug}` | the program and its months |
+| `GET /v1/programs/{slug}/months/{month}` | the month: material counts, NHprep lesson ids, bank topics and whether Quiz me has questions |
+
+**Program chats.** The first `POST /v1/chat[/stream]` of a new chat may name `{program, month (1-12 or null for the
+program's Q&A), tutorMode: "tutor"|"interview"}`; with a `conversationId` these fields are 422. The server checks
+access and binds the conversation; every later turn reads its scope from the stored conversation, never from the
+request. A month chat retrieves only that month's mapped material, with no fallback. `ConversationOut.program` is
+`{slug, month, mode}` or null; `GET /v1/conversations` leaves program chats out unless asked for with
+`?program=<slug>&month=<n>` (no `month`: the Q&A). When access ends, the program's chats and messages are 404.
+
 ## NHprep video courses
 
 NHprep's video lessons and study aids (`app/nhprep`, [nhprep.md](nhprep.md); additive, 2026-11-20, not released).

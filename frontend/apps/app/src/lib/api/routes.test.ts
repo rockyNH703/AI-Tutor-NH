@@ -136,7 +136,10 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     { message: "hi", attachmentIds: [ID] },
     { message: "hi", mode: "voice" },
     { message: "remember that I like examples", clientRequestId: ID },
+    { message: "Explain OSPF", program: "networking-ai", month: 2, tutorMode: "tutor" },
+    { message: "Start", program: "networking-ai", month: 2, tutorMode: "interview" },
   ],
+  ClaimRequest: [{ invoiceNumber: "NH-2026-0012" }],
   SpeechRequest: [{ messageId: ID, text: "Osmosis is water moving." }],
   FeedbackRequest: [{ rating: "up" }],
   AssessmentResponseRequest: [

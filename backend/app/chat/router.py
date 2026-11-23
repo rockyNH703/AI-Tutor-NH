@@ -92,6 +92,9 @@ async def chat_stream(
         client_request_id=body.client_request_id,
         voice=body.mode == "voice",
         speech_format=body.speech_format,
+        program=body.program,
+        month=body.month,
+        tutor_mode=body.tutor_mode,
     )
     return await _stream(chat, turn, request, db, arrived)
 
@@ -112,6 +115,9 @@ async def chat_complete(
         client_request_id=body.client_request_id,
         voice=body.mode == "voice",
         speech_format=body.speech_format,
+        program=body.program,
+        month=body.month,
+        tutor_mode=body.tutor_mode,
     )
     await db.close()  # not held while the whole reply is generated (K-07a)
     generation = chat.start(turn)

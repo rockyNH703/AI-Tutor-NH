@@ -178,7 +178,9 @@ def test_the_question_bank_never_calls_a_model():
 def test_nhprep_stays_out_of_the_shared_knowledge_store_the_model_and_the_chat():
     """NHprep text is for entitled students only (owner decision Q2): app/nhprep never reaches the shared knowledge
     store, a model, the chat or an HTTP client (embeddings arrive injected); its scripts never write the shared store;
-    other domains reach it only through its public modules."""
+    other domains reach it only through its public modules. Owner decision D5 (2026-11-23): a month tutor in a verified
+    program chat may ground on its month's mapped NHprep courses; that leg (app.nhprep.grounding, rows out, no model)
+    is reached only from the composition root, and general chat never calls it."""
     app_dir = BACKEND / "app"
     files = list(app_dir.joinpath("nhprep").glob("*.py"))
     assert files
@@ -211,7 +213,7 @@ def test_nhprep_stays_out_of_the_shared_knowledge_store_the_model_and_the_chat()
         if module == app_dir / "conversations" / "router.py":
             allowed = {"app.nhprep.access"}  # a reply's card is shown only to a reader NHprep is for
         if module.name == "main.py":
-            allowed = {"app.nhprep.router", "app.nhprep.chat", "app.nhprep.playback"}
+            allowed = {"app.nhprep.router", "app.nhprep.chat", "app.nhprep.playback", "app.nhprep.grounding"}
         assert reached <= allowed, (module.relative_to(app_dir), reached - allowed)
 
 

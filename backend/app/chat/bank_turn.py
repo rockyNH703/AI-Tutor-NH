@@ -94,28 +94,47 @@ async def _topics(
     last: dict | None,
     goal: str | None,
     entitled: bool,
+    books: tuple[str, ...] | None = None,
 ) -> finder.Found:
     if request.topic:
         return await finder.find(
-            session, request.topic, track=request.track, goal=goal, entitled=entitled, loose=request.lesson_named
+            session,
+            request.topic,
+            track=request.track,
+            goal=goal,
+            entitled=entitled,
+            loose=request.lesson_named,
+            books=books,
         )
     if request.refers_to_chat:
         for kind, text in referent(earlier):
             if kind == "last":
                 break
             found = await finder.find(
-                session, text, track=request.track, goal=goal, entitled=entitled, loose=kind == "sentence"
+                session,
+                text,
+                track=request.track,
+                goal=goal,
+                entitled=entitled,
+                loose=kind == "sentence",
+                books=books,
             )
             if found.status in ("confident", "broad"):
                 return found
         if last and last.get("topicIds"):
             rows = await session.execute(
-                finder.TRACK, {"track": last.get("bookId"), "entitled": entitled, "topic_ids": last["topicIds"]}
+                finder.TRACK,
+                {
+                    "track": last.get("bookId"),
+                    "entitled": entitled,
+                    "topic_ids": last["topicIds"],
+                    "books": list(books) if books is not None else None,
+                },
             )
             topics = tuple(finder._row(row) for row in rows if row.available)
             return finder.Found("broad" if len(topics) > 1 else "confident", topics) if topics else finder.Found("none")
     # Nothing in the chat names a topic ("quiz me" in a new chat): the student's goal track, else every track.
-    return await finder.find(session, "", track=request.track, goal=goal, entitled=entitled)
+    return await finder.find(session, "", track=request.track, goal=goal, entitled=entitled, books=books)
 
 
 def _mix(rows: list[Any]) -> str:
@@ -153,6 +172,7 @@ async def answer(
     earlier: list[str],
     goal: str | None,
     entitled: bool,
+    books: tuple[str, ...] | None = None,
 ) -> Served | None:
     """The bank's reply to a quiz request, or None to leave the turn to the model (a "next 5" with no bank test
     before it in this chat). Only reads."""
@@ -170,14 +190,20 @@ async def answer(
             track=last.get("bookId"),
         )
         found = await _topics(
-            session, Request("bank", refers_to_chat=True), earlier=[], last=last, goal=goal, entitled=entitled
+            session,
+            Request("bank", refers_to_chat=True),
+            earlier=[],
+            last=last,
+            goal=goal,
+            entitled=entitled,
+            books=books,
         )
         exclude = tuple(last.get("questionIds") or ())
         if last.get("setId"):
             previous = await bank_tests.last_batch(session, user_id, uuid.UUID(last["setId"]))
             accuracy = previous[1] if previous else None
     else:
-        found = await _topics(session, request, earlier=earlier, last=last, goal=goal, entitled=entitled)
+        found = await _topics(session, request, earlier=earlier, last=last, goal=goal, entitled=entitled, books=books)
     timing = {"findMs": round((time.perf_counter() - started) * 1000, 1), **found.timings}
     base = {"version": 1, "status": found.status, "timing": timing}
     if not request.strong and found.status in ("none", "ambiguous"):

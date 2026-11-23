@@ -50,7 +50,7 @@ import type {
   StreamLearning,
   StreamMeta,
 } from "@/lib/api/types";
-import { MESSAGE_MAX } from "@/lib/api/types";
+import { type ChatPlace, MESSAGE_MAX } from "@/lib/api/types";
 import { type TestRequest, TestRequests } from "./test-requests";
 
 export type ChatApi = {
@@ -163,6 +163,11 @@ function failureFrom(error: unknown): MessageError {
   };
 }
 
+/** Two places are the same when program, month and mode are: a draft is reused only for its own place. */
+function placeKey(place: ChatPlace | null): string {
+  return place ? `${place.program}/${place.month ?? "qna"}/${place.mode}` : "";
+}
+
 export class ChatStore {
   private readonly api: ChatApi;
   private readonly schedule: Scheduler;
@@ -178,6 +183,8 @@ export class ChatStore {
   /** draft key → conversation id, once the server has created the conversation. */
   private readonly aliases = new Map<string, string>();
   private readonly drafts = new Map<string, string>();
+  /** A new chat's place (a program's month or QnA), kept with its draft key until the server binds it at `meta`. */
+  private readonly draftPlaces = new Map<string, ChatPlace>();
 
   private readonly entryListeners = new Map<string, Set<Listener>>();
   private readonly messageListeners = new Map<string, Set<Listener>>();
@@ -264,15 +271,17 @@ export class ChatStore {
    * message (or is sending one) is never reused — that is how two new chats
    * started back to back stay separate.
    */
-  freshDraftKey(): string {
+  freshDraftKey(place: ChatPlace | null = null): string {
     if (this.draftCounter > 0) {
       const last = `draft:${this.draftCounter}`;
       const entry = this.entries.get(last);
-      if (!this.aliases.has(last) && entry && entry.order.length === 0 && !entry.stream) return last;
+      const samePlace = placeKey(this.draftPlaces.get(last) ?? null) === placeKey(place);
+      if (!this.aliases.has(last) && entry && entry.order.length === 0 && !entry.stream && samePlace) return last;
     }
     this.draftCounter += 1;
     const key = `draft:${this.draftCounter}`;
     this.entries.set(key, emptyEntry(key, null, "ready"));
+    if (place) this.draftPlaces.set(key, place);
     return key;
   }
 
@@ -429,6 +438,13 @@ export class ChatStore {
     this.update(canonical, card ? { order } : { order, composerError: null });
 
     const request: ChatRequest = { conversationId: entry.conversationId, message: text };
+    const place = entry.conversationId ? undefined : this.draftPlaces.get(canonical);
+    if (place) {
+      // A new program chat: its place goes with the first message only; the server binds it for good.
+      request.program = place.program;
+      if (place.month !== null) request.month = place.month;
+      request.tutorMode = place.mode;
+    }
     if (attachments.length) request.attachmentIds = attachments.flatMap((a) => (a.fileId ? [a.fileId] : []));
     if (options.mode === "voice") request.mode = "voice"; // spoken in voice mode (features/voice)
     if (options.mode === "voice" && options.speechFormat) request.speechFormat = options.speechFormat;

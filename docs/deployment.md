@@ -20,6 +20,7 @@
 - [Quick Tunnel address changed](#quick-tunnel-address-changed)
 - [File Library](#file-library)
 - [Jobs worker](#jobs-worker)
+- [NH programs](#nh-programs)
 - [Switches that are owner decisions](#switches-that-are-owner-decisions)
 - [Changing the database container on purpose](#changing-the-database-container-on-purpose)
 - [Never do this](#never-do-this)
@@ -321,6 +322,26 @@ change for Settings to say the same. Enabling, in order, each step authorized an
 Delivery is at most once (a run that dies mid-send leaves the row `unknown`, never resent); the guarantees are tested
 in `backend/tests/test_jobs.py`.
 
+## NH programs
+
+The program area opens from NH's invoice rows in `nh_invoices`; the curriculum (4 programs, 29 months) is seeded by
+migration `0029`. Everything is loaded with `scripts/program_admin.py`, as the operator, through `systemd-run` with
+api.env (like `import_questions.py`). Every write command is a dry run without `--apply`, and nothing is ever deleted
+(an invoice is revoked, a claim released):
+
+| Command | What it does |
+|---|---|
+| `inventory` | read-only: the library documents, bank tracks and NHprep courses a mapping can name |
+| `mapping curriculum/mapping.json [--apply]` | maps each month to its documents, tracks and courses (only approved global sources) |
+| `invoices <csv> [--apply]` | upserts NH's invoices (`invoice_no,program,status,valid_until`); numbers are never printed |
+| `invoice <number> [--status S] [--program P] [--valid-until D] [--apply]` | changes one invoice; takes effect on the next request |
+| `dummy-invoices [--apply]` | one random `NHTEST-…` invoice per program, for live checks; revoke them afterwards |
+| `release <number> [--apply]` | frees a claimed invoice, only on the owner's instruction |
+
+`PROGRAMS_MODE` (`off` → `qa` with `PROGRAMS_QA_EMAILS` → `on`) and `PROGRAMS_NHPREP_GROUNDING` are owner switches
+below. Rollback: `PROGRAMS_MODE=off` and an API restart hides everything; a code rollback before `0028` lists program
+chats as ordinary chats until a roll-forward.
+
 ## Switches that are owner decisions
 
 All default off (`backend/app/settings.py`, `deploy-netsec/env/api.env.example`); turning one on is an `api.env`
@@ -335,6 +356,7 @@ change plus an API restart, with the owner's approval:
 | `VOICE_MODE` (+ `VOICE_ACK`, `VOICE_PARALLEL_ROUTING`, `VOICE_SERVER_SPEECH`) | OllaLink speech, English only | a live check on `qa` accounts |
 | `MEMORY_RECALL_ENABLED`, `MEMORY_AUTOMATIC_PROPOSALS` | memory in chat, automatic memory proposals | [memory-evaluation.md](memory-evaluation.md) |
 | the jobs timer, `NOTIFICATIONS_MODE` | email to users | [Jobs worker](#jobs-worker) |
+| `PROGRAMS_MODE`, `PROGRAMS_NHPREP_GROUNDING` | NH programs; month tutors grounded on NHprep text (masked) | real invoices loaded, the mapping approved, live checks in `qa` ([NH programs](#nh-programs)) |
 
 ## Changing the database container on purpose
 

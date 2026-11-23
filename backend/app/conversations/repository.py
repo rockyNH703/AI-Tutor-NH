@@ -1,7 +1,8 @@
 """Conversation and message queries. EVERY query is scoped by the owning user id.
 
 A resource owned by someone else is indistinguishable from one that does not
-exist (both are `None` here and 404 at the API).
+exist (both are `None` here and 404 at the API). So is a program chat whose program
+the owner's invoice no longer opens (app/programs/access.py): every lookup applies it.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Conversation, Document, KnowledgeSource, Message, MessageAttachment
 from app.errors import ValidationFailed
+from app.programs.access import conversation_visible
 
 DEFAULT_TITLE = "New chat"
 # Messages that belong to the visible transcript. `superseded` replies were
@@ -39,13 +41,31 @@ class ConversationRepository:
         self.db = db
 
     async def get(self, user_id: uuid.UUID, conversation_id: uuid.UUID, *, lock: bool = False) -> Conversation | None:
-        query = select(Conversation).where(Conversation.id == conversation_id, Conversation.user_id == user_id)
+        query = select(Conversation).where(
+            Conversation.id == conversation_id, Conversation.user_id == user_id, conversation_visible(user_id)
+        )
         if lock:
             query = query.with_for_update()
         return await self.db.scalar(query)
 
-    async def list(self, user_id: uuid.UUID, limit: int, cursor: str | None) -> tuple[list[Conversation], str | None]:
+    async def list(
+        self,
+        user_id: uuid.UUID,
+        limit: int,
+        cursor: str | None,
+        *,
+        program_id: uuid.UUID | None = None,
+        module_id: uuid.UUID | None = None,
+    ) -> tuple[list[Conversation], str | None]:
+        """Ordinary chats; or, with program_id, that program's chats in one month (module_id) or its QnA (None)."""
         query = select(Conversation).where(Conversation.user_id == user_id)
+        if program_id is None:
+            query = query.where(Conversation.program_id.is_(None))
+        else:
+            in_month = (
+                Conversation.module_id == module_id if module_id is not None else Conversation.module_id.is_(None)
+            )
+            query = query.where(Conversation.program_id == program_id, conversation_visible(user_id), in_month)
         if cursor:
             ts, row_id = decode_cursor(cursor)
             query = query.where(
@@ -59,8 +79,23 @@ class ConversationRepository:
         next_cursor = encode_cursor(rows[limit - 1].updated_at, rows[limit - 1].id) if len(rows) > limit else None
         return rows[:limit], next_cursor
 
-    async def create(self, user_id: uuid.UUID, title: str | None) -> Conversation:
-        conversation = Conversation(user_id=user_id, title=(title or "").strip() or DEFAULT_TITLE)
+    async def create(
+        self,
+        user_id: uuid.UUID,
+        title: str | None,
+        *,
+        program_id: uuid.UUID | None = None,
+        module_id: uuid.UUID | None = None,
+        mode: str | None = None,
+    ) -> Conversation:
+        """A new chat; a program chat (app/programs) is given its program, month and mode here and never again."""
+        conversation = Conversation(
+            user_id=user_id,
+            title=(title or "").strip() or DEFAULT_TITLE,
+            program_id=program_id,
+            module_id=module_id,
+            mode=mode,
+        )
         self.db.add(conversation)
         await self.db.flush()
         await self.db.refresh(conversation)
@@ -77,7 +112,9 @@ class ConversationRepository:
 
     async def delete(self, user_id: uuid.UUID, conversation_id: uuid.UUID) -> bool:
         result = await self.db.execute(
-            delete(Conversation).where(Conversation.id == conversation_id, Conversation.user_id == user_id)
+            delete(Conversation).where(
+                Conversation.id == conversation_id, Conversation.user_id == user_id, conversation_visible(user_id)
+            )
         )
         return result.rowcount > 0
 
@@ -134,7 +171,7 @@ class ConversationRepository:
         query = (
             select(Message)
             .join(Conversation, Conversation.id == Message.conversation_id)
-            .where(Message.id == message_id, Conversation.user_id == user_id)
+            .where(Message.id == message_id, Conversation.user_id == user_id, conversation_visible(user_id))
         )
         if lock:  # the message row only: writes to it wait for this transaction
             query = query.with_for_update(of=Message)

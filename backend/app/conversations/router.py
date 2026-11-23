@@ -12,6 +12,7 @@ from app.conversations.repository import ConversationRepository
 from app.conversations.schemas import (
     ConversationOut,
     ConversationPage,
+    ConversationProgramOut,
     CreateConversationRequest,
     MessageAttachmentOut,
     MessageOut,
@@ -23,13 +24,23 @@ from app.db.session import get_session
 from app.errors import NotFound
 from app.logging import get_logger
 from app.nhprep.access import nhprep_allows
+from app.programs import service as programs
+from app.programs.access import programs_allow
+from app.programs.schemas import SLUG
 
 router = APIRouter(prefix="/v1/conversations", tags=["conversations"])
 log = get_logger("app.assessments")
 
 
-def conversation_out(c: Conversation) -> ConversationOut:
-    return ConversationOut(id=c.id, title=c.title, created_at=c.created_at, updated_at=c.updated_at)
+def conversation_out(c: Conversation, program: dict | None = None) -> ConversationOut:
+    """`program`: a program chat's place (app/programs/service.py conversation_ref or ProgramTurn.ref)."""
+    return ConversationOut(
+        id=c.id,
+        title=c.title,
+        created_at=c.created_at,
+        updated_at=c.updated_at,
+        program=ConversationProgramOut(**program) if program else None,
+    )
 
 
 HIDDEN_REPLY = "This reply isn't available."
@@ -146,13 +157,42 @@ async def owned_conversation(repo: ConversationRepository, user_id: uuid.UUID, c
 
 @router.get("", response_model=ConversationPage)
 async def list_conversations(
+    request: Request,
     limit: int = Query(30, ge=1, le=100),
     cursor: str | None = Query(None, max_length=200),
+    program: str | None = Query(None, pattern=SLUG, max_length=60),
+    month: int | None = Query(None, ge=1, le=12),
     principal: Principal = Depends(get_principal),
     db: AsyncSession = Depends(get_session),
 ):
-    rows, next_cursor = await ConversationRepository(db).list(principal.user.id, limit, cursor)
-    return ConversationPage(items=[conversation_out(c) for c in rows], next_cursor=next_cursor)
+    """Ordinary chats; with `program`, that program's QnA chats, or (with `month`) one month's chats, for an account
+    whose invoice opens the program (else 404, like a missing program)."""
+    repo = ConversationRepository(db)
+    if program is None:
+        if month is not None:
+            raise NotFound()
+        rows, next_cursor = await repo.list(principal.user.id, limit, cursor)
+        return ConversationPage(items=[conversation_out(c) for c in rows], next_cursor=next_cursor)
+    if not programs_allow(principal.user, request.app.state.settings):
+        raise NotFound()
+    if month is None:
+        found, module = await programs.open_program(db, principal.user.id, program), None
+    else:
+        place = await programs.open_month(db, principal.user.id, program, month)
+        found, module = place if place is not None else (None, None)
+    if found is None:
+        raise NotFound()
+    rows, next_cursor = await repo.list(
+        principal.user.id, limit, cursor, program_id=found.id, module_id=module.id if module is not None else None
+    )
+    place = {
+        "slug": found.slug,
+        "title": found.title,
+        "month": module.month if module is not None else None,
+        "month_title": module.title if module is not None else None,
+    }
+    items = [conversation_out(c, {**place, "mode": c.mode or "tutor"}) for c in rows]
+    return ConversationPage(items=items, next_cursor=next_cursor)
 
 
 @router.post("", response_model=ConversationOut, status_code=status.HTTP_201_CREATED)
@@ -170,7 +210,8 @@ async def create_conversation(
 async def get_conversation(
     conversation_id: uuid.UUID, principal: Principal = Depends(get_principal), db: AsyncSession = Depends(get_session)
 ):
-    return conversation_out(await owned_conversation(ConversationRepository(db), principal.user.id, conversation_id))
+    conversation = await owned_conversation(ConversationRepository(db), principal.user.id, conversation_id)
+    return conversation_out(conversation, await programs.conversation_ref(db, conversation))
 
 
 @router.patch("/{conversation_id}", response_model=ConversationOut)
@@ -185,7 +226,7 @@ async def rename_conversation(
     await repo.rename(conversation, body.title)
     await db.commit()
     await db.refresh(conversation)
-    return conversation_out(conversation)
+    return conversation_out(conversation, await programs.conversation_ref(db, conversation))
 
 
 @router.delete("/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -208,11 +249,14 @@ async def list_messages(
     db: AsyncSession = Depends(get_session),
 ):
     repo = ConversationRepository(db)
-    await owned_conversation(repo, principal.user.id, conversation_id)
+    conversation = await owned_conversation(repo, principal.user.id, conversation_id)
     rows, older = await repo.messages_page(conversation_id, limit, before)
     attachments = await repo.attachments([m.id for m in rows if m.role == "user"])
     withdrawn = await repo.withdrawn_documents(_cited_documents(rows))
     settings = request.app.state.settings
-    entitled, cards = is_nh_student(principal.user, settings), nhprep_allows(principal.user, settings)
+    # A program chat (app/programs) is read only while the reader's invoice opens it: its NHprep content is theirs.
+    program_chat = conversation.program_id is not None
+    entitled = program_chat or is_nh_student(principal.user, settings)
+    cards = program_chat or nhprep_allows(principal.user, settings)
     items = [message_out(m, attachments.get(m.id, ()), withdrawn, entitled=entitled, nhprep=cards) for m in rows]
     return MessagePage(items=items, next_cursor=older)

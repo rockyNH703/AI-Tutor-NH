@@ -331,7 +331,7 @@ HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
-HEAD = "0027_nhprep_video_courses"
+HEAD = "0029_nh_program_curriculum"
 
 
 async def _refused(sql: str, *args) -> bool:

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 import math
 import re
 import time
 import uuid
+from collections.abc import Awaitable, Callable
 from dataclasses import replace
 from typing import Any
 
@@ -59,6 +61,9 @@ class PgVectorRetriever(BaseRetriever):
     rrf_k: int = 60
     # The turn's course boundary (None: every course); its general sources are always in.
     courses: list[str] | None = None
+    # A program chat's NHprep grounding (PROGRAMS_NHPREP_GROUNDING, composed by app/main.py): (question, vector) ->
+    # passage rows of the month's NHprep courses, searched beside the Knowledge Library. None: no such leg.
+    grounding: Callable[[str, list[float]], Awaitable[list[dict[str, Any]]]] | None = None
     # Filled by each call, for observability (milliseconds).
     last_timings: dict[str, int | str] = Field(default_factory=dict)
 
@@ -122,8 +127,17 @@ class PgVectorRetriever(BaseRetriever):
         embedded = time.perf_counter()
 
         model = embedding_model_id(self.embeddings)
-        courses = named_courses(query) or (tuple(self.courses) if self.courses else None)
-        hits, timings = await self._search(query, vector, model, courses, include_general=True)
+        # A program chat's month (scope.documents) is the whole boundary: no course the question names, no course
+        # boundary and no foundation fallback, so nothing outside the month can come in through a short result.
+        in_month = self.scope.documents is not None
+        courses = None if in_month else (named_courses(query) or (tuple(self.courses) if self.courses else None))
+        nhprep = asyncio.ensure_future(self.grounding(query, vector)) if self.grounding is not None else None
+        try:
+            hits, timings = await self._search(query, vector, model, courses, include_general=True)
+        except BaseException:
+            if nhprep is not None:
+                nhprep.cancel()
+            raise
         foundation = await self.store.foundation_courses(courses) if courses and len(hits) < self.k else ()
         if foundation:
             # Primary evidence fell short: the course this one builds on (CCNA under CCNP) fills in, labelled.
@@ -131,11 +145,22 @@ class PgVectorRetriever(BaseRetriever):
             seen = {hit.chunk_id for hit in hits}
             extra = [hit for hit in more if hit.chunk_id not in seen][: self.k - len(hits)]
             hits = [*hits, *(replace(hit, metadata={**hit.metadata, "course_role": "foundation"}) for hit in extra)]
+        grounded: list[dict[str, Any]] = []
+        if nhprep is not None:
+            try:
+                grounded = await nhprep
+            except Exception as error:  # noqa: BLE001 - the grounding leg never fails a turn
+                timings = {**timings, "nhprep_reason": f"error:{type(error).__name__}"}
         self.last_timings = {
             "embedding_ms": int((embedded - started) * 1000),
             "search_ms": int((time.perf_counter() - embedded) * 1000),
             **timings,
+            **({"nhprep_hits": len(grounded)} if nhprep is not None else {}),
         }
+        return [*self._documents(hits, model), *_nhprep_documents(grounded, model)]
+
+    @staticmethod
+    def _documents(hits: list[SearchHit], model: str) -> list[Document]:
         return [
             Document(
                 page_content=hit.content,
@@ -154,6 +179,28 @@ class PgVectorRetriever(BaseRetriever):
             )
             for hit in hits
         ]
+
+
+def _nhprep_documents(rows: list[dict[str, Any]], model: str) -> list[Document]:
+    """A month tutor's NHprep passages as the graph's documents: cited as NHprep, course and lesson."""
+    return [
+        Document(
+            page_content=row["content"],
+            metadata={
+                "chunk_id": str(row["id"]),
+                "document_id": str(row["lesson_id"]),
+                "source_id": str(row["course_id"]),
+                "source": "NHprep",
+                "title": f"{row['course_title']}: {row['lesson_title']}",
+                "uri": f"nhprep:lesson:{row['lesson_id']}",
+                "ordinal": row["ordinal"],
+                "score": row.get("score"),
+                "embedding_model": model,
+                "attributes": {"kind": row["kind"], "origin": "nhprep"},
+            },
+        )
+        for row in rows
+    ]
 
 
 # Files at or under this size are given to the tutor whole, in reading order; larger ones are

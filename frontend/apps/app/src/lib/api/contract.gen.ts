@@ -157,12 +157,41 @@ export const CONTRACT = {
         "voice"
       ]
     },
+    "month": {
+      "maximum": 12,
+      "minimum": 1
+    },
+    "program": {
+      "maxLength": 60,
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
     "speechFormat": {
       "enum": [
         "mp3",
         "opus",
         "aac"
       ]
+    },
+    "tutorMode": {
+      "enum": [
+        "tutor",
+        "interview"
+      ]
+    }
+  },
+  "ClaimOut": {
+    "status": {
+      "enum": [
+        "claimed",
+        "already"
+      ]
+    }
+  },
+  "ClaimRequest": {
+    "invoiceNumber": {
+      "maxLength": 80,
+      "minLength": 1
     }
   },
   "ConceptMasteryOut": {

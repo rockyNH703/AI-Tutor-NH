@@ -37,7 +37,16 @@ from app.chat.streams import ActiveGenerations, ChatEvent, Generation
 from app.chat.titles import topic_title
 from app.conversations.repository import DEFAULT_TITLE, ConversationRepository
 from app.conversations.router import HIDDEN_REPLY, conversation_out, message_out, nhprep_derived
-from app.db.models import Conversation, MemoryCommandReceipt, Message, MessageAttachment, UsageEvent, User
+from app.db.models import (
+    Conversation,
+    MemoryCommandReceipt,
+    Message,
+    MessageAttachment,
+    Program,
+    ProgramModule,
+    UsageEvent,
+    User,
+)
 from app.db.session import Database
 from app.errors import Conflict, NotFound, RateLimited, ServiceUnavailable, ValidationFailed
 from app.files import service as files
@@ -59,6 +68,9 @@ from app.memory.commands import (
 )
 from app.memory.recall import MemoryRecall
 from app.nhprep.chat import Card, NhprepChat, nhprep_allows
+from app.programs import service as programs
+from app.programs.access import programs_allow
+from app.programs.prompt import tutor_block
 from app.progress.activity import record_question
 from app.progress.learning import (
     is_meaningful,
@@ -190,13 +202,17 @@ class PreparedTurn:
     # The decision models' final reading (escalation included), still running while the reply streams: the streak's
     # study flag and the record come from it (_scope, _run).
     scope_final: asyncio.Task | None = None
+    # A program chat (app/programs): its tutor block, month scope, tracks and courses, from the stored conversation.
+    program: programs.ProgramTurn | None = None
 
     def meta_event(self) -> ChatEvent:
         return ChatEvent(
             "meta",
             {
                 "conversationId": str(self.conversation.id),
-                "conversation": conversation_out(self.conversation).model_dump(mode="json", by_alias=True),
+                "conversation": conversation_out(
+                    self.conversation, self.program.ref() if self.program is not None else None
+                ).model_dump(mode="json", by_alias=True),
                 "userMessage": message_out(self.user_message, self.user_attachments).model_dump(
                     mode="json", by_alias=True
                 )
@@ -373,9 +389,11 @@ class ChatService:
         search: bool = True,
         scope: str | None = None,
         voice: bool = False,
+        program: programs.ProgramTurn | None = None,
     ) -> AssistantConfig:
         """The turn's prompt and retrieval (app/chat/assistant.py), the same way for a new message, a
-        regenerated reply, an intent the router applies (_route) and a study scope decision (_scope)."""
+        regenerated reply, an intent the router applies (_route) and a study scope decision (_scope). A program
+        chat adds its tutor block and searches its month only (app/programs)."""
         return resolve_assistant_config(
             user,
             conversation,
@@ -389,7 +407,36 @@ class ChatService:
             scoped=self.settings.study_scope == "on",
             scope=scope,
             voice=voice,
+            program=tutor_block(program.context) if program is not None else "",
+            curriculum=program.curriculum if program is not None else None,
         )
+
+    async def _program_place(
+        self, session: AsyncSession, user: User, slug: str, month: int | None
+    ) -> tuple[Program, ProgramModule | None]:
+        """Where a new program chat goes: a month (or the program's QnA) this account's invoice opens; else 404."""
+        if not programs_allow(user, self.settings):
+            raise NotFound("Program not found.")
+        if month is None:
+            program = await programs.open_program(session, user.id, slug)
+            if program is None:
+                raise NotFound("Program not found.")
+            return program, None
+        place = await programs.open_month(session, user.id, slug, month)
+        if place is None:
+            raise NotFound("Program not found.")
+        return place
+
+    async def _program_turn(
+        self, session: AsyncSession, user: User, conversation: Conversation
+    ) -> programs.ProgramTurn | None:
+        """A program chat's scope for this turn, from the stored conversation. The repository returned it only while
+        the account's invoice opens its program; PROGRAMS_MODE is checked here. None for every other chat."""
+        if conversation.program_id is None:
+            return None
+        if not programs_allow(user, self.settings):
+            raise NotFound("Conversation not found.")
+        return await programs.chat_turn(session, conversation)
 
     async def prepare_message(
         self,
@@ -402,6 +449,9 @@ class ChatService:
         client_request_id: uuid.UUID | None = None,
         voice: bool = False,
         speech_format: str | None = None,
+        program: str | None = None,
+        month: int | None = None,
+        tutor_mode: str | None = None,
     ) -> PreparedTurn:
         if len(text) > self.settings.chat_max_message_chars:
             raise ValidationFailed("The message is too long.")
@@ -420,8 +470,16 @@ class ChatService:
             if conversation is None:
                 raise NotFound("Conversation not found.")
         elif conversation_id is None:
-            # Named after its first answered question when the reply completes (_name_conversation).
-            conversation = await repo.create(user.id, DEFAULT_TITLE)
+            # Named after its first answered question when the reply completes (_name_conversation). A program chat
+            # (app/programs) is bound here, once, to a program and month the account's invoice opens; never later.
+            place = await self._program_place(session, user, program, month) if program is not None else None
+            conversation = await repo.create(
+                user.id,
+                DEFAULT_TITLE,
+                program_id=place[0].id if place is not None else None,
+                module_id=place[1].id if place is not None and place[1] is not None else None,
+                mode=(tutor_mode or "tutor") if place is not None else None,
+            )
         else:
             conversation = await repo.get(user.id, conversation_id, lock=True)
             if conversation is None:
@@ -437,6 +495,7 @@ class ChatService:
                 command=command,
                 command_replay=replay,
             )
+        program_turn = await self._program_turn(session, user, conversation)
         await self._check_turn_allowed(session, user.id, conversation.id)
         attached = await files.resolve_attachments(session, user.id, list(attachment_ids or []))
 
@@ -491,7 +550,7 @@ class ChatService:
             conversation,
             user_message,
             assistant.id,
-            self._config(user, conversation, student, tests, bank, search=search, voice=voice),
+            self._config(user, conversation, student, tests, bank, search=search, voice=voice, program=program_turn),
             files=await files.conversation_files(session, conversation.id, user.id),
             user_attachments=attachments,
             asked_at=asked_at,
@@ -507,6 +566,7 @@ class ChatService:
             server_speech=server_speech,
             speech_format=speech_format or "mp3",
             usage_id=usage.id,
+            program=program_turn,
         )
 
     async def prepare_regenerate(self, session: AsyncSession, user: User, conversation_id: uuid.UUID) -> PreparedTurn:
@@ -514,6 +574,7 @@ class ChatService:
         conversation = await repo.get(user.id, conversation_id, lock=True)
         if conversation is None:
             raise NotFound("Conversation not found.")
+        program_turn = await self._program_turn(session, user, conversation)
         await self._check_turn_allowed(session, user.id, conversation.id)
         last = await session.scalar(
             select(Message)
@@ -577,6 +638,7 @@ class ChatService:
                 applied,
                 search=is_meaningful(question) or len(asked) > 1,
                 scope=_decision(scope),
+                program=program_turn,
             ),
             replaces_message_id=last.id,
             files=await files.conversation_files(session, conversation.id, user.id),
@@ -587,6 +649,7 @@ class ChatService:
             scope=scope,
             usage_id=usage.id,
             nhprep=nhprep if isinstance(nhprep, dict) else None,
+            program=program_turn,
         )
 
     def _reused_intent(self, last: Message, question: str) -> dict | None:
@@ -1030,6 +1093,7 @@ class ChatService:
             search=search,
             scope=_decision(turn.scope),
             voice=turn.voice,
+            program=turn.program,
         )
         return config, bank
 
@@ -1065,7 +1129,9 @@ class ChatService:
         try:
             async with self.db.sessionmaker() as session:
                 conversation = await self._conversation(
-                    session, turn.conversation.id, hide_nhprep=not is_nh_student(turn.user, self.settings)
+                    session,
+                    turn.conversation.id,
+                    hide_nhprep=turn.program is None and not is_nh_student(turn.user, self.settings),
                 )
             if turn.replaces_message_id is not None:  # the replies being regenerated stay until it completes (K-47d)
                 while conversation and conversation[-1].role == "assistant":
@@ -1129,6 +1195,7 @@ class ChatService:
                         search=turn.config.retrieval is not None,
                         scope=decision,
                         voice=turn.voice,
+                        program=turn.program,
                     )
                 # While the router reads the message (INTENT_ROUTER=on: two Ollalink requests, about 1.1 s from
                 # the server), the knowledge search already runs: an intent can only turn it off, so it is the
@@ -1338,10 +1405,12 @@ class ChatService:
                 )
             else:
                 done = {
-                    "message": message_out(message, nhprep=nhprep_allows(turn.user, self.settings)).model_dump(
-                        mode="json", by_alias=True
-                    ),
-                    "conversation": conversation_out(conversation).model_dump(mode="json", by_alias=True),
+                    "message": message_out(
+                        message, nhprep=turn.program is not None or nhprep_allows(turn.user, self.settings)
+                    ).model_dump(mode="json", by_alias=True),
+                    "conversation": conversation_out(
+                        conversation, turn.program.ref() if turn.program is not None else None
+                    ).model_dump(mode="json", by_alias=True),
                 }
                 if learning is not None:  # this answer made today a learning day (committed)
                     done["learning"] = {"event": learning.kind, "streak": learning.streak}
@@ -1396,7 +1465,8 @@ class ChatService:
             # NHprep: a new message, or the regeneration of an NHprep card (its finder runs again).
             if self.nhprep is None or (turn.user_message is None and turn.nhprep is None):
                 return None
-            return await self.nhprep.answer(turn.user, query, earlier, turn.assistant_id)
+            within = turn.program.courses if turn.program is not None else None  # a program chat: its month's courses
+            return await self.nhprep.answer(turn.user, query, earlier, turn.assistant_id, within=within)
         goal = certification_code(turn.student.certification_goal) if turn.student else None
         try:
             async with self.db.sessionmaker() as session:
@@ -1408,7 +1478,8 @@ class ChatService:
                     reply_id=turn.assistant_id,
                     earlier=earlier,
                     goal=goal,
-                    entitled=is_nh_student(turn.user, self.settings),
+                    entitled=turn.program is not None or is_nh_student(turn.user, self.settings),
+                    books=turn.program.books if turn.program is not None else None,
                 )
         except Exception:  # noqa: BLE001 - the bank never fails a turn: the model answers instead
             log.exception("bank turn failed", extra={"message_id": str(turn.assistant_id)})

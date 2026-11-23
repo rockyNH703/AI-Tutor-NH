@@ -36,7 +36,11 @@ ROOT = Path(__file__).resolve().parents[1]
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+asyncpg://aichat:aichat@127.0.0.1:5432/aichat_test")
 # Every application table is emptied before each test: found from the schema, not listed by
 # hand, so a table added by a later migration cannot leak rows from one test into the next.
-ALL_TABLES = text("SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> 'alembic_version'")
+# The NH curriculum (programs, program_modules) is reference data a migration seeds (0029): kept between tests.
+ALL_TABLES = text(
+    "SELECT tablename FROM pg_tables WHERE schemaname = 'public' "
+    "AND tablename NOT IN ('alembic_version', 'programs', 'program_modules')"
+)
 PASSWORD = "correct horse battery"
 
 

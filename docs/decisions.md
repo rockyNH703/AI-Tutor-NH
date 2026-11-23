@@ -252,6 +252,25 @@ Read it before changing any of them. A decision marked **owner's rule** changes 
   - `deploy/compose/docker-compose.yml`: dedicated PadhAI project, network and volume.
 - **Cost:** after a restore, everyone signs in again, and files are read again.
 
+### NH programs: the invoice number is the only key (owner, 2026-11-23)
+
+- **Why:** the owner: "Enrollment must be controlled through invoice-based database verification only." NH's
+  invoice rows (`nh_invoices`, loaded by `scripts/program_admin.py`) are the source of truth; no OTP, no identity
+  checks, no ownership workflow. The first account to claim an active invoice holds it (`invoice_claims`, unique per
+  invoice).
+- **How:** access is computed from the invoice row on every request (status `active`, `valid_until` not passed,
+  `PROGRAMS_MODE`), so revoking, expiring or moving an invoice to another program takes effect on the next request.
+  Every program route, conversation and message lookup checks it (`app/programs/access.py`); failures share one
+  generic answer, and claims are rate-limited (5 an hour, 20 a day per account, 30 a day per address).
+- **Month isolation:** a month chat retrieves only the library documents, bank tracks and NHprep courses mapped to
+  that month (`backend/curriculum/mapping.json`), with no fallback; a question about another month gets a pointer
+  only, and an uncovered one a labelled general explanation.
+- **Egress basis `owner-D5-month-tutors-2026-11-23`:** with `PROGRAMS_NHPREP_GROUNDING=on`, NHprep text of the
+  month's courses reaches the chat model, masked, in program chats only (app/nhprep/grounding.py; the guard in
+  `test_architecture_guards.py` lets only `main.py` import it).
+- **Cost:** whoever holds an invoice number can claim it once; a wrong claim is undone only by the owner
+  (`program_admin.py release`).
+
 ## Production and operations
 
 ### One host, systemd, `main` as the source of truth (owner's rule)

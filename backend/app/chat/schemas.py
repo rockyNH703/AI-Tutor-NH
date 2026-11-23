@@ -21,6 +21,23 @@ class ChatRequest(RequestModel):
     # (VOICE_SERVER_SPEECH); ignored otherwise.
     speech_format: Literal["mp3", "opus", "aac"] | None = None
     client_request_id: uuid.UUID | None = None
+    # A new program chat (app/programs): its program, month (none: the program's QnA) and mode. Only when a chat
+    # starts: the server checks the account's invoice and stores them; later turns use the stored chat only.
+    program: str | None = Field(default=None, min_length=1, max_length=60, pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")
+    month: int | None = Field(default=None, ge=1, le=12)
+    tutor_mode: Literal["tutor", "interview"] | None = None
+
+    @model_validator(mode="after")
+    def _program_only_when_a_chat_starts(self) -> ChatRequest:
+        if self.conversation_id is not None and (
+            self.program is not None or self.month is not None or self.tutor_mode is not None
+        ):
+            raise ValueError("program, month and tutorMode are set only when a program chat starts")
+        if self.program is None and (self.month is not None or self.tutor_mode is not None):
+            raise ValueError("month and tutorMode need a program")
+        if self.tutor_mode == "interview" and self.month is None:
+            raise ValueError("a mock interview is for one month")
+        return self
 
     @field_validator("message")
     @classmethod

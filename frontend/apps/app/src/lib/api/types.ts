@@ -648,12 +648,26 @@ export const CODE_LENGTH = 6;
 
 // ----------------------------------------------------------- conversations
 
+/** A program chat's place (features/programs): its program, its month (null: the program's QnA) and mode. */
+export type ConversationProgram = {
+  slug: string;
+  title: string;
+  month: number | null;
+  monthTitle: string | null;
+  mode: "tutor" | "interview";
+};
+
 export type Conversation = {
   id: Uuid;
   title: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  /** Set for a program chat; absent or null for an ordinary chat. */
+  program?: ConversationProgram | null;
 };
+
+/** Where a new chat starts: a program's month (or its QnA when month is null), in tutor or interview mode. */
+export type ChatPlace = { program: string; month: number | null; mode: "tutor" | "interview" };
 
 export type ConversationPage = { items: Conversation[]; nextCursor: string | null };
 
@@ -924,6 +938,10 @@ export type ChatRequest = {
   mode?: "text" | "voice";
   /** Voice turns: the audio this browser decodes, for the first words the server speaks (`serverSpeech`). */
   speechFormat?: SpeechFormat;
+  /** A new program chat only (the server checks the account's invoice and stores the place). */
+  program?: string;
+  month?: number;
+  tutorMode?: "tutor" | "interview";
 };
 /** The API rejects longer messages (the contract's ChatRequest.message). */
 export const MESSAGE_MAX = CONTRACT.ChatRequest.message.maxLength;

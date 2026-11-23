@@ -81,6 +81,7 @@ function useHeading(pathname: string | null): { title: string; subtitle: string 
   if (pathname === "/knowledge") return { title: "Knowledge Library", subtitle: "Owner-reviewed sources and revisions" };
   if (pathname === "/study") return { title: "Lab Activity", subtitle: "Time spent practising in labs and study sessions" };
   if (pathname === "/learning") return { title: "Skills & Certifications", subtitle: "Your certification practice, topic mastery and progress" };
+  if (pathname?.startsWith("/programs/")) return { title: "My Programs", subtitle: "Your NetworkersHome program" };
   const item = navItemFor(pathname);
   if (item?.id === "tutor") {
     // The chat's own name (named after its first answered question), "New chat" until then.

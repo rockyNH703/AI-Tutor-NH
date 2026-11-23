@@ -11,11 +11,22 @@ from app.schemas import ApiModel, RequestModel
 TITLE_MAX = 120
 
 
+class ConversationProgramOut(ApiModel):
+    """A program chat's place (app/programs): its program, its month (None: the program's QnA) and its mode."""
+
+    slug: str
+    title: str
+    month: int | None
+    month_title: str | None
+    mode: str
+
+
 class ConversationOut(ApiModel):
     id: uuid.UUID
     title: str
     created_at: datetime
     updated_at: datetime
+    program: ConversationProgramOut | None = None  # None: an ordinary chat
 
 
 class ConversationPage(ApiModel):
