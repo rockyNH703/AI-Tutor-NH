@@ -347,6 +347,8 @@ export type ActivityReport = { credited: boolean; date: string };
 export type PracticeLanguage = "english" | "hindi" | "sanskrit";
 export type MasteryState = "mastered" | "learning" | "weak" | "not_enough_evidence";
 export type OptionLetter = "A" | "B" | "C" | "D";
+/** A certification question's option: up to eight. */
+export type OptionKey = OptionLetter | "E" | "F" | "G" | "H";
 
 export type PlanTask = {
   kind: "revise" | "strengthen" | "learn";
@@ -482,8 +484,12 @@ export type MistakeItem = {
   answeredAt: Timestamp;
   stem: string;
   options: string[];
-  chosen: OptionLetter;
-  correct: OptionLetter;
+  /** The first of chosenKeys / correctKeys (kept for older clients). */
+  chosen: OptionKey;
+  correct: OptionKey;
+  /** Every option chosen and every right option (a multiple-answer question has several). */
+  chosenKeys: OptionKey[];
+  correctKeys: OptionKey[];
   explanation: string;
   /** Null once that chat was deleted (the evidence is kept). */
   conversationId: Uuid | null;

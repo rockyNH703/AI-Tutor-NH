@@ -665,16 +665,52 @@ export const CONTRACT = {
         "A",
         "B",
         "C",
-        "D"
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
       ]
+    },
+    "chosenKeys": {
+      "items": {
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      }
     },
     "correct": {
       "enum": [
         "A",
         "B",
         "C",
-        "D"
+        "D",
+        "E",
+        "F",
+        "G",
+        "H"
       ]
+    },
+    "correctKeys": {
+      "items": {
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H"
+        ]
+      }
     }
   },
   "NhprepItemOut": {

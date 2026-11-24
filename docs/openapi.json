@@ -4356,14 +4356,37 @@
             "type": "string"
           },
           "chosen": {
+            "description": "The first answer chosen (all of them: chosenKeys).",
             "enum": [
               "A",
               "B",
               "C",
-              "D"
+              "D",
+              "E",
+              "F",
+              "G",
+              "H"
             ],
             "title": "Chosen",
             "type": "string"
+          },
+          "chosenKeys": {
+            "description": "Every option chosen, in order (several: a multiple-answer question).",
+            "items": {
+              "enum": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H"
+              ],
+              "type": "string"
+            },
+            "title": "Chosenkeys",
+            "type": "array"
           },
           "conversationId": {
             "anyOf": [
@@ -4379,14 +4402,37 @@
             "title": "Conversationid"
           },
           "correct": {
+            "description": "The first right option (all of them: correctKeys).",
             "enum": [
               "A",
               "B",
               "C",
-              "D"
+              "D",
+              "E",
+              "F",
+              "G",
+              "H"
             ],
             "title": "Correct",
             "type": "string"
+          },
+          "correctKeys": {
+            "description": "Every right option, in order.",
+            "items": {
+              "enum": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H"
+              ],
+              "type": "string"
+            },
+            "title": "Correctkeys",
+            "type": "array"
           },
           "explanation": {
             "title": "Explanation",
@@ -4415,6 +4461,8 @@
           "options",
           "chosen",
           "correct",
+          "chosenKeys",
+          "correctKeys",
           "explanation",
           "conversationId"
         ],

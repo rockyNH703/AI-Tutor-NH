@@ -65,7 +65,7 @@ RANK = {"overdue": 0, "due": 1, "done": 2, "upcoming": 3}
 
 ANSWERS = text(
     """
-    SELECT i.set_id, i.question_id, i.topic_id, q.concept_tag, i.chosen, i.is_correct, i.answered_at,
+    SELECT i.set_id, i.question_id, i.topic_id, q.concept_tag, i.chosen, i.chosen_keys, i.is_correct, i.answered_at,
            coalesce(i.served_hash <> q.content_hash, false) AS revised
     FROM qb_set_items i JOIN qb_questions q ON q.question_id = i.question_id
     WHERE i.user_id = :user_id AND i.answered_at IS NOT NULL
@@ -130,6 +130,7 @@ BANK = text(
 QUESTIONS = text(
     """
     SELECT q.question_id, q.stem, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option, q.explanation,
+           q.options, q.correct_keys,
            c.title AS case_title, c.body AS case_body
     FROM qb_questions q LEFT JOIN qb_cases c ON c.case_id = q.case_id
     WHERE q.question_id = ANY(CAST(:question_ids AS text[]))
@@ -168,9 +169,10 @@ class Answer:
     topic_id: str
     concept_tag: str
     right: bool
-    chosen: str
+    chosen: str | None  # a single-answer (A-D) question's answer
     answered_at: datetime
     revised: bool = False  # the question was edited after it was served: not evidence
+    chosen_keys: tuple[str, ...] = ()  # a certification question's answer (one or more of A-H)
 
     @property
     def day(self) -> date:
@@ -422,6 +424,7 @@ async def read_record(session: AsyncSession, user_id: uuid.UUID) -> Record:
             row.chosen,
             row.answered_at,
             row.revised,
+            tuple(row.chosen_keys or ()),
         )
         for row in reversed(rows)
     ]
@@ -623,14 +626,20 @@ async def mistakes(session: AsyncSession, user_id: uuid.UUID, now: datetime, lim
         )
         question = content[answer.question_id]
         shown = quiz_question(question)
+        # Two shapes of question: A-D columns with one key, or a certification question's options and keys (A-H).
+        options = list(question.options) if question.options is not None else shown["options"]
+        correct = sorted(question.correct_keys) if question.correct_keys is not None else [question.correct_option]
+        chosen = sorted(answer.chosen_keys) if answer.chosen_keys else [answer.chosen]
         group["items"].append(
             {
                 "question_id": answer.question_id,
                 "answered_at": answer.answered_at,
                 "stem": shown["question"],
-                "options": shown["options"],
-                "chosen": answer.chosen,
-                "correct": question.correct_option,
+                "options": options,
+                "chosen": chosen[0],
+                "correct": correct[0],
+                "chosen_keys": chosen,
+                "correct_keys": correct,
                 "explanation": question.explanation,
                 "conversation_id": chats.get(answer.set_id),
             }

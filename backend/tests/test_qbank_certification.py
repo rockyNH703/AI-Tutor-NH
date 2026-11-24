@@ -329,6 +329,45 @@ async def test_a_quiz_request_is_answered_from_the_bank_with_no_model_call(clien
     assert graded.all_right and graded.keyed == 5 and graded.closed
 
 
+async def test_a_wrong_certification_answer_is_listed_in_missed_questions(client, app, fake_llm, bank):
+    # Production, 2026-11-24: GET /v1/progress/mistakes answered 500 for anyone with a wrong certification answer
+    # (it read only the A-D columns: options None, the keys None). Skills & Certifications' Missed questions failed.
+    headers = await _student(client, app)
+    _, events = await stream_chat(client, headers, "quiz me on vlans")
+    message = events[-1][1]["message"]
+    test = message["metadata"]["assessments"][0]
+    async with app.state.db.sessionmaker() as db:
+        correct = (
+            (
+                await db.execute(
+                    text(
+                        "SELECT q.correct_keys FROM qb_sets s JOIN qb_set_items i ON i.set_id = s.id "
+                        "JOIN qb_questions q ON q.question_id = i.question_id WHERE s.request_id = :m ORDER BY i.position"
+                    ),
+                    {"m": uuid.UUID(message["id"])},
+                )
+            )
+            .scalars()
+            .first()
+        )
+    first = test["questions"][0]
+    key = sorted("ABCDEFGH".index(letter) for letter in correct)
+    wrong = [index for index in range(len(first["options"])) if index not in key]
+    value = wrong[:2] if first["kind"] == "multi" else wrong[0]
+    body = {"position": 0, "hash": test["hash"], "question": 0, "action": "answer", "value": value}
+    answered = await client.post(f"/v1/messages/{message['id']}/assessment-responses", json=body, headers=headers)
+    assert answered.status_code == 200, answered.text
+
+    got = await client.get("/v1/progress/mistakes", headers=headers)
+    assert got.status_code == 200, got.text
+    item = got.json()["concepts"][0]["items"][0]
+    assert item["options"] == first["options"] and all(item["options"])
+    assert item["correctKeys"] == sorted(correct)
+    chosen = [value] if isinstance(value, int) else value
+    assert item["chosenKeys"] == ["ABCDEFGH"[index] for index in sorted(chosen)]
+    assert item["chosen"] == item["chosenKeys"][0] and item["correct"] == item["correctKeys"][0]
+
+
 async def test_next_five_continues_the_test_with_new_questions(client, app, fake_llm, bank):
     headers = await _student(client, app)
     _, events = await stream_chat(client, headers, "quiz me on vlans")

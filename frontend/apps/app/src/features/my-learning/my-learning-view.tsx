@@ -441,7 +441,9 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
 }
 
 function MistakeEntry({ concept, subjectName, hint }: { concept: MistakeConcept; subjectName: (code: string) => string; hint: string }) {
-  const option = (letter: string, options: string[]) => `${letter}. ${options["ABCD".indexOf(letter)] ?? ""}`;
+  // Every chosen or right option ("A. …; C. …"): a certification question has up to eight, and some take several.
+  const option = (letters: string[], options: string[]) =>
+    letters.map((letter) => `${letter}. ${options["ABCDEFGH".indexOf(letter)] ?? ""}`).join("; ");
   const what = concept.objective || concept.topicTitle;
   return (
     <details className="group">
@@ -474,10 +476,10 @@ function MistakeEntry({ concept, subjectName, hint }: { concept: MistakeConcept;
                   <LazyInlineMarkdown text={item.stem} />
                 </p>
                 <p className="text-text-secondary">
-                  Your answer: <LazyInlineMarkdown text={option(item.chosen, item.options)} />
+                  Your answer: <LazyInlineMarkdown text={option(item.chosenKeys, item.options)} />
                 </p>
                 <p className="text-foreground">
-                  Correct answer: <LazyInlineMarkdown text={option(item.correct, item.options)} />
+                  Correct answer: <LazyInlineMarkdown text={option(item.correctKeys, item.options)} />
                 </p>
                 {item.explanation && (
                   <p className="text-text-secondary">

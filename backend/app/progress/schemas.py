@@ -11,6 +11,7 @@ from app.schemas import ApiModel
 QbLanguage = Literal["english", "hindi", "sanskrit"]
 MasteryState = Literal["mastered", "learning", "weak", "not_enough_evidence"]
 Letter = Literal["A", "B", "C", "D"]
+Key = Literal["A", "B", "C", "D", "E", "F", "G", "H"]  # a certification question has up to 8 options
 
 
 class ActivityOut(ApiModel):
@@ -235,8 +236,10 @@ class MistakeOut(ApiModel):
     answered_at: dt.datetime
     stem: str
     options: list[str]
-    chosen: Letter
-    correct: Letter
+    chosen: Key = Field(description="The first answer chosen (all of them: chosenKeys).")
+    correct: Key = Field(description="The first right option (all of them: correctKeys).")
+    chosen_keys: list[Key] = Field(description="Every option chosen, in order (several: a multiple-answer question).")
+    correct_keys: list[Key] = Field(description="Every right option, in order.")
     explanation: str
     conversation_id: uuid.UUID | None = Field(description="The chat of the test; null once it is deleted.")
 
