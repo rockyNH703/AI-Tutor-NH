@@ -1,0 +1,331 @@
+import type { Page, TestInfo } from "@playwright/test";
+
+import { SMALL_PROGRAM } from "./env";
+import {
+  type People,
+  type Person,
+  apiBefriend,
+  apiJoin,
+  axe,
+  battleIdOf,
+  bff,
+  correctKey,
+  expect,
+  focused,
+  openFriendZone,
+  section,
+  shot,
+  test,
+} from "./support";
+
+/**
+ * Phase 2 (J8-J10, plan section 13; CD16, CD17: shipped with Phase 1): the daily challenge, XP and level, badges,
+ * stats on the player view, Rematch. XP and badges exist for the live cohort only (a QA account never earns any,
+ * battle.friendzone.ts checks that), so these run with live accounts on the FRIEND_ZONE_MODE=on stack.
+ */
+
+const LIVE = { qa: false, stack: "on" as const };
+const KEYS = ["A", "B", "C", "D"];
+
+type Daily = {
+  challengeId: string | null;
+  available: boolean;
+  question: { position: number } | null;
+  attempt: { status: string; served: number } | null;
+};
+
+async function daily(person: Person, program = "networking-ai"): Promise<Daily> {
+  const response = await bff(person, "GET", `/daily?program=${program}`);
+  expect(response.status(), await response.text()).toBe(200);
+  return (await response.json()) as Daily;
+}
+
+/** The whole daily through the API, answering `choice` each time (the friend whose result Asha then sees). */
+async function playDailyByApi(person: Person, choice = "A"): Promise<void> {
+  const challengeId = (await daily(person)).challengeId;
+  if (!challengeId) throw new Error("no daily challenge today: seed.py maps too few questions");
+  for (let position = 1; position <= 10; position++) {
+    const served = await bff(person, "POST", `/daily/${challengeId}/next`);
+    expect(served.status(), await served.text()).toBe(200);
+    const answered = await bff(person, "POST", `/daily/${challengeId}/answers`, { position, choice });
+    expect(answered.status(), await answered.text()).toBe(200);
+  }
+  const finished = await bff(person, "POST", `/daily/${challengeId}/next`);
+  expect(finished.status(), await finished.text()).toBe(200);
+  expect(((await finished.json()) as Daily).attempt?.status).toBe("finished");
+}
+
+const dailySection = (page: Page) => section(page, "Daily challenge");
+
+async function dailyAnswer(page: Page, position: number, how: "click" | "digit" | "letter", choice = "A"): Promise<void> {
+  const challenge = dailySection(page);
+  const heading = challenge.getByRole("heading", { name: `Question ${position} of 10`, level: 4 });
+  await expect(heading).toBeVisible({ timeout: 15_000 });
+  await expect.poll(() => focused(heading), { message: `focus on question ${position}` }).toBe(true);
+  const option = challenge.getByRole("button", { name: new RegExp(`^${choice}\\. `) });
+  if (how === "click") await option.click();
+  else await page.keyboard.press(how === "digit" ? String(KEYS.indexOf(choice) + 1) : choice.toLowerCase());
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  await challenge.getByRole("button", { name: position === 10 ? "Finish" : "Next question" }).click();
+}
+
+/** Whatever state the daily is in, play on to the finish: answer an open question (A), press Next or Finish. */
+async function playRest(page: Page): Promise<void> {
+  const challenge = dailySection(page);
+  const finished = challenge.getByRole("heading", { name: "Finished", level: 4 });
+  const open = challenge.getByRole("button", { name: /^A\. /, pressed: false });
+  const proceed = challenge.getByRole("button", { name: /^(Next question|Finish)$/ });
+  // The screen moves under us (a press shows "Loading…", a window can close), so each action is short and retried.
+  for (let step = 0; step < 60; step++) {
+    await expect(finished.or(proceed).or(open).first()).toBeVisible({ timeout: 15_000 });
+    if (await finished.isVisible()) return;
+    const target = (await proceed.isVisible()) ? proceed : open;
+    await target.click({ timeout: 2_000 }).catch(() => undefined);
+    await expect(challenge.getByRole("button", { name: "Loading…" })).toHaveCount(0);
+  }
+  throw new Error("the daily challenge did not finish");
+}
+
+test("J8 daily challenge: start, answer by click and key, a reload resumes, the finish, friends' results, one attempt, XP", async ({ people }, testInfo) => {
+  test.setTimeout(300_000);
+  const asha = await people.add("Asha Menon", LIVE);
+  const bilal = await people.add("Bilal Khan", LIVE);
+  await apiJoin(asha, true);
+  await apiJoin(bilal, true);
+  await apiBefriend(asha, bilal);
+  await playDailyByApi(bilal);
+
+  const { page } = asha;
+  await openFriendZone(asha);
+  const challenge = dailySection(page);
+  await expect(challenge.getByText("Today's challenge: 10 questions from", { exact: false })).toBeVisible();
+  await axe(page, testInfo, "daily-start");
+  await challenge.getByRole("button", { name: "Start today's challenge" }).click();
+  await dailyAnswer(page, 1, "click");
+  await axe(page, testInfo, "daily-question");
+  await dailyAnswer(page, 2, "digit", "B");
+  await dailyAnswer(page, 3, "letter", "C");
+
+  // A reload resumes where Asha was, never from the start (question 4 open, or its time ran out during the reload).
+  await expect(challenge.getByRole("heading", { name: "Question 4 of 10" })).toBeVisible({ timeout: 15_000 });
+  await openFriendZone(asha);
+  await expect(
+    challenge.getByRole("heading", { name: /^Question (4|5) of 10$/ }).or(challenge.getByText(/^Ready for question (4|5) of 10\./)),
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(challenge.getByRole("button", { name: "Start today's challenge" })).toHaveCount(0);
+  await shot(page, testInfo, "daily-resumed");
+  await playRest(page);
+
+  const finished = challenge.getByRole("heading", { name: "Finished", level: 4 });
+  await expect(finished).toBeVisible({ timeout: 15_000 });
+  await expect.poll(() => focused(finished)).toBe(true);
+  await expect(challenge.getByText(/^\d+ points · \d+ of 10 correct$/)).toBeVisible();
+  await expect(challenge.getByText("Friends today")).toBeVisible();
+  // Bilal keeps "Show my stats" off: his result reads Completed, without his score.
+  const bilalToday = challenge.getByRole("listitem").filter({ hasText: "Bilal Khan" });
+  await expect(bilalToday).toContainText("Completed");
+  await expect(bilalToday).not.toContainText("points");
+  const review = challenge.getByRole("region", { name: "Review" });
+  await expect(review.getByText("Why:")).toHaveCount(10);
+  await axe(page, testInfo, "daily-finished");
+
+  // One attempt a day: the finish stays; and the XP arrived once.
+  await openFriendZone(asha);
+  await expect(dailySection(page).getByRole("heading", { name: "Finished" })).toBeVisible({ timeout: 15_000 });
+  await expect(dailySection(page).getByRole("button", { name: "Start today's challenge" })).toHaveCount(0);
+  const progress = section(page, "Your progress");
+  await expect(progress.getByText("Daily challenge completed")).toHaveCount(1);
+  await expect(progress.getByText("+25 XP")).toBeVisible();
+});
+
+test("J9-J10 a won battle: XP once, level, the First Battle badge, stats only when shown, and Rematch as a new invitation", async ({ people }, testInfo) => {
+  test.setTimeout(300_000);
+  const asha = await people.add("Asha Menon", LIVE);
+  const bilal = await people.add("Bilal Khan", LIVE);
+  await apiJoin(asha, true);
+  await apiJoin(bilal, true);
+  await apiBefriend(asha, bilal);
+
+  // A battle Asha wins, played through the API (the UI path is battle.friendzone.ts).
+  const created = await bff(asha, "POST", "/battles", { opponentId: bilal.playerId, program: "networking-ai", month: 1, length: 5, requestId: crypto.randomUUID() });
+  expect(created.status(), await created.text()).toBe(201);
+  const { battleId } = (await created.json()) as { battleId: string };
+  expect((await bff(bilal, "POST", `/battles/${battleId}/accept`)).status()).toBe(200);
+  expect((await bff(asha, "POST", `/battles/${battleId}/ready`)).status()).toBe(200);
+  await openFriendZone(asha, `&battle=${battleId}`);
+  for (let round = 1; round <= 5; round++) {
+    await expect(asha.page.getByRole("heading", { name: `Question ${round} of 5` })).toBeVisible({ timeout: 20_000 });
+    const key = await correctKey(people, battleId, round);
+    expect((await bff(asha, "POST", `/battles/${battleId}/answers`, { round, choice: key })).status()).toBe(200);
+    expect((await bff(bilal, "POST", `/battles/${battleId}/answers`, { round, choice: KEYS.find((other) => other !== key) })).status()).toBe(200);
+  }
+  await expect(asha.page.getByRole("heading", { name: "You won" })).toBeVisible({ timeout: 20_000 });
+
+  // J10 Rematch: a new invitation to the same friend, a new battle, the friend's bell says so.
+  const rematch = asha.page.getByRole("button", { name: "Rematch" });
+  await expect(rematch).toBeVisible();
+  await axe(asha.page, testInfo, "result-with-rematch");
+  await rematch.click();
+  await expect(asha.page.getByText("Waiting for Bilal Khan to accept.", { exact: false })).toBeVisible({ timeout: 15_000 });
+  const second = battleIdOf(asha.page);
+  expect(second).not.toBe(battleId);
+  const invites = await people.sql<{ title: string; link: string }>("SELECT title, link FROM user_notifications WHERE user_id = $1 AND link LIKE '%' || $2 || '%'", [bilal.userId, second]);
+  expect(invites.map((row) => row.title)).toEqual(["Rematch invitation"]);
+  await shot(asha.page, testInfo, "rematch-invited");
+  expect((await bff(asha, "POST", `/battles/${second}/cancel`)).status()).toBe(200);
+
+  // J9 XP and level, once: battle +20, win +30 = 50 XP, level 1 (level 2 starts at 100).
+  await openFriendZone(asha);
+  const progress = section(asha.page, "Your progress");
+  await expect(progress.getByText("Battle completed")).toHaveCount(1);
+  await expect(progress.getByText("Battle won")).toHaveCount(1);
+  await expect(progress.getByRole("progressbar", { name: "Level 1 progress" })).toHaveAttribute("aria-valuetext", "50 / 100 XP to level 2");
+  await expect(progress.getByText("First Battle")).toBeVisible();
+  await expect(progress.getByText("1 battle: 1 win, 0 losses, 0 draws")).toBeVisible();
+  await axe(asha.page, testInfo, "your-progress");
+
+  // Stats on the player view: hidden by default, shown once Bilal turns on "Show my stats".
+  const friends = section(asha.page, /^Friends/);
+  await friends.getByRole("button", { name: "Bilal Khan", exact: true }).click();
+  await expect(friends.getByText("Program hidden")).toBeVisible();
+  await expect(friends.getByText(/battles?: /)).toHaveCount(0);
+  const me = (await (await bff(bilal, "GET", "/me")).json()) as { profile: { version: number } };
+  expect((await bff(bilal, "PATCH", "/me", { version: me.profile.version, set: { showStats: true } })).status()).toBe(200);
+  await openFriendZone(asha);
+  await section(asha.page, /^Friends/).getByRole("button", { name: "Bilal Khan", exact: true }).click();
+  await expect(section(asha.page, /^Friends/).getByText("1 battle: 0 wins, 1 loss, 0 draws")).toBeVisible();
+  await expect(section(asha.page, /^Friends/).getByRole("progressbar")).toBeVisible();
+  await axe(asha.page, testInfo, "friend-stats");
+});
+
+test("J8 no daily challenge today in a program with fewer than ten checked questions", async ({ people }, testInfo) => {
+  const asha = await people.add("Asha Menon", { programs: [SMALL_PROGRAM] });
+  await apiJoin(asha, true);
+  const today = await daily(asha, SMALL_PROGRAM);
+  expect(today).toMatchObject({ available: false, challengeId: null });
+  await openFriendZone(asha, "", SMALL_PROGRAM);
+  const challenge = dailySection(asha.page);
+  await expect(
+    challenge.getByText(/^No daily challenge today\. There aren't enough checked questions in .+ for one yet; Battles and Practice are still here\.$/),
+  ).toBeVisible();
+  await expect(challenge.getByRole("button", { name: "Start today's challenge" })).toHaveCount(0);
+  await axe(asha.page, testInfo, "daily-unavailable");
+});
+
+test("J8 a daily answered fewer than half: it finishes, but gives no XP and no completion notice", async ({ people }, testInfo) => {
+  test.setTimeout(300_000);
+  const asha = await people.add("Asha Menon", LIVE);
+  await apiJoin(asha, true);
+  const { page } = asha;
+  await openFriendZone(asha);
+  const challenge = dailySection(page);
+  await challenge.getByRole("button", { name: "Start today's challenge" }).click();
+  for (let position = 1; position <= 4; position++) await dailyAnswer(page, position, "click");
+  // Questions 5 to 9: served, left unanswered until their time runs out, then Next.
+  for (let position = 5; position <= 9; position++) {
+    await expect(challenge.getByRole("heading", { name: `Question ${position} of 10`, level: 4 })).toBeVisible({ timeout: 15_000 });
+    await expect(challenge.getByText(`Ready for question ${position + 1} of 10.`, { exact: false })).toBeVisible({ timeout: 20_000 });
+    await challenge.getByRole("button", { name: "Next question" }).click();
+  }
+  // The last one runs out too: the attempt is finished then (or by Finish, if the screen asks for it first).
+  await expect(challenge.getByRole("heading", { name: "Question 10 of 10", level: 4 })).toBeVisible({ timeout: 15_000 });
+  const finished = challenge.getByRole("heading", { name: "Finished", level: 4 });
+  const finish = challenge.getByRole("button", { name: "Finish" });
+  await expect(finished.or(finish)).toBeVisible({ timeout: 20_000 });
+  if (await finish.isVisible()) await finish.click();
+  await expect(finished).toBeVisible({ timeout: 15_000 });
+  await expect(challenge.getByText(/^\d+ points · [0-4] of 10 correct$/)).toBeVisible();
+  const review = challenge.getByRole("region", { name: "Review" });
+  await expect(review.getByText("You didn't answer this one.")).toHaveCount(6);
+  await axe(page, testInfo, "daily-under-half");
+
+  expect(await people.sql("SELECT reason FROM fz_xp_events WHERE user_id = $1", [asha.userId])).toEqual([]);
+  expect(await people.sql("SELECT kind FROM user_notifications WHERE user_id = $1 AND kind = 'daily_completed'", [asha.userId])).toEqual([]);
+  await openFriendZone(asha);
+  await expect(section(page, "Your progress").getByText("No XP yet.", { exact: false })).toBeVisible();
+  await expect(section(page, "Your progress").getByText("0 completed")).toBeVisible(); // Daily challenges
+});
+
+/** Plays a started battle through the API to its end: Asha always right, Bilal always wrong. */
+async function playByApi(people: People, asha: Person, bilal: Person, battleId: string, length: number, watch?: Page): Promise<void> {
+  const read = async () => (await (await bff(asha, "GET", `/battles/${battleId}`)).json()) as { status: string; question: { round: number } | null };
+  for (let round = 1; round <= length; round++) {
+    await expect.poll(async () => (await read()).question?.round, { timeout: 30_000 }).toBe(round);
+    if (watch) await expect(watch.getByRole("heading", { name: `Question ${round} of ${length}`, level: 4 })).toBeVisible({ timeout: 10_000 });
+    const key = await correctKey(people, battleId, round);
+    expect((await bff(asha, "POST", `/battles/${battleId}/answers`, { round, choice: key })).status()).toBe(200);
+    expect((await bff(bilal, "POST", `/battles/${battleId}/answers`, { round, choice: KEYS.find((other) => other !== key) })).status()).toBe(200);
+  }
+  await expect.poll(async () => (await read()).status, { timeout: 30_000 }).toBe("completed");
+}
+
+/** Opens the bell from the chat home and chooses the notification titled `title`: it must land on Friend Zone. */
+async function openFromBell(page: Page, title: RegExp, testInfo: TestInfo, label: string): Promise<void> {
+  await page.goto("/");
+  await page.getByRole("button", { name: /^Notifications, \d+ unread$/ }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu).toBeVisible();
+  // The bell is shared app UI (features/notifications), not Friend Zone: its known axe finding is recorded, not hidden.
+  await axe(page, testInfo, `bell-${label}`, "[role='menu']", true, {
+    "scrollable-region-focusable": "the notification list's scroll box (.max-h-[min(24rem,70vh)]) is not focusable; reported to lane A",
+  });
+  await menu.getByRole("menuitem", { name: title }).click();
+  await page.waitForURL(/\/programs\/networking-ai\/quizzes\?zone=friends(&|$)/);
+  await expect(page.getByRole("button", { name: "Friend Zone", pressed: true })).toBeVisible();
+}
+
+test("J9 a 10-question battle all right gives Perfect Score; a second win reaches Level 2; the bell's level and badge notices open Friend Zone", async ({
+  people,
+}, testInfo) => {
+  test.setTimeout(480_000);
+  const asha = await people.add("Asha Menon", LIVE);
+  const bilal = await people.add("Bilal Khan", LIVE);
+  await apiJoin(asha, true);
+  await apiJoin(bilal, true);
+  await apiBefriend(asha, bilal);
+  const { page } = asha;
+
+  // A 10-question battle, chosen in the challenge dialog.
+  await openFriendZone(asha);
+  const friends = section(page, /^Friends/);
+  await friends.getByRole("button", { name: "Bilal Khan", exact: true }).click();
+  await friends.getByRole("button", { name: "Challenge" }).click();
+  const dialog = page.getByRole("dialog", { name: "Challenge a friend" });
+  await dialog.getByRole("radio", { name: "10 questions" }).check();
+  await dialog.getByRole("button", { name: "Send challenge" }).click();
+  await expect(page.getByText("Mixed · 10 questions", { exact: false })).toBeVisible();
+  const first = battleIdOf(page);
+  expect((await bff(bilal, "POST", `/battles/${first}/accept`)).status()).toBe(200);
+  await page.getByRole("button", { name: "Ready", exact: true }).click({ timeout: 15_000 });
+  await playByApi(people, asha, bilal, first, 10, page);
+  await expect(page.getByRole("heading", { name: "You won", level: 4 })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("table", { name: "Scores" }).getByRole("row", { name: /^Correct/ })).toContainText("10 of 10");
+  await expect(page.getByRole("region", { name: "Review" }).getByText("Why:")).toHaveCount(10);
+  await axe(page, testInfo, "result-10-questions");
+
+  // A second win (5 questions): 2 x (20 + 30) = 100 XP, Level 2.
+  const created = await bff(asha, "POST", "/battles", { opponentId: bilal.playerId, program: "networking-ai", month: 1, length: 5, requestId: crypto.randomUUID() });
+  expect(created.status(), await created.text()).toBe(201);
+  const second = ((await created.json()) as { battleId: string }).battleId;
+  expect((await bff(bilal, "POST", `/battles/${second}/accept`)).status()).toBe(200);
+  expect((await bff(asha, "POST", `/battles/${second}/ready`)).status()).toBe(200);
+  await playByApi(people, asha, bilal, second, 5);
+  const total = await people.sql<{ sum: string }>("SELECT sum(amount)::text AS sum FROM fz_xp_events WHERE user_id = $1", [asha.userId]);
+  expect(total[0]?.sum).toBe("100");
+
+  const bells = await people.sql<{ title: string; body: string }>(
+    "SELECT title, body FROM user_notifications WHERE user_id = $1 AND kind IN ('level_up', 'badge_unlocked') ORDER BY title",
+    [asha.userId],
+  );
+  expect(bells.map((bell) => bell.title)).toEqual(["Badge earned: First Battle", "Badge earned: Perfect Score", "Level 2"]);
+  for (const bell of bells) expect(`${bell.title} ${bell.body}`).not.toMatch(/Bilal|Asha|FZE2E|@/);
+
+  // Through the real bell: each notice opens Quizzes & Games on the Friend Zone side, where the change shows.
+  await openFromBell(page, /^Level 2/, testInfo, "level");
+  const progress = section(page, "Your progress");
+  await expect(progress.getByRole("progressbar", { name: "Level 2 progress" })).toHaveAttribute("aria-valuetext", "0 / 200 XP to level 3");
+  await openFromBell(page, /^Badge earned: Perfect Score/, testInfo, "badge");
+  await expect(progress.getByText("Perfect Score", { exact: true })).toBeVisible();
+  await expect(progress.getByText("First Battle", { exact: true })).toBeVisible();
+  await axe(page, testInfo, "progress-level-2");
+});
