@@ -105,7 +105,8 @@ export function InvoicePrompt() {
     <Dialog open={open} onOpenChange={(next) => !next && setClosed(true)}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Are you a NetworkersHome student?</DialogTitle>
+          {/* Centred on a phone: padding on both sides keeps the close button off the title. */}
+          <DialogTitle className="px-6 sm:px-0">Are you a NetworkersHome student?</DialogTitle>
           <DialogDescription>
             Enter the invoice number of your NH program to open it here: a tutor for every month of your course,
             quizzes, mock interviews and videos.
