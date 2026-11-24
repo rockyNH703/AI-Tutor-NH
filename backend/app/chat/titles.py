@@ -142,7 +142,9 @@ _HEADING = re.compile(r"^#{1,6}\s+(.+?)\s*#*$|^(?:\*\*|__)([^*_].*?)(?:\*\*|__):
 _NUMBERING = re.compile(r"(?i)^(?:\d+[.)]|step\s+\d+\s*[:.)-]?|part\s+[a-z0-9]+\s*[:.)-]?|[ivx]+[.)])\s*")
 _CHATTY_HEADING = re.compile(
     r"^(?:let'?s|here'?s|here is|sure|okay|great|so|now|first|next|finally|in summary|to summari[sz]e|"
-    r"quick answer|short answer|the answer|your answer)\b"
+    r"quick answer|short answer|the answer|your answer|"
+    # A program tutor's label over general knowledge (app/programs/prompt.py GENERAL): names no topic.
+    r"general explanation)\b"
 )
 _CLAUSE = re.compile(r"[\n?!;]+|[.:](?=\s|$)|,\s+|\s[-–—]\s")
 _SYMBOL = re.compile(r"[=+*/^<>±×÷√∫∑∞≤≥≠]|\w\(\w{0,3}\)|^\(\w{0,3}\)$")  # f(x), sin(x), (1)

@@ -107,6 +107,19 @@ def test_titles(question, reply, expected):
     assert topic_title(question, reply) == expected
 
 
+def test_a_program_tutors_general_explanation_label_never_names_the_chat():
+    # Production audit, 2026-11-24: a month chat was titled "General Explanation Not from NH Material", the label a
+    # program tutor puts over general knowledge (app/programs/prompt.py GENERAL), not a topic.
+    question = "How do I write an F5 iRule"
+    reply = (
+        "This isn't covered in your Month 2 material.\n\n"
+        "### General explanation (not from your NH material)\n\nAn iRule is a Tcl script on a BIG-IP."
+    )
+    titled = topic_title(question, reply)
+    assert titled == topic_title(question, "")
+    assert "General" not in (titled or ("",))[0]
+
+
 ALLOWED = " '-&"
 
 

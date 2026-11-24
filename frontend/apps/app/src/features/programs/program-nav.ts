@@ -84,7 +84,7 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
       title: "Program Q&A",
       back: null,
       greeting: "Ask anything about your program.",
-      line: `Answers come from every month's ${SOURCES}`,
+      line: `Your tutor answers from every month's ${SOURCES}`,
       suggestions: (program?.months ?? []).slice(0, 2).map((item) => `Give me an overview of Month ${item.month}: ${item.title}`),
       placeholder: "Ask about any month of your program…",
       tabTitle: "Program Q&A",

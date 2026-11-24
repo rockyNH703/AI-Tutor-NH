@@ -76,7 +76,7 @@ function ChatHistory({ place, conversationId }: { place: ChatPlace; conversation
     // Not modal: a modal menu hides the rest of the page from assistive technology while its links stay focusable.
     <DropdownMenu modal={false} onOpenChange={(open) => open && load()}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="min-h-11 min-w-11 shrink-0 gap-1.5" aria-label="History">
+        <Button variant="outline" size="sm" className="min-h-11 min-w-11 shrink-0 gap-1.5" aria-label="History">
           <History aria-hidden className="h-4 w-4" />
           <span className="hidden sm:inline">History</span>
         </Button>
