@@ -38,7 +38,7 @@ export function ProgramChatHeader({ place, conversationId }: { place: ChatPlace;
           title={text.label ? `${text.label}: ${text.title}` : text.title}
         >
           {text.label && (
-            <span className="shrink-0 rounded-md bg-brand-soft px-1.5 py-0.5 text-xs font-semibold text-brand">{text.label}</span>
+            <span className="shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 text-xs font-semibold text-foreground">{text.label}</span>
           )}
           <span className="truncate">{text.title}</span>
         </h2>
@@ -73,7 +73,8 @@ function ChatHistory({ place, conversationId }: { place: ChatPlace; conversation
   };
   const base = programChatPath(place.program, place.month, place.mode);
   return (
-    <DropdownMenu onOpenChange={(open) => open && load()}>
+    // Not modal: a modal menu hides the rest of the page from assistive technology while its links stay focusable.
+    <DropdownMenu modal={false} onOpenChange={(open) => open && load()}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="min-h-11 min-w-11 shrink-0 gap-1.5" aria-label="History">
           <History aria-hidden className="h-4 w-4" />
@@ -81,8 +82,12 @@ function ChatHistory({ place, conversationId }: { place: ChatPlace; conversation
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-2rem)] p-0">
-        {/* The house menu clips its content: the list scrolls inside it. */}
-        <div className="scrollbar-subtle max-h-[min(24rem,60dvh)] overflow-y-auto p-1.5">
+        {/* The house menu clips its content: the list scrolls inside it (focusable, so it scrolls from the keys too). */}
+        <div
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard-focusable to be scrollable
+          tabIndex={0}
+          className="scrollbar-subtle focus-ring-inset max-h-[min(24rem,60dvh)] overflow-y-auto rounded-xl p-1.5"
+        >
           {failed ? (
             <>
               <p className="px-2.5 py-2 text-sm text-text-secondary">Your chats couldn't be loaded.</p>

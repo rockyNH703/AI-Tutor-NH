@@ -132,7 +132,13 @@ export function MessageList({
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
-      <div ref={scrollRef} className="scrollbar-subtle min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
+      <div
+        ref={scrollRef}
+        // A click in the transcript gives it the keys (PageDown, End, the arrows): it used to focus <main>, which does not scroll.
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard-focusable to be scrollable
+        tabIndex={0}
+        className="scrollbar-subtle focus-ring-inset min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable]"
+      >
         <section ref={contentRef} aria-label="Conversation" className="flex min-h-full flex-col">
           {/* Cards let go before growing by the user's action, and re-attach after their own send. */}
           <ReleaseScrollContext.Provider value={release}>

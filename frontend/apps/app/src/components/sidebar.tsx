@@ -133,7 +133,7 @@ function PlaceLink({
         className={cn(
           "focus-ring flex items-center gap-3 rounded-xl text-sm font-semibold transition-colors",
           collapsed ? "h-11 w-11 justify-center" : "w-full px-3 py-2.5",
-          current ? "bg-brand-soft text-brand" : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
+          current ? "bg-surface-2 text-brand" : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
         )}
       >
         <Icon aria-hidden className="h-5 w-5 shrink-0" />
@@ -253,7 +253,7 @@ function ProgramGroup({
         className={cn(
           "focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors",
           inside && !open
-            ? "bg-brand-soft text-brand"
+            ? "bg-surface-2 text-brand"
             : inside
               ? "text-foreground hover:bg-surface-2"
               : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
@@ -288,7 +288,7 @@ function ProgramGroup({
                     // Inset focus ring: the accordion clips anything drawn outside a link. 36px with a mouse, 44 on touch.
                     "focus-ring-inset flex min-h-9 items-center rounded-lg px-3 text-sm transition-colors [@media(pointer:coarse)]:min-h-11",
                     area === item.path
-                      ? "bg-brand-soft font-semibold text-brand"
+                      ? "bg-surface-2 font-semibold text-brand"
                       : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
                   )}
                 >
@@ -443,7 +443,7 @@ export function SidebarContent({
                       "focus-ring relative flex items-center rounded-xl text-left transition-[color,background-color,box-shadow]",
                       collapsed ? "mx-auto h-11 w-11 justify-center" : "w-full gap-3 px-3 py-2.5",
                       current
-                        ? "bg-brand-soft font-semibold text-foreground"
+                        ? "bg-surface-2 font-semibold text-foreground"
                         : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
                     )}
                   >
@@ -521,7 +521,7 @@ export function SidebarContent({
                         key={item.id}
                         className={cn(
                           "group flex items-center gap-1 rounded-xl transition-colors",
-                          isActive ? "bg-brand-soft font-medium text-foreground" : "text-foreground/85 hover:bg-surface-2 hover:text-foreground",
+                          isActive ? "bg-surface-2 font-medium text-foreground" : "text-foreground/85 hover:bg-surface-2 hover:text-foreground",
                         )}
                       >
                         <Link

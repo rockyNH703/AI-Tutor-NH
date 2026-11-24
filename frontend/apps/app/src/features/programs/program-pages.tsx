@@ -152,7 +152,7 @@ function States<T>({ state, retry, children }: { state: Load<T>; retry: () => vo
 
 function materialLine(material: ProgramMaterial): string {
   const parts = [
-    material.documents ? `${material.documents} book${material.documents === 1 ? "" : "s"} and guides` : "",
+    material.documents ? (material.documents === 1 ? "1 book or guide" : `${material.documents} books and guides`) : "",
     material.lessons ? `${material.lessons} lessons` : "",
     material.questions ? `${material.questions} practice questions` : "",
   ].filter(Boolean);
@@ -201,7 +201,7 @@ function MonthGrid({ program, href, note }: { program: Program; href: (month: nu
       {program.months.map((month) => (
         <li key={month.month}>
           <Link href={href(month.month)} className={CARD}>
-            <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-soft text-sm font-semibold text-brand">
+            <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-sm font-semibold text-foreground">
               {month.month}
             </span>
             <span className="min-w-0">
