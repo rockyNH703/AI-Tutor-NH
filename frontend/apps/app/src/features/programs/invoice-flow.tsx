@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@v1/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@v1/ui/dialog";
 import { Input } from "@v1/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useId, useState } from "react";
 
 import { forgetQuizMeOffer } from "@/features/chat/quiz-me";
 import { SettingsCard } from "@/features/settings/primitives";
@@ -19,7 +19,16 @@ const NOT_VERIFIED = "We couldn't verify this invoice. Check the number, or cont
  * Enter an NH invoice number; the server checks it against NH's records (one generic answer for every failure, so
  * nothing about other invoices can be learnt here).
  */
-export function InvoiceForm({ onClaimed, autoFocus = false }: { onClaimed: (result: ClaimResult) => void; autoFocus?: boolean }) {
+export function InvoiceForm({
+  onClaimed,
+  autoFocus = false,
+  secondary,
+}: {
+  onClaimed: (result: ClaimResult) => void;
+  autoFocus?: boolean;
+  /** Shown beside Verify invoice, on the same row (the first-run dialog's Continue without an invoice). */
+  secondary?: ReactNode;
+}) {
   const id = useId();
   const [number, setNumber] = useState("");
   const [pending, setPending] = useState(false);
@@ -65,9 +74,13 @@ export function InvoiceForm({ onClaimed, autoFocus = false }: { onClaimed: (resu
       <p id={`${id}-error`} role="status" className="min-h-5 text-sm text-destructive">
         {error ?? ""}
       </p>
-      <Button type="submit" disabled={pending || !number.trim()} className="min-h-11 self-start">
-        {pending ? "Checking…" : "Verify invoice"}
-      </Button>
+      {/* One row with the dialog's way out (owner: save vertical space); it wraps below on a narrow phone. */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Button type="submit" disabled={pending || !number.trim()} className="min-h-11">
+          {pending ? "Checking…" : "Verify invoice"}
+        </Button>
+        {secondary}
+      </div>
     </form>
   );
 }
@@ -98,20 +111,20 @@ export function InvoicePrompt() {
             quizzes, mock interviews and videos.
           </DialogDescription>
         </DialogHeader>
-        <div className="my-2">
+        <div className="mt-2">
           <InvoiceForm
             autoFocus
             onClaimed={(result) => {
               setClosed(true);
               router.push(`/programs/${result.program.slug}`);
             }}
+            secondary={
+              <Button type="button" variant="ghost" className="min-h-11" onClick={continueWithout}>
+                Continue without an invoice
+              </Button>
+            }
           />
         </div>
-        <DialogFooter>
-          <Button type="button" variant="ghost" className="min-h-11" onClick={continueWithout}>
-            Continue without an invoice
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
