@@ -59,6 +59,14 @@ FILES_UPLOADS_PER_DAY = 30
 INVOICE_CLAIMS_PER_HOUR = 5
 INVOICE_CLAIMS_PER_DAY = 20
 INVOICE_CLAIMS_PER_ADDRESS_DAY = 30
+FRIEND_ZONE_PROFILE_PER_HOUR = 20
+# NH Friend Zone (plan R-S1, R-F1): invoice searches, friend requests and reports, counted before anything is looked up.
+FRIEND_ZONE_SEARCHES_PER_HOUR = 10
+FRIEND_ZONE_SEARCHES_PER_DAY = 30
+FRIEND_ZONE_SEARCHES_PER_ADDRESS_DAY = 200
+FRIEND_ZONE_REQUESTS_PER_DAY = 20
+FRIEND_ZONE_REPORTS_PER_DAY = 10
+FRIEND_ZONE_BATTLES_PER_DAY = 30  # R-B2: battle invitations created
 # Password checks per account, wherever they happen (Better Auth's sign-in and change-password,
 # and the re-authentication here): the same scope, key and window in both runtimes.
 SIGNIN_SCOPE = "signin_email"
@@ -231,6 +239,55 @@ class AuthService:
         await self._throttle("invoice_user", key, INVOICE_CLAIMS_PER_HOUR, minutes=60)
         await self._throttle("invoice_ip", ip, INVOICE_CLAIMS_PER_ADDRESS_DAY, minutes=24 * 60)
         await self.db.commit()
+
+    async def throttle_friend_zone_profile(self, user: User) -> None:
+        """NH Friend Zone joins and profile edits (app/friendzone): FRIEND_ZONE_PROFILE_PER_HOUR an hour per account,
+        counted in auth_attempts (durable across restarts and processes)."""
+        await self._throttle("fz_profile_user", str(user.id), FRIEND_ZONE_PROFILE_PER_HOUR, minutes=60)
+        await self.db.commit()
+
+    async def throttle_friend_zone_search(self, user: User, ip: str | None) -> None:
+        """Friend Zone invoice searches: an hourly and a daily limit per account and a daily one per network address.
+        The hourly refusal says when to retry; reaching the daily one is logged (account id only) for the owner."""
+        key = str(user.id)
+        if await self._count_attempts("fz_search_user", key, minutes=24 * 60) >= FRIEND_ZONE_SEARCHES_PER_DAY:
+            log.warning("friend zone search daily limit reached", extra={"user_id": key})
+            raise RateLimited("You have used today's searches. Please try again tomorrow.")
+        try:
+            await self._throttle("fz_search_user", key, FRIEND_ZONE_SEARCHES_PER_HOUR, minutes=60)
+        except RateLimited as refused:
+            refused.headers = {"Retry-After": str(await self._seconds_until_free("fz_search_user", key, 60))}
+            raise
+        await self._throttle("fz_search_ip", ip, FRIEND_ZONE_SEARCHES_PER_ADDRESS_DAY, minutes=24 * 60)
+        await self.db.commit()
+
+    async def throttle_friend_zone_request(self, user: User) -> None:
+        """Friend requests sent: FRIEND_ZONE_REQUESTS_PER_DAY per account."""
+        await self._throttle("fz_request_user", str(user.id), FRIEND_ZONE_REQUESTS_PER_DAY, minutes=24 * 60)
+        await self.db.commit()
+
+    async def throttle_friend_zone_report(self, user: User) -> None:
+        """Reports filed: FRIEND_ZONE_REPORTS_PER_DAY per account."""
+        await self._throttle("fz_report_user", str(user.id), FRIEND_ZONE_REPORTS_PER_DAY, minutes=24 * 60)
+        await self.db.commit()
+
+    async def throttle_friend_zone_battle(self, user: User) -> None:
+        """Battle invitations created: FRIEND_ZONE_BATTLES_PER_DAY per account."""
+        await self._throttle("fz_battle_user", str(user.id), FRIEND_ZONE_BATTLES_PER_DAY, minutes=24 * 60)
+        await self.db.commit()
+
+    async def _seconds_until_free(self, scope: str, key: str, minutes: int) -> int:
+        """When the oldest attempt in the window leaves it, which frees one attempt."""
+        oldest = await self.db.scalar(
+            select(func.min(AuthAttempt.created_at)).where(
+                AuthAttempt.scope == scope,
+                AuthAttempt.key_hash == hash_key(key),
+                AuthAttempt.created_at > utcnow() - timedelta(minutes=minutes),
+            )
+        )
+        if oldest is None:
+            return 1
+        return max(1, int((oldest + timedelta(minutes=minutes) - utcnow()).total_seconds()) + 1)
 
     async def throttle_voice(self, user: User, lane: str) -> None:
         """Voice mode (app/voice), `lane` "stt" or "tts": VOICE_*_PER_MINUTE and VOICE_*_PER_DAY per student.

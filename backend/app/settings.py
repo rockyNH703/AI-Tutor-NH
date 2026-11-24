@@ -350,6 +350,16 @@ class Settings(BaseSettings):
     # 2026-11-23; egress basis owner-D5-month-tutors-2026-11-23): only in a verified program chat, only that month's
     # mapped courses, masked like all model input. Off: month tutors ground on Knowledge Library documents only.
     programs_nhprep_grounding: Literal["off", "on"] = "off"
+    # NH Friend Zone (app/friendzone; owner-approved plan, revision 3): friends found by invoice and 1v1 quiz battles,
+    # for NH students with an open program only. Rollout off (every route a 404, /me says enabled:false) -> qa (only
+    # FRIEND_ZONE_QA_EMAILS, who join the isolated 'qa' cohort) -> on. A QA account stays in the 'qa' cohort for good.
+    friend_zone_mode: Literal["off", "qa", "on"] = "off"
+    friend_zone_qa_emails: str = ""
+    # Which verification lets a question decide a battle or a daily challenge (app/friendzone/eligibility.py):
+    # human_only (a person's approval) or human_or_ai (also an AI blind check bound to the exact content, owner U1).
+    friend_zone_key_policy: Literal["human_only", "human_or_ai"] = "human_only"
+    # End-to-end tests only: every battle round and daily question lasts this many seconds. Refused in production.
+    friend_zone_round_seconds: int | None = Field(default=None, ge=5, le=90)
 
     @field_validator("default_timezone")
     @classmethod
@@ -427,6 +437,19 @@ class Settings(BaseSettings):
             return True
         address = (email or "").strip()
         return self.programs_mode == "qa" and address.isascii() and address.lower() in self.programs_qa_list
+
+    @property
+    def friend_zone_qa_list(self) -> frozenset[str]:
+        return frozenset(e.strip().lower() for e in self.friend_zone_qa_emails.split(",") if e.strip())
+
+    def friend_zone_qa(self, email: str) -> bool:
+        """A Friend Zone QA account (the isolated 'qa' cohort). ASCII only, as programs_allow."""
+        address = (email or "").strip()
+        return address.isascii() and address.lower() in self.friend_zone_qa_list
+
+    def friend_zone_allow(self, email: str) -> bool:
+        """FRIEND_ZONE_MODE for this account: `on` everyone (eligibility still applies), `qa` the QA list only."""
+        return self.friend_zone_mode == "on" or (self.friend_zone_mode == "qa" and self.friend_zone_qa(email))
 
     def question_bank_turn_allows(self, email: str) -> bool:
         """QUESTION_BANK_TURN for this account: `on` everyone, `qa` only the listed accounts, `off` nobody."""
@@ -588,6 +611,10 @@ class Settings(BaseSettings):
             problems.append("NHPREP_MODE=qa needs NHPREP_QA_EMAILS")
         if self.programs_mode == "qa" and not self.programs_qa_list:
             problems.append("PROGRAMS_MODE=qa needs PROGRAMS_QA_EMAILS")
+        if self.friend_zone_mode == "qa" and not self.friend_zone_qa_list:
+            problems.append("FRIEND_ZONE_MODE=qa needs FRIEND_ZONE_QA_EMAILS")
+        if self.friend_zone_round_seconds is not None:
+            problems.append("FRIEND_ZONE_ROUND_SECONDS is for end-to-end tests only")
         if self.nhprep_playback == "secret" and not (
             self.nhprep_video_signing_secret and self.nhprep_video_signing_secret.get_secret_value().strip()
         ):

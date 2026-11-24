@@ -29,11 +29,11 @@ import zoneinfo
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 
-from sqlalchemy import func, select, text, tuple_
+from sqlalchemy import exists, func, select, text, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import ActivityDay, Conversation, LearningDailyActivity, Message, QbSetItem
+from app.db.models import ActivityDay, Conversation, LearningDailyActivity, Message, QbSet, QbSetItem
 from app.learning.context import TutorProgress
 from app.notifications.inbox import notify
 from app.progress import activity
@@ -266,7 +266,13 @@ async def record_practice(
     answers = await session.scalar(
         select(func.count())
         .select_from(QbSetItem)
-        .where(QbSetItem.user_id == user_id, QbSetItem.answered_at >= start, QbSetItem.answered_at < start + ONE_DAY)
+        .where(
+            QbSetItem.user_id == user_id,
+            QbSetItem.answered_at >= start,
+            QbSetItem.answered_at < start + ONE_DAY,
+            # Friend Zone QA answers (app/friendzone) never make a learning day.
+            ~exists().where(QbSet.id == QbSetItem.set_id, QbSet.mode == "fz_qa"),
+        )
     )
     if not answers or answers % PRACTICE_ANSWERS:
         return None

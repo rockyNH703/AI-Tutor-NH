@@ -324,6 +324,168 @@ export const CONTRACT = {
       ]
     }
   },
+  "FriendZoneAnswerRequest": {
+    "choice": {
+      "pattern": "^[A-H]$"
+    },
+    "round": {
+      "maximum": 10,
+      "minimum": 1
+    }
+  },
+  "FriendZoneBattleOut": {
+    "result": {
+      "enum": [
+        "points",
+        "forfeit",
+        "draw",
+        "void"
+      ]
+    },
+    "status": {
+      "enum": [
+        "invited",
+        "waiting",
+        "active",
+        "completed",
+        "declined",
+        "expired",
+        "cancelled"
+      ]
+    }
+  },
+  "FriendZoneBattlePlayerOut": {
+    "role": {
+      "enum": [
+        "challenger",
+        "opponent"
+      ]
+    }
+  },
+  "FriendZoneBattleSummaryOut": {
+    "result": {
+      "enum": [
+        "points",
+        "forfeit",
+        "draw",
+        "void"
+      ]
+    },
+    "role": {
+      "enum": [
+        "challenger",
+        "opponent"
+      ]
+    },
+    "status": {
+      "enum": [
+        "invited",
+        "waiting",
+        "active",
+        "completed",
+        "declined",
+        "expired",
+        "cancelled"
+      ]
+    }
+  },
+  "FriendZoneCreateBattleRequest": {
+    "difficulty": {
+      "enum": [
+        "mixed",
+        "easy",
+        "medium",
+        "hard"
+      ]
+    },
+    "length": {
+      "enum": [
+        5,
+        10
+      ]
+    },
+    "month": {
+      "maximum": 12,
+      "minimum": 1
+    },
+    "program": {
+      "maxLength": 60,
+      "minLength": 1
+    },
+    "topicId": {
+      "maxLength": 120
+    }
+  },
+  "FriendZoneDailyAnswerRequest": {
+    "choice": {
+      "pattern": "^[A-H]$"
+    },
+    "position": {
+      "maximum": 10,
+      "minimum": 1
+    }
+  },
+  "FriendZoneDailyAttemptOut": {
+    "status": {
+      "enum": [
+        "not_started",
+        "in_progress",
+        "finished"
+      ]
+    }
+  },
+  "FriendZoneDailyFriendOut": {
+    "status": {
+      "enum": [
+        "completed",
+        "in_progress"
+      ]
+    }
+  },
+  "FriendZoneJoinRequest": {
+    "displayName": {
+      "maxLength": 60,
+      "minLength": 1
+    }
+  },
+  "FriendZonePlayerOut": {
+    "relation": {
+      "enum": [
+        "self",
+        "friend",
+        "incoming",
+        "outgoing",
+        "blocked",
+        "none"
+      ]
+    }
+  },
+  "FriendZoneProfileChanges": {
+    "displayName": {
+      "maxLength": 60,
+      "minLength": 1
+    }
+  },
+  "FriendZoneReportRequest": {
+    "details": {
+      "maxLength": 1000
+    },
+    "reason": {
+      "enum": [
+        "harassment",
+        "cheating",
+        "inappropriate_name",
+        "spam",
+        "other"
+      ]
+    }
+  },
+  "FriendZoneSearchRequest": {
+    "invoiceNumber": {
+      "maxLength": 60,
+      "minLength": 1
+    }
+  },
   "LearnerProfileOut": {
     "mainGoal": {
       "enum": [
@@ -1066,6 +1228,11 @@ export const CONTRACT = {
       },
       "maxItems": 5
     },
+    "version": {
+      "minimum": 0
+    }
+  },
+  "UpdateFriendZoneProfileRequest": {
     "version": {
       "minimum": 0
     }

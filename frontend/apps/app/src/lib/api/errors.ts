@@ -45,6 +45,22 @@ export type ErrorCode =
   | "too_many_files"
   | "retry_not_allowed"
   | "busy"
+  // NH Friend Zone
+  | "already_member"
+  | "no_match"
+  | "already_friends"
+  | "request_pending"
+  | "request_limit"
+  | "friend_limit"
+  | "not_enough_questions"
+  | "battle_exists"
+  | "invite_limit"
+  | "busy_in_battle"
+  | "battle_not_open"
+  | "round_closed"
+  | "already_answered"
+  | "invalid_choice"
+  | "challenge_closed"
   // voice mode
   | "voice_unreadable"
   | "voice_unavailable"
@@ -127,6 +143,21 @@ const KNOWN = new Set<ErrorCode>([
   "too_many_files",
   "retry_not_allowed",
   "busy",
+  "already_member",
+  "no_match",
+  "already_friends",
+  "request_pending",
+  "request_limit",
+  "friend_limit",
+  "not_enough_questions",
+  "battle_exists",
+  "invite_limit",
+  "busy_in_battle",
+  "battle_not_open",
+  "round_closed",
+  "already_answered",
+  "invalid_choice",
+  "challenge_closed",
   "voice_unreadable",
   "voice_unavailable",
   "voice_busy",
@@ -374,6 +405,82 @@ const COPY: Record<ErrorCode, { title: string; message: string; action: Recovery
     title: "Busy right now",
     message: "Too many files are uploading at once. Please try again in a moment.",
     action: "retry",
+  },
+  already_member: {
+    title: "Already joined",
+    message: "You've already joined Friend Zone. Your profile is shown.",
+    action: "reload",
+  },
+  // The API's own line for every miss, word for word (backend app/friendzone/friends.py NO_MATCH).
+  no_match: {
+    title: "No match",
+    message: "No match. Your friend needs to join Friend Zone and turn on 'Let classmates find me'.",
+    action: "edit",
+  },
+  already_friends: {
+    title: "Already friends",
+    message: "You're already friends.",
+    action: "reload",
+  },
+  request_pending: {
+    title: "Request already sent",
+    message: "Your request is already waiting for an answer.",
+    action: "reload",
+  },
+  request_limit: {
+    title: "Too many requests waiting",
+    message: "You have 50 requests waiting for an answer. Cancel some before sending more.",
+    action: "none",
+  },
+  friend_limit: {
+    title: "Friend list full",
+    message: "A member can have up to 200 friends. Remove a friend before adding another.",
+    action: "none",
+  },
+  not_enough_questions: {
+    title: "Not enough questions",
+    message: "No checked questions for this choice yet. Try another month, topic or difficulty.",
+    action: "edit",
+  },
+  battle_exists: {
+    title: "Battle already open",
+    message: "You already have a battle with this friend. It's in your Battles list.",
+    action: "reload",
+  },
+  invite_limit: {
+    title: "Too many invitations waiting",
+    message: "You have 3 battle invitations waiting. Wait for an answer or cancel one first.",
+    action: "none",
+  },
+  busy_in_battle: {
+    title: "Already in a battle",
+    message: "One of you is in another battle right now. Try again when it's over.",
+    action: "wait",
+  },
+  battle_not_open: {
+    title: "Battle has moved on",
+    message: "This battle can't be changed any more. Its latest state is shown.",
+    action: "reload",
+  },
+  round_closed: {
+    title: "Time's up",
+    message: "This round closed before your answer arrived.",
+    action: "reload",
+  },
+  already_answered: {
+    title: "Answer already locked",
+    message: "You've already answered this round. Your first answer counts.",
+    action: "reload",
+  },
+  challenge_closed: {
+    title: "Challenge closed",
+    message: "This daily challenge is over. A new one comes each day.",
+    action: "reload",
+  },
+  invalid_choice: {
+    title: "Not an option",
+    message: "That letter isn't one of this question's options.",
+    action: "edit",
   },
   attachment_unavailable: {
     title: "A file isn't ready",

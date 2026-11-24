@@ -69,6 +69,7 @@ ANSWERS = text(
            coalesce(i.served_hash <> q.content_hash, false) AS revised
     FROM qb_set_items i JOIN qb_questions q ON q.question_id = i.question_id
     WHERE i.user_id = :user_id AND i.answered_at IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM qb_sets s WHERE s.id = i.set_id AND s.mode = 'fz_qa')  -- Friend Zone QA: no record
     ORDER BY i.answered_at DESC
     LIMIT :limit
     """

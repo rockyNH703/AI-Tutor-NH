@@ -2579,6 +2579,1720 @@
         "title": "FileUsage",
         "type": "object"
       },
+      "FriendZoneAnswerRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "choice": {
+            "pattern": "^[A-H]$",
+            "title": "Choice",
+            "type": "string"
+          },
+          "round": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Round",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "round",
+          "choice"
+        ],
+        "title": "FriendZoneAnswerRequest",
+        "type": "object"
+      },
+      "FriendZoneBadgeOut": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "title",
+          "description"
+        ],
+        "title": "FriendZoneBadgeOut",
+        "type": "object"
+      },
+      "FriendZoneBattleOut": {
+        "properties": {
+          "battleId": {
+            "format": "uuid",
+            "title": "Battleid",
+            "type": "string"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "endReason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endreason"
+          },
+          "endsAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endsat"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "length": {
+            "title": "Length",
+            "type": "integer"
+          },
+          "me": {
+            "$ref": "#/components/schemas/FriendZoneBattlePlayerOut"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "nextChangeAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextchangeat"
+          },
+          "opponent": {
+            "$ref": "#/components/schemas/FriendZoneBattlePlayerOut"
+          },
+          "program": {
+            "$ref": "#/components/schemas/FriendZoneProgramOut"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FriendZoneQuestionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "anyOf": [
+              {
+                "enum": [
+                  "points",
+                  "forfeit",
+                  "draw",
+                  "void"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "review": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FriendZoneReviewOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "rounds": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneRoundOut"
+            },
+            "title": "Rounds",
+            "type": "array"
+          },
+          "roundsClosed": {
+            "title": "Roundsclosed",
+            "type": "integer"
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          },
+          "startsAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startsat"
+          },
+          "status": {
+            "enum": [
+              "invited",
+              "waiting",
+              "active",
+              "completed",
+              "declined",
+              "expired",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "topicId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topicid"
+          }
+        },
+        "required": [
+          "battleId",
+          "status",
+          "endReason",
+          "result",
+          "program",
+          "month",
+          "topicId",
+          "difficulty",
+          "length",
+          "roundsClosed",
+          "expiresAt",
+          "startsAt",
+          "endsAt",
+          "nextChangeAt",
+          "serverTime",
+          "me",
+          "opponent",
+          "question",
+          "rounds",
+          "review"
+        ],
+        "title": "FriendZoneBattleOut",
+        "type": "object"
+      },
+      "FriendZoneBattlePlayerOut": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "displayName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Displayname"
+          },
+          "initials": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Initials"
+          },
+          "playerId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Playerid"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "role": {
+            "enum": [
+              "challenger",
+              "opponent"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "winner": {
+            "title": "Winner",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "playerId",
+          "displayName",
+          "initials",
+          "role",
+          "ready",
+          "score",
+          "correct",
+          "answered",
+          "winner"
+        ],
+        "title": "FriendZoneBattlePlayerOut",
+        "type": "object"
+      },
+      "FriendZoneBattleSummaryOut": {
+        "properties": {
+          "battleId": {
+            "format": "uuid",
+            "title": "Battleid",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "endedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endedat"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "length": {
+            "title": "Length",
+            "type": "integer"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "opponent": {
+            "$ref": "#/components/schemas/FriendZoneBattlePlayerOut"
+          },
+          "program": {
+            "$ref": "#/components/schemas/FriendZoneProgramOut"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "enum": [
+                  "points",
+                  "forfeit",
+                  "draw",
+                  "void"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          },
+          "role": {
+            "enum": [
+              "challenger",
+              "opponent"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "invited",
+              "waiting",
+              "active",
+              "completed",
+              "declined",
+              "expired",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "battleId",
+          "status",
+          "result",
+          "role",
+          "opponent",
+          "program",
+          "month",
+          "length",
+          "createdAt",
+          "endedAt",
+          "expiresAt"
+        ],
+        "title": "FriendZoneBattleSummaryOut",
+        "type": "object"
+      },
+      "FriendZoneBattlesOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneBattleSummaryOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "title": "FriendZoneBattlesOut",
+        "type": "object"
+      },
+      "FriendZoneCreateBattleRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "difficulty": {
+            "default": "mixed",
+            "enum": [
+              "mixed",
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "length": {
+            "default": 5,
+            "enum": [
+              5,
+              10
+            ],
+            "title": "Length",
+            "type": "integer"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "opponentId": {
+            "format": "uuid",
+            "title": "Opponentid",
+            "type": "string"
+          },
+          "program": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Program",
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "title": "Requestid",
+            "type": "string"
+          },
+          "topicId": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topicid"
+          }
+        },
+        "required": [
+          "opponentId",
+          "program",
+          "month",
+          "requestId"
+        ],
+        "title": "FriendZoneCreateBattleRequest",
+        "type": "object"
+      },
+      "FriendZoneDailyAnswerRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "choice": {
+            "pattern": "^[A-H]$",
+            "title": "Choice",
+            "type": "string"
+          },
+          "position": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Position",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "position",
+          "choice"
+        ],
+        "title": "FriendZoneDailyAnswerRequest",
+        "type": "object"
+      },
+      "FriendZoneDailyAttemptOut": {
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "correct": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finishedat"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "served": {
+            "title": "Served",
+            "type": "integer"
+          },
+          "startedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startedat"
+          },
+          "status": {
+            "enum": [
+              "not_started",
+              "in_progress",
+              "finished"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "served",
+          "answered",
+          "correct",
+          "score",
+          "startedAt",
+          "finishedAt"
+        ],
+        "title": "FriendZoneDailyAttemptOut",
+        "type": "object"
+      },
+      "FriendZoneDailyFriendOut": {
+        "description": "A friend's attempt (G8). Score and correct answers only when that friend shows their stats.",
+        "properties": {
+          "correct": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct"
+          },
+          "displayName": {
+            "title": "Displayname",
+            "type": "string"
+          },
+          "initials": {
+            "title": "Initials",
+            "type": "string"
+          },
+          "playerId": {
+            "format": "uuid",
+            "title": "Playerid",
+            "type": "string"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "in_progress"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "playerId",
+          "displayName",
+          "initials",
+          "status",
+          "score",
+          "correct"
+        ],
+        "title": "FriendZoneDailyFriendOut",
+        "type": "object"
+      },
+      "FriendZoneDailyOut": {
+        "properties": {
+          "attempt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FriendZoneDailyAttemptOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "challengeId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Challengeid"
+          },
+          "closesAt": {
+            "format": "date-time",
+            "title": "Closesat",
+            "type": "string"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "friends": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FriendZoneDailyFriendOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Friends"
+          },
+          "nextChangeAt": {
+            "format": "date-time",
+            "title": "Nextchangeat",
+            "type": "string"
+          },
+          "program": {
+            "$ref": "#/components/schemas/FriendZoneProgramOut"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FriendZoneDailyQuestionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FriendZoneDailyReviewOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review"
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          },
+          "startsAt": {
+            "format": "date-time",
+            "title": "Startsat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "challengeId",
+          "date",
+          "program",
+          "startsAt",
+          "closesAt",
+          "serverTime",
+          "attempt",
+          "question",
+          "review",
+          "friends",
+          "nextChangeAt"
+        ],
+        "title": "FriendZoneDailyOut",
+        "type": "object"
+      },
+      "FriendZoneDailyQuestionOut": {
+        "description": "The open question: never its key, its explanation or a later question.",
+        "properties": {
+          "closesAt": {
+            "format": "date-time",
+            "title": "Closesat",
+            "type": "string"
+          },
+          "myChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mychoice"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "integer"
+          },
+          "servedAt": {
+            "format": "date-time",
+            "title": "Servedat",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "position",
+          "stem",
+          "options",
+          "seconds",
+          "servedAt",
+          "closesAt",
+          "myChoice"
+        ],
+        "title": "FriendZoneDailyQuestionOut",
+        "type": "object"
+      },
+      "FriendZoneDailyReviewOut": {
+        "description": "After finishing: each served question with its answer and why.",
+        "properties": {
+          "correct": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct"
+          },
+          "correctKey": {
+            "title": "Correctkey",
+            "type": "string"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "myChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mychoice"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "points": {
+            "title": "Points",
+            "type": "integer"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "voided": {
+            "title": "Voided",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "position",
+          "stem",
+          "options",
+          "correctKey",
+          "explanation",
+          "myChoice",
+          "correct",
+          "points",
+          "voided"
+        ],
+        "title": "FriendZoneDailyReviewOut",
+        "type": "object"
+      },
+      "FriendZoneJoinRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "discoverable": {
+            "default": false,
+            "title": "Discoverable",
+            "type": "boolean"
+          },
+          "displayName": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "showProgram": {
+            "default": false,
+            "title": "Showprogram",
+            "type": "boolean"
+          },
+          "showStats": {
+            "default": false,
+            "title": "Showstats",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "displayName"
+        ],
+        "title": "FriendZoneJoinRequest",
+        "type": "object"
+      },
+      "FriendZoneMeOut": {
+        "properties": {
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "member": {
+            "title": "Member",
+            "type": "boolean"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FriendZoneProfileOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          },
+          "suspended": {
+            "title": "Suspended",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled",
+          "eligible",
+          "member",
+          "suspended",
+          "profile",
+          "serverTime"
+        ],
+        "title": "FriendZoneMeOut",
+        "type": "object"
+      },
+      "FriendZoneOptionOut": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "text"
+        ],
+        "title": "FriendZoneOptionOut",
+        "type": "object"
+      },
+      "FriendZonePlayerOut": {
+        "description": "Another member as the caller may see them (plan section 4, privacy matrix): a photo and programs for friends\nonly, and programs only when that friend shows them. Never an invoice number, an email or an account id.",
+        "properties": {
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarurl"
+          },
+          "displayName": {
+            "title": "Displayname",
+            "type": "string"
+          },
+          "initials": {
+            "title": "Initials",
+            "type": "string"
+          },
+          "playerId": {
+            "format": "uuid",
+            "title": "Playerid",
+            "type": "string"
+          },
+          "programs": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FriendZoneProgramOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Programs"
+          },
+          "relation": {
+            "enum": [
+              "self",
+              "friend",
+              "incoming",
+              "outgoing",
+              "blocked",
+              "none"
+            ],
+            "title": "Relation",
+            "type": "string"
+          },
+          "stats": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FriendZoneStatsOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "playerId",
+          "displayName",
+          "initials",
+          "relation"
+        ],
+        "title": "FriendZonePlayerOut",
+        "type": "object"
+      },
+      "FriendZonePlayerRef": {
+        "additionalProperties": false,
+        "properties": {
+          "playerId": {
+            "format": "uuid",
+            "title": "Playerid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "playerId"
+        ],
+        "title": "FriendZonePlayerRef",
+        "type": "object"
+      },
+      "FriendZonePlayersOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZonePlayerOut"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "FriendZonePlayersOut",
+        "type": "object"
+      },
+      "FriendZoneProfileChanges": {
+        "additionalProperties": false,
+        "properties": {
+          "discoverable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discoverable"
+          },
+          "displayName": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Displayname"
+          },
+          "showProgram": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Showprogram"
+          },
+          "showStats": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Showstats"
+          }
+        },
+        "title": "FriendZoneProfileChanges",
+        "type": "object"
+      },
+      "FriendZoneProfileOut": {
+        "properties": {
+          "discoverable": {
+            "title": "Discoverable",
+            "type": "boolean"
+          },
+          "displayName": {
+            "title": "Displayname",
+            "type": "string"
+          },
+          "playerId": {
+            "format": "uuid",
+            "title": "Playerid",
+            "type": "string"
+          },
+          "qa": {
+            "title": "Qa",
+            "type": "boolean"
+          },
+          "showProgram": {
+            "title": "Showprogram",
+            "type": "boolean"
+          },
+          "showStats": {
+            "title": "Showstats",
+            "type": "boolean"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "playerId",
+          "displayName",
+          "discoverable",
+          "showProgram",
+          "showStats",
+          "version",
+          "qa"
+        ],
+        "title": "FriendZoneProfileOut",
+        "type": "object"
+      },
+      "FriendZoneProgramOut": {
+        "properties": {
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "title"
+        ],
+        "title": "FriendZoneProgramOut",
+        "type": "object"
+      },
+      "FriendZoneQuestionOut": {
+        "description": "The open round's question: never its key, its explanation or the opponent's pick.",
+        "properties": {
+          "closesAt": {
+            "format": "date-time",
+            "title": "Closesat",
+            "type": "string"
+          },
+          "myChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mychoice"
+          },
+          "opensAt": {
+            "format": "date-time",
+            "title": "Opensat",
+            "type": "string"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "round": {
+            "title": "Round",
+            "type": "integer"
+          },
+          "seconds": {
+            "title": "Seconds",
+            "type": "integer"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "round",
+          "stem",
+          "options",
+          "seconds",
+          "opensAt",
+          "closesAt",
+          "myChoice"
+        ],
+        "title": "FriendZoneQuestionOut",
+        "type": "object"
+      },
+      "FriendZoneRematchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "requestId": {
+            "format": "uuid",
+            "title": "Requestid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId"
+        ],
+        "title": "FriendZoneRematchRequest",
+        "type": "object"
+      },
+      "FriendZoneReportOut": {
+        "properties": {
+          "reportId": {
+            "format": "uuid",
+            "title": "Reportid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reportId"
+        ],
+        "title": "FriendZoneReportOut",
+        "type": "object"
+      },
+      "FriendZoneReportRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "battleId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battleid"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "playerId": {
+            "format": "uuid",
+            "title": "Playerid",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "harassment",
+              "cheating",
+              "inappropriate_name",
+              "spam",
+              "other"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "playerId",
+          "reason"
+        ],
+        "title": "FriendZoneReportRequest",
+        "type": "object"
+      },
+      "FriendZoneRequestOut": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "title": "Expiresat",
+            "type": "string"
+          },
+          "player": {
+            "$ref": "#/components/schemas/FriendZonePlayerOut"
+          },
+          "requestId": {
+            "format": "uuid",
+            "title": "Requestid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "player",
+          "createdAt",
+          "expiresAt"
+        ],
+        "title": "FriendZoneRequestOut",
+        "type": "object"
+      },
+      "FriendZoneRequestsOut": {
+        "properties": {
+          "incoming": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneRequestOut"
+            },
+            "title": "Incoming",
+            "type": "array"
+          },
+          "outgoing": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneRequestOut"
+            },
+            "title": "Outgoing",
+            "type": "array"
+          }
+        },
+        "required": [
+          "incoming",
+          "outgoing"
+        ],
+        "title": "FriendZoneRequestsOut",
+        "type": "object"
+      },
+      "FriendZoneReviewOut": {
+        "description": "After the battle: each question with its answer and why.",
+        "properties": {
+          "correctKey": {
+            "title": "Correctkey",
+            "type": "string"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "myChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mychoice"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "round": {
+            "title": "Round",
+            "type": "integer"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "theirChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Theirchoice"
+          },
+          "voided": {
+            "title": "Voided",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "round",
+          "stem",
+          "options",
+          "correctKey",
+          "explanation",
+          "voided",
+          "myChoice",
+          "theirChoice"
+        ],
+        "title": "FriendZoneReviewOut",
+        "type": "object"
+      },
+      "FriendZoneRoundOut": {
+        "description": "A closed round, as both players may now see it.",
+        "properties": {
+          "correctKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correctkey"
+          },
+          "myChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mychoice"
+          },
+          "myPoints": {
+            "title": "Mypoints",
+            "type": "integer"
+          },
+          "round": {
+            "title": "Round",
+            "type": "integer"
+          },
+          "theirChoice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Theirchoice"
+          },
+          "theirPoints": {
+            "title": "Theirpoints",
+            "type": "integer"
+          },
+          "voided": {
+            "title": "Voided",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "round",
+          "voided",
+          "correctKey",
+          "myChoice",
+          "theirChoice",
+          "myPoints",
+          "theirPoints"
+        ],
+        "title": "FriendZoneRoundOut",
+        "type": "object"
+      },
+      "FriendZoneSearchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "invoiceNumber": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Invoicenumber",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invoiceNumber"
+        ],
+        "title": "FriendZoneSearchRequest",
+        "type": "object"
+      },
+      "FriendZoneStatsOut": {
+        "description": "Battle record and progression: shown to the member, and to friends only when they show their stats.",
+        "properties": {
+          "answered": {
+            "title": "Answered",
+            "type": "integer"
+          },
+          "badges": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneBadgeOut"
+            },
+            "title": "Badges",
+            "type": "array"
+          },
+          "battles": {
+            "title": "Battles",
+            "type": "integer"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "dailiesCompleted": {
+            "title": "Dailiescompleted",
+            "type": "integer"
+          },
+          "dailyStreak": {
+            "title": "Dailystreak",
+            "type": "integer"
+          },
+          "draws": {
+            "title": "Draws",
+            "type": "integer"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "levelFloor": {
+            "title": "Levelfloor",
+            "type": "integer"
+          },
+          "losses": {
+            "title": "Losses",
+            "type": "integer"
+          },
+          "nextLevelAt": {
+            "title": "Nextlevelat",
+            "type": "integer"
+          },
+          "wins": {
+            "title": "Wins",
+            "type": "integer"
+          },
+          "xp": {
+            "title": "Xp",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "battles",
+          "wins",
+          "losses",
+          "draws",
+          "correct",
+          "answered",
+          "xp",
+          "level",
+          "levelFloor",
+          "nextLevelAt",
+          "badges",
+          "dailiesCompleted",
+          "dailyStreak"
+        ],
+        "title": "FriendZoneStatsOut",
+        "type": "object"
+      },
+      "FriendZoneXpEventOut": {
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "amount",
+          "createdAt"
+        ],
+        "title": "FriendZoneXpEventOut",
+        "type": "object"
+      },
+      "FriendZoneXpOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneXpEventOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "levelFloor": {
+            "title": "Levelfloor",
+            "type": "integer"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "nextLevelAt": {
+            "title": "Nextlevelat",
+            "type": "integer"
+          },
+          "xp": {
+            "title": "Xp",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "xp",
+          "level",
+          "levelFloor",
+          "nextLevelAt",
+          "items",
+          "nextCursor"
+        ],
+        "title": "FriendZoneXpOut",
+        "type": "object"
+      },
       "GoalsOut": {
         "properties": {
           "dailyActiveMinutes": {
@@ -7825,6 +9539,25 @@
         "title": "UpdateEngineeringProfileRequest",
         "type": "object"
       },
+      "UpdateFriendZoneProfileRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "set": {
+            "$ref": "#/components/schemas/FriendZoneProfileChanges"
+          },
+          "version": {
+            "minimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "set"
+        ],
+        "title": "UpdateFriendZoneProfileRequest",
+        "type": "object"
+      },
       "UpdateLearnerProfileRequest": {
         "additionalProperties": false,
         "description": "`{version, set, reset}` (docs/api-contract.md, \"Versioned edits\").",
@@ -9217,6 +10950,1269 @@
         "summary": "Read a failed file again (when that can help)",
         "tags": [
           "files"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles": {
+      "get": {
+        "description": "My open battles (invitations either way, waiting, active), or my finished ones, newest first.",
+        "operationId": "list_battles_v1_friend_zone_battles_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "view",
+            "required": false,
+            "schema": {
+              "default": "open",
+              "pattern": "^(open|history)$",
+              "title": "View",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattlesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Battles",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      },
+      "post": {
+        "description": "Challenge a friend in a program you both have open, on a month (and a topic). The same `requestId` again\nanswers the same battle. The pool must hold enough competitive questions (409 `not_enough_questions`).",
+        "operationId": "create_battle_v1_friend_zone_battles_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneCreateBattleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Battle",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}": {
+      "get": {
+        "description": "The battle as it is now (poll it: `nextChangeAt` says when something can change).",
+        "operationId": "get_battle_v1_friend_zone_battles__battle_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Battle",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/accept": {
+      "post": {
+        "description": "Accept an invitation: it counts as your Ready. Accepting twice answers the same; 409 `busy_in_battle` while\neither of you is in another battle.",
+        "operationId": "accept_battle_v1_friend_zone_battles__battle_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Accept Battle",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/answers": {
+      "post": {
+        "description": "Lock in one letter for the open round: final at once, graded by the database, scored when the round closes.\nThe answer shows only your own choice until then.",
+        "operationId": "answer_v1_friend_zone_battles__battle_id__answers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Answer",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/cancel": {
+      "post": {
+        "operationId": "cancel_battle_v1_friend_zone_battles__battle_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Battle",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/decline": {
+      "post": {
+        "operationId": "decline_battle_v1_friend_zone_battles__battle_id__decline_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decline Battle",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/ready": {
+      "post": {
+        "description": "The challenger's Ready, once the friend has accepted: the questions are picked now and the countdown starts.\nToo few competitive questions by now ends it as `cancelled` (`not_enough_questions`).",
+        "operationId": "ready_v1_friend_zone_battles__battle_id__ready_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/rematch": {
+      "post": {
+        "description": "Phase 2 Rematch: the same friend and settings again, as a new invitation the friend must accept, with fresh\nquestions where the pool allows. Only after a battle decided by play (not a void one). Either player may ask.",
+        "operationId": "rematch_v1_friend_zone_battles__battle_id__rematch_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneRematchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rematch",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/blocks": {
+      "get": {
+        "operationId": "list_blocks_v1_friend_zone_blocks_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZonePlayersOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Blocks",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      },
+      "post": {
+        "description": "Block a member: the friendship and pending requests end, and neither of you can see or find the other.\nThey are not told. Blocking twice answers the same.",
+        "operationId": "block_player_v1_friend_zone_blocks_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZonePlayerRef"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Block Player",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/blocks/{player_id}": {
+      "delete": {
+        "description": "Unblock. A friendship ended by the block does not come back.",
+        "operationId": "unblock_player_v1_friend_zone_blocks__player_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Player Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Unblock Player",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/daily": {
+      "get": {
+        "description": "Today's challenge in this program (made by the first read of the day), or yesterday's while my attempt at it\nis in its grace. `available: false` when the program has fewer than ten checked questions today (G5).",
+        "operationId": "get_daily_v1_friend_zone_daily_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "program",
+            "required": true,
+            "schema": {
+              "maxLength": 60,
+              "minLength": 1,
+              "title": "Program",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneDailyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Daily",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/daily/{challenge_id}/answers": {
+      "post": {
+        "description": "Lock in one letter for the open question: final at once, graded by the database. Answering the tenth\nfinishes the attempt.",
+        "operationId": "answer_question_v1_friend_zone_daily__challenge_id__answers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "challenge_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Challenge Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneDailyAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneDailyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Answer Question",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/daily/{challenge_id}/next": {
+      "post": {
+        "description": "Start (only on the challenge's own India day: 409 `challenge_closed` after it) or resume my attempt, then\nserve the next question unless the current one is still open and unanswered. Repeating it is safe.",
+        "operationId": "next_question_v1_friend_zone_daily__challenge_id__next_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "challenge_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Challenge Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneDailyOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Next Question",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/friends": {
+      "get": {
+        "operationId": "list_friends_v1_friend_zone_friends_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZonePlayersOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Friends",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/friends/{player_id}": {
+      "delete": {
+        "description": "Remove a friend, silently: to them it looks exactly like a block.",
+        "operationId": "remove_friend_v1_friend_zone_friends__player_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Player Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Remove Friend",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/me": {
+      "get": {
+        "description": "Whether Friend Zone is open to this account, and its profile once it has joined.",
+        "operationId": "get_me_v1_friend_zone_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneMeOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Me",
+        "tags": [
+          "friend-zone"
+        ]
+      },
+      "patch": {
+        "description": "A versioned edit: of two edits made from the same version, the second is a 409 version_conflict.",
+        "operationId": "update_profile_v1_friend_zone_me_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFriendZoneProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Profile",
+        "tags": [
+          "friend-zone"
+        ]
+      },
+      "post": {
+        "description": "Join Friend Zone. Findable by invoice and showing program or stats are off unless chosen here.",
+        "operationId": "join_v1_friend_zone_me_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneJoinRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Join",
+        "tags": [
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/me/xp": {
+      "get": {
+        "description": "My XP, level and XP history, newest first (Phase 2). Only ever my own.",
+        "operationId": "my_xp_v1_friend_zone_me_xp_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneXpOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "My Xp",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/players/{player_id}": {
+      "get": {
+        "description": "A member as the privacy matrix lets the caller see them: themself, a friend, or a pending-request party.",
+        "operationId": "get_player_v1_friend_zone_players__player_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Player Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZonePlayerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Player",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/players/{player_id}/avatar": {
+      "get": {
+        "description": "A friend's photo (or your own). Never cached: whether the caller may see it is decided on every request.",
+        "operationId": "get_player_avatar_v1_friend_zone_players__player_id__avatar_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "player_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Player Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The hash in the player's `avatarUrl`.",
+            "in": "query",
+            "name": "v",
+            "required": true,
+            "schema": {
+              "description": "The hash in the player's `avatarUrl`.",
+              "pattern": "^[0-9a-f]{32}$",
+              "title": "V",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/webp": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Player Avatar",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/reports": {
+      "post": {
+        "description": "Report a member to NetworkersHome (the owner reviews reports; plan section 7). The member is not told.",
+        "operationId": "report_player_v1_friend_zone_reports_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Report Player",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/requests": {
+      "get": {
+        "operationId": "list_requests_v1_friend_zone_requests_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneRequestsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Requests",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      },
+      "post": {
+        "description": "Ask a findable classmate (or answer their request: theirs to you makes you friends at once). The answer is\nthe player with their new relation, `outgoing` or `friend`.",
+        "operationId": "send_request_v1_friend_zone_requests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZonePlayerRef"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZonePlayerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Send Request",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/requests/{request_id}/accept": {
+      "post": {
+        "description": "Accept a request sent to you (an expired one is gone). Accepting twice answers the same.",
+        "operationId": "accept_request_v1_friend_zone_requests__request_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZonePlayerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Accept Request",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/requests/{request_id}/cancel": {
+      "post": {
+        "operationId": "cancel_request_v1_friend_zone_requests__request_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Request",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/requests/{request_id}/decline": {
+      "post": {
+        "description": "Decline a request sent to you. The sender is not told; to them it stays unanswered until it expires.",
+        "operationId": "decline_request_v1_friend_zone_requests__request_id__decline_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Decline Request",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/search": {
+      "post": {
+        "description": "Find a classmate by the exact invoice number. A hit gives their name and initials; every miss (unknown,\nnot joined, not findable, blocked, another cohort) is the same 404 `no_match`.",
+        "operationId": "search_v1_friend_zone_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZonePlayerOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
         ]
       }
     },

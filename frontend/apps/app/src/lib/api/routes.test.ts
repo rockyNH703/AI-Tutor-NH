@@ -140,6 +140,21 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     { message: "Start", program: "networking-ai", month: 2, tutorMode: "interview" },
   ],
   ClaimRequest: [{ invoiceNumber: "NH-2026-0012" }],
+  FriendZoneJoinRequest: [{ displayName: "Asha K", discoverable: false, showProgram: false, showStats: false }],
+  UpdateFriendZoneProfileRequest: [
+    { version: 0, set: { displayName: "Asha K" } },
+    { version: 3, set: { discoverable: true, showProgram: true, showStats: false } },
+  ],
+  FriendZoneSearchRequest: [{ invoiceNumber: "NH-2026-0012" }],
+  FriendZonePlayerRef: [{ playerId: ID }],
+  FriendZoneCreateBattleRequest: [
+    { opponentId: ID, program: "ccna", month: 1, difficulty: "mixed", length: 5, requestId: ID },
+    { opponentId: ID, program: "ccna", month: 2, topicId: "ospf", difficulty: "hard", length: 10, requestId: ID },
+  ],
+  FriendZoneAnswerRequest: [{ round: 1, choice: "B" }],
+  FriendZoneRematchRequest: [{ requestId: ID }],
+  FriendZoneDailyAnswerRequest: [{ position: 3, choice: "D" }],
+  FriendZoneReportRequest: [{ playerId: ID, reason: "harassment" }, { playerId: ID, reason: "other", details: "Rude name." }],
   SpeechRequest: [{ messageId: ID, text: "Osmosis is water moving." }],
   FeedbackRequest: [{ rating: "up" }],
   AssessmentResponseRequest: [
@@ -182,6 +197,12 @@ describe("request bodies the client sends", () => {
     ].filter((values): values is Record<string, unknown> => typeof values === "object" && values !== null);
     expect(nested.length).toBeGreaterThan(2);
     for (const values of nested) for (const field of Object.keys(values)) expect(declared).toContain(field);
+  });
+
+  test("Friend Zone profile edits use only the declared profile fields", () => {
+    const declared = Object.keys(openapi.components.schemas.FriendZoneProfileChanges?.properties ?? {});
+    for (const body of SENT_BODIES.UpdateFriendZoneProfileRequest ?? [])
+      for (const field of Object.keys(body.set as Record<string, unknown>)) expect(declared).toContain(field);
   });
 
   test("every body schema in the route table is covered above", () => {

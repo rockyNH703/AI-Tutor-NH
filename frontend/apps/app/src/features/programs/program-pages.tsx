@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 
 import { useStores } from "@/features/chat/chat-context";
+import { QuizzesSwitch } from "@/features/friendzone/quizzes-switch";
 import { withRequest } from "@/features/my-learning/ask-in-chat";
 import { NhprepSlot } from "@/features/nhprep/nhprep-slot";
 import { ApiError, describeError } from "@/lib/api/errors";
@@ -282,7 +283,7 @@ function useMonth(slug: string, month: number) {
 export function ProgramQuizzes({ slug }: { slug: string }) {
   return (
     <ProgramScreen slug={slug} title="Quizzes & Games" intro="Quiz yourself on a month's topics in that month's chat.">
-      {(program) => <QuizzesFor slug={slug} program={program} />}
+      {(program) => <QuizzesSwitch program={program} practice={<QuizzesFor slug={slug} program={program} />} />}
     </ProgramScreen>
   );
 }

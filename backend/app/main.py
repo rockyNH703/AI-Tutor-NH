@@ -35,6 +35,7 @@ from app.errors import install_error_handlers
 from app.files.processing import FileWorker
 from app.files.router import router as files_router
 from app.files.service import MAX_UPLOAD_BYTES
+from app.friendzone.router import router as friend_zone_router
 from app.greetings.refresh import GreetingRefresh
 from app.greetings.router import router as greetings_router
 from app.health import router as health_router
@@ -308,6 +309,8 @@ def create_app(
     # Practice-test actions per user (answers, mock-exam saves): checked before the reply's row lock.
     app.state.assessment_limiter = SlidingWindowLimiter(limit=120, window_s=60)
     # NHprep (app/nhprep/router.py): every route per user; a playback asks for a signed video link, so it has its own.
+    # NH Friend Zone battle polling (app/friendzone/battle_routes.py): about one a second per player, with slack.
+    app.state.friend_zone_poll_limiter = SlidingWindowLimiter(limit=180, window_s=60)
     app.state.nhprep_limiter = SlidingWindowLimiter(limit=settings.nhprep_requests_per_minute, window_s=60)
     app.state.nhprep_playback_limiter = SlidingWindowLimiter(limit=settings.nhprep_playbacks_per_minute, window_s=60)
     # NHprep's video links (app/nhprep/playback.py): None while NHPREP_PLAYBACK=off; tests pass a fake signer.
@@ -361,4 +364,5 @@ def create_app(
     app.include_router(study_router)
     app.include_router(nhprep_router)  # always mounted (the contract); every route checks NHPREP_MODE itself
     app.include_router(programs_router)  # always mounted (the contract); every route checks PROGRAMS_MODE itself
+    app.include_router(friend_zone_router)  # always mounted; every route checks FRIEND_ZONE_MODE and eligibility
     return app

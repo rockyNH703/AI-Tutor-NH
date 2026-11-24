@@ -227,6 +227,10 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
             ),
             {"u": uuid.UUID(user_id)},
         )
+        await db.execute(  # a Friend Zone profile (app/friendzone): its friends, requests and battles hang off it
+            text("INSERT INTO fz_profiles (user_id, cohort, display_name) VALUES (:u, 'live', 'Deletion test')"),
+            {"u": uuid.UUID(user_id)},
+        )
         await queue_email(  # an email waiting in the outbox for this student
             db,
             kind=WEEKLY_SUMMARY,

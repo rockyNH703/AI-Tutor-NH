@@ -81,6 +81,23 @@ function envelope(
   return new Response(JSON.stringify({ error }), { status, headers });
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** The `current` of two Friend Zone conflicts, rebuilt from exactly the fields they may carry, or nothing:
+ *  `battle_exists` names the caller's own open battle (a UUID); `not_enough_questions` gives two small counts. */
+export function friendZoneCurrent(code: string, value: unknown): object | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const fields = value as Record<string, unknown>;
+  if (code === "battle_exists" && typeof fields.battleId === "string" && UUID.test(fields.battleId)) {
+    return { battleId: fields.battleId };
+  }
+  const count = (n: unknown) => typeof n === "number" && Number.isInteger(n) && n >= 0 && n <= 1000;
+  if (code === "not_enough_questions" && count(fields.available) && count(fields.needed)) {
+    return { available: fields.available, needed: fields.needed };
+  }
+  return undefined;
+}
+
 /** Status → contract code, for upstream errors that arrive without a usable body. */
 function codeForStatus(status: number): string {
   switch (status) {
@@ -527,10 +544,13 @@ async function forward(request: Request, segments: string[], deps: ProxyDeps, au
         });
       }
       // A version conflict carries the caller's own resource as it is now, so the page can
-      // re-apply its edit without another round trip. Nothing else passes.
+      // re-apply its edit without another round trip. Two Friend Zone conflicts carry a fixed,
+      // validated shape (the caller's own open battle; a question count). Nothing else passes.
       const latest = parsed.error?.current;
       if (code === "version_conflict" && latest && typeof latest === "object" && !Array.isArray(latest)) {
         current = latest;
+      } else {
+        current = friendZoneCurrent(code, latest);
       }
     } catch {
       // non-JSON error body: the status says enough

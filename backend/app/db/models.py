@@ -160,6 +160,18 @@ IN_APP_KINDS = (
     "security_google_linked",
     "security_two_factor_on",
     "security_two_factor_off",
+    # 0030: NH Friend Zone (app/friendzone)
+    "friend_request",
+    "friend_accepted",
+    "battle_invite",
+    "battle_accepted",
+    "battle_finished",
+    # 0031: Friend Zone Phase 2
+    "daily_available",
+    "daily_completed",
+    "xp_milestone",
+    "level_up",
+    "badge_unlocked",
 )
 THEMES = ("system", "light", "dark")
 FONT_SIZES = ("small", "medium", "large", "x_large")
@@ -1923,7 +1935,9 @@ QB_FORMATS = ("mcq", "assertion_reason", "case_based", "source_based", "multi_se
 QB_COMPETENCIES = ("knowledge_understanding", "application", "analysis_evaluation")
 QB_SOURCE_KINDS = ("original", "ncert_exercise", "cbse_official", "nhprep_quiz", "nhprep_lesson")  # 0026
 QB_REVIEW_STATUSES = ("draft", "needs_review", "approved", "rejected")
-QB_SET_MODES = ("adaptive", "test", "chat")  # 0017: "chat", a question-bank test in the chat
+# 0017: "chat", a question-bank test in the chat. 0030: "battle", a Friend Zone battle's answers (a real student's
+# practice), and "fz_qa", a QA account's battle answers, kept out of every practice record (app/friendzone).
+QB_SET_MODES = ("adaptive", "test", "chat", "battle", "fz_qa", "daily")
 QB_SERVABLE = "review_status IN ('approved', 'needs_review') AND is_active"  # 0016: practice serves unreviewed ones
 
 
@@ -2607,3 +2621,369 @@ class InvoiceClaim(Base):
         UUID(as_uuid=True), ForeignKey("nh_invoices.id", ondelete="CASCADE"), nullable=False, unique=True
     )
     claimed_at: Mapped[datetime] = _created()
+
+
+# ------------------------------------------------------------------ NH Friend Zone (app/friendzone, 0030)
+# A member's public id is fz_profiles.id; users.id never leaves the API. `cohort` ('live' or 'qa', fixed at join by a
+# trigger) travels in every relationship row through composite foreign keys to (user_id, cohort): a QA account and a
+# real student can never be linked. Relationship rows hang off the profile, so deleting an account cascades through it.
+FZ_COHORTS = ("live", "qa")
+FZ_REQUEST_STATUSES = ("pending", "accepted", "declined", "cancelled", "expired")
+FZ_BATTLE_STATUSES = ("invited", "waiting", "active", "completed", "declined", "expired", "cancelled")
+FZ_BATTLE_OPEN = ("invited", "waiting", "active")
+FZ_BATTLE_RESULTS = ("points", "forfeit", "draw", "void")
+FZ_DIFFICULTIES = ("mixed", "easy", "medium", "hard")
+FZ_REPORT_REASONS = ("harassment", "cheating", "inappropriate_name", "spam", "other")
+FZ_REPORT_STATUSES = ("open", "reviewed", "actioned", "dismissed")
+FZ_MODERATION_ACTIONS = ("review", "resolve", "dismiss", "suspend", "unsuspend", "cancel_battle", "qa_cleanup")
+
+
+def _fz_member(column: str, name: str, ondelete: str | None = "CASCADE") -> ForeignKeyConstraint:
+    """A member column with the row's cohort, pointing at the profile's (user_id, cohort)."""
+    return ForeignKeyConstraint(
+        [column, "cohort"], ["fz_profiles.user_id", "fz_profiles.cohort"], ondelete=ondelete, name=name
+    )
+
+
+class FzProfile(Base):
+    __tablename__ = "fz_profiles"
+    __table_args__ = (
+        UniqueConstraint("user_id", "cohort"),
+        CheckConstraint(f"cohort IN {FZ_COHORTS}", name="cohort"),
+        CheckConstraint("char_length(display_name) BETWEEN 2 AND 30", name="display_name"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    display_name: Mapped[str] = mapped_column(String(30), nullable=False)
+    discoverable: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    show_program: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    show_stats: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    suspended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+
+
+class FzFriendRequest(Base):
+    __tablename__ = "fz_friend_requests"
+    __table_args__ = (
+        _fz_member("sender_id", "fk_fz_friend_requests_sender_id_fz_profiles"),
+        _fz_member("recipient_id", "fk_fz_friend_requests_recipient_id_fz_profiles"),
+        CheckConstraint("sender_id <> recipient_id", name="not_self"),
+        CheckConstraint(f"status IN {FZ_REQUEST_STATUSES}", name="status"),
+        Index(
+            "uq_fz_friend_requests_pending_pair",
+            text("least(sender_id, recipient_id)"),
+            text("greatest(sender_id, recipient_id)"),
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+        Index("ix_fz_friend_requests_recipient_id", "recipient_id", postgresql_where=text("status = 'pending'")),
+        Index("ix_fz_friend_requests_sender_id", "sender_id", postgresql_where=text("status = 'pending'")),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    sender_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    recipient_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    status: Mapped[str] = mapped_column(String(10), nullable=False, server_default=text("'pending'"))
+    created_at: Mapped[datetime] = _created()
+    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class FzFriendship(Base):
+    """One row per pair, in id order (user_low < user_high)."""
+
+    __tablename__ = "fz_friendships"
+    __table_args__ = (
+        _fz_member("user_low", "fk_fz_friendships_user_low_fz_profiles"),
+        _fz_member("user_high", "fk_fz_friendships_user_high_fz_profiles"),
+        CheckConstraint("user_low < user_high", name="ordered"),
+        Index("ix_fz_friendships_user_high", "user_high"),
+    )
+
+    user_low: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    user_high: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class FzBlock(Base):
+    __tablename__ = "fz_blocks"
+    __table_args__ = (
+        _fz_member("blocker_id", "fk_fz_blocks_blocker_id_fz_profiles"),
+        _fz_member("blocked_id", "fk_fz_blocks_blocked_id_fz_profiles"),
+        CheckConstraint("blocker_id <> blocked_id", name="not_self"),
+        Index("ix_fz_blocks_blocked_id", "blocked_id"),
+    )
+
+    blocker_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    blocked_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class FzBattle(Base):
+    """A 1v1 battle in one program month. No user column: participants are FzBattlePlayer rows. `pair_key` (the two
+    member ids in order) exists only while the battle is open, which keeps one open battle per pair."""
+
+    __tablename__ = "fz_battles"
+    __table_args__ = (
+        UniqueConstraint("id", "cohort"),
+        ForeignKeyConstraint(
+            ["module_id", "program_id"],
+            ["program_modules.id", "program_modules.program_id"],
+            ondelete="RESTRICT",
+            name="fk_fz_battles_module_id_program_modules",
+        ),
+        CheckConstraint(f"cohort IN {FZ_COHORTS}", name="cohort"),
+        CheckConstraint(f"difficulty IN {FZ_DIFFICULTIES}", name="difficulty"),
+        CheckConstraint("length IN (5, 10)", name="length"),
+        CheckConstraint(f"status IN {FZ_BATTLE_STATUSES}", name="status"),
+        CheckConstraint(f"result IS NULL OR result IN {FZ_BATTLE_RESULTS}", name="result"),
+        CheckConstraint(f"(pair_key IS NOT NULL) = (status IN {FZ_BATTLE_OPEN})", name="pair_key_open"),
+        CheckConstraint("question_ids IS NULL OR cardinality(question_ids) = length", name="question_ids"),
+        CheckConstraint("status NOT IN ('active', 'completed') OR question_ids IS NOT NULL", name="questions_set"),
+        CheckConstraint("round BETWEEN 0 AND length", name="round"),
+        Index("uq_fz_battles_open_pair", "pair_key", unique=True, postgresql_where=text(f"status IN {FZ_BATTLE_OPEN}")),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    program_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("programs.id", ondelete="RESTRICT"), nullable=False
+    )
+    module_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    topic_id: Mapped[str | None] = mapped_column(Text, ForeignKey("qb_topics.topic_id"))
+    difficulty: Mapped[str] = mapped_column(String(6), nullable=False)
+    length: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    question_ids: Mapped[list[str] | None] = mapped_column(ARRAY(Text))
+    seed: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False, server_default=text("gen_random_uuid()")
+    )
+    pair_key: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(10), nullable=False, server_default=text("'invited'"))
+    end_reason: Mapped[str | None] = mapped_column(String(24))
+    result: Mapped[str | None] = mapped_column(String(8))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    round: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    version: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = _created()
+    # 0031: the battle this one repeats (Rematch, Phase 2)
+    rematch_of: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("fz_battles.id", ondelete="SET NULL", name="fk_fz_battles_rematch_of_fz_battles")
+    )
+
+
+class FzBattlePlayer(Base):
+    """A battle's participant. (user_id, cohort) become NULL when the member goes: the history stays, anonymous."""
+
+    __tablename__ = "fz_battle_players"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["battle_id"], ["fz_battles.id"], ondelete="CASCADE", name="fk_fz_battle_players_battle_id_fz_battles"
+        ),
+        ForeignKeyConstraint(
+            ["battle_id", "cohort"], ["fz_battles.id", "fz_battles.cohort"], name="fk_fz_battle_players_battle_cohort"
+        ),
+        _fz_member("user_id", "fk_fz_battle_players_user_id_fz_profiles", ondelete="SET NULL"),
+        UniqueConstraint("battle_id", "user_id"),
+        CheckConstraint("role IN ('challenger', 'opponent')", name="role"),
+        CheckConstraint("(user_id IS NULL) = (cohort IS NULL)", name="member"),
+        Index(
+            "uq_fz_battle_players_request",
+            "user_id",
+            "request_id",
+            unique=True,
+            postgresql_where=text("request_id IS NOT NULL"),
+        ),
+        Index("ix_fz_battle_players_user_id", "user_id", "battle_id"),
+    )
+
+    battle_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    role: Mapped[str] = mapped_column(String(10), primary_key=True)
+    cohort: Mapped[str | None] = mapped_column(String(4))
+    user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    request_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))  # the challenger's idempotency key
+    set_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("qb_sets.id", ondelete="SET NULL"))
+    ready_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    missed_in_row: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    score: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    correct: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    answered: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    answer_ms: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    winner: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+
+
+class FzBattleRound(Base):
+    """A round's question and its window (seconds scale with the question's length; the DB clock decides)."""
+
+    __tablename__ = "fz_battle_rounds"
+    __table_args__ = (
+        CheckConstraint("seconds BETWEEN 5 AND 90", name="seconds"),
+        CheckConstraint("closes_at > opened_at", name="window"),
+    )
+
+    battle_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("fz_battles.id", ondelete="CASCADE"), primary_key=True
+    )
+    round: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    question_id: Mapped[str] = mapped_column(Text, ForeignKey("qb_questions.question_id"), nullable=False)
+    seconds: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    opened_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    closes_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    voided: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+
+
+class FzReport(Base):
+    __tablename__ = "fz_reports"
+    __table_args__ = (
+        _fz_member("reporter_id", "fk_fz_reports_reporter_id_fz_profiles"),
+        _fz_member("reported_id", "fk_fz_reports_reported_id_fz_profiles"),
+        CheckConstraint("reporter_id <> reported_id", name="not_self"),
+        CheckConstraint(f"reason IN {FZ_REPORT_REASONS}", name="reason"),
+        CheckConstraint(f"status IN {FZ_REPORT_STATUSES}", name="status"),
+        Index("ix_fz_reports_status_created_at", "status", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    reporter_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    reported_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    battle_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("fz_battles.id"))
+    reason: Mapped[str] = mapped_column(String(20), nullable=False)
+    details: Mapped[str | None] = mapped_column(String(1000))
+    status: Mapped[str] = mapped_column(String(10), nullable=False, server_default=text("'open'"))
+    created_at: Mapped[datetime] = _created()
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class FzModerationAction(Base):
+    """The audit of every moderation script action (plan section 7)."""
+
+    __tablename__ = "fz_moderation_actions"
+    __table_args__ = (CheckConstraint(f"action IN {FZ_MODERATION_ACTIONS}", name="action"),)
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    report_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("fz_reports.id", ondelete="SET NULL")
+    )
+    target_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("fz_profiles.user_id", ondelete="SET NULL")
+    )
+    action: Mapped[str] = mapped_column(String(20), nullable=False)
+    note: Mapped[str | None] = mapped_column(String(500))
+    actor: Mapped[str] = mapped_column(String(40), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+# ------------------------------------------------------------------ NH Friend Zone, Phase 2 (0031)
+FZ_BADGES = ("first_battle", "quiz_champion", "daily_challenger", "consistency_master", "perfect_score")
+
+
+class FzDailyChallenge(Base):
+    """One program's daily challenge for one India day: ten competitive questions, each with its own window."""
+
+    __tablename__ = "fz_daily_challenges"
+    __table_args__ = (
+        UniqueConstraint("program_id", "challenge_date"),
+        CheckConstraint("cardinality(question_ids) = 10 AND cardinality(seconds) = 10", name="questions"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    program_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("programs.id", ondelete="RESTRICT"), nullable=False
+    )
+    challenge_date: Mapped[date] = mapped_column(Date, nullable=False)
+    question_ids: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
+    seconds: Mapped[list[int]] = mapped_column(ARRAY(SmallInteger), nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class FzDailyAttempt(Base):
+    """A member's one attempt at a daily challenge (G7), in their cohort."""
+
+    __tablename__ = "fz_daily_attempts"
+    __table_args__ = (
+        _fz_member("user_id", "fk_fz_daily_attempts_user_id_fz_profiles"),
+        CheckConstraint(
+            "served BETWEEN 0 AND 10 AND answered BETWEEN 0 AND served AND correct BETWEEN 0 AND answered",
+            name="counts",
+        ),
+        Index("ix_fz_daily_attempts_user_id", "user_id", "finished_at"),
+    )
+
+    challenge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("fz_daily_challenges.id", ondelete="CASCADE"), primary_key=True
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    set_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("qb_sets.id", ondelete="SET NULL"))
+    started_at: Mapped[datetime] = _created()
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    served: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    answered: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    correct: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
+    score: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    # positions withdrawn or voided when they were served or answered (plan section 5): they score nothing
+    voided: Mapped[list[int]] = mapped_column(ARRAY(SmallInteger), nullable=False, server_default=text("'{}'"))
+
+
+class FzXpEvent(Base):
+    """One XP award, once (UNIQUE user, reason, ref). Live members only: the database refuses a QA row."""
+
+    __tablename__ = "fz_xp_events"
+    __table_args__ = (
+        UniqueConstraint("user_id", "reason", "ref_id"),
+        _fz_member("user_id", "fk_fz_xp_events_user_id_fz_profiles"),
+        CheckConstraint("cohort = 'live'", name="live"),
+        CheckConstraint("amount BETWEEN 1 AND 500", name="amount"),
+        Index("ix_fz_xp_events_user_id_created_at", "user_id", "created_at"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    reason: Mapped[str] = mapped_column(String(24), nullable=False)
+    ref_id: Mapped[str] = mapped_column(String(80), nullable=False)
+    amount: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    created_at: Mapped[datetime] = _created()
+
+
+class FzBadgeUnlock(Base):
+    __tablename__ = "fz_badge_unlocks"
+    __table_args__ = (
+        _fz_member("user_id", "fk_fz_badge_unlocks_user_id_fz_profiles"),
+        CheckConstraint("cohort = 'live'", name="live"),
+        CheckConstraint(f"badge IN {FZ_BADGES}", name="badge"),
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    badge: Mapped[str] = mapped_column(String(32), primary_key=True)
+    cohort: Mapped[str] = mapped_column(String(4), nullable=False)
+    unlocked_at: Mapped[datetime] = _created()
+
+
+class QbKeyCheck(Base):
+    """An AI blind check of a question's key, bound to the exact content it checked (owner U1, option ii)."""
+
+    __tablename__ = "qb_key_checks"
+    __table_args__ = (CheckConstraint("content_hash ~ '^[0-9a-f]{64}$'", name="hash"),)
+
+    question_id: Mapped[str] = mapped_column(
+        Text, ForeignKey("qb_questions.question_id", ondelete="CASCADE"), primary_key=True
+    )
+    content_hash: Mapped[str] = mapped_column(Text, primary_key=True)
+    method: Mapped[str] = mapped_column(String(32), nullable=False)
+    single_defensible: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    checked_by: Mapped[str] = mapped_column(String(80), nullable=False)
+    checked_at: Mapped[datetime] = _created()

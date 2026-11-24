@@ -175,6 +175,16 @@ def test_the_question_bank_never_calls_a_model():
         assert not bad, (path.name, bad)
 
 
+def test_friend_zone_never_calls_a_model():
+    """NH Friend Zone is SQL and fixed rules only: no model, retrieval, chat or HTTP client (plan, revision 3)."""
+    files = list(BACKEND.joinpath("app", "friendzone").glob("*.py"))
+    assert len(files) >= 5
+    forbidden = ("app.llm", "app.rag", "app.chat", "langchain", "langgraph", "openai", "httpx")
+    for path in files:
+        bad = {m for m in _imports(path) if m.startswith(forbidden)}
+        assert not bad, (path.name, bad)
+
+
 def test_nhprep_stays_out_of_the_shared_knowledge_store_the_model_and_the_chat():
     """NHprep text is for entitled students only (owner decision Q2): app/nhprep never reaches the shared knowledge
     store, a model, the chat or an HTTP client (embeddings arrive injected); its scripts never write the shared store;

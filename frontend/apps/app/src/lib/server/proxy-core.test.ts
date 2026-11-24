@@ -7,6 +7,7 @@ import {
   FILE_WAITERS_MAX,
   MAX_BODY_BYTES,
   VOICE_IN_FLIGHT_MAX,
+  friendZoneCurrent,
   proxyRequest,
   readBody,
 } from "./proxy-core";
@@ -714,6 +715,19 @@ describe("error details", () => {
     const other = upstream(() => json(409, { error: { code: "conflict", current } }));
     const plain = (await (await run(request(), "/v1/me/profile", other.fetchImpl)).json()) as { error: object };
     expect(plain.error).toEqual({ code: "conflict", requestId: "req1" });
+  });
+
+  test("two Friend Zone conflicts pass only their exact, validated fields", () => {
+    const battleId = "0b7f2a8e-3c1d-4f5a-9b6e-2d8c7a1e4f90";
+    expect(friendZoneCurrent("battle_exists", { battleId, email: "x@example.com" })).toEqual({ battleId });
+    expect(friendZoneCurrent("battle_exists", { battleId: "not-a-uuid" })).toBeUndefined();
+    expect(friendZoneCurrent("not_enough_questions", { available: 3, needed: 5, topic: "secret" })).toEqual({
+      available: 3,
+      needed: 5,
+    });
+    expect(friendZoneCurrent("not_enough_questions", { available: -1, needed: 5 })).toBeUndefined();
+    expect(friendZoneCurrent("conflict", { battleId })).toBeUndefined();
+    expect(friendZoneCurrent("battle_exists", [battleId])).toBeUndefined();
   });
 });
 
