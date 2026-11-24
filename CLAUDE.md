@@ -48,6 +48,11 @@ Honest state (2026-10-29):
   against `nh_invoices` on every request, opens its program: month tutor chats isolated to the month's mapped
   material, Q&A, quizzes, mock interviews, videos. Runbook: docs/deployment.md "NH programs" (`program_admin.py`);
   API: docs/api-contract.md "NH programs".
+- **NH Friend Zone** (2026-11-24, Phases 1 and 2 in one release, not released; `FRIEND_ZONE_MODE` off): friends found
+  by invoice number (opt-in), 1v1 quiz battles, daily challenges, XP, levels and badges for enrolled students, under
+  Programs → Quizzes & Games (`app/friendzone`, migrations `0030` and `0031`, `features/friendzone/`). A QA cohort is
+  isolated by the database; only questions verified for their exact text are used (`FRIEND_ZONE_KEY_POLICY`). Runbook
+  and operator scripts: docs/deployment.md "NH Friend Zone"; API: docs/api-contract.md "NH Friend Zone".
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.
 

@@ -19,6 +19,7 @@ the assertion, unless the property itself changed on purpose (and then update [T
 - [The assistant's behaviour](#the-assistants-behaviour)
 - [The BFF and the browser](#the-bff-and-the-browser)
 - [NHprep video courses](#nhprep-video-courses)
+- [NH Friend Zone](#nh-friend-zone)
 - [Deploy scripts and tooling](#deploy-scripts-and-tooling)
 - [Known gaps](#known-gaps)
 
@@ -210,6 +211,28 @@ WSL on a `netsec_nhprep_*_test` database; the e2e files need the NHprep stack.
 | `src/features/nhprep/nhprep-panel.test.tsx` "the player's link check" | The client accepts only `https://videos.nhprep.com/{uuid}.mp4` | — |
 | `scripts/nhprep-export/nhprep-export.test.ts` | The exporter's pacing gate, a password in a URL is detected, URLs and JSON are recorded as names and shapes only, the output folder must be outside every git tree, credentials parse without echoing | 14 pass (2026-11-20) |
 | `e2e/security.e2e.ts` (`media-src`), `e2e/nhprep/video.nhprep.ts` | In a browser: media only from `videos.nhprep.com`, no new frame host; nothing loads before Play; the link never reaches the URL or storage | Headed, 14/14 for `e2e/nhprep` (commit `c7bc819`); live playback NOT TESTED |
+
+## NH Friend Zone
+
+Backend: `backend/tests/test_friend_zone_*.py`. Frontend: `features/friendzone/*.test.ts(x)` and
+`lib/server/proxy-core.test.ts`. Invariants I14 to I25 are in [THREAT_MODEL.md](THREAT_MODEL.md).
+
+| Test | What it proves | Evidence |
+|---|---|---|
+| `test_friend_zone_profiles.py::test_join_is_private_by_default_once_only_and_ends_with_the_invoice` | Every switch starts off; no account id, email or invoice in the profile; access ends with the invoice | — |
+| `test_friend_zone_profiles.py::test_a_qa_account_joins_the_qa_cohort_for_good`, `::test_a_cross_cohort_friendship_cannot_exist` | The cohort cannot change, and the database refuses a cross-cohort row | — |
+| `test_friend_zone_relations.py::test_search_finds_only_a_findable_member_and_every_miss_is_identical` | Every miss is the same 404; a blocked member is a miss; no invoice number or name in the logs (I17) | — |
+| `test_friend_zone_relations.py::test_search_takes_the_floor_and_is_throttled` | The 0.4 s floor; the durable hourly limit, with `Retry-After` | — |
+| `test_friend_zone_relations.py::test_unfriend_and_block_end_access_at_once_and_look_the_same` | A photo stops at the next request (I23); a block looks like an unfriend (I21) | — |
+| `test_friend_zone_relations.py::test_a_qa_member_and_a_live_member_never_meet` | Search, profile, request, block and report are 404 across cohorts (I19) | — |
+| `test_friend_zone_relations.py::test_races_end_in_one_consistent_state` | Crossing requests make one friendship; a block beats an accept (I20) | — |
+| `test_friend_zone_battles.py::test_a_battle_runs_round_by_round_and_the_server_decides_it` | No key, explanation or opponent pick before a round closes; answers are final; the server scores (I15, I16) | — |
+| `test_friend_zone_battles.py::test_only_human_approved_*`, `::test_a_question_withdrawn_mid_round_*` | Only competitive questions; a changed question voids its round (I18) | — |
+| `test_friend_zone_battles.py::test_a_block_voids_an_active_battle_*` | A block voids the battle and reads as `ended` | — |
+| `test_friend_zone_progress.py` | XP and badges are awarded once, never for void, capped or QA play (I25); AI checks count only for the exact text and only under the policy (I18) | — |
+| `test_friend_zone_daily.py` | One attempt; server timing; secrecy until finished; QA never rewarded | — |
+| `test_friend_zone_admin.py` | Moderation is audited; suspension hides at once and ends battles; QA cleanup is complete; retention | — |
+| `proxy-core.test.ts` "two Friend Zone conflicts pass only their exact, validated fields" | The BFF forwards only `{battleId}` and `{available, needed}` | — |
 
 ## Deploy scripts and tooling
 

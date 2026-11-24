@@ -116,6 +116,18 @@ Adding an endpoint means adding it to `ROUTES`. `routes.test.ts` fails unless th
 - **One source:** `features/programs/program-nav.ts` holds the areas, routes, expansion rule and every place's wording.
 - **Composer on phones:** below 640px the message box has its own row and its buttons sit under it, in every chat.
 
+**NH Friend Zone** (`features/friendzone/`, 2026-11-24, not released; the API's `FRIEND_ZONE_MODE`):
+- **Where:** a Practice | Friend Zone switch on a program's Quizzes & Games page, shown only when `GET
+  /v1/friend-zone/me` says `enabled`. The side and an open battle live in the URL (`?zone=friends`, `&battle=<id>`,
+  `replaceState`), so bell links open them.
+- **What:** join (with the owner-approved consent text, `CONSENT` in `model.ts`), find a classmate by invoice number,
+  requests, friends, blocks, reports, 1v1 battles, Rematch, the daily challenge, XP, level and badges.
+- **Timing:** battles and dailies poll by `nextChangeAt` against the server clock (`clock.ts`, `poll.ts`). There's
+  one polite live region, focus moves at round start and on the result, and the timer bar is hidden under reduced
+  motion.
+- **Secrecy:** nothing shows a key or an explanation before a round or a daily is over.
+- **Testing:** the headed e2e suite is `playwright.friendzone.config.ts` with `e2e/friendzone/`.
+
 **Preview UI.** The Tools (Troubleshooter, Summarizer), the leaderboard and similar sample-data UI render only with `PREVIEW_FEATURES=1`: a server env var read per request by `(app)/layout.tsx` (`lib/preview.ts`), never set in production. `e2e/gated.e2e.ts` and `e2e/preview.e2e.ts` check both states. Build the real versions on `/v1` APIs; `features/learning-hub/demo-data.ts` is a placeholder, not data. The My Courses, Course Creator and Flashcards previews were removed when My Learning (now Skills & Certifications) replaced them (the chat's own `flashcards` block stays).
 
 **Interactive widgets** (`mcq`, `quiz`, `fill-blank`, `flashcards`, `graph`, `diagram`): the web app always renders them, but the model is taught to write them only when the API's `TUTOR_INTERACTIVE_BLOCKS` is on (off by default), and so are question-bank tests in the chat. The 2026-11-18 additions (the v2 test card and its kinds, `:::cheatsheet`, `video`, `topology`) are taught nowhere yet (no prompt change), so they are dormant in production; with `QUESTION_BANK_TESTS` on, as in production, a test the model writes itself is still only a note.

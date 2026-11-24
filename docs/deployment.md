@@ -342,6 +342,47 @@ api.env (like `import_questions.py`). Every write command is a dry run without `
 below. Rollback: `PROGRAMS_MODE=off` and an API restart hides everything; a code rollback before `0028` lists program
 chats as ordinary chats until a roll-forward.
 
+## NH Friend Zone
+
+Friends, 1v1 battles, daily challenges, XP and badges for enrolled NH students (`app/friendzone`; migrations `0030`
+and `0031`; API: [api-contract.md](api-contract.md#nh-friend-zone)). Phases 1 and 2 ship in one release (owner,
+2026-11-24). Everything is off until `FRIEND_ZONE_MODE` lets accounts in.
+
+**Release order** (each step owner-authorised):
+
+1. Deploy with `FRIEND_ZONE_MODE=off` (the default). The deploy backs up, then runs `0030` and `0031`; status is MATCH.
+2. Bind the bank's AI blind checks to the exact question text (owner decision U1, option ii). This needs the
+   deployed checkout, so git can prove the content files are unchanged since `7d86100`, the commit that added the
+   checks:
+   `systemd-run … python scripts/bind_key_checks.py ../qbank --verification-commit 7d86100` (dry run: counts), then
+   again with `--apply`.
+3. `FRIEND_ZONE_KEY_POLICY=human_or_ai` in api.env. With `human_only`, only questions a person approved can be used,
+   and there are none today.
+4. `friend_zone_admin.py qa-verify` (read-only): CLEAN.
+5. Live QA:
+   - two `NHTEST-…` invoices (`program_admin.py dummy-invoices --apply`, twice);
+   - `FRIEND_ZONE_QA_EMAILS` set to the QA accounts only;
+   - `FRIEND_ZONE_MODE=qa`, then an API restart;
+   - a headed run through the tunnel URL: join, find by invoice, request, accept, battle, rematch, daily challenge, XP
+     and badges, block, report;
+   - a live account sees none of it.
+6. Afterwards: `qa-cleanup --apply`, `qa-verify` CLEAN, and the NHTEST invoices revoked.
+7. `FRIEND_ZONE_MODE=on` only on the owner's word.
+
+**Operator commands** (`scripts/friend_zone_admin.py`, through `systemd-run` with api.env, a dry run without
+`--apply`, every applied moderation step audited in `fz_moderation_actions`):
+
+| Command | What it does |
+|---|---|
+| `reports [--status S]`, `report <id>` | the report queue, and one report in full (its text is shown only here) |
+| `resolve <id> --outcome reviewed\|actioned\|dismissed --note …` | moves a report on |
+| `suspend <player_id> --reason …`, `unsuspend <player_id>` | hides a member at once; their requests end and their open battles are void |
+| `qa-report`, `qa-cleanup`, `qa-verify` | the QA cohort's rows: counted, deleted, and proven gone |
+| `retention` | the approved retention: closed requests and unstarted invitations after 30 days; resolved reports 180 days after resolution; audit rows after a year |
+
+Rollback: `FRIEND_ZONE_MODE=off` and an API restart hide everything. A code rollback to before `0030` needs the
+migrations downgraded, and they refuse while any Friend Zone row exists.
+
 ## Switches that are owner decisions
 
 All default off (`backend/app/settings.py`, `deploy-netsec/env/api.env.example`); turning one on is an `api.env`
@@ -357,6 +398,7 @@ change plus an API restart, with the owner's approval:
 | `MEMORY_RECALL_ENABLED`, `MEMORY_AUTOMATIC_PROPOSALS` | memory in chat, automatic memory proposals | [memory-evaluation.md](memory-evaluation.md) |
 | the jobs timer, `NOTIFICATIONS_MODE` | email to users | [Jobs worker](#jobs-worker) |
 | `PROGRAMS_MODE`, `PROGRAMS_NHPREP_GROUNDING` | NH programs; month tutors grounded on NHprep text (masked) | real invoices loaded, the mapping approved, live checks in `qa` ([NH programs](#nh-programs)) |
+| `FRIEND_ZONE_MODE` (+ `FRIEND_ZONE_QA_EMAILS`, `FRIEND_ZONE_KEY_POLICY`) | NH Friend Zone | the release order in [NH Friend Zone](#nh-friend-zone) |
 
 ## Changing the database container on purpose
 

@@ -504,6 +504,32 @@ none is repeated within a set. "Next" runs under the set's row lock, so a retry 
 | Answers | Served unanswered, answered once, graded by the database, final. A served item keeps the question's content hash of that moment (`served_hash`, 0017). |
 | Clean account deletion | A student's sets and answers are deleted with their account (not with a chat). |
 
+## Competitive eligibility (NH Friend Zone, 2026-11-24)
+
+Battles and daily challenges (`app/friendzone/eligibility.py`) use a stricter rule than practice. A question
+qualifies only when it is:
+- active;
+- `mcq` with one key;
+- at most 105 words of stem and options;
+- not NHprep-keyed;
+- verified for its **current** text.
+
+Under `FRIEND_ZONE_KEY_POLICY=human_only`, verified means a person's approval (`reviewed_hash = content_hash`).
+Under `human_or_ai` (owner U1), an authored question with a row in `qb_key_checks` for its exact `content_hash` also
+counts.
+
+`scripts/bind_key_checks.py` writes those rows, and only where all of these hold:
+- the content file's last commit is the verification commit;
+- the working tree leaves the file unchanged;
+- the imported text's hash equals the file's.
+
+Any edit changes `content_hash`, so the question drops out until it is checked again. Practice keeps its own looser
+rule (`QB_SERVABLE`).
+
+`qb_sets.mode` gains:
+- `battle` and `daily`: live members, which count in the practice record;
+- `fz_qa`: the QA cohort, which never counts in practice, mastery or the streak.
+
 ## Status (2026-10-16; 2026-10-22: adaptive tests in the chat, the practice ledger and record)
 - **Released:** schema (0015, and 0016's servable indexes), importer, selection, coverage, and tests in the
   chat. 2026-10-22 (0017): tests in the chat are adaptive and recorded in the ledger, mock tests span up to

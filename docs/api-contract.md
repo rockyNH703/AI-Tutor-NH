@@ -582,6 +582,92 @@ request. A month chat retrieves only that month's mapped material, with no fallb
 `{slug, month, mode}` or null; `GET /v1/conversations` leaves program chats out unless asked for with
 `?program=<slug>&month=<n>` (no `month`: the Q&A). When access ends, the program's chats and messages are 404.
 
+## NH Friend Zone
+
+Friends and 1v1 quiz battles for enrolled NH students (`app/friendzone`, 2026-11-24, Phase 1 in progress, not
+released). Open only while `FRIEND_ZONE_MODE` admits the account (`off`; `qa` with `FRIEND_ZONE_QA_EMAILS`; `on`), it
+is eligible as for NH programs (an open invoice claim, checked on every request), and it has joined and is not
+suspended. Anything else is the same 404 `not_found`, except `GET /me`. Every response is `Cache-Control: no-store`.
+
+- **Identity:** a member is known only by `playerId` (`fz_profiles.id`). No response, error or notification carries
+  an invoice number, an email or an account id.
+- **Cohorts:** a QA account (listed at join) is in the `qa` cohort for good. The database refuses any relationship
+  between cohorts, and every read is scoped to the caller's cohort, so QA and real members never see each other.
+- **Silence:** remove, block and decline look like no answer to the other member. A declined request stays
+  `outgoing` to its sender until it expires (30 days).
+
+| Route | Answer |
+|---|---|
+| `GET /v1/friend-zone/me` | `{enabled, eligible, member, suspended, profile, serverTime}` |
+| `POST /v1/friend-zone/me` `{displayName, discoverable?, showProgram?, showStats?}` | 201 the profile (switches default false); 409 `already_member`; 422 `displayName` refused |
+| `PATCH /v1/friend-zone/me` `{version, set: {…}}` | the profile; 409 `version_conflict` |
+| `POST /v1/friend-zone/search` `{invoiceNumber}` | 200 a player (name and initials); every miss 404 `no_match`, identical; at least 0.4 s every answer; 10 an hour (429 with `Retry-After`), 30 a day per account, 200 a day per address |
+| `GET /v1/friend-zone/friends` | `{items: [player]}`: photo for friends; `programs` only when the friend shows them |
+| `DELETE /v1/friend-zone/friends/{playerId}` | 204 |
+| `GET /v1/friend-zone/requests` | `{incoming, outgoing}`: `[{requestId, player, createdAt, expiresAt}]` |
+| `POST /v1/friend-zone/requests` `{playerId}` | 201 the player, `relation` `outgoing` (or `friend` when they had asked you); only a findable member can be asked; 409 `already_friends`, `request_pending`, `request_limit` (50 waiting), `friend_limit` (200); 20 a day |
+| `POST /v1/friend-zone/requests/{requestId}/accept` | 200 the player (`friend`); repeating it answers the same |
+| `POST /v1/friend-zone/requests/{requestId}/decline` / `cancel` | 204 |
+| `GET /v1/friend-zone/blocks`, `POST /v1/friend-zone/blocks` `{playerId}`, `DELETE …/blocks/{playerId}` | the members you blocked; 204; 204 (a friendship a block ended does not return) |
+| `POST /v1/friend-zone/reports` `{playerId, reason, details?, battleId?}` | 201 `{reportId}`; reviewed by the owner on the host; 10 a day |
+| `GET /v1/friend-zone/players/{playerId}` | the player, for yourself, a friend or a pending-request party; else 404 |
+| `GET /v1/friend-zone/players/{playerId}/avatar?v=` | a friend's photo, `private, no-store`, authorised on every request |
+
+A player is `{playerId, displayName, initials, relation: self|friend|incoming|outgoing|blocked|none, avatarUrl,
+programs}`. Notifications (`friend_request`, `friend_accepted`) name no one and open
+`/programs/{slug}/quizzes?zone=friends`.
+
+**Battles** (1v1, live, between friends who both have the program open). The opponent's accept is their Ready; the
+challenger's Ready picks the questions and starts a 3 s countdown. Each round has its own window (20-45 s, by the
+question's length), then a 3 s reveal. Every state read moves the battle on by the database clock: poll it, using
+`nextChangeAt`. Only competitive questions are used: active, single-answer, approved by a person for their current
+content, not NHprep-keyed, at most 105 words; a question withdrawn or changed mid-round voids that round for both.
+A correct answer scores 100 + 50 × time left ÷ window; three missed rounds in a row forfeit. Live answers count in the
+practice record; QA ones never do.
+
+| Route | Answer |
+|---|---|
+| `GET /v1/friend-zone/battles?view=open\|history&cursor=` | `{items: [{battleId, status, result, role, opponent, program, month, length, createdAt, endedAt, expiresAt}], nextCursor}` |
+| `POST /v1/friend-zone/battles` `{opponentId, program, month, topicId?, difficulty?, length: 5\|10, requestId}` | 201 the battle (`invited`, 10 min); the same `requestId` answers the same battle; 409 `not_enough_questions` (`current: {available, needed}`), `battle_exists` (`current: {battleId}`), `invite_limit` (3 waiting); 30 a day |
+| `GET /v1/friend-zone/battles/{battleId}` | the battle (below); at most 180 reads and answers a minute |
+| `POST …/battles/{battleId}/accept` | the battle, `waiting` (3 min for the challenger's Ready); 409 `busy_in_battle`, `battle_not_open` |
+| `POST …/battles/{battleId}/ready` | the battle, `active` (or `cancelled`, `not_enough_questions`); 409 `busy_in_battle`, `battle_not_open` |
+| `POST …/battles/{battleId}/decline` / `cancel` | the battle, `declined` / `cancelled` |
+| `POST …/battles/{battleId}/answers` `{round, choice: "A"-"H"}` | the battle; final at once (the same choice again answers the same); 409 `already_answered`, `round_closed`, `invalid_choice` |
+
+A battle is `{battleId, status, endReason, result: points|forfeit|draw|void, program, month, topicId, difficulty,
+length, roundsClosed, expiresAt, startsAt, endsAt, nextChangeAt, serverTime, me, opponent, question, rounds,
+review}`. `question` is the open round only (`{round, stem, options: [{key, text}], seconds, opensAt, closesAt,
+myChoice}`), never its key; `rounds` are the closed ones (`{round, voided, correctKey, myChoice, theirChoice,
+myPoints, theirPoints}`); `review` (with explanations) only once `completed`. A block or an unfriend ends the pair's
+open battle (`cancelled` before the start, `completed`/`void` after). Notifications: `battle_invite`,
+`battle_accepted`, `battle_finished` (not for a void battle), naming no one. A battle's `endReason` is `finished`,
+`forfeit`, `absent`, `expired`, `declined`, `cancelled`, `not_enough_questions`, or `ended` (a block, an unfriend, a
+suspension or a deleted account, which may not be told apart).
+
+**Phase 2** (shipped with Phase 1; owner, 2026-11-24):
+
+| Route | Answer |
+|---|---|
+| `POST /v1/friend-zone/battles/{battleId}/rematch` `{requestId}` | 201 a new invitation (`invited`) to the same friend with the same settings, and fresh questions where the pool allows; only after a battle decided by play; the same `requestId` answers the same; 409 `battle_exists`, `invite_limit`, `not_enough_questions`; the friend's bell says "Rematch invitation" |
+| `GET /v1/friend-zone/me/xp?cursor=` | `{xp, level, levelFloor, nextLevelAt, items: [{reason, amount, createdAt}], nextCursor}`, your own only |
+| `GET /v1/friend-zone/players/{playerId}` | now also `stats`: `{battles, wins, losses, draws, correct, answered, xp, level, levelFloor, nextLevelAt, badges: [{key, title, description}], dailiesCompleted, dailyStreak}` for yourself, and for a friend only when they show their stats; otherwise `null` |
+
+XP is awarded by the server only, once per (reason, event), and for live members only:
+- **Battles:** completed, having answered at least half the counted rounds, +20; a win by points (both answered at
+  least half) +30; a draw +10. At most 5 rewarded battles a day, and 2 a day with the same friend.
+- **Daily challenges:** completed +25; perfect +15; streaks of 3, 7, 14 and 30 days +20, +50, +100, +200.
+  Completed means all ten served and at least half of the counted (not withdrawn) questions answered.
+- **Forfeit:** the player who forfeits earns nothing.
+
+Level n starts at 50·n·(n−1) XP. The badges are `first_battle`, `quiz_champion` (10 rewarded wins against 3 or more
+friends), `daily_challenger` (10 dailies), `consistency_master` (7 in a row) and `perfect_score`. Notifications:
+`level_up`, `badge_unlocked`, `xp_milestone`, `daily_available`, `daily_completed`.
+
+Which questions count is set by `FRIEND_ZONE_KEY_POLICY`. Under `human_only`, a question counts only with a person's
+approval of its current text. Under `human_or_ai`, an authored question with an AI blind check bound to its exact
+`content_hash` in `qb_key_checks` also counts (`scripts/bind_key_checks.py`).
+
 ## NHprep video courses
 
 NHprep's video lessons and study aids (`app/nhprep`, [nhprep.md](nhprep.md); additive, 2026-11-20, not released).
