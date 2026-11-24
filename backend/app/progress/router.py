@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import Principal, get_principal
 from app.db.session import get_session
 from app.errors import AppError, RateLimited
-from app.programs.access import bank_scope
+from app.programs.access import enrolled_books
 from app.progress import learning, practice
 from app.progress.schemas import (
     ActivityOut,
@@ -138,15 +138,15 @@ async def get_practice_topics(principal: Principal = Depends(get_principal), db:
 async def get_bank_access(
     request: Request, principal: Principal = Depends(get_principal), db: AsyncSession = Depends(get_session)
 ):
-    """Whether the chat answers this student's quiz requests from the stored certification question bank. For the
-    web app's Quiz me button; every chat turn checks the same itself (app/chat/service.py). A NetworkersHome address
-    or an NH enrolment (owner, 2026-11-24)."""
+    """Whether to offer the web app's Quiz me button: the stored certification question bank is on for this account
+    and an NH invoice enrols it in a program with mapped tracks (owner, 2026-11-24: enrolled students only, not a
+    networkershome.com address by itself). Every chat turn decides what it serves itself (app/chat/service.py)."""
     settings = request.app.state.settings
     user = principal.user
     return BankAccessOut(
         enabled=settings.question_bank_tests
         and settings.question_bank_turn_allows(user.email or "")
-        and (await bank_scope(db, user, settings))[0]
+        and bool(await enrolled_books(db, user, settings))
     )
 
 

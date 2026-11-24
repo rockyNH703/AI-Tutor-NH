@@ -38,7 +38,7 @@ Honest state (2026-10-29):
     - about 6,100 agent-written, blind-checked questions from the NHprep lesson notes.
   - **Audience:** NHprep-derived questions are for NetworkersHome students (`NHPREP_ALLOWED_EMAIL_DOMAINS`) and,
     since 2026-11-24 (owner), any account an NH invoice enrols, on its programs' tracks only (`bank_scope`,
-    `app/programs/access.py`).
+    `app/programs/access.py`). The composer's Quiz me button shows for enrolled students only (an invoice).
   - **Host import:** `scripts/import_questions.py ../qbank --apply` through `systemd-run` with api.env
     (docs/deployment.md), after a deploy that carries new `qbank/` content.
 - **NHprep video courses** (2026-11-20, `nhprep` branch, not released; `NHPREP_MODE` off, no video signer yet):

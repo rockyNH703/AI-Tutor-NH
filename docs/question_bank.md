@@ -185,7 +185,7 @@ Recall on unseen wordings across the four fresh sets was 0.78, 0.56, 0.52 and 0.
 - **The sure way in is a Quiz me button** in the chat composer (`frontend/apps/app/src/features/chat/quiz-me.ts`):
   - in a chat with messages, an empty box and no files, it sends "Quiz me on this", which quizzes on what was just discussed;
   - otherwise it puts "Quiz me on " before what is in the box for the student to finish.
-- **Who sees it:** only where `GET /v1/progress/bank` says `enabled`, which needs `QUESTION_BANK_TESTS` on, `QUESTION_BANK_TURN` allowing the account, and either a NetworkersHome student (every track) or, since 2026-11-24 (owner), an account whose NH invoice opens a program (that program's mapped tracks only, `bank_scope` in `app/programs/access.py`). Each chat turn checks the same itself.
+- **Who sees it:** only where `GET /v1/progress/bank` says `enabled`, which needs `QUESTION_BANK_TESTS` on, `QUESTION_BANK_TURN` allowing the account, and (owner, 2026-11-24) an NH invoice that opens a program with mapped tracks (`enrolled_books` in `app/programs/access.py`): enrolled students only, not a networkershome.com address by itself. Each chat turn decides what it serves itself (`bank_scope`: a networkershome.com address every track, an enrolled student their programs' tracks).
 - **Rejected:** a classifier fallback (INTENT_ROUTER). It would be a model call at query time, which the owner's rule excludes.
 
 The grammar was not tuned on holdout 4 at the time. Its wording families were added on 2026-11-20, after holdouts

@@ -51,9 +51,16 @@ async def bank_scope(session: AsyncSession, user: Any, settings: Settings) -> tu
     anyone else none. (entitled, books): books None means every track."""
     if is_nh_student(user, settings):
         return True, None
+    books = await enrolled_books(session, user, settings)
+    return bool(books), books or None
+
+
+async def enrolled_books(session: AsyncSession, user: Any, settings: Settings) -> tuple[str, ...]:
+    """The bank tracks mapped to the programs this account's invoices open now; none while PROGRAMS_MODE shuts it
+    out. Non-empty means an enrolled student: the web app's Quiz me button (owner, 2026-11-24: invoice holders only)."""
     if not programs_allow(user, settings):
-        return False, None
-    books = tuple(
+        return ()
+    return tuple(
         await session.scalars(
             select(ProgramModuleBook.book_id)
             .join(ProgramModule, ProgramModule.id == ProgramModuleBook.module_id)
@@ -62,7 +69,6 @@ async def bank_scope(session: AsyncSession, user: Any, settings: Settings) -> tu
             .order_by(ProgramModuleBook.book_id)
         )
     )
-    return bool(books), books or None
 
 
 def open_course_ids(user_id: uuid.UUID):

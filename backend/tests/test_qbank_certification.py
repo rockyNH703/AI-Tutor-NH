@@ -346,10 +346,14 @@ async def test_next_five_continues_the_test_with_new_questions(client, app, fake
     assert not any("(Choose" in text for text in ids(first) | ids(second))
 
 
-async def test_the_quiz_me_button_shows_only_where_the_bank_answers(client, app):
-    # GET /v1/progress/bank: the web app's "Quiz me" button. Every chat turn still checks for itself.
-    student = await _student(client, app)
-    other = (await register(client, app))["headers"]  # example.com: NHprep's questions are for students only
+async def test_the_quiz_me_button_shows_only_for_a_student_with_an_nh_invoice(client, app, bank):
+    # GET /v1/progress/bank: the web app's "Quiz me" button. Owner, 2026-11-24: enrolled students only (an NH
+    # invoice), not a networkershome.com address by itself. Every chat turn still checks for itself.
+    student = await _student(client, app)  # networkershome.com, no invoice
+    other = (await register(client, app))["headers"]  # example.com, no invoice
+    assert (await client.get("/v1/progress/bank", headers=student)).json() == {"enabled": False}
+    assert (await client.get("/v1/progress/bank", headers=other)).json() == {"enabled": False}
+    await _enrol(client, app, student, "NH-Q-0003", ["ccna"])
     assert (await client.get("/v1/progress/bank", headers=student)).json() == {"enabled": True}
     assert (await client.get("/v1/progress/bank", headers=other)).json() == {"enabled": False}
     app.state.settings.question_bank_turn = "off"
