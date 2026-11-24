@@ -2749,7 +2749,12 @@ class FzBattle(Base):
         CheckConstraint("question_ids IS NULL OR cardinality(question_ids) = length", name="question_ids"),
         CheckConstraint("status NOT IN ('active', 'completed') OR question_ids IS NOT NULL", name="questions_set"),
         CheckConstraint("round BETWEEN 0 AND length", name="round"),
-        Index("uq_fz_battles_open_pair", "pair_key", unique=True, postgresql_where=text(f"status IN {FZ_BATTLE_OPEN}")),
+        Index(
+            "uq_fz_battles_open_pair",
+            "pair_key",
+            unique=True,
+            postgresql_where=text("status IN ('invited', 'waiting', 'active')"),
+        ),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()

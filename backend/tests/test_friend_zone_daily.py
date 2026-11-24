@@ -175,7 +175,9 @@ async def test_the_first_reads_make_one_challenge_of_ten_fixed_questions(client,
         )
     day = seen["date"]
     assert day == made.challenge_date.isoformat()
-    expected = sorted(eligible, key=lambda q: hashlib.md5(f"{q}{day}{program_id}".encode()).hexdigest())[:10]
+    expected = sorted(
+        eligible, key=lambda q: hashlib.md5(f"{q}{day}{program_id}".encode(), usedforsecurity=False).hexdigest()
+    )[:10]
     assert made.question_ids == expected  # the deterministic ten, from checked questions only
     assert made.seconds == [scoring.round_seconds(eligible[q]) for q in expected]
 
