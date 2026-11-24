@@ -2,13 +2,10 @@
   "version": 1,
   "about": "NH programs: what each month may use (plan rev 3, section C; live inventory of 2026-11-23). Sets are defined once and shared by months, never copied. Loaded with: python scripts/program_admin.py mapping curriculum/mapping.json --apply",
   "review": [
-    "Medium-confidence matches a trainer should confirm before PROGRAMS_MODE=on:",
-    "encor: network_design, network_design_scenarios, darsh-sd-access",
-    "enarsi: ccnp-routing-by-nikunj, ccnp-routing-by-vishal, ccnp-routing-by-mrbharath, ccnp-advanced-by-pankaj, ccnp-advanced-chetan",
-    "ethical-hacking: CEH modules 01-12 and 20; pentesting: CEH 13-15 and 19, ceh-b30",
-    "cloud-security: CEH module 19; cloud-networking: SA study guide, Azure docs",
-    "kubernetes, wireless (CEH 16) and ai sets",
-    "Not mapped (no month names them): ASA, FTD, Cisco ISE, ESA, WSA, SNRD, F5, Check Point, CCIE, VPN Technologies, VPN Security, IPSEC, CCNA DevNet (no lessons); tracks checkpoint, ccnp_security, email_dns_security, compliance_frameworks, itil_service_management; CEH 17-18, CPENT 09-11 and 13, AZ-104 syllabus"
+    "Confirmed 2026-11-24 (owner asked for the medium-confidence matches and the unmapped content to be settled):",
+    "kept: encor network_design, network_design_scenarios, darsh-sd-access; enarsi the CCNP Routing and CCNP Advanced courses; ethical-hacking CEH 01-12 and 20; pentesting CEH 13-15 and 19, ceh-b30; cloud-security CEH 19; cloud-networking the SA study guide and Azure docs; kubernetes, wireless (CEH 16) and ai",
+    "added: ethical-hacking CEH 17 (mobile) and 18 (IoT), the rest of CEH; wireless CPENT 09 (wireless pentesting); cloud-networking the AZ-104, AZ-305 and AZ-900 syllabi; cloud-security the compliance_frameworks track; noc the itil_service_management track; a vpn set (IPSEC, VPN Technologies, VPN Security) for Full Stack Networking month 3, Network Security & Firewall Technologies",
+    "left out, because no month's title names them: ASA, FTD, Cisco ISE, ESA, WSA, SNRD, F5, Check Point (course and track), CCIE, CCNA DevNet (no lessons), the ccnp_security and email_dns_security tracks, CPENT 10, 11 and 13 (IoT, OT/SCADA, binary: month 3 is web, network and cloud)"
   ],
   "sets": {
     "ccna": {
@@ -60,6 +57,11 @@
       "books": ["fortinet_fcp", "firewall_vpn"],
       "courses": ["fortigate-by-mrsushil", "fortigate-by-nikunj"]
     },
+    "vpn": {
+      "documents": [],
+      "books": [],
+      "courses": ["ipsec", "vpn-amit", "vpn-by-sushil"]
+    },
     "linux": {
       "documents": [],
       "books": ["linux_networking"],
@@ -79,6 +81,8 @@
         {"source": "CEH shared library", "title": "Module 10 Denial-of-Service"},
         {"source": "CEH shared library", "title": "Module 11 Session Hijacking"},
         {"source": "CEH shared library", "title": "Module 12 Evading IDS, Firewalls, and Honeypots"},
+        {"source": "CEH shared library", "title": "Module 17 Hacking Mobile Platforms"},
+        {"source": "CEH shared library", "title": "Module 18 IoT Hacking"},
         {"source": "CEH shared library", "title": "Module 20 Cryptography"}
       ],
       "books": ["pentest_basics"],
@@ -121,7 +125,7 @@
         {"source": "Azure Cloud shared library", "title": "AZ500 Syllabus"},
         {"source": "CEH shared library", "title": "Module 19 Cloud Computing"}
       ],
-      "books": ["aws_networking", "azure_networking", "cicd_infrastructure", "terraform_fundamentals"],
+      "books": ["aws_networking", "azure_networking", "cicd_infrastructure", "terraform_fundamentals", "compliance_frameworks"],
       "courses": ["aws-cloud-by-amit", "azure-by-amit"]
     },
     "cloud-networking": {
@@ -129,7 +133,10 @@
         {"source": "AWS Cloud shared library", "title": "AWS Certified Solutions Architect Official Study Guide_ Associate Exam - aws"},
         {"source": "Azure documentation (Microsoft, CC BY 4.0)", "title": "azure-docs-az900-cloud-architecture-services"},
         {"source": "Azure documentation (Microsoft, CC BY 4.0)", "title": "azure-docs-az305-design"},
-        {"source": "Azure documentation (Microsoft, CC BY 4.0)", "title": "azure-docs-az900-management-governance"}
+        {"source": "Azure documentation (Microsoft, CC BY 4.0)", "title": "azure-docs-az900-management-governance"},
+        {"source": "Azure Cloud shared library", "title": "AZ104 Syllabus"},
+        {"source": "Azure Cloud shared library", "title": "AZ305 Syllabus"},
+        {"source": "Azure Cloud shared library", "title": "AZ900 Syllabus"}
       ],
       "books": ["cloud_networking", "aws_networking", "azure_networking", "gcp_networking"],
       "courses": ["aws-cloud-by-amit", "azure-by-amit"]
@@ -146,7 +153,7 @@
     },
     "noc": {
       "documents": [],
-      "books": ["noc_engineer"],
+      "books": ["noc_engineer", "itil_service_management"],
       "courses": []
     },
     "zero-trust": {
@@ -156,7 +163,8 @@
     },
     "wireless": {
       "documents": [
-        {"source": "CEH shared library", "title": "Module 16 Hacking Wireless Networks"}
+        {"source": "CEH shared library", "title": "Module 16 Hacking Wireless Networks"},
+        {"source": "CPENT shared library", "title": "Module 09 - Wireless Penetration Testing"}
       ],
       "books": ["wireless_networking"],
       "courses": []
@@ -203,7 +211,7 @@
     "networking-ai": {
       "1": ["ccna"],
       "2": ["encor"],
-      "3": ["paloalto", "fortigate"],
+      "3": ["paloalto", "fortigate", "vpn"],
       "4": ["sdwan"],
       "5": ["cloud-networking", "zero-trust"],
       "6": ["wireless"],

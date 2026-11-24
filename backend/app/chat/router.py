@@ -10,7 +10,6 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access.students import is_nh_student
 from app.assessments import state as assessments
 from app.auth.dependencies import Principal, get_principal
 from app.chat.schemas import (
@@ -31,6 +30,7 @@ from app.db.models import MessageFeedback
 from app.db.session import get_session
 from app.errors import Conflict, NotFound, RateLimited, ValidationFailed, error_body
 from app.logging import get_logger
+from app.programs.access import bank_scope
 from app.progress.learning import StreakEvent, now, record_practice
 from app.qbank import bank_tests, chat_tests
 
@@ -310,8 +310,8 @@ async def respond_to_assessment(
     message = await ConversationRepository(db).get_message(principal.user.id, message_id, lock=True)
     if message is None or message.role != "assistant":
         raise NotFound("Message not found.")
-    if nhprep_derived(message.metadata_) and not is_nh_student(principal.user, request.app.state.settings):
-        raise NotFound("Message not found.")  # hidden from a reader who isn't a NetworkersHome student
+    if nhprep_derived(message.metadata_) and not (await bank_scope(db, principal.user, request.app.state.settings))[0]:
+        raise NotFound("Message not found.")  # hidden from a reader who is neither an NH student nor enrolled
     # Stored, or (a reply saved before its kind of block was recorded) built from its text exactly as
     # the client was shown it; this first answer stores it.
     stored = bool((message.metadata_ or {}).get("assessments"))

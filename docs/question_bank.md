@@ -31,8 +31,9 @@ below still applies to the CBSE shape, which nothing serves in NetSec (its conte
 | `qb_set_items.chosen_keys` | An answer. The trigger grades it as a set: right means exactly the key's letters |
 
 **Who:**
-- NHprep-derived questions (`source_kind` `nhprep_*`) are served only to NetworkersHome students: verified emails at
-  `NHPREP_ALLOWED_EMAIL_DOMAINS` (`app/access/students.py`).
+- NHprep-derived questions (`source_kind` `nhprep_*`) are served only to NetworkersHome students (verified emails at
+  `NHPREP_ALLOWED_EMAIL_DOMAINS`, `app/access/students.py`) and, since 2026-11-24 (owner), to accounts an NH invoice
+  enrols, on their programs' mapped tracks only (`bank_scope`, `app/programs/access.py`).
 - Every pick checks this (`selection.Pool.entitled`).
 - The model can't open the netsec bank: a `question-bank` block never names a netsec domain id.
 
@@ -184,7 +185,7 @@ Recall on unseen wordings across the four fresh sets was 0.78, 0.56, 0.52 and 0.
 - **The sure way in is a Quiz me button** in the chat composer (`frontend/apps/app/src/features/chat/quiz-me.ts`):
   - in a chat with messages, an empty box and no files, it sends "Quiz me on this", which quizzes on what was just discussed;
   - otherwise it puts "Quiz me on " before what is in the box for the student to finish.
-- **Who sees it:** only where `GET /v1/progress/bank` says `enabled`, which needs `QUESTION_BANK_TESTS` on, `QUESTION_BANK_TURN` allowing the account, and a NetworkersHome student. Each chat turn checks the same itself.
+- **Who sees it:** only where `GET /v1/progress/bank` says `enabled`, which needs `QUESTION_BANK_TESTS` on, `QUESTION_BANK_TURN` allowing the account, and either a NetworkersHome student (every track) or, since 2026-11-24 (owner), an account whose NH invoice opens a program (that program's mapped tracks only, `bank_scope` in `app/programs/access.py`). Each chat turn checks the same itself.
 - **Rejected:** a classifier fallback (INTENT_ROUTER). It would be a model call at query time, which the owner's rule excludes.
 
 The grammar was not tuned on holdout 4 at the time. Its wording families were added on 2026-11-20, after holdouts

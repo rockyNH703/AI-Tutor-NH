@@ -28,7 +28,6 @@ from sqlalchemy import case, func, select, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access.students import is_nh_student
 from app.assessments import state as assessments
 from app.auth.service import AuthService
 from app.chat import bank_turn
@@ -69,7 +68,7 @@ from app.memory.commands import (
 from app.memory.recall import MemoryRecall
 from app.nhprep.chat import Card, NhprepChat, nhprep_allows
 from app.programs import service as programs
-from app.programs.access import programs_allow
+from app.programs.access import bank_scope, programs_allow
 from app.programs.prompt import tutor_block
 from app.progress.activity import record_question
 from app.progress.learning import (
@@ -1135,7 +1134,7 @@ class ChatService:
                 conversation = await self._conversation(
                     session,
                     turn.conversation.id,
-                    hide_nhprep=turn.program is None and not is_nh_student(turn.user, self.settings),
+                    hide_nhprep=turn.program is None and not (await bank_scope(session, turn.user, self.settings))[0],
                 )
             if turn.replaces_message_id is not None:  # the replies being regenerated stay until it completes (K-47d)
                 while conversation and conversation[-1].role == "assistant":
@@ -1474,6 +1473,10 @@ class ChatService:
         goal = certification_code(turn.student.certification_goal) if turn.student else None
         try:
             async with self.db.sessionmaker() as session:
+                if turn.program is not None:  # a program chat: its month's tracks
+                    entitled, books = True, turn.program.books
+                else:  # a NetworkersHome address every track, an enrolled student their programs' tracks
+                    entitled, books = await bank_scope(session, turn.user, self.settings)
                 served = await bank_turn.answer(
                     session,
                     request,
@@ -1482,8 +1485,8 @@ class ChatService:
                     reply_id=turn.assistant_id,
                     earlier=earlier,
                     goal=goal,
-                    entitled=turn.program is not None or is_nh_student(turn.user, self.settings),
-                    books=turn.program.books if turn.program is not None else None,
+                    entitled=entitled,
+                    books=books,
                 )
         except Exception:  # noqa: BLE001 - the bank never fails a turn: the model answers instead
             log.exception("bank turn failed", extra={"message_id": str(turn.assistant_id)})

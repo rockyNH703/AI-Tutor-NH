@@ -8,8 +8,17 @@ import uuid
 from typing import Any
 
 from sqlalchemy import func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Conversation, InvoiceClaim, NhInvoice, ProgramModule, ProgramModuleCourse
+from app.access.students import is_nh_student
+from app.db.models import (
+    Conversation,
+    InvoiceClaim,
+    NhInvoice,
+    ProgramModule,
+    ProgramModuleBook,
+    ProgramModuleCourse,
+)
 from app.settings import Settings
 
 
@@ -34,6 +43,26 @@ def open_program_ids(user_id: uuid.UUID):
 def conversation_visible(user_id: uuid.UUID):
     """A conversation its owner may read or continue: an ordinary chat, or a program chat while its program is open."""
     return or_(Conversation.program_id.is_(None), Conversation.program_id.in_(open_program_ids(user_id)))
+
+
+async def bank_scope(session: AsyncSession, user: Any, settings: Settings) -> tuple[bool, tuple[str, ...] | None]:
+    """Who gets NHprep-derived bank questions outside a program chat (owner, 2026-11-24: Quiz me for every enrolled
+    student): a NetworkersHome address every track; an account whose invoices open a program that program's tracks;
+    anyone else none. (entitled, books): books None means every track."""
+    if is_nh_student(user, settings):
+        return True, None
+    if not programs_allow(user, settings):
+        return False, None
+    books = tuple(
+        await session.scalars(
+            select(ProgramModuleBook.book_id)
+            .join(ProgramModule, ProgramModule.id == ProgramModuleBook.module_id)
+            .where(ProgramModule.program_id.in_(open_program_ids(user.id)))
+            .distinct()
+            .order_by(ProgramModuleBook.book_id)
+        )
+    )
+    return bool(books), books or None
 
 
 def open_course_ids(user_id: uuid.UUID):

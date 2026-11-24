@@ -11647,7 +11647,7 @@
     },
     "/v1/progress/bank": {
       "get": {
-        "description": "Whether the chat answers this student's quiz requests from the stored certification question bank. For the\nweb app's Quiz me button; every chat turn checks the same itself (app/chat/service.py).",
+        "description": "Whether the chat answers this student's quiz requests from the stored certification question bank. For the\nweb app's Quiz me button; every chat turn checks the same itself (app/chat/service.py). A NetworkersHome address\nor an NH enrolment (owner, 2026-11-24).",
         "operationId": "get_bank_access_v1_progress_bank_get",
         "responses": {
           "200": {

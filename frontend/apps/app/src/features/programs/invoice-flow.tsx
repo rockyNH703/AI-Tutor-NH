@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useState } from "react";
 
+import { forgetQuizMeOffer } from "@/features/chat/quiz-me";
 import { SettingsCard } from "@/features/settings/primitives";
 import { ApiError, describeError } from "@/lib/api/errors";
 import { type ClaimResult, claimInvoice, dismissInvoicePrompt } from "@/lib/api/programs";
@@ -32,6 +33,7 @@ export function InvoiceForm({ onClaimed, autoFocus = false }: { onClaimed: (resu
     try {
       const result = await claimInvoice(number.trim());
       refreshPrograms();
+      forgetQuizMeOffer();
       onClaimed(result);
     } catch (caught) {
       if (caught instanceof ApiError && caught.code === "not_found") setError(NOT_VERIFIED);

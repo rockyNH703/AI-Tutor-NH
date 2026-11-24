@@ -9,10 +9,11 @@ import uuid
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import DBAPIError
 
 from app.access.students import is_nh_student
+from app.db.models import NhInvoice, Program, ProgramModule, ProgramModuleBook
 from app.qbank import bank_tests, finder
 from app.qbank.importer import import_bank
 from app.qbank.request import parse
@@ -365,6 +366,58 @@ async def test_someone_who_is_not_a_student_gets_no_nhprep_questions(client, app
     message = events[-1][1]["message"]
     assert fake_llm.calls == [] and "assessments" not in message["metadata"]
     assert "No practice question bank is available" in message["content"]
+
+
+async def _enrol(client, app, headers, number: str, books: list[str]) -> None:
+    """An NH invoice for Full Stack Networking with AI, whose month 1 maps `books`, claimed by this account."""
+    app.state.settings.programs_mode = "on"
+    async with app.state.db.sessionmaker() as db:
+        program = await db.scalar(select(Program.id).where(Program.slug == "networking-ai"))
+        module = await db.scalar(
+            select(ProgramModule.id).where(ProgramModule.program_id == program, ProgramModule.month == 1)
+        )
+        db.add_all(ProgramModuleBook(module_id=module, book_id=book) for book in books)
+        db.add(NhInvoice(invoice_no=number, program_id=program))
+        await db.commit()
+    claimed = await client.post("/v1/programs/claims", json={"invoiceNumber": number}, headers=headers)
+    assert claimed.status_code == 201, claimed.text
+
+
+async def test_an_enrolled_student_gets_quiz_me_whatever_their_email_while_the_invoice_is_active(
+    client, app, fake_llm, bank
+):
+    # Owner, 2026-11-24: Quiz me for every enrolled student, not only networkershome.com addresses.
+    headers = (await register(client, app))["headers"]  # example.com
+    assert (await client.get("/v1/progress/bank", headers=headers)).json() == {"enabled": False}
+    await _enrol(client, app, headers, "NH-Q-0001", ["ccna"])
+    assert (await client.get("/v1/progress/bank", headers=headers)).json() == {"enabled": True}
+
+    _, events = await stream_chat(client, headers, "quiz me on vlans")  # the general chat, not a program chat
+    message = events[-1][1]["message"]
+    assert fake_llm.calls == [] and message["metadata"]["bank"]["source"] == "NHprep"
+    test = message["metadata"]["assessments"][0]
+    multi = test["questions"][0]["kind"] == "multi"
+    body = {"position": 0, "hash": test["hash"], "question": 0, "action": "answer", "value": [0, 1] if multi else 0}
+    reply = await client.post(f"/v1/messages/{message['id']}/assessment-responses", json=body, headers=headers)
+    assert reply.status_code == 200, reply.text
+    conversation = events[-1][1]["conversation"]["id"]
+    shown = (await client.get(f"/v1/conversations/{conversation}/messages", headers=headers)).json()["items"][-1]
+    assert shown["metadata"]["assessments"]
+
+    async with app.state.db.sessionmaker() as db:  # the invoice revoked: no longer enrolled
+        await db.execute(update(NhInvoice).where(NhInvoice.invoice_no == "NH-Q-0001").values(status="revoked"))
+        await db.commit()
+    assert (await client.get("/v1/progress/bank", headers=headers)).json() == {"enabled": False}
+    hidden = (await client.get(f"/v1/conversations/{conversation}/messages", headers=headers)).json()["items"][-1]
+    assert hidden["content"] == "This reply isn't available."
+
+
+async def test_an_enrolled_student_is_quizzed_only_on_their_programs_tracks(client, app, fake_llm, bank):
+    headers = (await register(client, app))["headers"]  # example.com
+    await _enrol(client, app, headers, "NH-Q-0002", [])  # the program maps no track of this bank
+    assert (await client.get("/v1/progress/bank", headers=headers)).json() == {"enabled": False}
+    _, events = await stream_chat(client, headers, "quiz me on vlans")
+    assert "assessments" not in events[-1][1]["message"]["metadata"]
 
 
 async def test_ordinary_chat_and_a_switched_off_turn_still_reach_the_model(client, app, fake_llm, bank):

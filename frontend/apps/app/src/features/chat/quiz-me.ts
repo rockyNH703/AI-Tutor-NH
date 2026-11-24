@@ -33,6 +33,11 @@ export function quizMeAction({
 /** Asked once per page: whether the bank answers this student's quiz requests (each chat turn checks again). */
 let offered: Promise<boolean> | null = null;
 
+/** After an NH invoice is claimed: enrolled students get Quiz me too, so the next chat screen asks again. */
+export function forgetQuizMeOffer(): void {
+  offered = null;
+}
+
 export function useQuizMeOffered(): boolean {
   const [shown, setShown] = useState(false);
   useEffect(() => {

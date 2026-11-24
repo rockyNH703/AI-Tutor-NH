@@ -5,7 +5,6 @@ import uuid
 from fastapi import APIRouter, Depends, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.access.students import is_nh_student
 from app.assessments import state as assessments
 from app.auth.dependencies import Principal, get_principal
 from app.conversations.repository import ConversationRepository
@@ -25,7 +24,7 @@ from app.errors import NotFound
 from app.logging import get_logger
 from app.nhprep.access import nhprep_allows
 from app.programs import service as programs
-from app.programs.access import programs_allow
+from app.programs.access import bank_scope, programs_allow
 from app.programs.schemas import SLUG
 
 router = APIRouter(prefix="/v1/conversations", tags=["conversations"])
@@ -256,7 +255,7 @@ async def list_messages(
     settings = request.app.state.settings
     # A program chat (app/programs) is read only while the reader's invoice opens it: its NHprep content is theirs.
     program_chat = conversation.program_id is not None
-    entitled = program_chat or is_nh_student(principal.user, settings)
+    entitled = program_chat or (await bank_scope(db, principal.user, settings))[0]
     cards = program_chat or nhprep_allows(principal.user, settings)
     items = [message_out(m, attachments.get(m.id, ()), withdrawn, entitled=entitled, nhprep=cards) for m in rows]
     return MessagePage(items=items, next_cursor=older)
