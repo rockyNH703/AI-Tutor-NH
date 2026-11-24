@@ -84,6 +84,9 @@ function ChatHistory({ place, conversationId }: { place: ChatPlace; conversation
       <DropdownMenuContent align="end" className="w-80 max-w-[calc(100vw-2rem)] p-0">
         {/* The house menu clips its content: the list scrolls inside it (focusable, so it scrolls from the keys too). */}
         <div
+          role="group"
+          aria-label="Chats"
+          // A group is a menu's allowed child (a plain focusable div is not: axe aria-required-children).
           // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard-focusable to be scrollable
           tabIndex={0}
           className="scrollbar-subtle focus-ring-inset max-h-[min(24rem,60dvh)] overflow-y-auto rounded-xl p-1.5"

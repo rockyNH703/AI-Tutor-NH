@@ -5,7 +5,7 @@ import { EmptyState, ErrorState } from "@v1/ui/empty-state";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { BookOpen, Gamepad2, GraduationCap, Lock, MessageCircle, Mic, PlayCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 
 import { useStores } from "@/features/chat/chat-context";
@@ -239,16 +239,14 @@ export function ProgramInterviews({ slug }: { slug: string }) {
 }
 
 /**
- * The month on a page that shows one month at a time: from `?month=` on arrival (a link, a reload, coming back), then
- * the pick, written back to the address without a server request (the history API, which Next follows).
+ * The month on a page that shows one month at a time: the address's `?month=` is the only copy of it, so a link, a
+ * reload and Back all show the month the address names. A pick rewrites it without a server request (the history API,
+ * which Next follows: useSearchParams updates). Reading a server prop instead showed the arrival month after Back.
  */
-function usePickedMonth(program: Program, param: string | undefined): [number, (month: number) => void] {
-  const [picked, setPicked] = useState<number | null>(null);
-  const month = picked ?? monthFromParam(param, program.months.map((item) => item.month));
-  const pick = (next: number) => {
-    setPicked(next);
-    window.history.replaceState(null, "", `?month=${next}`);
-  };
+function usePickedMonth(program: Program): [number, (month: number) => void] {
+  const params = useSearchParams();
+  const month = monthFromParam(params.get("month") ?? undefined, program.months.map((item) => item.month));
+  const pick = (next: number) => window.history.replaceState(null, "", `?month=${next}`);
   return [month, pick];
 }
 
@@ -281,16 +279,16 @@ function useMonth(slug: string, month: number) {
   return useLoad<ProgramMonthDetail>(() => getProgramMonth(slug, month), `${slug}/${month}`);
 }
 
-export function ProgramQuizzes({ slug, month }: { slug: string; month?: string }) {
+export function ProgramQuizzes({ slug }: { slug: string }) {
   return (
     <ProgramScreen slug={slug} title="Quizzes & Games" intro="Quiz yourself on a month's topics in that month's chat.">
-      {(program) => <QuizzesFor slug={slug} program={program} param={month} />}
+      {(program) => <QuizzesFor slug={slug} program={program} />}
     </ProgramScreen>
   );
 }
 
-function QuizzesFor({ slug, program, param }: { slug: string; program: Program; param?: string }) {
-  const [month, pick] = usePickedMonth(program, param);
+function QuizzesFor({ slug, program }: { slug: string; program: Program }) {
+  const [month, pick] = usePickedMonth(program);
   return (
     <>
       <MonthPicker program={program} month={month} onPick={pick} />
@@ -357,16 +355,16 @@ function MonthTopics({ slug, month }: { slug: string; month: number }) {
   );
 }
 
-export function ProgramVideos({ slug, month }: { slug: string; month?: string }) {
+export function ProgramVideos({ slug }: { slug: string }) {
   return (
     <ProgramScreen slug={slug} title="Videos & Links" intro="NetworkersHome lesson videos, notes and cheat sheets for each month.">
-      {(program) => <VideosFor slug={slug} program={program} param={month} />}
+      {(program) => <VideosFor slug={slug} program={program} />}
     </ProgramScreen>
   );
 }
 
-function VideosFor({ slug, program, param }: { slug: string; program: Program; param?: string }) {
-  const [month, pick] = usePickedMonth(program, param);
+function VideosFor({ slug, program }: { slug: string; program: Program }) {
+  const [month, pick] = usePickedMonth(program);
   return (
     <>
       <MonthPicker program={program} month={month} onPick={pick} />
