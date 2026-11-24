@@ -11,6 +11,8 @@ import { useRendererReady } from "@/features/markdown/lazy-message-content";
 import { describeCode } from "@/lib/api/errors";
 import { useChatEntry, useStores } from "./chat-context";
 import type { ChatEntry } from "./chat-store";
+import { programChatPath } from "@/features/programs/program-nav";
+import type { ChatPlace } from "@/lib/api/types";
 import { ChatEmptyState } from "./empty-state";
 import { MessageRow } from "./message";
 import { ScrollToLatestContext, useStickToBottom } from "./use-stick-to-bottom";
@@ -24,7 +26,16 @@ export function isEmptyChat(entry: ChatEntry | undefined): boolean {
  * The scrolling transcript. Subscribes to the conversation's `order` and status
  * only — never to message content — so streaming does not re-render it.
  */
-export function MessageList({ chatKey, scrollRef }: { chatKey: string; scrollRef: React.RefObject<HTMLDivElement | null> }) {
+export function MessageList({
+  chatKey,
+  scrollRef,
+  place = null,
+}: {
+  chatKey: string;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  /** A program chat's place: its greeting, and where "Start a new chat" goes. */
+  place?: ChatPlace | null;
+}) {
   const { chat } = useStores();
   const entry = useChatEntry(chatKey);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -69,7 +80,7 @@ export function MessageList({ chatKey, scrollRef }: { chatKey: string; scrollRef
         <h2 className="font-display text-xl font-bold text-foreground">This chat isn't available</h2>
         <p className="mt-1 max-w-sm text-sm text-text-secondary">It may have been deleted, or it belongs to another account.</p>
         <Button asChild size="sm" className="mt-4">
-          <Link href="/">Start a new chat</Link>
+          <Link href={place ? programChatPath(place.program, place.month, place.mode) : "/"}>Start a new chat</Link>
         </Button>
       </div>
     );
@@ -101,7 +112,7 @@ export function MessageList({ chatKey, scrollRef }: { chatKey: string; scrollRef
       </SkeletonGroup>
     );
   } else if (isEmptyChat(entry)) {
-    body = <ChatEmptyState chatKey={chatKey} />;
+    body = <ChatEmptyState chatKey={chatKey} place={place} />;
   } else {
     body = (
       <div className="chat-column space-y-8 py-8">

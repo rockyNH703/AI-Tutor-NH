@@ -16,6 +16,7 @@ import { SETTINGS_SECTIONS } from "@/features/settings/sections";
 import { EMAIL_KINDS } from "@/features/unsubscribe/token";
 import NhprepPanel, { PANEL_COPY } from "@/features/nhprep/nhprep-panel";
 import { CARD, IDS, LESSON, prime } from "@/features/nhprep/test-data";
+import { placeText } from "@/features/programs/program-nav";
 import { COPY as NHPREP_VIDEO_COPY, VideoSection } from "@/features/nhprep/video-player";
 import { describeCode } from "@/lib/api/errors";
 import { clearNhprepCache } from "@/lib/api/nhprep";
@@ -179,6 +180,18 @@ describe("user-visible copy has no school vocabulary", () => {
     expect(unavailable).toContain("In this video");
     expect(offenders([...card, ...unavailable, ...Object.values(NHPREP_VIDEO_COPY), ...Object.values(PANEL_COPY)])).toEqual([]);
     clearNhprepCache();
+  });
+
+  test("NH program chats: what each place says (greeting, line, suggestions, placeholder, header)", () => {
+    const program = { title: "Full Stack Networking with AI", months: [{ month: 1, title: "Networking Fundamentals & CCNA Core" }] };
+    const shown = (["tutor", "interview"] as const).flatMap((mode) =>
+      [1, null].flatMap((month) => {
+        const text = placeText({ program: "networking-ai", month, mode }, program);
+        return [text.label ?? "", text.title, text.greeting, text.line, text.placeholder, text.tabTitle, ...text.suggestions, text.back?.label ?? ""];
+      }),
+    );
+    expect(shown).toContain("What shall we learn in Month 1?"); // the walk reached the copy
+    expect(offenders(shown)).toEqual([]);
   });
 
   test("brand, emails and errors", () => {

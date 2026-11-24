@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { ChatView } from "@/features/chat/chat-view";
-import { isProgramSlug, monthNumber } from "@/features/programs/route-params";
+import { isProgramSlug } from "@/features/programs/route-params";
 import { programPlaceOpen } from "@/lib/server/session";
 
 /**
@@ -15,15 +15,14 @@ export default async function Layout({
   params,
 }: {
   children: ReactNode;
-  params: Promise<{ slug: string; month?: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug, month } = await params;
-  const number = null;
-  if (!isProgramSlug(slug) || false) notFound();
-  if (!(await programPlaceOpen(slug, number))) notFound();
+  const { slug } = await params;
+  if (!isProgramSlug(slug)) notFound();
+  if (!(await programPlaceOpen(slug, null))) notFound();
   return (
     <>
-      <ChatView place={{ program: slug, month: number, mode: "tutor" }} />
+      <ChatView place={{ program: slug, month: null, mode: "tutor" }} />
       {children}
     </>
   );

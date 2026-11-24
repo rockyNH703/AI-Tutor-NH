@@ -2,6 +2,9 @@
 
 import { type CSSProperties, Fragment, useLayoutEffect, useRef, useState } from "react";
 
+import { placeText } from "@/features/programs/program-nav";
+import { ProgramWelcome } from "@/features/programs/program-welcome";
+import type { ChatPlace } from "@/lib/api/types";
 import { pickGreeting } from "@/lib/greeting";
 
 /**
@@ -14,11 +17,15 @@ import { pickGreeting } from "@/lib/greeting";
  * one heading with the whole sentence, so a screen reader reads it once. Reduced motion (the
  * device's or the app's) shows the words at once (globals.css). It is one line on every screen: the
  * CSS size is the largest, and a sentence too wide for it is set smaller (fitOneLine).
+ *
+ * A program chat (`place`) greets with its own place instead ("What shall we learn in Month 2?"), and under it says
+ * what the tutor answers from, with a suggestion or two (features/programs/program-welcome.tsx).
  */
-export function ChatEmptyState({ chatKey }: { chatKey: string }) {
+export function ChatEmptyState({ chatKey, place = null }: { chatKey: string; place?: ChatPlace | null }) {
   // Picked on the client: the server cannot know the random pick, and a mismatch would flash.
   const [greeting, setGreeting] = useState<string | null>(null);
-  useLayoutEffect(() => setGreeting(pickGreeting(chatKey)), [chatKey]);
+  const placeGreeting = place ? placeText(place, null).greeting : null;
+  useLayoutEffect(() => setGreeting(placeGreeting ?? pickGreeting(chatKey)), [chatKey, placeGreeting]);
   const ref = useLineGradient(greeting);
 
   // The chat column (.chat-column), like the messages and the composer. 24px above the composer's own
@@ -45,6 +52,7 @@ export function ChatEmptyState({ chatKey }: { chatKey: string }) {
           ))
         )}
       </h2>
+      {place && <ProgramWelcome chatKey={chatKey} place={place} />}
     </div>
   );
 }

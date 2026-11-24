@@ -11,6 +11,8 @@ import { useAppearance } from "@/components/appearance-provider";
 import { useConversations } from "@/features/chat/chat-context";
 import { rememberAppPath } from "@/features/navigation/app-return";
 import { useFocusOnArrival } from "@/features/navigation/route-focus";
+import { programRoute } from "@/features/programs/program-nav";
+import { usePrograms } from "@/features/programs/use-programs";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { CelebrationHost } from "@/features/streak/celebrations/celebration-host";
 import { DayCountdown, StreakBadge, dayCountdownVisible, streakBadgeVisible } from "@/features/streak/header-streak";
@@ -75,13 +77,16 @@ export function AppShell({ children }: { children: ReactNode }) {
 /** What the page is (the `h1`), a line about it, and the sidebar controls. */
 function useHeading(pathname: string | null): { title: string; subtitle: string } {
   const { items } = useConversations();
+  const programs = usePrograms(); // the sidebar's list, already read: no extra request
   if (pathname === "/help") return { title: "Help", subtitle: "Answers to common questions" };
   if (pathname === "/about") return { title: "About", subtitle: `What ${APP_NAME} is and how it uses your data` };
   if (pathname === "/library") return { title: "File Library", subtitle: "Files you've added for NetSec AI to read" };
   if (pathname === "/knowledge") return { title: "Knowledge Library", subtitle: "Owner-reviewed sources and revisions" };
   if (pathname === "/study") return { title: "Lab Activity", subtitle: "Time spent practising in labs and study sessions" };
   if (pathname === "/learning") return { title: "Skills & Certifications", subtitle: "Your certification practice, topic mastery and progress" };
-  if (pathname?.startsWith("/programs/")) return { title: "My Programs", subtitle: "Your NetworkersHome program" };
+  // A program's pages and chats: the program's own name (each section names itself below the bar).
+  const route = programRoute(pathname);
+  if (route) return { title: programs.data?.programs.find((item) => item.slug === route.slug)?.title ?? "My Programs", subtitle: "" };
   const item = navItemFor(pathname);
   if (item?.id === "tutor") {
     // The chat's own name (named after its first answered question), "New chat" until then.

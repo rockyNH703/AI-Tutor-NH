@@ -102,7 +102,8 @@
          base  dialogs, arrivals, badges, toggles
          slow  the phone drawer, the sidebar collapse and the greeting: large surfaces
        ONE curve, a quick start that lands softly; enter and exit keep their names but use
-       it too. Only transform and opacity move, except the sidebar's width.
+       it too. Only transform and opacity move, except the sidebar's width and a sidebar program
+       group opening or closing (grid rows 0fr to 1fr, base: what is below glides instead of jumping).
        Deliberate exceptions: the transcript follows a streaming reply instantly; the composer
        grows instantly; Settings panes swap instantly; the skeleton, the streaming caret and
        the typing dots breathe (opacity, gone with their element); the sign-in screens' light

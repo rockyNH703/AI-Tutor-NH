@@ -40,17 +40,21 @@ const COUNTER_FROM = MESSAGE_MAX - 1000;
  *   - Quiz me (quiz-me.ts): only where the API says the certification bank answers this student; asks about
  *     this chat at once, or puts "Quiz me on " in the box for a topic. Never while a reply is streaming.
  *   - 16 px text on phones: iOS zooms the page when a focused field is smaller
- *   - no placeholder and no lines under it: its name ("Message NetSec AI") and the keys are
- *     for assistive technology; only the character count shows, near the limit
+ *   - no placeholder in the general chat and no lines under it: its name ("Message NetSec AI") and the keys are
+ *     for assistive technology; only the character count shows, near the limit. A program chat passes a placeholder
+ *     that names its place ("Ask your Month 2 tutor…").
+ *   - below 640px the box has its own row and the buttons sit under it (one row had left it ~88px wide at 390px)
  */
 export function Composer({
   chatKey,
   onSent,
   onVoice,
+  placeholder,
 }: {
   chatKey: string;
   onSent?: () => void;
   onVoice?: () => void;
+  placeholder?: string;
 }) {
   const { chat, attachments } = useStores();
   const voiceOffered = useVoiceOffered();
@@ -237,7 +241,8 @@ export function Composer({
               ))}
             </div>
           )}
-          <div className="flex items-end gap-1.5">
+          {/* Phones: the box first, on its own row (order-first, full width); attach and the actions under it. */}
+          <div className="flex flex-wrap items-end gap-1.5 sm:flex-nowrap">
             <button
               type="button"
               onClick={() => fileInput.current?.click()}
@@ -279,8 +284,10 @@ export function Composer({
               }}
               aria-describedby={`composer-hint-${chatKey}`}
               aria-invalid={tooLong || undefined}
-              className="max-h-[200px] min-h-[2.75rem] min-w-0 flex-1 resize-none bg-transparent px-2 py-2.5 text-base font-normal leading-normal text-foreground outline-none"
+              placeholder={placeholder}
+              className="order-first max-h-[200px] min-h-[2.75rem] min-w-0 flex-1 basis-full resize-none bg-transparent px-2 py-2.5 text-base font-normal leading-normal text-foreground outline-none placeholder:text-text-secondary sm:order-none sm:basis-0"
             />
+            <div className="ml-auto flex shrink-0 items-end gap-1.5">
             {quizOffered && (
               <button
                 type="button"
@@ -361,6 +368,7 @@ export function Composer({
                 <Send aria-hidden className="h-[18px] w-[18px]" />
               </button>
             )}
+            </div>
           </div>
         </form>
 

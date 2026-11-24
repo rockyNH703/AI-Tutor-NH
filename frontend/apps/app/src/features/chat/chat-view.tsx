@@ -10,6 +10,8 @@ import { Announcer } from "./announcer";
 import { cn } from "@v1/ui/utils";
 
 import { ProgramChatHeader } from "@/features/programs/program-chat-header";
+import { placeText } from "@/features/programs/program-nav";
+import { usePrograms } from "@/features/programs/use-programs";
 import type { ChatPlace } from "@/lib/api/types";
 import { useChatEntry, useConversations, useStores } from "./chat-context";
 import { Composer } from "./composer";
@@ -55,7 +57,9 @@ export function ChatView({ place = null }: { place?: ChatPlace | null } = {}) {
     if (conversationId) void chat.ensureLoaded(conversationId);
   }, [chat, chatKey, conversationId]);
 
-  useDocumentTitle(conversationId);
+  const { data: programs } = usePrograms();
+  const text = place ? placeText(place, programs?.programs.find((item) => item.slug === place.program) ?? null) : null;
+  useDocumentTitle(conversationId, text?.tabTitle ?? null);
   const empty = isEmptyChat(useChatEntry(chatKey));
 
   // Voice mode, over this chat: open while the chat is the same conversation (a new chat getting its address
@@ -91,9 +95,10 @@ export function ChatView({ place = null }: { place?: ChatPlace | null } = {}) {
       {place && <ProgramChatHeader place={place} conversationId={conversationId} />}
       {/* Under voice mode the chat stays mounted (its draft and place kept) but cannot be reached. */}
       <div className="contents" inert={voiceOpen || undefined}>
-        <MessageList chatKey={chatKey} scrollRef={scrollRef} />
+        <MessageList chatKey={chatKey} scrollRef={scrollRef} place={place} />
         <Composer
           chatKey={chatKey}
+          placeholder={text?.placeholder}
           onSent={() => {
             // Sending re-attaches the view to the bottom.
             const element = scrollRef.current;
@@ -116,12 +121,14 @@ export function ChatView({ place = null }: { place?: ChatPlace | null } = {}) {
   );
 }
 
-function useDocumentTitle(conversationId: string | null) {
+/** The tab's name: the chat's, or for a program chat its place ("Month 2 tutor": program chats are not in the list). */
+function useDocumentTitle(conversationId: string | null, placeTitle: string | null) {
   const { items } = useConversations();
   const entry = useChatEntry(conversationId ?? "");
   const title = conversationId ? items.find((item) => item.id === conversationId)?.title : null;
   useEffect(() => {
     if (entry?.status === "not_found") document.title = `Chat not found · ${APP_NAME}`;
+    else if (placeTitle) document.title = `${placeTitle} · ${APP_NAME}`;
     else document.title = title ? `${title} · ${APP_NAME}` : `New chat · ${APP_NAME}`;
-  }, [title, entry?.status]);
+  }, [title, placeTitle, entry?.status]);
 }

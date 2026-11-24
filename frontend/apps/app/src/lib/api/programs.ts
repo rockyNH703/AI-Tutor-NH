@@ -35,10 +35,6 @@ export function dismissInvoicePrompt(): Promise<void> {
   return callRoute<void>("POST /v1/programs/invoice-prompt/dismiss");
 }
 
-export function getProgram(slug: string): Promise<Program> {
-  return callRoute<Program>("GET /v1/programs/{slug}", { params: { slug } });
-}
-
 export function getProgramMonth(slug: string, month: number): Promise<ProgramMonthDetail> {
   return callRoute<ProgramMonthDetail>("GET /v1/programs/{slug}/months/{month}", {
     params: { slug, month: String(month) },
