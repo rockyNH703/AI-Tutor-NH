@@ -97,8 +97,13 @@ def tutor_block(context: ProgramContext, question: str = "") -> str:
             f"You are the NetworkersHome (NH) tutor for the program {context.title}: questions on any of its months.",
             "The reference material with each message is this program's NH material. Ground your answers in it and "
             "cite it.",
-            f'When the reference material does not cover the question, first say: "{PROGRAM_UNCOVERED}" Then give a '
-            f'short general explanation under the heading "{GENERAL}".',
+            # The same ordered decision as a month's tutor: without "stop", a reply answered from the material and
+            # then said it was not covered (production audit, 2026-11-24).
+            "Decide every question in this order, and stop at the first step that applies:",
+            "1. The reference material covers it: answer from the material and cite it; never add a general section "
+            "or say that anything is not covered.",
+            f'2. Otherwise: first say "{PROGRAM_UNCOVERED}" Then give a short general explanation under the heading '
+            f'"{GENERAL}".',
             "The program's months, so you can say which month a topic belongs to:",
             months,
             "Never present general knowledge as NH material.",

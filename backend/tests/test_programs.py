@@ -420,6 +420,27 @@ def test_a_month_tutor_points_to_other_months_and_labels_general_answers():
     assert "This isn't covered in your program material." in tutor_block(replace(context, month=None, month_title=None))
 
 
+def test_the_program_qna_answers_from_material_or_says_it_is_not_covered_never_both():
+    # Production audit, 2026-11-24: a Q&A reply answered from the material (with citations), then added
+    # "This isn't covered in your program material" and a general section. The month tutor's ordered decision
+    # (stop at the first step that applies) is what keeps it from doing both; Q&A has the same rule now.
+    context = ProgramContext(
+        program_id=uuid.uuid4(),
+        slug=PROGRAM,
+        title=TITLE,
+        month=None,
+        month_title=None,
+        mode="tutor",
+        months=((1, "Networking Fundamentals & CCNA Core"), (2, ENCOR)),
+    )
+    block = tutor_block(context)
+    assert "stop at the first step that applies" in block
+    covered = block.index("1. The reference material covers it")
+    uncovered = block.index("This isn't covered in your program material.")
+    assert covered < uncovered
+    assert "never add a general section or say that anything is not covered" in block
+
+
 NETWORK_SECURITY = (  # migration 0029's titles, verbatim
     (1, "Networking Foundations - CCNA 200-301"),
     (2, "CCNP ENCOR-350-401 (Core)"),

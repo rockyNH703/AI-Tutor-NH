@@ -342,7 +342,8 @@ async def test_a_wrong_certification_answer_is_listed_in_missed_questions(client
                 await db.execute(
                     text(
                         "SELECT q.correct_keys FROM qb_sets s JOIN qb_set_items i ON i.set_id = s.id "
-                        "JOIN qb_questions q ON q.question_id = i.question_id WHERE s.request_id = :m ORDER BY i.position"
+                        "JOIN qb_questions q ON q.question_id = i.question_id "
+                        "WHERE s.request_id = :m ORDER BY i.position"
                     ),
                     {"m": uuid.UUID(message["id"])},
                 )
