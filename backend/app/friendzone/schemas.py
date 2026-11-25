@@ -159,7 +159,7 @@ class FriendZoneCreateBattleRequest(RequestModel):
     month: int = Field(ge=1, le=12)
     topic_id: str | None = Field(default=None, max_length=120)
     difficulty: Literal["mixed", "easy", "medium", "hard"] = "mixed"
-    length: Literal[5, 10] = 5
+    length: Literal[10, 20, 30] = 10  # questions in the exam, 60 s each (O4: was 5 or 10)
     request_id: uuid.UUID  # idempotency: the same id twice answers the same battle
 
 
@@ -172,6 +172,77 @@ class FriendZoneAnswerRequest(RequestModel):
     choice: str = Field(pattern=r"^[A-H]$")
 
 
+MAX_EXAM_QUESTIONS = 30
+MAX_REV = 2_147_483_647  # the `rev` column is a PostgreSQL integer
+
+
+class FriendZoneResponseItem(RequestModel):
+    """One question's change in an exam (plan sections 3 and 4).
+
+    `op: "set"` (the default) writes the question's whole state: `choice` (a letter, or null to clear it), `marked`
+    and `baseRev`, the `rev` it was based on (0 when there is no row yet); all three must be sent. It is applied
+    only when `baseRev` still matches (compare-and-set); a submit applies it as the final value without that check.
+    `op: "visit"` only records that the question was seen: it never changes an existing row, and carries nothing
+    but `round`."""
+
+    round: int = Field(ge=1, le=MAX_EXAM_QUESTIONS)
+    op: Literal["set", "visit"] = "set"
+    choice: str | None = Field(default=None, pattern=r"^[A-H]$")
+    marked: bool = False
+    base_rev: int = Field(default=0, ge=0, le=MAX_REV)
+
+    @model_validator(mode="after")
+    def _shape(self) -> FriendZoneResponseItem:
+        given = self.model_fields_set & {"choice", "marked", "base_rev"}
+        if self.op == "set" and len(given) != 3:
+            raise ValueError("a set needs choice, marked and baseRev")
+        if self.op == "visit" and given:
+            raise ValueError("a visit carries only round")
+        return self
+
+
+class FriendZoneBattleResponsesRequest(RequestModel):
+    """Save exam answers as they change (picks, clears, marks and visits); nothing is graded until the end."""
+
+    responses: list[FriendZoneResponseItem] = Field(min_length=1, max_length=MAX_EXAM_QUESTIONS)
+
+
+class FriendZoneSubmitRequest(RequestModel):
+    """Submit my exam: any responses still unsaved go with it, as final values. `auto` is the client's own submit at
+    the deadline (recorded as submitted at the deadline)."""
+
+    responses: list[FriendZoneResponseItem] = Field(default_factory=list, max_length=MAX_EXAM_QUESTIONS)
+    auto: bool = False
+
+
+class FriendZoneResponseOut(ApiModel):
+    """One of my saved exam responses: a row exists once the question was visited."""
+
+    round: int
+    choice: str | None
+    marked: bool
+    rev: int  # the server's revision of this row: send it back as `baseRev`
+
+
+class FriendZoneResponseResultOut(ApiModel):
+    """What happened to one item of a save."""
+
+    round: int
+    applied: bool  # false: `baseRev` was stale, or the battle no longer takes changes
+    rev: int  # the row's revision now (0: there is no row)
+
+
+class FriendZoneBattleResponsesOut(ApiModel):
+    """The answer to a save: small on purpose (no paper)."""
+
+    server_time: datetime
+    status: BattleStatus
+    submitted_at: datetime | None  # mine
+    opponent_submitted: bool
+    responses: list[FriendZoneResponseOut]  # every response row of mine, after this save
+    items: list[FriendZoneResponseResultOut]  # one per item sent, in order
+
+
 class FriendZoneBattlePlayerOut(ApiModel):
     player_id: uuid.UUID | None  # None: the member has left (deleted their account)
     display_name: str | None
@@ -182,6 +253,7 @@ class FriendZoneBattlePlayerOut(ApiModel):
     correct: int
     answered: int
     winner: bool
+    time_taken_seconds: int | None = None  # an exam, once completed: whole seconds from the start to the submit
 
 
 class FriendZoneOptionOut(ApiModel):
@@ -214,16 +286,44 @@ class FriendZoneRoundOut(ApiModel):
 
 
 class FriendZoneReviewOut(ApiModel):
-    """After the battle: each question with its answer and why."""
+    """After the battle: each question with its answer and why. A voided exam question has no stem, key or
+    explanation (it changed or was withdrawn after the exam started)."""
+
+    round: int
+    stem: str | None
+    options: list[FriendZoneOptionOut]
+    correct_key: str | None
+    explanation: str | None
+    voided: bool
+    my_choice: str | None
+    their_choice: str | None
+
+
+class FriendZoneExamQuestionOut(ApiModel):
+    """A question of the exam paper: never its key or explanation."""
 
     round: int
     stem: str
     options: list[FriendZoneOptionOut]
-    correct_key: str
-    explanation: str
-    voided: bool
-    my_choice: str | None
-    their_choice: str | None
+
+
+class FriendZoneExamOut(ApiModel):
+    """The running exam, once it has started: the same paper for both, my own responses only."""
+
+    seconds_per_question: int
+    ends_at: datetime  # the deadline: the timer shown counts to this
+    cutoff_at: datetime  # the deadline plus the network allowance: saves are accepted until then
+    questions: list[FriendZoneExamQuestionOut]
+    responses: list[FriendZoneResponseOut]  # mine
+    submitted_at: datetime | None  # mine
+    opponent_submitted: bool
+
+
+class FriendZoneBattleXpOut(ApiModel):
+    """One line of the XP this battle gave me."""
+
+    reason: str  # battle, win, draw
+    amount: int
 
 
 class FriendZoneBattleOut(ApiModel):
@@ -244,9 +344,16 @@ class FriendZoneBattleOut(ApiModel):
     server_time: datetime
     me: FriendZoneBattlePlayerOut
     opponent: FriendZoneBattlePlayerOut
-    question: FriendZoneQuestionOut | None
+    question: FriendZoneQuestionOut | None  # a round battle's open round; always null for an exam
     rounds: list[FriendZoneRoundOut]
     review: list[FriendZoneReviewOut] | None  # only once completed
+    format: Literal["rounds", "exam"] = "rounds"  # rounds: a battle from before the exam (history only)
+    repeats_from_previous: int = 0  # a rematch: questions that repeat from the last battle
+    exam: FriendZoneExamOut | None = None  # only while active and started
+    xp: list[FriendZoneBattleXpOut] | None = None  # mine, only once completed
+    # only on the /submit answer: true when that call applied my submission, false when the exam was not running for
+    # me (not started, not active, completed, or already submitted)
+    submit_applied: bool | None = None
 
 
 class FriendZoneBattleSummaryOut(ApiModel):

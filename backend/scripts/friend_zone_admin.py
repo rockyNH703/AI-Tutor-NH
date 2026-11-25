@@ -9,6 +9,7 @@
     python scripts/friend_zone_admin.py qa-cleanup [--apply]
     python scripts/friend_zone_admin.py qa-verify
     python scripts/friend_zone_admin.py retention [--apply]
+    python scripts/friend_zone_admin.py end-open [--complete-only] [--apply]
 
 Run on the host with the API's settings (systemd-run -p EnvironmentFile=/etc/netsecai/api.env, like
 program_admin.py). Everything that changes data is a dry run until --apply, and every applied moderation step writes
@@ -25,6 +26,12 @@ only by `report`; nothing here prints an email or an invoice number.
 - retention: the owner-approved retention (CD20, DPDP review): closed friend requests and battle invitations that
   never started go 30 days after they closed (a request left pending, 30 days after it expired); resolved reports
   180 days after resolution; moderation audit rows after one year. Everything else stays until the account goes.
+- end-open: the open battles (id, status, format, cohort; never a member), each brought up to the clock by the API's
+  own engine under the API's locks (pair lock, live locks, the battle row) with FRIEND_ZONE_KEY_POLICY, one commit
+  per battle. --complete-only completes only exams past their cutoff or submitted by every present player (the mode
+  for while Friend Zone is off); without it, every other open battle ends too: an active exam is void, an invitation
+  or a wait is cancelled, and a legacy round battle is void or cancelled as upgraded. Nobody is told; a void battle
+  gives no XP, and the drafts given so far count as practice (as with a block).
 """
 
 from __future__ import annotations
@@ -95,7 +102,15 @@ def _parser() -> argparse.ArgumentParser:
     actions.add_parser("qa-verify")
     retention = actions.add_parser("retention")
     retention.add_argument("--apply", action="store_true")
+    end_open_ = actions.add_parser("end-open")
+    end_open_.add_argument("--complete-only", action="store_true")
+    end_open_.add_argument("--apply", action="store_true")
     return parser
+
+
+def _policy() -> str:
+    """The API's FRIEND_ZONE_KEY_POLICY: a question's validity is judged exactly as the API judges it."""
+    return Settings().friend_zone_key_policy
 
 
 def _audit(db, action: str, actor: str, *, report_id=None, target=None, note: str | None = None) -> None:
@@ -223,15 +238,11 @@ async def suspend(db, args: argparse.Namespace) -> int:
             .where(FzBattlePlayer.user_id == user_id, FzBattle.status.in_(FZ_BATTLE_OPEN))
         )
     ).all()
-    for battle_id in open_ids:
-        battle = await db.scalar(
-            select(FzBattle).where(FzBattle.id == battle_id).with_for_update().execution_options(populate_existing=True)
-        )
-        players = (await db.scalars(select(FzBattlePlayer).where(FzBattlePlayer.battle_id == battle_id))).all()
-        found = battles.Loaded(battle, {row.role: row for row in players}, "challenger")
-        if battle.status == "active":
-            await battles.end_battle(db, found, "completed", "suspended", "void")
-        elif battle.status in FZ_BATTLE_OPEN:
+    for battle_id in open_ids:  # O5: every open battle is void, even an exam past its cutoff that nobody has read
+        found = await battles.locked(db, battle_id)
+        if found.battle.status == "active":
+            await battles.end_battle(db, found, "completed", "suspended", "void", policy=_policy())
+        elif found.battle.status in FZ_BATTLE_OPEN:
             await battles.end_battle(db, found, "cancelled", "suspended")
     await db.commit()
     print("suspended")
@@ -355,6 +366,78 @@ async def retention(db, apply: bool) -> int:
     return 0
 
 
+# ------------------------------------------------------------------ open battles (exam plan, section 7)
+async def _due(db, battle_id: uuid.UUID) -> bool:
+    """An active exam that is over: past its cutoff, or submitted by every present player."""
+    battle = await db.get(FzBattle, battle_id, populate_existing=True)
+    if battle.status != "active" or battle.format != "exam":
+        return False
+    if await db.scalar(select(func.clock_timestamp())) >= battles.cutoff(battle):
+        return True
+    waiting = await db.scalar(
+        select(func.count())
+        .select_from(FzBattlePlayer)
+        .where(
+            FzBattlePlayer.battle_id == battle_id,
+            FzBattlePlayer.user_id.is_not(None),
+            FzBattlePlayer.submitted_at.is_(None),
+        )
+    )
+    return waiting == 0
+
+
+async def end_one(db, battle_id: uuid.UUID, *, policy: str, complete_only: bool) -> str:
+    """One open battle, under the API's lock order: pair lock, live locks, the row; brought up to the clock with the
+    API's policy and, unless `complete_only`, ended if it is still open. One commit. Returns its state."""
+    members = [
+        user_id
+        for user_id in await db.scalars(select(FzBattlePlayer.user_id).where(FzBattlePlayer.battle_id == battle_id))
+        if user_id is not None
+    ]
+    if len(members) == 2:
+        await relations.lock_pair(db, *members)
+    await battles.lock_live(db, *members)
+    found = await battles.locked(db, battle_id)
+    await battles.advance(db, found, policy=policy)
+    if not complete_only and found.battle.status == "active":
+        await battles.end_battle(db, found, "completed", "operator", "void", policy=policy)
+    elif not complete_only and found.battle.status in FZ_BATTLE_OPEN:
+        await battles.end_battle(db, found, "cancelled", "operator")
+    state = f"{found.battle.status}/{found.battle.result or '-'}"
+    await db.commit()
+    return state
+
+
+async def end_open(db, args: argparse.Namespace) -> int:
+    rows = (
+        await db.execute(
+            select(FzBattle.id, FzBattle.status, FzBattle.format, FzBattle.cohort)
+            .where(FzBattle.status.in_(FZ_BATTLE_OPEN))
+            .order_by(FzBattle.created_at, FzBattle.id)
+        )
+    ).all()
+    todo = []
+    for row in rows:
+        due = await _due(db, row.id)
+        if due or not args.complete_only:
+            todo.append(row.id)
+        action = "complete" if due else ("left open" if args.complete_only else "end")
+        print(f"{row.id}  {row.status:<8} {row.format:<6} cohort={row.cohort:<4} -> {action}")
+    print(f"{len(todo)} of {len(rows)} open battle(s) to {'complete' if args.complete_only else 'end'}")
+    await db.rollback()  # nothing read here is held: each battle is taken under its own locks
+    if not args.apply:
+        print("dry run: add --apply to end them")
+        return 0
+    policy = _policy()
+    for battle_id in todo:
+        print(f"{battle_id}  {await end_one(db, battle_id, policy=policy, complete_only=args.complete_only)}")
+    if todo and not args.complete_only:
+        _audit(db, "cancel_battle", args.actor, note=f"end-open: {len(todo)} open battle(s) ended")
+        await db.commit()
+    print("done")
+    return 0
+
+
 async def run(db, args: argparse.Namespace) -> int:
     if args.action == "reports":
         return await reports(db, args.status)
@@ -372,6 +455,8 @@ async def run(db, args: argparse.Namespace) -> int:
         return await qa_cleanup(db, args.apply, args.actor)
     if args.action == "retention":
         return await retention(db, args.apply)
+    if args.action == "end-open":
+        return await end_open(db, args)
     return await qa_verify(db)
 
 

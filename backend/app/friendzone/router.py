@@ -16,7 +16,7 @@ from app.auth.service import AuthService
 from app.db.models import FzProfile
 from app.db.session import get_session
 from app.errors import Conflict, NotFound, RateLimited, VersionConflict
-from app.friendzone import access, battle_routes, daily, daily_routes, friends
+from app.friendzone import access, battle_routes, battles, daily, daily_routes, friends
 from app.friendzone.names import clean_name
 from app.friendzone.schemas import (
     FriendZoneJoinRequest,
@@ -62,6 +62,11 @@ async def get_me(
     eligible = enabled and await access.eligible(db, principal.user, settings)
     found = await access.profile(db, principal.user.id) if eligible else None
     if found is not None:
+        # an exam of mine past its cutoff completes here too (no timer process), never for a suspended profile (O5);
+        # notify_available may return early without committing, so the completion commits on its own
+        policy = settings.friend_zone_key_policy
+        if found.suspended_at is None and await battles.complete_overdue(db, found.user_id, policy=policy):
+            await db.commit()
         # once a day; commits what it writes
         await daily.notify_available(db, found, settings.friend_zone_key_policy, settings.friend_zone_round_seconds)
     return FriendZoneMeOut(

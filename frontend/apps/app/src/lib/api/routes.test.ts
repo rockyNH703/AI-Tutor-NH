@@ -148,10 +148,23 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
   FriendZoneSearchRequest: [{ invoiceNumber: "NH-2026-0012" }],
   FriendZonePlayerRef: [{ playerId: ID }],
   FriendZoneCreateBattleRequest: [
-    { opponentId: ID, program: "ccna", month: 1, difficulty: "mixed", length: 5, requestId: ID },
-    { opponentId: ID, program: "ccna", month: 2, topicId: "ospf", difficulty: "hard", length: 10, requestId: ID },
+    { opponentId: ID, program: "ccna", month: 1, difficulty: "mixed", length: 10, requestId: ID },
+    { opponentId: ID, program: "ccna", month: 2, topicId: "ospf", difficulty: "hard", length: 30, requestId: ID },
   ],
-  FriendZoneAnswerRequest: [{ round: 1, choice: "B" }],
+  // Exam saves: a visit, a pick, a clear (choice null) and a mark, each on the revision it was based on.
+  FriendZoneBattleResponsesRequest: [
+    { responses: [{ round: 2, op: "visit" }] },
+    {
+      responses: [
+        { round: 1, op: "set", choice: "B", marked: false, baseRev: 1 },
+        { round: 3, op: "set", choice: null, marked: true, baseRev: 0 },
+      ],
+    },
+  ],
+  FriendZoneSubmitRequest: [
+    { responses: [], auto: false },
+    { responses: [{ round: 4, op: "set", choice: "A", marked: false, baseRev: 2 }, { round: 5, op: "visit" }], auto: true },
+  ],
   FriendZoneRematchRequest: [{ requestId: ID }],
   FriendZoneDailyAnswerRequest: [{ position: 3, choice: "D" }],
   FriendZoneReportRequest: [{ playerId: ID, reason: "harassment" }, { playerId: ID, reason: "other", details: "Rude name." }],

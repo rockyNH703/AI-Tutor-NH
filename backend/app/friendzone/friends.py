@@ -206,7 +206,8 @@ async def remove_friend(
     await relations.lock_pair(db, me.user_id, other.user_id)
     if not await relations.unfriend(db, me.user_id, other.user_id):
         raise NotFound()
-    await battles.end_open(db, me.user_id, other.user_id, "unfriended")
+    policy = request.app.state.settings.friend_zone_key_policy
+    await battles.end_open(db, me.user_id, other.user_id, "unfriended", policy=policy)
     await db.commit()
     log.info("friend zone unfriend", extra={"user_id": str(principal.user.id)})
     return Response(status_code=status.HTTP_204_NO_CONTENT, headers=access.NO_STORE)
@@ -368,7 +369,8 @@ async def block_player(
         raise NotFound()
     await relations.lock_pair(db, me.user_id, other.user_id)
     await relations.block(db, me, other)
-    await battles.end_open(db, me.user_id, other.user_id, "blocked")
+    policy = request.app.state.settings.friend_zone_key_policy
+    await battles.end_open(db, me.user_id, other.user_id, "blocked", policy=policy)
     await db.commit()
     log.info("friend zone block", extra={"user_id": str(principal.user.id)})
     return Response(status_code=status.HTTP_204_NO_CONTENT, headers=access.NO_STORE)

@@ -2658,6 +2658,16 @@
             ],
             "title": "Endsat"
           },
+          "exam": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FriendZoneExamOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "expiresAt": {
             "anyOf": [
               {
@@ -2669,6 +2679,15 @@
               }
             ],
             "title": "Expiresat"
+          },
+          "format": {
+            "default": "rounds",
+            "enum": [
+              "rounds",
+              "exam"
+            ],
+            "title": "Format",
+            "type": "string"
           },
           "length": {
             "title": "Length",
@@ -2708,6 +2727,11 @@
                 "type": "null"
               }
             ]
+          },
+          "repeatsFromPrevious": {
+            "default": 0,
+            "title": "Repeatsfromprevious",
+            "type": "integer"
           },
           "result": {
             "anyOf": [
@@ -2781,6 +2805,17 @@
             "title": "Status",
             "type": "string"
           },
+          "submitApplied": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submitapplied"
+          },
           "topicId": {
             "anyOf": [
               {
@@ -2791,6 +2826,20 @@
               }
             ],
             "title": "Topicid"
+          },
+          "xp": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FriendZoneBattleXpOut"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Xp"
           }
         },
         "required": [
@@ -2878,6 +2927,17 @@
             "title": "Score",
             "type": "integer"
           },
+          "timeTakenSeconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timetakenseconds"
+          },
           "winner": {
             "title": "Winner",
             "type": "boolean"
@@ -2895,6 +2955,89 @@
           "winner"
         ],
         "title": "FriendZoneBattlePlayerOut",
+        "type": "object"
+      },
+      "FriendZoneBattleResponsesOut": {
+        "description": "The answer to a save: small on purpose (no paper).",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneResponseResultOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "opponentSubmitted": {
+            "title": "Opponentsubmitted",
+            "type": "boolean"
+          },
+          "responses": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneResponseOut"
+            },
+            "title": "Responses",
+            "type": "array"
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "invited",
+              "waiting",
+              "active",
+              "completed",
+              "declined",
+              "expired",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "submittedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submittedat"
+          }
+        },
+        "required": [
+          "serverTime",
+          "status",
+          "submittedAt",
+          "opponentSubmitted",
+          "responses",
+          "items"
+        ],
+        "title": "FriendZoneBattleResponsesOut",
+        "type": "object"
+      },
+      "FriendZoneBattleResponsesRequest": {
+        "additionalProperties": false,
+        "description": "Save exam answers as they change (picks, clears, marks and visits); nothing is graded until the end.",
+        "properties": {
+          "responses": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneResponseItem"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Responses",
+            "type": "array"
+          }
+        },
+        "required": [
+          "responses"
+        ],
+        "title": "FriendZoneBattleResponsesRequest",
         "type": "object"
       },
       "FriendZoneBattleSummaryOut": {
@@ -3002,6 +3145,25 @@
         "title": "FriendZoneBattleSummaryOut",
         "type": "object"
       },
+      "FriendZoneBattleXpOut": {
+        "description": "One line of the XP this battle gave me.",
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "amount"
+        ],
+        "title": "FriendZoneBattleXpOut",
+        "type": "object"
+      },
       "FriendZoneBattlesOut": {
         "properties": {
           "items": {
@@ -3045,10 +3207,11 @@
             "type": "string"
           },
           "length": {
-            "default": 5,
+            "default": 10,
             "enum": [
-              5,
-              10
+              10,
+              20,
+              30
             ],
             "title": "Length",
             "type": "integer"
@@ -3492,6 +3655,93 @@
           "voided"
         ],
         "title": "FriendZoneDailyReviewOut",
+        "type": "object"
+      },
+      "FriendZoneExamOut": {
+        "description": "The running exam, once it has started: the same paper for both, my own responses only.",
+        "properties": {
+          "cutoffAt": {
+            "format": "date-time",
+            "title": "Cutoffat",
+            "type": "string"
+          },
+          "endsAt": {
+            "format": "date-time",
+            "title": "Endsat",
+            "type": "string"
+          },
+          "opponentSubmitted": {
+            "title": "Opponentsubmitted",
+            "type": "boolean"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneExamQuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "responses": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneResponseOut"
+            },
+            "title": "Responses",
+            "type": "array"
+          },
+          "secondsPerQuestion": {
+            "title": "Secondsperquestion",
+            "type": "integer"
+          },
+          "submittedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Submittedat"
+          }
+        },
+        "required": [
+          "secondsPerQuestion",
+          "endsAt",
+          "cutoffAt",
+          "questions",
+          "responses",
+          "submittedAt",
+          "opponentSubmitted"
+        ],
+        "title": "FriendZoneExamOut",
+        "type": "object"
+      },
+      "FriendZoneExamQuestionOut": {
+        "description": "A question of the exam paper: never its key or explanation.",
+        "properties": {
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneOptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "round": {
+            "title": "Round",
+            "type": "integer"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "round",
+          "stem",
+          "options"
+        ],
+        "title": "FriendZoneExamQuestionOut",
         "type": "object"
       },
       "FriendZoneJoinRequest": {
@@ -3997,16 +4247,140 @@
         "title": "FriendZoneRequestsOut",
         "type": "object"
       },
-      "FriendZoneReviewOut": {
-        "description": "After the battle: each question with its answer and why.",
+      "FriendZoneResponseItem": {
+        "additionalProperties": false,
+        "description": "One question's change in an exam (plan sections 3 and 4).\n\n`op: \"set\"` (the default) writes the question's whole state: `choice` (a letter, or null to clear it), `marked`\nand `baseRev`, the `rev` it was based on (0 when there is no row yet); all three must be sent. It is applied\nonly when `baseRev` still matches (compare-and-set); a submit applies it as the final value without that check.\n`op: \"visit\"` only records that the question was seen: it never changes an existing row, and carries nothing\nbut `round`.",
         "properties": {
-          "correctKey": {
-            "title": "Correctkey",
+          "baseRev": {
+            "default": 0,
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Baserev",
+            "type": "integer"
+          },
+          "choice": {
+            "anyOf": [
+              {
+                "pattern": "^[A-H]$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choice"
+          },
+          "marked": {
+            "default": false,
+            "title": "Marked",
+            "type": "boolean"
+          },
+          "op": {
+            "default": "set",
+            "enum": [
+              "set",
+              "visit"
+            ],
+            "title": "Op",
             "type": "string"
           },
+          "round": {
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Round",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "round"
+        ],
+        "title": "FriendZoneResponseItem",
+        "type": "object"
+      },
+      "FriendZoneResponseOut": {
+        "description": "One of my saved exam responses: a row exists once the question was visited.",
+        "properties": {
+          "choice": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choice"
+          },
+          "marked": {
+            "title": "Marked",
+            "type": "boolean"
+          },
+          "rev": {
+            "title": "Rev",
+            "type": "integer"
+          },
+          "round": {
+            "title": "Round",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "round",
+          "choice",
+          "marked",
+          "rev"
+        ],
+        "title": "FriendZoneResponseOut",
+        "type": "object"
+      },
+      "FriendZoneResponseResultOut": {
+        "description": "What happened to one item of a save.",
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "boolean"
+          },
+          "rev": {
+            "title": "Rev",
+            "type": "integer"
+          },
+          "round": {
+            "title": "Round",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "round",
+          "applied",
+          "rev"
+        ],
+        "title": "FriendZoneResponseResultOut",
+        "type": "object"
+      },
+      "FriendZoneReviewOut": {
+        "description": "After the battle: each question with its answer and why. A voided exam question has no stem, key or\nexplanation (it changed or was withdrawn after the exam started).",
+        "properties": {
+          "correctKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correctkey"
+          },
           "explanation": {
-            "title": "Explanation",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
           },
           "myChoice": {
             "anyOf": [
@@ -4031,8 +4405,15 @@
             "type": "integer"
           },
           "stem": {
-            "title": "Stem",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stem"
           },
           "theirChoice": {
             "anyOf": [
@@ -4219,6 +4600,27 @@
           "dailyStreak"
         ],
         "title": "FriendZoneStatsOut",
+        "type": "object"
+      },
+      "FriendZoneSubmitRequest": {
+        "additionalProperties": false,
+        "description": "Submit my exam: any responses still unsaved go with it, as final values. `auto` is the client's own submit at\nthe deadline (recorded as submitted at the deadline).",
+        "properties": {
+          "auto": {
+            "default": false,
+            "title": "Auto",
+            "type": "boolean"
+          },
+          "responses": {
+            "items": {
+              "$ref": "#/components/schemas/FriendZoneResponseItem"
+            },
+            "maxItems": 30,
+            "title": "Responses",
+            "type": "array"
+          }
+        },
+        "title": "FriendZoneSubmitRequest",
         "type": "object"
       },
       "FriendZoneXpEventOut": {
@@ -11149,7 +11551,7 @@
     },
     "/v1/friend-zone/battles/{battle_id}/answers": {
       "post": {
-        "description": "Lock in one letter for the open round: final at once, graded by the database, scored when the round closes.\nThe answer shows only your own choice until then.",
+        "description": "Retired with the round battle (kept for /v1 compatibility): always 409 `battle_not_open`, and nothing is\ngraded. An exam is answered with `/responses` and `/submit`.",
         "operationId": "answer_v1_friend_zone_battles__battle_id__answers_post",
         "parameters": [
           {
@@ -11384,6 +11786,116 @@
           }
         },
         "summary": "Rematch",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/responses": {
+      "post": {
+        "description": "Save exam answers as they change: each item is applied only when its `baseRev` still matches. Nothing is\ngraded until the exam ends. 409 `battle_not_open` once I have submitted or past the cutoff.",
+        "operationId": "save_responses_v1_friend_zone_battles__battle_id__responses_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneBattleResponsesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleResponsesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Responses",
+        "tags": [
+          "friend-zone",
+          "friend-zone"
+        ]
+      }
+    },
+    "/v1/friend-zone/battles/{battle_id}/submit": {
+      "post": {
+        "description": "Submit my exam, with any unsaved responses as final values. After the end it answers 200 with the battle and\nnothing applied (never 409). The applying submit is never rate limited (the deadline's auto-submit must always get\nthrough); one that applies nothing goes through the poll limit, so a loop cannot bypass the GET's.",
+        "operationId": "submit_exam_v1_friend_zone_battles__battle_id__submit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "battle_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Battle Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FriendZoneSubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendZoneBattleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Exam",
         "tags": [
           "friend-zone",
           "friend-zone"

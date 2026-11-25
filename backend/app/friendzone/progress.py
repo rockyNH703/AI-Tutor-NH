@@ -9,7 +9,7 @@ XP (live members only; the database refuses a QA row):
   +15; daily streaks of 3, 7, 14 and 30 days: +20, +50, +100, +200, once per streak.
 Levels: level n is reached at 50 * n * (n - 1) XP. Badges: First Battle (a first rewarded battle), Quiz Champion
 (10 rewarded wins against at least 3 different friends), Daily Challenger (10 dailies completed), Consistency Master
-(7 dailies in a row), Perfect Score (100% in a daily, or in a 10-question battle).
+(7 dailies in a row), Perfect Score (100% in a daily, or in an exam battle of 10, 20 or 30 questions).
 
 Every award is one row keyed (user, reason, ref), written in the transaction that earned it, under the member's XP
 lock (after the battle row lock: plan section 9's order), so replays and races award once."""
@@ -46,7 +46,10 @@ BADGES = {
     "quiz_champion": ("Quiz Champion", "Win 10 rewarded battles against at least 3 different friends."),
     "daily_challenger": ("Daily Challenger", "Complete 10 daily challenges."),
     "consistency_master": ("Consistency Master", "Complete daily challenges 7 days in a row."),
-    "perfect_score": ("Perfect Score", "Get everything right in a daily challenge or a 10-question battle."),
+    "perfect_score": (
+        "Perfect Score",
+        "Get everything right in a daily challenge or a battle of 10, 20 or 30 questions.",
+    ),
 }
 
 
@@ -150,11 +153,17 @@ async def on_battle_completed(db: AsyncSession, battle: FzBattle, players: dict[
         if battle.result == "draw":
             await _award(db, player.user_id, "draw", ref, XP["draw"])
         await _unlock(db, player.user_id, "first_battle")
-        if battle.length == 10 and counted == 10 and player.correct == 10:
+        if _perfect(battle, counted, player):
             await _unlock(db, player.user_id, "perfect_score")
         if player.winner and await _champion(db, player.user_id):
             await _unlock(db, player.user_id, "quiz_champion")
         await _level_check(db, player.user_id, before)
+
+
+def _perfect(battle: FzBattle, counted: int, player: FzBattlePlayer) -> bool:
+    """Perfect Score (D7): every question of an exam of 10, 20 or 30 right, none of them voided. A badge only."""
+    lengths = (10, 20, 30)
+    return battle.format == "exam" and battle.length in lengths and counted == player.correct == battle.length
 
 
 async def _under_caps(db: AsyncSession, user_id: uuid.UUID, other: FzBattlePlayer | None, now: datetime) -> bool:

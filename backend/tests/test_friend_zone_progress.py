@@ -25,7 +25,16 @@ from app.friendzone import battles, friends, progress
 from app.qbank.importer import import_bank
 from scripts import bind_key_checks
 from tests.conftest import make_settings
-from tests.test_friend_zone_battles import answer, at, bank, key_of, pair, started, state  # noqa: F401 (bank)
+from tests.test_friend_zone_battles import (  # noqa: F401 (bank)
+    answers,
+    bank,
+    begin,
+    keys,
+    pair,
+    save,
+    state,
+    submit,
+)
 from tests.test_friend_zone_relations import befriend, block
 from tests.test_programs import enrolled
 from tests.test_qbank_certification import netsec_bank
@@ -44,15 +53,12 @@ def no_floor(monkeypatch):
 
 
 async def play(client, app, a: dict, b: dict, battle_id: str, *, a_right: bool = True, b_right: bool = False):
-    """Play every round: each player answers right or wrong, then the round closes."""
+    """Answer every question of a started exam, right or wrong, and both submit."""
     length = (await state(client, a, battle_id))["length"]
-    for round_ in range(1, length + 1):
-        await at(app, battle_id, round_, "opened_at", -1)
-        key = await key_of(app, battle_id, round_)
-        wrong = "A" if key != "A" else "B"
-        await answer(client, a, battle_id, round_, key if a_right else wrong)
-        await answer(client, b, battle_id, round_, key if b_right else wrong)
-        await at(app, battle_id, round_, "closes_at", -0.1)
+    found, every = await keys(app, battle_id), range(1, length + 1)
+    for who, right in ((a, a_right), (b, b_right)):
+        picks = answers(found, right=every) if right else answers(found, wrong_=every)
+        assert (await submit(client, who, battle_id, *picks)).status_code == 200
     return await state(client, a, battle_id)
 
 
@@ -89,12 +95,12 @@ def test_levels_follow_fifty_n_n_minus_one():
 
 async def test_a_won_battle_gives_xp_a_badge_and_stats_once(client, app, bank):  # noqa: F811
     a, b = await pair(client, app, 401)
-    battle_id = await started(client, a, b)
+    battle_id = await begin(client, app, a, b)
     done = await play(client, app, a, b, battle_id)
     assert (done["status"], done["result"], done["me"]["winner"]) == ("completed", "points", True)
     assert await xp_of(app, a) == {"battle": 20, "win": 30}
     assert await xp_of(app, b) == {"battle": 20}  # answered every round, so rewarded; no win
-    assert await kinds(app, a) == ["badge_unlocked"]
+    assert await kinds(app, a) == ["badge_unlocked", "badge_unlocked"]  # First Battle, and Perfect Score (10 of 10)
     async with app.state.db.sessionmaker() as db:  # replaying the award changes nothing
         me = await db.scalar(select(FzProfile).where(FzProfile.user_id == uuid.UUID(a["user"]["id"])))
         loaded = await battles.load(db, uuid.UUID(battle_id), me, lock=True)
@@ -104,7 +110,8 @@ async def test_a_won_battle_gives_xp_a_badge_and_stats_once(client, app, bank): 
 
     mine = (await client.get(f"{BASE}/players/{a['player']}", headers=a["headers"])).json()["stats"]
     assert (mine["battles"], mine["wins"], mine["losses"], mine["xp"], mine["level"]) == (1, 1, 0, 50, 1)
-    assert [badge["key"] for badge in mine["badges"]] == ["first_battle"] and mine["nextLevelAt"] == 100
+    assert [badge["key"] for badge in mine["badges"]] == ["first_battle", "perfect_score"]
+    assert mine["nextLevelAt"] == 100
     hidden = (await client.get(f"{BASE}/players/{a['player']}", headers=b["headers"])).json()
     assert hidden["stats"] is None  # a friend sees stats only when they are shown
     profile = (await client.get(f"{BASE}/me", headers=a["headers"])).json()["profile"]
@@ -119,9 +126,8 @@ async def test_a_won_battle_gives_xp_a_badge_and_stats_once(client, app, bank): 
 
 async def test_void_and_capped_battles_give_no_xp(client, app, bank):  # noqa: F811
     a, b = await pair(client, app, 411)
-    voided = await started(client, a, b)
-    await at(app, voided, 1, "opened_at", -1)
-    await answer(client, a, voided, 1, "A")
+    voided = await begin(client, app, a, b)
+    await save(client, a, voided, *answers(await keys(app, voided), right=range(1, 11)))
     await block(client, b, a)
     assert (await state(client, a, voided))["result"] == "void"
     assert await xp_of(app, a) == {}
@@ -132,7 +138,7 @@ async def test_void_and_capped_battles_give_no_xp(client, app, bank):  # noqa: F
         for _ in range(progress.REWARDED_PER_DAY):
             db.add(FzXpEvent(user_id=user, cohort="live", reason="battle", ref_id=str(uuid.uuid4()), amount=20))
         await db.commit()
-    battle_id = await started(client, c, d)
+    battle_id = await begin(client, app, c, d)
     await play(client, app, c, d, battle_id)
     assert await xp_of(app, c) == {"battle": 20 * progress.REWARDED_PER_DAY}  # nothing more for c
     assert await xp_of(app, d) == {"battle": 20}
@@ -140,13 +146,13 @@ async def test_void_and_capped_battles_give_no_xp(client, app, bank):  # noqa: F
 
 async def test_a_rematch_is_a_new_invitation_with_fresh_questions(client, app, bank):  # noqa: F811
     a, b = await pair(client, app, 421)
-    first = await started(client, a, b)
+    first = await begin(client, app, a, b, length=20)
     await play(client, app, a, b, first)
     request_id = str(uuid.uuid4())
     created = await rematch(client, b, first, request_id)
     assert created.status_code == 201, created.text
     again = created.json()
-    assert again["status"] == "invited" and again["me"]["role"] == "challenger"
+    assert again["status"] == "invited" and again["me"]["role"] == "challenger" and again["length"] == 20
     assert (await rematch(client, b, first, request_id)).json()["battleId"] == again["battleId"]  # idempotent
     assert (await rematch(client, a, first)).json()["error"]["code"] == "battle_exists"  # one open battle per pair
     async with app.state.db.sessionmaker() as db:
@@ -162,8 +168,10 @@ async def test_a_rematch_is_a_new_invitation_with_fresh_questions(client, app, b
     async with app.state.db.sessionmaker() as db:
         rows = await db.scalars(select(FzBattle).where(FzBattle.id.in_([uuid.UUID(first), uuid.UUID(second)])))
         asked = {str(row.id): set(row.question_ids) for row in rows}
-        assert not asked[first] & asked[second]  # fresh questions: the pool holds enough
+        # fresh questions first: the pool holds 24, so 4 fresh ones and 16 repeats
+        assert len(asked[second] - asked[first]) == 4 and len(asked[first] & asked[second]) == 16
         assert await db.scalar(select(FzBattle.rematch_of).where(FzBattle.id == uuid.UUID(second))) == uuid.UUID(first)
+    assert (await state(client, b, second))["repeatsFromPrevious"] == 16
     stranger, _ = await pair(client, app, 425)
     assert (await rematch(client, stranger, first)).status_code == 404  # not their battle
 
@@ -180,7 +188,7 @@ async def test_qa_members_never_earn_xp(client, app, bank):  # noqa: F811
         )
         qa.append({**account, "player": joined.json()["playerId"]})
     await befriend(client, qa[0], qa[1])
-    battle_id = await started(client, qa[0], qa[1])
+    battle_id = await begin(client, app, qa[0], qa[1])
     assert (await play(client, app, qa[0], qa[1], battle_id))["status"] == "completed"
     assert await xp_of(app, qa[0]) == {} and await xp_of(app, qa[1]) == {}
     async with app.state.db.sessionmaker() as db:  # and the database refuses one outright
@@ -221,8 +229,9 @@ async def test_ai_checks_bind_only_unchanged_content_and_count_only_under_the_po
         db.add(ProgramModuleBook(module_id=module, book_id="ccna"))
         await db.commit()
         mcq = select(func.count()).select_from(QbQuestion).where(QbQuestion.question_format == "mcq")
-        assert await battles.pool_size(db, module, None, "mixed", "human_only") == 0  # nothing approved by a person
-        ai_pool = await battles.pool_size(db, module, None, "mixed", "human_or_ai")
+        # nothing approved by a person
+        assert await battles.pool_size(db, module, None, "mixed", policy="human_only") == 0
+        ai_pool = await battles.pool_size(db, module, None, "mixed", policy="human_or_ai")
         assert ai_pool == await db.scalar(mcq.where(QbQuestion.question_id.in_(list(found)))) > 0
         edited = await db.scalar(
             select(QbQuestion.question_id).where(
@@ -233,38 +242,19 @@ async def test_ai_checks_bind_only_unchanged_content_and_count_only_under_the_po
             text("UPDATE qb_questions SET content_hash = repeat('f', 64) WHERE question_id = :q"), {"q": edited}
         )
         await db.commit()
-        assert await battles.pool_size(db, module, None, "mixed", "human_or_ai") == ai_pool - 1
+        assert await battles.pool_size(db, module, None, "mixed", policy="human_or_ai") == ai_pool - 1
 
 
-async def test_the_player_who_forfeits_earns_nothing(client, app, bank):  # noqa: F811
-    """Phase 2 security review: answering four rounds and then walking away must not farm XP."""
+async def test_answering_less_than_half_earns_nothing(client, app, bank):  # noqa: F811
+    """Phase 2 security review, for the exam: answering a few questions and walking away must not farm XP."""
     a, b = await pair(client, app, 441)
-    battle_id = (
-        await client.post(
-            f"{BASE}/battles",
-            json={
-                "opponentId": b["player"],
-                "program": "networking-ai",
-                "month": 1,
-                "length": 10,
-                "requestId": str(uuid.uuid4()),
-            },
-            headers=a["headers"],
-        )
-    ).json()["battleId"]
-    await client.post(f"{BASE}/battles/{battle_id}/accept", headers=b["headers"])
-    await client.post(f"{BASE}/battles/{battle_id}/ready", headers=a["headers"])
-    for round_ in range(1, 8):
-        await at(app, battle_id, round_, "opened_at", -1)
-        key = await key_of(app, battle_id, round_)
-        await answer(client, a, battle_id, round_, key)
-        if round_ <= 4:
-            await answer(client, b, battle_id, round_, key)
-        await at(app, battle_id, round_, "closes_at", -0.1)
-    done = await state(client, a, battle_id)
-    assert (done["status"], done["result"], done["me"]["winner"]) == ("completed", "forfeit", True)
-    assert await xp_of(app, b) == {}  # answered 4 of 7 counted rounds, then forfeited
-    assert await xp_of(app, a) == {"battle": 20}  # the remaining player: completion only, never win XP
+    battle_id = await begin(client, app, a, b)
+    found = await keys(app, battle_id)
+    assert (await submit(client, b, battle_id, *answers(found, right=range(1, 5)))).status_code == 200
+    done = (await submit(client, a, battle_id, *answers(found, right=range(1, 11)))).json()
+    assert (done["status"], done["result"], done["me"]["winner"]) == ("completed", "points", True)
+    assert await xp_of(app, b) == {}  # four of ten answered: under half
+    assert await xp_of(app, a) == {"battle": 20}  # a win, but not over an eligible opponent: no +30
 
 
 def test_the_verification_commit_must_be_a_hash():

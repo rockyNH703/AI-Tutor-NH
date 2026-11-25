@@ -98,6 +98,17 @@ describe("allowlist", () => {
     await run(browser("GET", path), "/v1/conversations", fetchImpl);
     expect(calls[0]?.url).toBe(`${API}/v1/conversations?limit=30&cursor=abc`);
   });
+
+  test("an exam submit's body reaches the API unchanged (the deadline's auto-submit carries the unsaved answers)", async () => {
+    const { calls, fetchImpl } = upstream(() => json(200, {}));
+    const path = `/v1/friend-zone/battles/${CID}/submit`;
+    const body = JSON.stringify({ responses: [{ round: 3, op: "set", choice: "C", marked: true, baseRev: 1 }], auto: true });
+    const response = await run(browser("POST", path, { body }), path, fetchImpl);
+    expect(response.status).toBe(200);
+    expect(calls[0]?.url).toBe(`${API}${path}`);
+    expect(calls[0]?.init.body).toBe(body);
+    expect(new Headers(calls[0]?.init.headers).get("content-type")).toBe("application/json");
+  });
 });
 
 describe("CSRF", () => {

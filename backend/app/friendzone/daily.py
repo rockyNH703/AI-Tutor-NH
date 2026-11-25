@@ -39,6 +39,7 @@ from app.friendzone import progress, scoring
 from app.friendzone.battles import clock, mine_of, option_keys
 from app.friendzone.eligibility import WORDS, competitive
 from app.friendzone.relations import LIST_LIMIT, hub_link, is_active, is_blocked
+from app.friendzone.scoring import ALLOWANCE  # G6: network delay allowed after a question's time is up
 from app.logging import get_logger
 from app.notifications.inbox import notify
 from app.programs.access import open_program_ids
@@ -46,7 +47,6 @@ from app.progress.learning import LEARNING_ZONE, learning_date, record_practice
 
 QUESTIONS = 10
 GRACE = timedelta(minutes=30)  # G2: an attempt may go on until 00:30 the next India day
-ALLOWANCE = timedelta(seconds=2)  # G6: network delay allowed after a question's time is up
 
 log = get_logger("app.friendzone")
 

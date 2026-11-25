@@ -331,7 +331,9 @@ HYBRID_SEARCH = "0021_kb_hybrid_search"
 PASSWORD_SESSION_REVOCATION = "0022_password_session_revocation"
 KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
-HEAD = "0031_friend_zone_progress"
+FRIEND_ZONE_PROGRESS = "0031_friend_zone_progress"
+FRIEND_ZONE_EXAM = "0032_friend_zone_exam"
+HEAD = FRIEND_ZONE_EXAM
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -1051,5 +1053,133 @@ def test_migration_0013_two_step_sign_in_is_additive_and_rolls_back_cleanly():
         assert run(_snapshot(new_tables=())) == before
         alembic("upgrade", "0013_two_factor")
         assert run(_query("SELECT count(*) FROM users"))[0][0] == 1
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+async def _seed_0031_battles() -> dict[str, object]:
+    """Friend Zone battles as the 0031 release leaves them: invitations past and before their expiry, a wait whose
+    opponent left, a running round battle with its answer sets, and a finished one (history)."""
+    conn = await asyncpg.connect(DSN)
+    try:
+        users = [
+            await conn.fetchval(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Member') RETURNING id",
+                f"fz-0032-{n}@example.com",
+            )
+            for n in range(2)
+        ]
+        for user_id in users:
+            await conn.execute(
+                "INSERT INTO fz_profiles (user_id, cohort, display_name) VALUES ($1, 'live', 'Member')", user_id
+            )
+        module = await conn.fetchrow("SELECT id, program_id FROM program_modules ORDER BY id LIMIT 1")
+        five = ["q1", "q2", "q3", "q4", "q5"]
+
+        async def battle(status: str, expires: str, key: str | None, questions=None, result=None) -> object:
+            battle_id = await conn.fetchval(
+                "INSERT INTO fz_battles (cohort, program_id, module_id, difficulty, length, question_ids, pair_key, "
+                f"status, result, expires_at) VALUES ('live', $1, $2, 'mixed', 5, $3, $4, $5, $6, {expires}) "
+                "RETURNING id",
+                module["program_id"],
+                module["id"],
+                questions,
+                key,
+                status,
+                result,
+            )
+            for role, user_id in zip(("challenger", "opponent"), users, strict=True):
+                await conn.execute(
+                    "INSERT INTO fz_battle_players (battle_id, role, cohort, user_id) VALUES ($1, $2, 'live', $3)",
+                    battle_id,
+                    role,
+                    user_id,
+                )
+            return battle_id
+
+        seeded = {
+            "invited_past": await battle("invited", "now() - interval '1 minute'", "k1"),
+            "invited_open": await battle("invited", "now() + interval '1 hour'", "k2"),
+            "waiting_left": await battle("waiting", "now() - interval '1 minute'", "k3"),
+            "active": await battle("active", "now() - interval '1 hour'", "k4", five),
+            "completed": await battle("completed", "now() - interval '1 hour'", None, five, "points"),
+        }
+        await conn.execute(
+            "UPDATE fz_battle_players SET user_id = NULL, cohort = NULL WHERE battle_id = $1 AND role = 'opponent'",
+            seeded["waiting_left"],
+        )
+        seeded["set"] = await conn.fetchval(
+            "INSERT INTO qb_sets (user_id, request_id, mode, filters, requested) "
+            "VALUES ($1, $2, 'battle', '{}', 5) RETURNING id",
+            users[0],
+            seeded["active"],
+        )
+        await conn.execute(
+            "UPDATE fz_battle_players SET set_id = $1 WHERE battle_id = $2 AND role = 'challenger'",
+            seeded["set"],
+            seeded["active"],
+        )
+        seeded["module"], seeded["program"] = module["id"], module["program_id"]
+        return seeded
+    finally:
+        await conn.close()
+
+
+def test_migration_0032_ends_legacy_battles_and_allows_exams():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", FRIEND_ZONE_PROGRESS)
+        seeded = run(_seed_0031_battles())
+        alembic("upgrade", FRIEND_ZONE_EXAM)
+        rows = {
+            row["id"]: row
+            for row in run(_query("SELECT id, status, end_reason, result, pair_key, format, ended_at FROM fz_battles"))
+        }
+
+        def outcome(name: str) -> tuple:
+            row = rows[seeded[name]]
+            return row["status"], row["end_reason"], row["result"], row["pair_key"]
+
+        assert outcome("invited_past") == ("expired", "expired", None, None)
+        assert outcome("invited_open") == ("invited", None, None, "k2")  # O9: left; the new code ends it at runtime
+        assert outcome("waiting_left") == ("cancelled", "deleted", None, None)
+        assert outcome("active") == ("completed", "upgraded", "void", None)
+        assert outcome("completed") == ("completed", None, "points", None)  # history untouched
+        assert {row["format"] for row in rows.values()} == {"rounds"}  # no row becomes an exam
+        assert run(_query("SELECT closed_at FROM qb_sets WHERE id = $1", seeded["set"]))[0]["closed_at"] is not None
+        assert run(_query("SELECT count(*) AS n FROM fz_battle_players WHERE submitted_at IS NOT NULL"))[0]["n"] == 0
+
+        legacy = seeded["completed"]
+        assert run(_refused("UPDATE fz_battles SET length = 20 WHERE id = $1", legacy))  # a round battle of 20: no
+        insert = (
+            "INSERT INTO fz_battles (cohort, program_id, module_id, difficulty, length, format, pair_key, status, "
+            "expires_at) VALUES ('live', $1, $2, 'mixed', $3, 'exam', 'k9', 'invited', now() + interval '1 hour')"
+        )
+        assert run(_refused(insert, seeded["program"], seeded["module"], 5))  # an exam of 5: no
+        run(_query(insert, seeded["program"], seeded["module"], 20))
+        assert (
+            run(
+                _query(
+                    "SELECT column_default FROM information_schema.columns "
+                    "WHERE table_name = 'fz_battles' AND column_name = 'format'"
+                )
+            )[0][0]
+            == "'rounds'::character varying"
+        )
+
+        process = subprocess.run(
+            [sys.executable, "-m", "alembic", "-x", f"url={URL}", "downgrade", FRIEND_ZONE_PROGRESS],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode != 0 and "0032 downgrade refused" in process.stderr
+        run(_query("DELETE FROM fz_battles WHERE format = 'exam'"))
+        alembic("downgrade", FRIEND_ZONE_PROGRESS)
+        assert run(_query("SELECT to_regclass('public.fz_battle_responses') AS t"))[0]["t"] is None
+        alembic("upgrade", "head")
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == HEAD
     finally:
         run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))

@@ -334,6 +334,12 @@ export const CONTRACT = {
     }
   },
   "FriendZoneBattleOut": {
+    "format": {
+      "enum": [
+        "rounds",
+        "exam"
+      ]
+    },
     "result": {
       "enum": [
         "points",
@@ -360,6 +366,25 @@ export const CONTRACT = {
         "challenger",
         "opponent"
       ]
+    }
+  },
+  "FriendZoneBattleResponsesOut": {
+    "status": {
+      "enum": [
+        "invited",
+        "waiting",
+        "active",
+        "completed",
+        "declined",
+        "expired",
+        "cancelled"
+      ]
+    }
+  },
+  "FriendZoneBattleResponsesRequest": {
+    "responses": {
+      "maxItems": 30,
+      "minItems": 1
     }
   },
   "FriendZoneBattleSummaryOut": {
@@ -400,8 +425,9 @@ export const CONTRACT = {
     },
     "length": {
       "enum": [
-        5,
-        10
+        10,
+        20,
+        30
       ]
     },
     "month": {
@@ -480,10 +506,34 @@ export const CONTRACT = {
       ]
     }
   },
+  "FriendZoneResponseItem": {
+    "baseRev": {
+      "maximum": 2147483647,
+      "minimum": 0
+    },
+    "choice": {
+      "pattern": "^[A-H]$"
+    },
+    "op": {
+      "enum": [
+        "set",
+        "visit"
+      ]
+    },
+    "round": {
+      "maximum": 30,
+      "minimum": 1
+    }
+  },
   "FriendZoneSearchRequest": {
     "invoiceNumber": {
       "maxLength": 60,
       "minLength": 1
+    }
+  },
+  "FriendZoneSubmitRequest": {
+    "responses": {
+      "maxItems": 30
     }
   },
   "LearnerProfileOut": {

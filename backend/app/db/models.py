@@ -2632,6 +2632,7 @@ FZ_REQUEST_STATUSES = ("pending", "accepted", "declined", "cancelled", "expired"
 FZ_BATTLE_STATUSES = ("invited", "waiting", "active", "completed", "declined", "expired", "cancelled")
 FZ_BATTLE_OPEN = ("invited", "waiting", "active")
 FZ_BATTLE_RESULTS = ("points", "forfeit", "draw", "void")
+FZ_BATTLE_FORMATS = ("rounds", "exam")
 FZ_DIFFICULTIES = ("mixed", "easy", "medium", "hard")
 FZ_REPORT_REASONS = ("harassment", "cheating", "inappropriate_name", "spam", "other")
 FZ_REPORT_STATUSES = ("open", "reviewed", "actioned", "dismissed")
@@ -2742,7 +2743,11 @@ class FzBattle(Base):
         ),
         CheckConstraint(f"cohort IN {FZ_COHORTS}", name="cohort"),
         CheckConstraint(f"difficulty IN {FZ_DIFFICULTIES}", name="difficulty"),
-        CheckConstraint("length IN (5, 10)", name="length"),
+        # 0032: a legacy round battle has 5 or 10 rounds; an exam 10, 20 or 30 questions
+        CheckConstraint(
+            "(format = 'rounds' AND length IN (5, 10)) OR (format = 'exam' AND length IN (10, 20, 30))", name="length"
+        ),
+        CheckConstraint(f"format IN {FZ_BATTLE_FORMATS}", name="format"),
         CheckConstraint(f"status IN {FZ_BATTLE_STATUSES}", name="status"),
         CheckConstraint(f"result IS NULL OR result IN {FZ_BATTLE_RESULTS}", name="result"),
         CheckConstraint(f"(pair_key IS NOT NULL) = (status IN {FZ_BATTLE_OPEN})", name="pair_key_open"),
@@ -2786,6 +2791,9 @@ class FzBattle(Base):
     rematch_of: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("fz_battles.id", ondelete="SET NULL", name="fk_fz_battles_rematch_of_fz_battles")
     )
+    # 0032: 'exam' (one paper, one deadline). The default stays 'rounds' for the release before it (rollback safety);
+    # the code always writes 'exam'.
+    format: Mapped[str] = mapped_column(String(6), nullable=False, server_default=text("'rounds'"))
 
 
 class FzBattlePlayer(Base):
@@ -2826,6 +2834,43 @@ class FzBattlePlayer(Base):
     answered: Mapped[int] = mapped_column(SmallInteger, nullable=False, server_default=text("0"))
     answer_ms: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
     winner: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    # 0032: an exam's final submission (never later than the battle's ends_at; an auto-submit is ends_at)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class FzBattleResponse(Base):
+    """0032: a player's saved, ungraded exam response to one question (a row exists once it was visited). `rev` is
+    the server's revision (compare-and-set). Graded into the question-bank ledger only when the exam completes, then
+    deleted. No user column: it hangs off the player row."""
+
+    __tablename__ = "fz_battle_responses"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["battle_id", "role"],
+            ["fz_battle_players.battle_id", "fz_battle_players.role"],
+            ondelete="CASCADE",
+            name="fk_fz_battle_responses_player",
+        ),
+        ForeignKeyConstraint(
+            ["battle_id", "round"],
+            ["fz_battle_rounds.battle_id", "fz_battle_rounds.round"],
+            ondelete="CASCADE",
+            name="fk_fz_battle_responses_round",
+        ),
+        CheckConstraint("round BETWEEN 1 AND 30", name="round"),
+        CheckConstraint("choice IS NULL OR choice IN ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H')", name="choice"),
+        CheckConstraint("rev >= 1", name="rev"),
+    )
+
+    battle_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    role: Mapped[str] = mapped_column(String(10), primary_key=True)
+    round: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
+    choice: Mapped[str | None] = mapped_column(CHAR(1))
+    marked: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    rev: Mapped[int] = mapped_column(Integer, nullable=False)
+    saved_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=text("clock_timestamp()")
+    )
 
 
 class FzBattleRound(Base):
