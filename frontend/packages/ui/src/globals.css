@@ -78,7 +78,7 @@
     --study-card-background: 220 75% 96.9%;
 
     /* NH red: the brand's mark (signal line, the greeting's key word). Display sizes
-       only as text: 4.98:1 on the page. Never a state, never a button. */
+       only as text: 4.87:1 on the page, 4.0:1 on the rail (large text only there). Never a state, never a button. */
     --signal: 4.1 77.2% 48.2%; /* #DA291C */
 
     --radius: 0.5rem;

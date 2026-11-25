@@ -13,7 +13,7 @@ import { accentWord, pickGreeting } from "@/lib/greeting";
  * space, so it is directly above the composer, which the chat view centres while the chat is empty.
  *
  * Set the way Networkers Home sets its headlines: Lato Black in ink, with the one key word in NH red
- * (solid colour, no gradient text; NH red clears 4.98:1 light and 6.4:1 dark at this size). It is
+ * (solid colour, no gradient text; NH red clears 4.87:1 light and 6.35:1 dark). It is
  * one heading with the whole sentence, so a screen reader reads it once, and it arrives once as a
  * line (reduced motion: at once). It is one line on every screen: the CSS size is the largest, and
  * a sentence too wide for it is set smaller (fitOneLine).

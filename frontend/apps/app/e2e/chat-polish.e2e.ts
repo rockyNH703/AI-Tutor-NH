@@ -328,7 +328,7 @@ async function renderedGreetingContrast(page: Page): Promise<number> {
   return emptyGreeting(page)
     .locator("[data-greeting-word]")
     .evaluateAll((spans) => {
-      const rgb = (value: string) => (value.match(/[d.]+/g) ?? []).slice(0, 3).map(Number);
+      const rgb = (value: string) => (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
       const luminance = ([r, g, b]: number[]) =>
         [r ?? 0, g ?? 0, b ?? 0]
           .map((value) => value / 255)
