@@ -3,7 +3,8 @@ and the backend snapshot as the working directory). Idempotent:
 
 1. the synthetic certification bank (backend tests/test_qbank_certification.py `netsec_bank`), its single-answer
    questions approved by a person for their current content (FRIEND_ZONE_KEY_POLICY=human_only), and book `ccna`
-   mapped to month 1 of networking-ai, exactly as tests/test_friend_zone_battles.py's `bank` fixture does;
+   mapped to month 1 of networking-ai, exactly as tests/test_friend_zone_battles.py's `bank` fixture does: at least
+   30 of them competitive (app/friendzone/eligibility.py, human_only) in that month, for a 30-question exam battle;
 2. a second, small synthetic book (`fzsm`: the same builder with 3 questions a topic, renamed), whose 8 single-answer
    questions are approved and mapped to month 1 of cyber-cloud-security-ai: fewer than a daily challenge's ten, so
    that program shows "No daily challenge today";
@@ -24,9 +25,11 @@ from urllib.parse import urlparse
 
 sys.path.insert(0, os.getcwd())  # the snapshot: `app` and `tests`
 
-from sqlalchemy import text  # noqa: E402
+from sqlalchemy import func, select, text  # noqa: E402
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine  # noqa: E402
 
+from app.db.models import QbQuestion  # noqa: E402
+from app.friendzone.eligibility import competitive  # noqa: E402
 from app.qbank.importer import import_bank  # noqa: E402
 from tests.test_qbank_certification import netsec_bank  # noqa: E402
 
@@ -34,6 +37,13 @@ PROGRAM = "networking-ai"
 MONTH = 1
 SMALL_PROGRAM = "cyber-cloud-security-ai"
 SMALL_BOOK = "fzsm"
+LONGEST_EXAM = 30  # an exam battle has 10, 20 or 30 questions, all from one month
+
+
+def exam_bank(folder: Path) -> Path:
+    """The test bank builder's output with 15 questions a topic: 40 competitive (9 a topic gives only 24, too few for a
+    30-question exam; tests/test_friend_zone_battles.py `load_bank`)."""
+    return netsec_bank(folder, per_topic=15)
 
 
 def small_bank(folder: Path) -> Path:
@@ -79,6 +89,21 @@ async def approve_and_map(db, book: str, slug: str, month: int) -> int:
     )
 
 
+async def competitive_in_month(db, slug: str, month: int) -> int:
+    """How many questions mapped to the program's month a battle may use (the API's own predicate, human_only)."""
+    books = (
+        await db.scalars(
+            text(
+                "SELECT b.book_id FROM program_module_books b JOIN program_modules m ON m.id = b.module_id "
+                "JOIN programs p ON p.id = m.program_id WHERE p.slug = :slug AND m.month = :month"
+            ),
+            {"slug": slug, "month": month},
+        )
+    ).all()
+    query = select(func.count()).select_from(QbQuestion).where(QbQuestion.book_id.in_(books), competitive("human_only"))
+    return await db.scalar(query)
+
+
 def safe(url: str) -> str:
     parsed = urlparse(url)
     name = parsed.path.lstrip("/")
@@ -91,7 +116,7 @@ async def main() -> None:
     engine = create_async_engine(safe(os.environ["DATABASE_URL"]))
     sessions = async_sessionmaker(engine, expire_on_commit=False)
     try:
-        for build in (netsec_bank, small_bank):
+        for build in (exam_bank, small_bank):
             async with sessions() as db:
                 with tempfile.TemporaryDirectory() as folder:
                     report = await import_bank(db, build(Path(folder)), apply=True)
@@ -102,9 +127,13 @@ async def main() -> None:
             small = await approve_and_map(db, SMALL_BOOK, SMALL_PROGRAM, MONTH)
             await db.execute(text("DELETE FROM auth_attempts WHERE scope = 'fz_search_ip'"))
             await db.commit()
-        print(f"seeded: {approved} approved single-answer questions on {PROGRAM}, {small} on {SMALL_PROGRAM}")
-        if approved < 20:
-            raise SystemExit("too few approved questions for two 10-round battles")
+            usable = await competitive_in_month(db, PROGRAM, MONTH)
+        print(
+            f"seeded: {approved} approved single-answer questions on {PROGRAM} "
+            f"({usable} competitive in month {MONTH}), {small} on {SMALL_PROGRAM}"
+        )
+        if usable < LONGEST_EXAM:
+            raise SystemExit(f"{PROGRAM} month {MONTH} needs {LONGEST_EXAM} competitive questions, has {usable}")
         if small != 8:
             raise SystemExit(f"{SMALL_PROGRAM} must have fewer than a daily's 10 questions (8), has {small}")
     finally:

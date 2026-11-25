@@ -40,7 +40,7 @@ async function directMiss(person: Person, path: string): Promise<Miss> {
 }
 
 async function battleBetween(a: Person, b: Person): Promise<string> {
-  const response = await bff(a, "POST", "/battles", { opponentId: b.playerId, program: "networking-ai", month: 1, length: 5, requestId: crypto.randomUUID() });
+  const response = await bff(a, "POST", "/battles", { opponentId: b.playerId, program: "networking-ai", month: 1, length: 10, requestId: crypto.randomUUID() });
   expect(response.status(), await response.text()).toBe(201);
   return ((await response.json()) as { battleId: string }).battleId;
 }

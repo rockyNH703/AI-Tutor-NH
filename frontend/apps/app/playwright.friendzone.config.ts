@@ -38,7 +38,8 @@ import {
  *   bunx playwright test -c playwright.friendzone.config.ts
  *
  * Three stacks on one build and one database (e2e/friendzone/env.ts): FRIEND_ZONE_MODE=qa (the QA list only),
- * FRIEND_ZONE_MODE=on (everyone; the QA list stays the isolated qa cohort), and qa with 12-second rounds (the warnings).
+ * FRIEND_ZONE_MODE=on (everyone; the QA list stays the isolated qa cohort), and qa with 12 s per exam question (the
+ * 1-minute warning). FRIEND_ZONE_ROUND_SECONDS is the exam's seconds per question (and a daily question's window).
  * The `friendzone-webkit` project runs the specs tagged @webkit in WebKit, as the learning suite does. The APIs run on
  * Windows from the backend venv with the code of a snapshot outside the repository and an empty working directory (so
  * no .env is read).

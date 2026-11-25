@@ -5,8 +5,8 @@
  * Three stacks share one build and one database, so both rollout states are exercised (plan section 6):
  *   qa    app :3230 (preview :3231) -> API :4230 with FRIEND_ZONE_MODE=qa: only the QA list may use Friend Zone
  *   on    app :3232 (preview :3233) -> API :4231 with FRIEND_ZONE_MODE=on: everyone; the QA list is still the qa cohort
- *   slow  app :3234 (preview :3235) -> API :4232, as qa but with 12-second rounds (SLOW_ROUND_SECONDS), so the 10 s and
- *         5 s warnings fire
+ *   slow  app :3234 (preview :3235) -> API :4232, as qa but with 12 seconds per exam question (SLOW_ROUND_SECONDS), so
+ *         a 10-question exam starts at 2 minutes and its 1-minute warning fires
  *   build    .next-friendzone-e2e (git-ignored by frontend/.gitignore `.next-*`)
  *   database netsec_friendzone_e2e_test in WSL's PostgreSQL 16 (created and migrated as docs/testing.md says)
  *
@@ -52,9 +52,12 @@ export const DOMAIN = "fz-e2e.example.com";
 /** FRIEND_ZONE_QA_EMAILS on both APIs: a fixed pool, so a test takes the next free one (workers: 1). */
 export const QA_EMAILS = Array.from({ length: 8 }, (_, index) => `qa-${index + 1}@${DOMAIN}`);
 
-/** Every battle round and daily question lasts this long (FRIEND_ZONE_ROUND_SECONDS, an e2e-only override). */
+/**
+ * FRIEND_ZONE_ROUND_SECONDS, an e2e-only override (production refuses it): an exam battle's seconds per question (its
+ * deadline is length × this, instead of 60 s each) and a daily question's window. 8: a 10-question exam lasts 80 s.
+ */
 export const ROUND_SECONDS = 8;
-/** The slow stack's rounds: long enough that the 10-second and 5-second warnings are said. */
+/** The slow stack's seconds per exam question: a 10-question exam (2 minutes) starts above the 1-minute warning. */
 export const SLOW_ROUND_SECONDS = 12;
 
 /** The program and month the seed maps the approved synthetic questions to. */

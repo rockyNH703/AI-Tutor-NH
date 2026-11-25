@@ -2,19 +2,20 @@ import type { Locator, Page, TestInfo } from "@playwright/test";
 
 import { SMALL_PROGRAM } from "./env";
 import {
-  type People,
   type Person,
   apiBefriend,
   apiJoin,
   axe,
   battleIdOf,
   bff,
-  correctKey,
+  examUi,
   expect,
   focused,
   openFriendZone,
+  playExamByApi,
   section,
   shot,
+  startExam,
   test,
 } from "./support";
 
@@ -146,20 +147,17 @@ test("J9-J10 a won battle: XP once, level, the First Battle badge, stats only wh
   await apiJoin(bilal, true);
   await apiBefriend(asha, bilal);
 
-  // A battle Asha wins, played through the API (the UI path is battle.friendzone.ts).
-  const created = await bff(asha, "POST", "/battles", { opponentId: bilal.playerId, program: "networking-ai", month: 1, length: 5, requestId: crypto.randomUUID() });
-  expect(created.status(), await created.text()).toBe(201);
-  const { battleId } = (await created.json()) as { battleId: string };
-  expect((await bff(bilal, "POST", `/battles/${battleId}/accept`)).status()).toBe(200);
-  expect((await bff(asha, "POST", `/battles/${battleId}/ready`)).status()).toBe(200);
+  // An exam Asha wins (all right; Bilal all wrong, so both answered every question), played through the API (the UI
+  // path is battle.friendzone.ts).
+  const battleId = await startExam(asha, bilal);
   await openFriendZone(asha, `&battle=${battleId}`);
-  for (let round = 1; round <= 5; round++) {
-    await expect(asha.page.getByRole("heading", { name: `Question ${round} of 5` })).toBeVisible({ timeout: 20_000 });
-    const key = await correctKey(people, battleId, round);
-    expect((await bff(asha, "POST", `/battles/${battleId}/answers`, { round, choice: key })).status()).toBe(200);
-    expect((await bff(bilal, "POST", `/battles/${battleId}/answers`, { round, choice: KEYS.find((other) => other !== key) })).status()).toBe(200);
-  }
+  await expect(examUi.heading(asha.page, 1, 10)).toBeVisible({ timeout: 20_000 });
+  await playExamByApi(people, asha, bilal, battleId);
   await expect(asha.page.getByRole("heading", { name: "You won" })).toBeVisible({ timeout: 20_000 });
+  // Your XP on the result (D7): +20 for the battle, +30 for the win.
+  await expect(asha.page.getByText("Battle played", { exact: true })).toBeVisible();
+  await expect(asha.page.getByText("Win", { exact: true })).toBeVisible();
+  await expect(asha.page.getByText("+50 XP", { exact: true })).toBeVisible();
 
   // J10 Rematch: a new invitation to the same friend, a new battle, the friend's bell says so.
   const rematch = asha.page.getByRole("button", { name: "Rematch" });
@@ -246,19 +244,6 @@ test("J8 a daily answered fewer than half: it finishes, but gives no XP and no c
   await expect(section(page, "Your progress").getByText("0 completed")).toBeVisible(); // Daily challenges
 });
 
-/** Plays a started battle through the API to its end: Asha always right, Bilal always wrong. */
-async function playByApi(people: People, asha: Person, bilal: Person, battleId: string, length: number, watch?: Page): Promise<void> {
-  const read = async () => (await (await bff(asha, "GET", `/battles/${battleId}`)).json()) as { status: string; question: { round: number } | null };
-  for (let round = 1; round <= length; round++) {
-    await expect.poll(async () => (await read()).question?.round, { timeout: 30_000 }).toBe(round);
-    if (watch) await expect(watch.getByRole("heading", { name: `Question ${round} of ${length}`, level: 4 })).toBeVisible({ timeout: 10_000 });
-    const key = await correctKey(people, battleId, round);
-    expect((await bff(asha, "POST", `/battles/${battleId}/answers`, { round, choice: key })).status()).toBe(200);
-    expect((await bff(bilal, "POST", `/battles/${battleId}/answers`, { round, choice: KEYS.find((other) => other !== key) })).status()).toBe(200);
-  }
-  await expect.poll(async () => (await read()).status, { timeout: 30_000 }).toBe("completed");
-}
-
 /** Whether `item` lies wholly inside `box`'s visible area (1 px of rounding allowed). */
 async function insideBox(box: Locator, item: Locator): Promise<boolean> {
   const [outer, inner] = await Promise.all([box.boundingBox(), item.boundingBox()]);
@@ -325,31 +310,29 @@ test("J9 a 10-question battle all right gives Perfect Score; a second win reache
   await apiBefriend(asha, bilal);
   const { page } = asha;
 
-  // A 10-question battle, chosen in the challenge dialog.
+  // A 10-question exam, the challenge dialog's default.
   await openFriendZone(asha);
   const friends = section(page, /^Friends/);
   await friends.getByRole("button", { name: "Bilal Khan", exact: true }).click();
   await friends.getByRole("button", { name: "Challenge" }).click();
   const dialog = page.getByRole("dialog", { name: "Challenge a friend" });
-  await dialog.getByRole("radio", { name: "10 questions" }).check();
+  await expect(dialog.getByRole("radio", { name: "10 questions · 10 min" })).toBeChecked();
   await dialog.getByRole("button", { name: "Send challenge" }).click();
   await expect(page.getByText("Mixed · 10 questions", { exact: false })).toBeVisible();
   const first = battleIdOf(page);
   expect((await bff(bilal, "POST", `/battles/${first}/accept`)).status()).toBe(200);
   await page.getByRole("button", { name: "Ready", exact: true }).click({ timeout: 15_000 });
-  await playByApi(people, asha, bilal, first, 10, page);
+  await expect(examUi.heading(page, 1, 10)).toBeVisible({ timeout: 20_000 });
+  await playExamByApi(people, asha, bilal, first);
   await expect(page.getByRole("heading", { name: "You won", level: 4 })).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByRole("table", { name: "Scores" }).getByRole("row", { name: /^Correct/ })).toContainText("10 of 10");
+  const scores = page.getByRole("table", { name: "Scores" });
+  await expect(scores.getByRole("row", { name: /^Marks/ })).toHaveText(/Marks\s*40\s*−10/);
+  await expect(scores.getByRole("row", { name: /^Correct/ })).toHaveText(/Correct\s*10\s*0/);
   await expect(page.getByRole("region", { name: "Review" }).getByText("Why:")).toHaveCount(10);
   await axe(page, testInfo, "result-10-questions");
 
-  // A second win (5 questions): 2 x (20 + 30) = 100 XP, Level 2.
-  const created = await bff(asha, "POST", "/battles", { opponentId: bilal.playerId, program: "networking-ai", month: 1, length: 5, requestId: crypto.randomUUID() });
-  expect(created.status(), await created.text()).toBe(201);
-  const second = ((await created.json()) as { battleId: string }).battleId;
-  expect((await bff(bilal, "POST", `/battles/${second}/accept`)).status()).toBe(200);
-  expect((await bff(asha, "POST", `/battles/${second}/ready`)).status()).toBe(200);
-  await playByApi(people, asha, bilal, second, 5);
+  // A second win, a rematch-free new exam: 2 x (20 + 30) = 100 XP, Level 2 (2 battles a day with one friend: both count).
+  await playExamByApi(people, asha, bilal, await startExam(asha, bilal));
   const total = await people.sql<{ sum: string }>("SELECT sum(amount)::text AS sum FROM fz_xp_events WHERE user_id = $1", [asha.userId]);
   expect(total[0]?.sum).toBe("100");
 
