@@ -135,7 +135,7 @@ export function LearningActivityCalendar({
   useEffect(() => {
     // Recomputed after the theme class lands on <html>.
     const frame = requestAnimationFrame(() =>
-      setColors([tokenColor("--surface-2", "#eef1f4"), tokenColor("--brand", "#4f6f8f")]),
+      setColors([tokenColor("--surface-2", "#eceff3"), tokenColor("--brand", "#1f4fd8")]),
     );
     return () => cancelAnimationFrame(frame);
   }, [resolvedTheme]);

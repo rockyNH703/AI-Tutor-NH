@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { GREETINGS, greetingPicker } from "./greeting";
+import { accentWord, GREETINGS, greetingPicker } from "./greeting";
 
 describe("greetingPicker", () => {
   test("random across the pool, never the previous chat's greeting twice running", () => {
@@ -28,5 +28,22 @@ describe("greetingPicker", () => {
     expect(one("b")).toBe("Only one.");
     expect(greetingPicker([], () => 0.5)("c")).toBe(GREETINGS[0]);
     expect(greetingPicker(GREETINGS, () => 1)("d")).toBe(GREETINGS.at(-1) as string); // random() at its top edge stays in range
+  });
+});
+
+describe("accentWord: the one key word NH would set in red", () => {
+  test("every greeting in the pool has exactly one accented word", () => {
+    for (const text of GREETINGS) {
+      const index = accentWord(text);
+      expect(index, text).not.toBeNull();
+      expect(text.split(" ")[index ?? -1], text).toBeDefined();
+    }
+  });
+  test("picks the stem's word, not its neighbours", () => {
+    expect(accentWord("What are we troubleshooting today?")).toBe(3);
+    expect(accentWord("Which network are we working on?")).toBe(1);
+  });
+  test("a line without a key stem stays all ink", () => {
+    expect(accentWord("Hello there")).toBeNull();
   });
 });

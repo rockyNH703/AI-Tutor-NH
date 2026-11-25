@@ -16,6 +16,14 @@ const ALLOWED: Record<string, string> = {
 };
 const RAW_COLOUR = /#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?(?:[0-9a-fA-F]{2})?\b|rgba?\(|hsla?\((?!var\(|\$\{)/;
 const ARBITRARY_COLOUR = /\b(?:bg|text|border|ring|shadow|fill|stroke|from|via|to|outline|decoration|divide|caret|placeholder)-\[(?:#|rgb|hsl)/;
+// Tailwind's own palette classes are colours outside the tokens too (they ignore the themes, high
+// contrast and the next palette change). Two places are allowed, each for a reason no token can serve.
+const PALETTE_CLASS =
+  /\b(?:bg|text|border|ring|fill|stroke|from|via|to|outline|caret|placeholder|divide)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b|\b(?:bg|text|border)-(?:white|black)\b/;
+const PALETTE_ALLOWED: Record<string, string> = {
+  "components/qr-code.tsx": "a QR code must be black on white to scan, in every theme",
+  "features/nhprep/video-player.tsx": "a video's letterbox is black, as every player's is",
+};
 // The retired indigo/violet palette, which must not come back anywhere.
 const LEGACY = /#(?:4F46E5|7C3AED|818CF8|6366F1|8B5CF6|A78BFA)\b/i;
 
@@ -36,6 +44,16 @@ describe("design tokens", () => {
         lines.flatMap((line, index) =>
           RAW_COLOUR.test(line) || ARBITRARY_COLOUR.test(line) ? [`${path}:${index + 1}: ${line.trim()}`] : [],
         ),
+      );
+    expect(offenders).toEqual([]);
+  });
+
+  test("no Tailwind palette class in the app's code outside the documented exceptions", () => {
+    const offenders = files(SRC)
+      .map((path) => ({ path: relative(SRC, path).replaceAll("\\", "/"), lines: readFileSync(path, "utf-8").split("\n") }))
+      .filter(({ path }) => !(path in PALETTE_ALLOWED))
+      .flatMap(({ path, lines }) =>
+        lines.flatMap((line, index) => (PALETTE_CLASS.test(line) ? [`${path}:${index + 1}: ${line.trim()}`] : [])),
       );
     expect(offenders).toEqual([]);
   });

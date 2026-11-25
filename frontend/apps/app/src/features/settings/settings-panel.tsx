@@ -77,10 +77,12 @@ export function SettingsPanel({ variant }: { variant: "panel" | "list" }) {
   };
 
   return (
-    <div className={cn("flex min-h-0 flex-col", variant === "panel" ? "h-full" : "gap-1")}>
+    <div className={cn("flex min-h-0 flex-col", variant === "panel" ? "rail h-full" : "gap-1")}>
       {variant === "panel" && (
         // The header's height, so this hairline and the workspace header's are one line.
-        <div className="flex h-header shrink-0 items-center justify-between gap-3 border-b border-border px-4">
+        <div className="relative flex h-header shrink-0 items-center justify-between gap-3 px-4">
+          {/* NH's signal line, as under the app rail's brand row. */}
+          <span aria-hidden className="signal-line absolute inset-x-0 bottom-0" />
           <BrandLockup compact />
           <CloseSettings href={closeHref} />
         </div>

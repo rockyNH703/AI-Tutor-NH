@@ -8,7 +8,8 @@ import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "rea
 import { CODE_LENGTH, DISPLAY_NAME_MAX, PASSWORD_MAX, PASSWORD_MIN } from "@/lib/api/types";
 import { authClient } from "@/lib/auth/client";
 import { CODE_REJECTED, ERRORS, authErrorMessage, oauthErrorMessage } from "@/lib/auth/messages";
-import { BrandMark } from "./brand/brand-mark";
+import { AuthBrandPanel } from "./auth-brand-panel";
+import { BrandMark, BrandWordmark } from "./brand/brand-mark";
 import { GoogleMark } from "./google-mark";
 import { ThemeMenu } from "./theme-menu";
 import { Turnstile } from "./turnstile";
@@ -53,19 +54,18 @@ const RESEND_SECONDS = 30;
 const LEAVE_MS = 350;
 const EASE = "ease-[cubic-bezier(0.23,1,0.32,1)]";
 
-const label = "text-sm font-medium uppercase tracking-widest text-slate-500 dark:text-white/70";
+const label = "text-sm font-medium uppercase tracking-widest text-text-secondary";
 // The hairline under the field is its edge (WCAG 1.4.11: at least 3:1 against the ground, about
 // 3.4:1 on white and 3.7:1 on the dark ground), and turns blue while it has focus.
 const bigInput =
-  "w-full border-b border-black/45 bg-transparent pb-2 text-center text-xl font-semibold tracking-tight text-slate-900 caret-blue-500 outline-none transition-colors placeholder:text-slate-300 focus:border-blue-500 disabled:opacity-50 sm:text-2xl dark:border-white/40 dark:text-white dark:placeholder:text-white/20 dark:focus:border-blue-400";
+  "w-full border-b border-input bg-transparent pb-2 text-center text-xl font-semibold tracking-tight text-foreground caret-brand outline-none transition-colors placeholder:text-muted-foreground focus:border-ring disabled:opacity-50 sm:text-2xl";
 const primaryPill = cn(
-  "auth-glow group flex items-center gap-3 rounded-full bg-slate-900 px-6 py-3 font-semibold text-white transition-[color,background-color,box-shadow,transform,opacity] duration-base hover:scale-105 active:scale-95 disabled:opacity-80 disabled:hover:scale-100",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-  "dark:bg-white dark:text-black",
+  "group flex items-center gap-3 rounded-full bg-foreground px-6 py-3 font-semibold text-background transition-[color,background-color,transform,opacity] duration-base hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-80",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
   EASE,
 );
 const quietLink =
-  "rounded text-sm text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 disabled:opacity-50 dark:text-white/70 dark:hover:text-white";
+  "rounded text-sm text-text-secondary transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50";
 
 /** A first step's answer when the account has two-step sign-in. */
 function needsSecondStep(data: unknown): boolean {
@@ -431,17 +431,17 @@ export function AuthForm({
       )}
       <div aria-live="polite" className="w-full">
         {info && !error && (
-          <p role="status" className="text-sm text-slate-500 dark:text-white/70">
+          <p role="status" className="text-sm text-text-secondary">
             {info}
           </p>
         )}
       </div>
       {error ? (
-        <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+        <p role="alert" className="text-sm font-medium text-destructive">
           {error}
         </p>
       ) : (
-        !info && hint && <p className="text-sm text-slate-400 dark:text-white/30">{hint}</p>
+        !info && hint && <p className="text-sm text-text-secondary">{hint}</p>
       )}
     </div>
   );
@@ -488,7 +488,7 @@ export function AuthForm({
           bigInput,
           props.mono && "font-mono font-medium tracking-[0.2em] sm:tracking-[0.4em]",
           props.withEye && "px-12",
-          shaking && "text-red-500 dark:text-red-400",
+          shaking && "text-destructive",
         )}
       />
       {props.withEye && (
@@ -497,7 +497,7 @@ export function AuthForm({
           onClick={() => setShowPassword((shown) => !shown)}
           aria-label={showPassword ? "Hide password" : "Show password"}
           aria-pressed={showPassword}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-2 text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 sm:right-6 dark:text-white/20 dark:hover:text-white/60"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-2 text-text-secondary transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:right-6"
         >
           {showPassword ? <EyeOff aria-hidden className="h-5 w-5" /> : <Eye aria-hidden className="h-5 w-5" />}
         </button>
@@ -524,7 +524,7 @@ export function AuthForm({
           <div
             role="tablist"
             aria-label="Sign in or sign up"
-            className="mb-6 flex rounded-full border border-slate-900/10 bg-slate-900/5 p-1 backdrop-blur-md dark:border-white/10 dark:bg-white/5"
+            className="mb-6 flex rounded-full border border-border bg-surface p-1"
           >
             {(["signIn", "signUp"] as const).map((value) => (
               <button
@@ -538,10 +538,10 @@ export function AuthForm({
                   input.current?.focus();
                 }}
                 className={cn(
-                  "rounded-full px-5 py-2 text-sm font-medium transition-[color,background-color,box-shadow] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
+                  "rounded-full px-5 py-2 text-sm font-medium transition-[color,background-color,box-shadow] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   tab === value
-                    ? "bg-white text-slate-900 shadow-sm dark:bg-white dark:text-black"
-                    : "text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white",
+                    ? "bg-foreground text-background"
+                    : "text-text-secondary hover:text-foreground",
                 )}
               >
                 {value === "signIn" ? "Sign In" : "Sign Up"}
@@ -569,9 +569,8 @@ export function AuthForm({
                   onClick={() => void withGoogle()}
                   disabled={pending}
                   className={cn(
-                    "group flex items-center gap-3 rounded-full border border-slate-900/10 bg-slate-900/5 px-6 py-3 font-medium text-slate-700 transition-[color,background-color,border-color,transform,opacity] duration-base hover:scale-105 hover:border-slate-900/20 hover:bg-slate-900/10 hover:text-slate-900 active:scale-95 disabled:opacity-50 disabled:hover:scale-100",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60",
-                    "dark:border-white/10 dark:bg-white/5 dark:text-white/80 dark:hover:border-white/30 dark:hover:bg-white/10 dark:hover:text-white",
+                    "group flex items-center gap-3 rounded-full border border-border bg-surface px-6 py-3 font-medium text-foreground transition-[color,background-color,border-color,transform,opacity] duration-base hover:border-input hover:bg-surface-2 hover:text-foreground active:scale-95 disabled:opacity-50 disabled:hover:scale-100",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     EASE,
                   )}
                 >
@@ -591,7 +590,7 @@ export function AuthForm({
       const typed = password.length > 0;
       panel = (
         <form noValidate onSubmit={submitSignIn} className="flex w-full flex-col items-center">
-          <div className="mb-6 flex items-center gap-3 text-slate-500 dark:text-white/70">
+          <div className="mb-6 flex items-center gap-3 text-text-secondary">
             <Lock aria-hidden className="h-5 w-5" />
             <h1 className={label}>{title}</h1>
           </div>
@@ -611,7 +610,7 @@ export function AuthForm({
               <button type="button" onClick={() => void forgotPassword()} disabled={pending} className={quietLink}>
                 Forgot password?
               </button>
-              <span aria-hidden className="text-slate-300 dark:text-white/10">
+              <span aria-hidden className="text-input">
                 |
               </span>
               <button type="button" onClick={() => void emailMeACode()} disabled={pending} className={quietLink}>
@@ -654,9 +653,9 @@ export function AuthForm({
         <form noValidate onSubmit={submitCode} className="flex w-full flex-col items-center">
           <div className="mb-6 flex flex-col items-center text-center">
             <h1 className={cn(label, "mb-2")}>{title}</h1>
-            <p id="auth-code-for" className="text-sm text-slate-500 dark:text-white/70">
+            <p id="auth-code-for" className="text-sm text-text-secondary">
               Enter the {CODE_LENGTH}-digit code sent to <br />
-              <b className="text-slate-700 dark:text-white/80">{email.trim()}</b>
+              <b className="text-foreground">{email.trim()}</b>
             </p>
           </div>
           {field({
@@ -690,9 +689,9 @@ export function AuthForm({
       panel = (
         <form noValidate onSubmit={submitFirstPassword} className="flex w-full flex-col items-center">
           <div className="mb-6 flex flex-col items-center text-center">
-            <ShieldCheck aria-hidden className="mb-2 h-5 w-5 text-green-600 dark:text-green-400" />
+            <ShieldCheck aria-hidden className="mb-2 h-5 w-5 text-success" />
             <h1 className={cn(label, "mb-1")}>{title}</h1>
-            <p className="text-sm text-slate-500 dark:text-white/70">Secure your new account with a password.</p>
+            <p className="text-sm text-text-secondary">Secure your new account with a password.</p>
           </div>
           {field({
             id: "auth-new-account-password",
@@ -722,7 +721,7 @@ export function AuthForm({
       const enough = password.length >= PASSWORD_MIN;
       panel = (
         <form noValidate onSubmit={submitReset} className="flex w-full flex-col items-center">
-          <div className="mb-6 flex items-center gap-3 text-slate-500 dark:text-white/70">
+          <div className="mb-6 flex items-center gap-3 text-text-secondary">
             <Lock aria-hidden className="h-5 w-5" />
             <h1 className={label}>{title}</h1>
           </div>
@@ -750,9 +749,9 @@ export function AuthForm({
       panel = (
         <form noValidate onSubmit={submitSecondStep} className="flex w-full flex-col items-center">
           <div className="mb-6 flex flex-col items-center text-center">
-            <ShieldCheck aria-hidden className="mb-3 h-5 w-5 text-slate-400 dark:text-white/70" />
+            <ShieldCheck aria-hidden className="mb-3 h-5 w-5 text-text-secondary" />
             <h1 className={cn(label, "mb-2")}>{title}</h1>
-            <p id="auth-second-step" className="text-sm text-slate-500 dark:text-white/70">
+            <p id="auth-second-step" className="text-sm text-text-secondary">
               {recovery ? "Enter one of your recovery codes." : "Enter the 6-digit code from your authenticator app."}
             </p>
           </div>
@@ -796,14 +795,12 @@ export function AuthForm({
   const showBadge = step !== "email" && email.trim() !== "" && !leaving;
 
   return (
-    // The ground is the theme's own (pure white; the app's near-black), opaque over the page's wash.
-    <div className="relative isolate flex min-h-dvh w-full flex-col bg-background text-slate-900 transition-colors duration-slow dark:text-white">
-      {/* Dark only: two slow pools of light. The white theme stays pure white. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden overflow-hidden dark:block">
-        <div className="animate-auth-drift absolute left-[-10%] top-[-20%] h-[60%] w-[60%] rounded-full bg-blue-600/10 blur-[120px]" />
-        <div className="animate-auth-drift absolute bottom-[-20%] right-[-10%] h-[50%] w-[50%] rounded-full bg-purple-600/10 blur-[120px] [animation-delay:-10s]" />
-      </div>
-
+    // The theme's own ground with NH's graph paper behind the form, and, from 1024px, the brand panel
+    // in the console ink beside it.
+    <div className="relative isolate flex min-h-dvh w-full bg-background text-foreground">
+      <AuthBrandPanel />
+      <div className="relative flex min-h-dvh min-w-0 flex-1 flex-col">
+      <div aria-hidden className="backdrop-wash pointer-events-none absolute inset-0 -z-10" />
       <header className="relative z-30 flex w-full items-center justify-between p-6 sm:p-8">
         <div className="flex items-center gap-4">
           <button
@@ -813,7 +810,7 @@ export function AuthForm({
             inert={!previous || undefined}
             aria-label="Go back"
             className={cn(
-              "rounded-full p-2 text-slate-900 transition-colors duration-base hover:bg-slate-900/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:text-white/90 dark:hover:bg-white/10",
+              "rounded-full p-2 text-foreground transition-colors duration-base hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               previous ? "translate-x-0 opacity-100" : "pointer-events-none -translate-x-4 opacity-0",
             )}
           >
@@ -821,16 +818,16 @@ export function AuthForm({
           </button>
           <div
             className={cn(
-              "flex items-center gap-3 text-slate-900 transition-transform duration-base dark:text-white/90",
+              "flex items-center gap-3 text-foreground transition-transform duration-base",
               EASE,
               previous ? "translate-x-0" : "-translate-x-12",
             )}
           >
-            <BrandMark size={24} className="text-current" />
-            <span className="hidden text-base font-semibold tracking-wide min-[480px]:block">NetSec AI</span>
+            <BrandMark size={24} className="text-current lg:hidden" />
+            <BrandWordmark className="hidden text-lg min-[480px]:block lg:hidden" />
           </div>
         </div>
-        <ThemeMenu className="border-transparent bg-transparent text-slate-500 hover:bg-slate-900/5 hover:text-slate-900 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white" />
+        <ThemeMenu className="border-transparent bg-transparent text-text-secondary hover:bg-surface-2 hover:text-foreground" />
       </header>
 
       <main id="main" tabIndex={-1} className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-6 pb-28 pt-14 outline-none sm:pb-20">
@@ -848,13 +845,13 @@ export function AuthForm({
             // Named only while shown, so the hidden badge never answers to "email" next to the field.
             aria-label={showBadge ? `Change email address (${email.trim()})` : undefined}
             className={cn(
-              "flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-slate-900/10 bg-slate-900/5 px-4 py-2 backdrop-blur-md transition-colors duration-base hover:bg-slate-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
+              "flex max-w-[calc(100vw-3rem)] items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 transition-colors duration-base hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               EASE,
               showBadge ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "-translate-y-8 scale-95 opacity-0",
             )}
           >
-            <User aria-hidden className="h-4 w-4 shrink-0 text-slate-500 dark:text-white/70" />
-            <span className="truncate text-sm font-medium text-slate-700 dark:text-white/80">{email.trim()}</span>
+            <User aria-hidden className="h-4 w-4 shrink-0 text-text-secondary" />
+            <span className="truncate text-sm font-medium text-foreground">{email.trim()}</span>
           </button>
         </div>
 
@@ -878,7 +875,7 @@ export function AuthForm({
           ) : (
             <div role="alert" className="flex max-w-md flex-col items-center gap-3 text-center">
               <h1 className={label}>Sign-in unavailable here</h1>
-              <p className="text-sm text-slate-600 dark:text-white/60">
+              <p className="text-sm text-text-secondary">
                 This address isn&apos;t the one NetSec AI signs in at right now. Please use the link you were given, or
                 try again in a little while.
               </p>
@@ -889,10 +886,11 @@ export function AuthForm({
 
       {/* A hint, not content: in the flow under the step, and only where there is room for it. */}
       <footer className="pointer-events-none hidden w-full items-center justify-center p-6 min-[480px]:[@media(min-height:700px)]:flex">
-        <p className="text-xs font-medium uppercase tracking-wider text-slate-600 dark:text-white/70">
-          Press <kbd className="mx-1 rounded-md bg-slate-200 px-1.5 py-0.5 font-sans text-slate-700 dark:bg-white/10 dark:text-white/70">Enter</kbd> to continue
+        <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+          Press <kbd className="mx-1 rounded-md bg-surface-2 px-1.5 py-0.5 font-sans text-foreground">Enter</kbd> to continue
         </p>
       </footer>
+      </div>
     </div>
   );
 }

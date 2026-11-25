@@ -48,11 +48,11 @@ export default function GlobalError({
       </head>
       <body style={{ margin: 0 }}>
         <style>{`
-          :root { color-scheme: light dark; --ge-bg:#F7F8FA; --ge-fg:#20252B;
-                  --ge-soft:#5F6873; --ge-line:#E4E7EB; --ge-brand:#4F6F8F; --ge-on-brand:#FFFFFF; }
+          :root { color-scheme: light dark; --ge-bg:#FFFFFF; --ge-fg:#0B0E14;
+                  --ge-soft:#4B5563; --ge-line:#E3E6EC; --ge-brand:#1F4FD8; --ge-on-brand:#FFFFFF; }
           @media (prefers-color-scheme: dark) {
-            :root { --ge-bg:#0F1117; --ge-fg:#F5F7FA; --ge-soft:#A5ADBD;
-                    --ge-line:#292E38; --ge-brand:#8FAAC6; --ge-on-brand:#0F1117; }
+            :root { --ge-bg:#0A0D13; --ge-fg:#E7ECF3; --ge-soft:#9AA7B8;
+                    --ge-line:#232A37; --ge-brand:#7FA3FF; --ge-on-brand:#0A0D13; }
           }
         `}</style>
         <main
@@ -70,7 +70,7 @@ export default function GlobalError({
           <div style={{ maxWidth: "27rem", textAlign: "center" }}>
             {/* The brand mark (lib/brand.ts): a plain image, which paints even when the stylesheet is what broke. */}
             <img
-              src={BRAND.markSrc}
+              src={BRAND.faviconSrc}
               alt=""
               width={56}
               height={56}

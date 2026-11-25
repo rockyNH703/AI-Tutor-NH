@@ -19,26 +19,21 @@ const config = {
       },
     },
     extend: {
-      // TWO FACES, both the platform's own: nothing to download, and each
-      // device shows the face its reader is used to.
-      //
-      //   display  SERIF. Headings: a textbook's voice for the things a
-      //            student reads first.
-      //   sans     Everything the interface says.
-      //   mono     `--font-mono`, set by the app's root layout: the system code
-      //            face, because code is read at length in a tutor's answers.
+      // TWO FACES, both self-hosted (apps/app/src/lib/fonts.ts): nothing fetched from a CDN.
+      //   display  Lato Black, Networkers Home's own face (networkershome.com, nhprep.com): the
+      //            greeting, page titles and the wordmark. Latin only; anything else falls
+      //            through to Noto Sans.
+      //   sans     Noto Sans, Latin then its Devanagari companion: everything read at length.
+      //   mono     `--font-mono`, set by the app's root layout: the system code face.
       fontFamily: {
-        // Noto Sans everywhere, Latin then its Devanagari companion (apps/app/src/lib/fonts.ts);
-        // code stays monospace.
         sans: [
-          "Inter",
           "var(--font-noto-sans)",
           "var(--font-noto-sans-devanagari)",
           ...defaultTheme.fontFamily.sans,
         ],
         mono: ["var(--font-mono)", ...defaultTheme.fontFamily.mono],
         display: [
-          "Inter",
+          "var(--font-lato)",
           "var(--font-noto-sans)",
           "var(--font-noto-sans-devanagari)",
           ...defaultTheme.fontFamily.sans,
@@ -78,7 +73,15 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // The acting colour (slate blue). See globals.css.
+        // NH red, the brand's mark (never a state); the NH monogram's fixed blue; the rail's
+        // console ink. See globals.css.
+        signal: "hsl(var(--signal))",
+        "nh-blue": "hsl(var(--nh-blue))",
+        rail: {
+          DEFAULT: "hsl(var(--rail))",
+          foreground: "hsl(var(--rail-foreground))",
+        },
+        // The acting colour (NH royal blue). See globals.css.
         brand: {
           DEFAULT: "hsl(var(--brand))",
           foreground: "hsl(var(--brand-foreground))",

@@ -42,6 +42,7 @@ import type { Conversation } from "@/lib/api/types";
 import { TITLE_MAX } from "@/lib/api/types";
 import { APP_NAME } from "@/lib/brand";
 import { BrandLockup, BrandMark } from "./brand/brand-mark";
+import { LinkPending } from "./link-pending";
 import { MarqueeTitle } from "./marquee-title";
 import { hubItems, isActive } from "./nav-items";
 import { usePreview } from "./preview-context";
@@ -138,6 +139,7 @@ function PlaceLink({
       >
         <Icon aria-hidden className="h-5 w-5 shrink-0" />
         {!collapsed && label}
+        {!collapsed && <LinkPending />}
       </Link>
     </RailTip>
   );
@@ -293,6 +295,7 @@ function ProgramGroup({
                   )}
                 >
                   {item.label}
+                  <LinkPending />
                 </Link>
               </li>
             ))}
@@ -371,13 +374,13 @@ export function SidebarContent({
   return (
     <div
       className={cn(
-        "flex h-full flex-col border-r border-border bg-surface transition-[width] duration-slow ease-standard",
+        "rail flex h-full flex-col border-r border-border bg-surface transition-[width] duration-slow ease-standard",
         collapsed ? "w-20" : "w-72 max-w-full",
       )}
     >
       {/* Outside the scrolling list: the brand stays in view, and a scrollbar never narrows the slogan's line.
           The header's height, so this hairline and the header's are one line. */}
-      <div className={cn("flex h-header shrink-0 items-center border-b border-border", collapsed ? "justify-center" : "px-3")}>
+      <div className={cn("relative flex h-header shrink-0 items-center", collapsed ? "justify-center" : "px-4")}>
         <Link href="/" onClick={onNavigate} className="focus-ring rounded-2xl">
           {collapsed ? (
             <>
@@ -388,6 +391,8 @@ export function SidebarContent({
             <BrandLockup />
           )}
         </Link>
+        {/* NH's signal line: the logo pill's red and blue, where the header's hairline meets the rail. */}
+        <span aria-hidden className="signal-line absolute inset-x-0 bottom-0" />
       </div>
 
       <div ref={scroller} className="scrollbar-subtle flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
@@ -399,7 +404,7 @@ export function SidebarContent({
               onClick={onNavigate}
               aria-label={collapsed ? "New chat" : undefined}
               className={cn(
-                "focus-ring group flex items-center justify-center gap-2 rounded-xl border border-border bg-card font-semibold text-foreground elev-1 transition hover:bg-surface-2 hover:elev-2 active:scale-[0.98]",
+                "focus-ring group flex items-center justify-center gap-2 rounded-xl bg-foreground font-semibold text-background transition hover:bg-foreground/90 active:scale-[0.98]",
                 collapsed ? "h-11 w-11" : "w-full px-4 py-3 text-sm",
               )}
             >
@@ -527,10 +532,16 @@ export function SidebarContent({
                         <Link
                           href={`/c/${item.id}`}
                           onClick={onNavigate}
+                          // Start reading the messages with the click, alongside the page itself, instead of
+                          // after it arrives (an idempotent read: chat-store ensureLoaded).
+                          onNavigate={() => void chat.ensureLoaded(item.id)}
                           aria-current={isActive ? "page" : undefined}
-                          className="focus-ring-inset flex h-9 min-w-0 flex-1 items-center rounded-xl px-3 text-sm"
+                          className="focus-ring-inset flex h-9 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 text-sm [@media(pointer:coarse)]:h-11"
                         >
-                          <MarqueeTitle title={item.title} />
+                          <span className="min-w-0 flex-1">
+                            <MarqueeTitle title={item.title} />
+                          </span>
+                          <LinkPending />
                         </Link>
                         {/* Always visible on touch; on hover/focus with a pointer. */}
                         <span className="flex shrink-0 items-center gap-0.5 pr-1 opacity-100 transition-opacity md:[@media(hover:hover)_and_(pointer:fine)]:opacity-0 md:focus-within:opacity-100 md:group-hover:opacity-100">
@@ -538,7 +549,7 @@ export function SidebarContent({
                             type="button"
                             onClick={() => setRenaming(item)}
                             aria-label={`Rename “${item.title}”`}
-                            className="focus-ring-inset grid h-7 w-7 place-items-center rounded-lg transition-colors hover:bg-foreground/10"
+                            className="focus-ring-inset grid h-7 w-7 place-items-center rounded-lg transition-colors hover:bg-foreground/10 [@media(pointer:coarse)]:h-10 [@media(pointer:coarse)]:w-10"
                           >
                             <Pencil aria-hidden className="h-3.5 w-3.5" />
                           </button>
@@ -546,7 +557,7 @@ export function SidebarContent({
                             type="button"
                             onClick={() => setDeleting(item)}
                             aria-label={`Delete “${item.title}”`}
-                            className="focus-ring-inset grid h-7 w-7 place-items-center rounded-lg text-destructive transition-colors hover:bg-destructive/10"
+                            className="focus-ring-inset grid h-7 w-7 place-items-center rounded-lg text-destructive transition-colors hover:bg-destructive/10 [@media(pointer:coarse)]:h-10 [@media(pointer:coarse)]:w-10"
                           >
                             <Trash2 aria-hidden className="h-3.5 w-3.5" />
                           </button>
@@ -600,7 +611,7 @@ export function SidebarContent({
             align="start"
             sideOffset={6}
             collisionPadding={8}
-            className={cn("min-w-[12rem] p-1", !collapsed && "w-[var(--radix-dropdown-menu-trigger-width)]")}
+            className={cn("rail min-w-[12rem] p-1", !collapsed && "w-[var(--radix-dropdown-menu-trigger-width)]")}
           >
             <DropdownMenuItem asChild className="gap-2.5 font-medium">
               <Link href={settingsHref} onClick={onNavigate}>

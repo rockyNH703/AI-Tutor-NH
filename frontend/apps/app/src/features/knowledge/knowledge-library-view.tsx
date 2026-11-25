@@ -73,7 +73,7 @@ export function KnowledgeLibraryView() {
         </section>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-amber-300/40 bg-amber-500/5 p-5">
+      <div className="mt-5 rounded-2xl border border-warning/40 bg-warning-soft p-5">
         <h2 className="font-bold">Controlled rollout</h2>
         <p className="mt-2 text-sm text-text-secondary">
           Use the guarded operator workflow and Windows importer after the storage and parser gates pass. Real CCNA books are not accepted through the normal File Library.

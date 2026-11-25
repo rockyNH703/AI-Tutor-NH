@@ -3,96 +3,103 @@
 @tailwind utilities;
 
 /**
- * Design tokens: PadhAI.
+ * Design tokens: NetSec AI, by Networkers Home.
  *
- * THE DIRECTION
+ * THE DIRECTION (measured from networkershome.com and nhprep.com, 2026-11-25)
  *
- * A calm place to study for hours. A warm-neutral page, white surfaces and borders that almost
- * disappear, and ONE acting colour, a quiet slate blue, used for the primary action, selection
- * and focus and nothing else. A muted sage is the only accent (the greeting's gradient drifts
- * into it); it never means anything, so status colours stay clearly apart from it. Roughly 90%
- * neutral, 8% blue, 2% everything else. Noto Sans throughout; soft corners (8-20px); shadows
- * barely there, borders do the separating.
+ * Networkers Home is a white page with black type: Lato set heavy, an NH red (#DA291C) that marks
+ * the one thing to do now and the key word in a headline, an NH royal blue (#1F4FD8) in the
+ * monogram and every link, cool greys, and near-black panels (nhprep's console, #0A0D13). This app
+ * is that family's tool, so:
+ *   - the work area is white (dark: the console ink), quiet and legible: roughly 90% neutral;
+ *   - the navigation rail is the console ink in both themes (`.rail`, below), the same panel
+ *     nhprep uses for its labs, so the shell reads as NH at a glance;
+ *   - NH blue is the colour this product ACTS with: links, selection, focus, the current place,
+ *     the brand button. Primary actions stay ink, as they are on networkershome.com;
+ *   - NH red is the brand's mark, never a state: the logo tile, the signal line, one word of the
+ *     greeting. Errors keep their own crimson (--destructive), always with words and an icon;
+ *   - Lato Black (self-hosted) for the display voice, Noto Sans for everything read at length.
  *
  * WHAT DID NOT CHANGE
  *
- * The NAMES. Every token and utility below existed before this palette and is
- * referenced across the app; only the values moved, so no call site had to.
- * `--primary` is still the main TEXT colour (near-black in light, near-white in
- * dark) and NOT the brand. Turning it into the accent would turn every
- * paragraph blue.
+ * The NAMES. Every token and utility below existed before this palette and is referenced across
+ * the app (and by other features' work in progress); only the values moved, so no call site had
+ * to. `--primary` is still the main TEXT colour and NOT the brand. Added: `--signal` (NH red) and
+ * the `--rail*` values the `.rail` island re-declares the page tokens with. Removed: the old
+ * greeting gradient (`--greeting-*`), with the gradient text it painted.
  *
  * CONTRAST
  *
- * Every foreground/background pair below was measured, not estimated, in both themes (the
- * ratio sits beside each colour that carries text): text clears 4.5:1, focus rings and control
- * edges 3:1 (WCAG 1.4.11). One blue cannot carry white text AND read as text on the dark page,
- * so dark mode's brand is a lighter blue carrying DARK text. Status colours were also checked
- * for separation from each other and from sage (OKLab, incl. colour-blind simulation); each
- * status also always carries an icon and words, never colour alone.
+ * Every pair was measured, not estimated (the ratio sits beside the colour): text clears 4.5:1,
+ * focus rings, field edges and icons 3:1 (WCAG 1.4.11), in light, dark, high contrast and on the
+ * rail. One blue cannot carry white text AND read as text on the dark page, so dark mode's brand is
+ * a lighter blue carrying DARK text. Status colours stay apart from the brand and from NH red
+ * (OKLab distance), and each status always carries an icon and words, never colour alone.
  */
 @layer base {
   :root {
-    /* Warm-neutral page, white surfaces on it. */
     --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 220.9 39.3% 11%; /* #111827 */
+    --foreground: 220 29% 6.1%; /* #0B0E14, NH's ink with nhprep's cool cast: 19.6:1 */
 
     --card: 0 0% 100%;
-    --card-foreground: 220.9 39.3% 11%;
+    --card-foreground: 220 29% 6.1%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220.9 39.3% 11%;
+    --popover-foreground: 220 29% 6.1%;
 
     /* TEXT, not brand. See the note above. */
-    --primary: 220.9 39.3% 11%; /* #111827 */
+    --primary: 220 29% 6.1%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 20% 98%; /* #F9FAFB */
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 210 20% 98%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 210 20% 98%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --secondary: 225 20% 96.1%; /* #F3F4F7 */
+    --secondary-foreground: 220 29% 6.1%;
+    --muted: 225 20% 96.1%;
+    --muted-foreground: 218.6 13.3% 41.2%; /* #5B6577: 5.9:1 on muted */
+    --accent: 225 20% 96.1%;
+    --accent-foreground: 220 29% 6.1%;
 
-    /* A muted crimson: 5.84:1 on a card and carrying white, 5.50:1 on the page. */
+    /* A muted crimson, apart from NH red: 5.84:1 on a card carrying white, 5.50:1 on the page. */
     --destructive: 353 50.8% 46.3%; /* #B23A48 */
     --destructive-foreground: 0 0% 100%;
 
-    /* Hairlines that separate surfaces without drawing lines. A field's edge is not decoration:
-       it tells you where to type, so `--input` is darker, 3.31:1 on a card and 3.12:1 on the page
-       (WCAG 1.4.11). */
-    --border: 220 13% 91%; /* #E5E7EB */
-    --input: 220 8.9% 46.1%; /* #6B7280 */
-    --ring: 220.9 39.3% 11%;
+    /* Hairlines that separate without drawing lines; a field's edge tells you where to type, so
+       `--input` is darker: 3.7:1 on a card (WCAG 1.4.11). */
+    --border: 220 19.1% 90.8%; /* #E3E6EC */
+    --input: 220 11.4% 53.5%; /* #7B8496 */
+    --ring: 224.4 74.9% 48.4%; /* NH blue: 6.6:1 on the page and a card */
 
-    /* Slate blue: the colour this product ACTS with. 4.94:1 as text on the page, 4.60:1 on
-       its soft tint, 5.25:1 carrying white (6.77:1 hovered). */
-    --brand: 220.9 39.3% 11%; /* #111827 */
+    /* NH royal blue, the colour this product ACTS with: 6.6:1 as text on the page, 5.9:1 on its
+       soft tint, 6.6:1 carrying white (8.4:1 hovered). */
+    --brand: 224.4 74.9% 48.4%; /* #1F4FD8 */
     --brand-foreground: 0 0% 100%;
-    --brand-soft: 210 20% 98%; /* #F9FAFB */
-    --brand-hover: 228 9.8% 10%; /* #17181C */
-    /* The tutor's study cards (notes, definitions, steps, answers, quizzes, flashcards…): the New
-       Chat button's --brand, 50 points lighter, same hue and saturation. #E9EEF3, measured: foreground
-       13.35:1, text-secondary 4.86:1, brand 4.52:1, warning 5.39:1, destructive 5.02:1; success is
-       4.36:1, so on a card it colours icons only (their 3:1), never text. */
-    --study-card-background: 210 20% 96.5%;
+    --brand-soft: 217.1 72.4% 94.3%; /* #E6EEFB, NH's own pale blue */
+    --brand-hover: 224.4 75.2% 41.2%; /* #1A43B8 */
+    /* The tutor's study cards: the brand's palest tint. #F1F5FD, measured: foreground 18.2:1,
+       text-secondary 7.0:1, brand 6.1:1, warning 6.2:1, destructive 5.2:1. */
+    --study-card-background: 220 75% 96.9%;
+
+    /* NH red: the brand's mark (logo tile, signal line, the greeting's key word). Display sizes
+       only as text: 4.98:1 on the page. Never a state, never a button. */
+    --signal: 4.1 77.2% 48.2%; /* #DA291C */
+    /* The NH monogram's blue, fixed in every theme (a logo does not change colour): white on it
+       6.6:1. Only the NH tile uses it. */
+    --nh-blue: 224.4 74.9% 48.4%; /* #1F4FD8 */
 
     --radius: 0.5rem;
 
     /* ---- layout ----
        The composition, in one place (Tailwind: max-w-content, h-header; classes .app-frame,
        .chat-column, .page-container below).
-         header   the app bar AND the sidebar's brand row, so their hairlines meet.
+         header   the app bar AND the rail's brand row, so their lines meet.
          content  ONE width for every screen's content: the chat (greeting, messages, composer)
-                  and every page (Skills & Certifications, File Library, Lab Activity, Knowledge,
-                  Help, About, every Settings section). Full width with padding below 1024px;
-                  from there ~70% of the space beside the sidebar (or the Settings panel),
-                  centred; it follows the sidebar collapsing. The cap binds only past ~1920px.
+                  and every page. Full width with padding below 1024px; from there ~70% of the
+                  space beside the rail (or the Settings panel), centred. The cap binds only past
+                  ~1920px.
        Rhythm is Tailwind's 4px scale: 8/12 inside a group, 16/24 between groups, 32/40 for
        sections. Edges: `border` for structure, `input` for fields (3:1), `ring` for focus;
        depth: .elev-1..3. Radii by role: menu items md, tooltips lg, controls xl, cards 2xl,
        the composer 3xl. */
     --header-h: 4rem;
-    --content-max: 84rem; /* 70% of a 1920 window's content area holds at every text size */
+    --content-max: 84rem;
 
     /* ---- motion ----
        One small system for every normal movement (Tailwind: duration-fast|base|slow,
@@ -100,15 +107,13 @@
        tailwindcss-animate's enter/exit read the same scale).
          fast  hover, press, focus, colour, menus, tooltips, and every exit
          base  dialogs, arrivals, badges, toggles
-         slow  the phone drawer, the sidebar collapse and the greeting: large surfaces
-       ONE curve, a quick start that lands softly; enter and exit keep their names but use
-       it too. Only transform and opacity move, except the sidebar's width and a sidebar program
-       group opening or closing (grid rows 0fr to 1fr, base: what is below glides instead of jumping).
+         slow  the phone drawer, the rail collapse and the greeting: large surfaces
+       ONE curve, a quick start that lands softly. Only transform and opacity move, except the
+       rail's width and a rail program group opening or closing (grid rows 0fr to 1fr).
        Deliberate exceptions: the transcript follows a streaming reply instantly; the composer
-       grows instantly; Settings panes swap instantly; the skeleton, the streaming caret and
-       the typing dots breathe (opacity, gone with their element); the sign-in screens' light
-       drifts slowly; toasts (sonner) and the calendar library animate themselves. Reduced
-       motion (below) removes all of it. */
+       grows instantly; Settings panes swap instantly; the skeleton, the streaming caret and the
+       typing dots breathe (opacity, gone with their element); toasts (sonner) and the calendar
+       library animate themselves. Reduced motion (below) removes all of it. */
     --motion-fast: 150ms;
     --motion-base: 200ms;
     --motion-slow: 250ms;
@@ -118,70 +123,65 @@
 
     /* ---- semantic layer ----
        `surface` is a well inside a card (list rows, code); `surface-2` is one step deeper, for
-       hover, the student's bubble and skeletons. `text-secondary` names what would otherwise be
-       spelt as an opacity on `--primary`. */
-    --surface: 210 20% 98%; /* #F9FAFB: sidebar and recessed surfaces */
-    --surface-2: 220 13% 95.5%; /* #F2F3F5 */
-    --text-secondary: 220 8.9% 42%; /* #626B79: 5.3:1 on surface-2 (the student's bubble), 5.7:1 on the page */
+       hover, the current item, the student's bubble and skeletons. */
+    --surface: 220 20% 97.1%; /* #F6F7F9 */
+    --surface-2: 214.3 22.6% 93.9%; /* #ECEFF3 */
+    --text-secondary: 215 13.8% 34.1%; /* #4B5563: 7.6:1 on the page, 6.6:1 on surface-2 */
 
-    /* The one accent: a muted grey sage. Decoration only (the greeting's gradient, the empty
-       state), never a status. 4.90:1 on the page. */
-    --sage: 137.1 6.7% 41.2%; /* #627066 */
+    /* Kept for any decorative use; no state, never text on its soft. */
+    --sage: 137.1 6.7% 41.2%;
     --sage-soft: 140 11.1% 94.7%;
-    /* Warm ivory, for the empty state's faint warmth. Never behind text. */
     --ivory: 39.1 56.1% 92%;
-
-    /* The greeting's gradient: deep navy into the brand into sage (every stop and every point
-       between them clears 4.5:1 on the page: e2e/chat-polish.e2e.ts measures the rendered one). */
-    --greeting-from: 211.5 32.3% 24.3%; /* #2A3D52: 10.47:1 */
-    --greeting-via: 210 28.8% 43.5%; /* 4.94:1 */
-    --greeting-to: 137.1 6.7% 41.2%; /* 4.90:1 */
 
     /* Warm amber. Marks rather than acts: streaks and highlights, never a button. */
     --accent-warm: 28.6 70% 35.3%; /* #99571B: 5.62:1 on a card, 4.99:1 on its soft */
     --accent-warm-soft: 31.6 61.3% 93.9%;
 
-    /* Status, kept apart from the brand and from sage on purpose: "this worked" and "this is
-       our colour" are different statements. */
-    --success: 138.6 64.9% 30.2%; /* #1B7F3A: 5.07:1 on a card, 4.6:1 on its soft */
+    /* Status, kept apart from the brand and from NH red on purpose: "this worked" and "this is
+       our colour" are different statements. Info moved from slate blue to a teal so it no longer
+       sits on the brand's hue (OKLab ΔE 15.5 from NH blue). */
+    --success: 138.6 64.9% 30.2%; /* #1B7F3A: 5.07:1 on a card */
     --success-soft: 133.3 33.3% 94.7%;
     --warning: 45.2 100% 23.9%; /* #7A5C00: 6.25:1 on a card */
     --warning-soft: 43.6 61.1% 92.9%;
-    --info: 210.7 39.8% 40.4%; /* #3E6690: 5.25:1 on its soft */
-    --info-soft: 207.7 44.8% 94.3%;
+    --info: 194.3 81.8% 30.2%; /* #0E6E8C: 5.8:1 on a card */
+    --info-soft: 194 50% 94.5%;
 
     /* The learning tools' own colours (preview only), one per tool: muted, never loud. */
-    --accent-purple: 267.3 19.6% 43.9%; /* 5.32:1 on its soft */
+    --accent-purple: 267.3 19.6% 43.9%;
     --accent-purple-foreground: 0 0% 100%;
     --accent-purple-soft: 265.7 28% 95.1%;
-    --accent-pink: 336.6 36.3% 44.3%; /* 5.27:1 on its soft */
+    --accent-pink: 336.6 36.3% 44.3%;
     --accent-pink-soft: 333.3 36% 95.1%;
 
-    /* The brand's washes (sign-in, error pages) and the preview banners' deep fill. White on
-       the deep fill clears 4.5:1 at both stops. */
-    --hero-from: 210 28.8% 43.5%;
-    --hero-to: 131.5 13.1% 38.8%;
-    --hero-deep-from: 210.7 32.8% 25.7%;
-    --hero-deep-to: 167.1 23% 23.9%;
+    /* The brand's deep fill (preview banners) and its washes. White clears 4.5:1 on both deep
+       stops (the console ink and its raised panel). */
+    --hero-from: 224.4 74.9% 48.4%;
+    --hero-to: 4.1 77.2% 48.2%;
+    --hero-deep-from: 220 31% 5.7%; /* #0A0D13 */
+    --hero-deep-to: 222.9 28% 14.7%; /* #1B2130 */
     --hero-foreground: 0 0% 100%;
-    --hero-muted: 208.4 37.3% 90%;
+    --hero-muted: 217.2 18.7% 69.6%;
+
+    /* The rail: nhprep's console ink, in both themes (the `.rail` island below re-declares the
+       page tokens with these). */
+    --rail: 220 31% 5.7%; /* #0A0D13 */
+    --rail-foreground: 218.2 33.3% 93.5%; /* #E9EDF4: 16.4:1 */
 
     /* Amber fill behind the streak's flame. Decorative only, never text. */
     --streak: 36.9 69.6% 51%;
 
-    /* The streak celebrations' flame (features/streak/celebrations), as the owner's animations
-       draw it. Decorative only, never text. The flame keeps its colours in dark mode; the soft
-       accent (the check's circle) and the muted, resting flame get darker twins there. */
+    /* The streak celebrations' flame, as the owner's animations draw it. Decorative only. */
     --flame: 24.6 86.9% 61%; /* #F28C45 */
     --flame-tip: 23 100% 73.9%; /* #FFAD7A */
     --flame-gold: 36.1 100% 71%; /* #FFC46B */
     --flame-gold-tip: 36.3 100% 85.1%; /* #FFE1B3 */
-    --accent-soft: 207.3 45.8% 90.6%; /* #DCE8F2 */
-    --flame-muted: 209.3 42.3% 81%; /* #BACFE3 */
+    --accent-soft: 217.1 72.4% 94.3%; /* the brand's pale blue */
+    --flame-muted: 220 40% 82%; /* #BDC9E0 */
 
     /* Chart series, in this order (never cycled): a categorical palette checked for colour-blind
-       and normal-vision separation of neighbours (the dataviz reference order, slots 1-6). Some
-       sit under 3:1 on a card, so every chart also has a legend, tooltips and a data table. */
+       and normal-vision separation of neighbours. Every chart also has a legend, tooltips and a
+       data table. */
     --chart-1: 212.8 67.7% 50.2%; /* blue #2A78D6 */
     --chart-2: 17 82.1% 56.3%; /* orange #EB6834 */
     --chart-3: 158.5 73.3% 39.6%; /* aqua #1BAF7A */
@@ -189,71 +189,64 @@
     --chart-5: 337.4 70.3% 69.6%; /* magenta #E87BA4 */
     --chart-6: 120 100% 25.7%; /* green #008300 */
 
-    /* The scrim behind a modal. Not `bg-foreground/x`, which inverts, so dark
-       mode would get a WHITE veil. */
-    --overlay: 215 21.4% 11%;
+    /* The scrim behind a modal: the console ink. */
+    --overlay: 220 31% 5.7%;
   }
 
   .dark {
-    /* Near-black with a blue cast, not pure black: black crushes every edge, so surfaces could
-       no longer be told apart. */
-    --background: 240 9.1% 4.3%; /* #0A0A0C */
-    --foreground: 240 5.3% 96.3%; /* #F5F5F6 */
+    /* nhprep's console ink, not pure black: black crushes every edge. */
+    --background: 220 31% 5.7%; /* #0A0D13 */
+    --foreground: 215 33.3% 92.9%; /* #E7ECF3: 16.3:1 */
 
-    --card: 228 10.6% 9.2%; /* #15161A */
-    --card-foreground: 240 5.3% 96.3%;
-    --popover: 228 10.6% 9.2%;
-    --popover-foreground: 240 5.3% 96.3%;
+    --card: 220 26.1% 9%; /* #11151D */
+    --card-foreground: 215 33.3% 92.9%;
+    --popover: 220 26.1% 9%;
+    --popover-foreground: 215 33.3% 92.9%;
 
-    --primary: 240 5.3% 96.3%;
-    --primary-foreground: 240 9.1% 4.3%;
+    --primary: 215 33.3% 92.9%;
+    --primary-foreground: 220 31% 5.7%;
 
-    --secondary: 230 9.7% 12.2%; /* #1C1D22 */
-    --secondary-foreground: 240 5.3% 96.3%;
-    --muted: 230 9.7% 12.2%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 230 9.7% 12.2%;
-    --accent-foreground: 240 5.3% 96.3%;
+    --secondary: 220 25.4% 11.6%; /* #161B25 */
+    --secondary-foreground: 215 33.3% 92.9%;
+    --muted: 220 25.4% 11.6%;
+    --muted-foreground: 214 17.4% 66.3%; /* #9AA7B8 */
+    --accent: 220 25.4% 11.6%;
+    --accent-foreground: 215 33.3% 92.9%;
 
-    --destructive: 351 77% 72.7%; /* #EF8494: 7.53:1 on the page, carrying dark text */
-    --destructive-foreground: 240 9.1% 4.3%;
+    --destructive: 351 77% 72.7%; /* #EF8494: 7.9:1 on the page, carrying dark text */
+    --destructive-foreground: 220 31% 5.7%;
 
-    --border: 231.4 7.7% 17.8%; /* #2A2B31 */
-    --input: 240 3.7% 42%; /* a field's edge: 3.3:1 on a card, 3.6:1 on the page (WCAG 1.4.11) */
-    --ring: 240 5.3% 96.3%;
+    --border: 219 22.2% 17.6%; /* #232A37 */
+    --input: 218.2 14.8% 43.7%; /* #5F6B80: 3.4:1 on a card */
+    --ring: 223.1 100% 74.9%;
 
-    /* A lighter, softer slate blue with DARK text on it: 7.85:1 as text, 6.35:1 on its soft,
-       7.85:1 as a button (9.78:1 hovered). */
-    --brand: 240 5.3% 96.3%; /* #F5F5F6 */
-    --brand-foreground: 240 9.1% 4.3%;
-    --brand-soft: 230 9.7% 12.2%; /* #1C1D22 */
-    --brand-hover: 220 9.1% 93.5%; /* #EDEEF0 */
-    /* The dark brand 50 points darker, toward the dark surface: a quiet slate-blue card. */
-    --study-card-background: 230 9.7% 12.2%;
+    /* NH blue lifted for the dark page, carrying DARK text: 7.7:1 as text, 6.3:1 on its soft. */
+    --brand: 223.1 100% 74.9%; /* #7FA3FF */
+    --brand-foreground: 220 31% 5.7%;
+    --brand-soft: 223.3 50.6% 16.7%; /* #152140 */
+    --brand-hover: 223 100% 80.6%; /* #9CB8FF */
+    --study-card-background: 220.8 41% 12%; /* #121A2B */
 
-    --surface: 225 10% 7.8%; /* #121316: sidebar and recessed surfaces */
-    --surface-2: 230 9.7% 12.2%; /* #1C1D22 */
-    --text-secondary: 240 5% 64.9%; /* #A1A1AA */
+    --signal: 4.7 100% 65.1%; /* #FF5B4D: 6.4:1 on the page */
 
-    --sage: 130 7.3% 67.8%; /* #A7B3A9 */
+    --surface: 218.2 28.2% 7.6%; /* #0E1219 */
+    --surface-2: 223.6 29.7% 14.5%; /* #1A2030 */
+    --text-secondary: 214 17.4% 66.3%; /* #9AA7B8: 7.6:1 on the page */
+
+    --sage: 130 7.3% 67.8%;
     --sage-soft: 140 10.3% 11.4%;
     --ivory: 38.8 25.4% 13.1%;
-
-    --greeting-from: 212.3 31.7% 92%;
-    --greeting-via: 210.6 37.6% 75.5%;
-    --greeting-to: 132 11.1% 73.5%;
 
     --accent-warm: 29.1 71.9% 65.1%; /* 8.18:1 */
     --accent-warm-soft: 27 35.7% 11%;
 
-    /* Soft variants are dim tints, not pale washes, and foregrounds lighten:
-       a naive inversion vibrates against the surface. */
+    /* Soft variants are dim tints, not pale washes, and foregrounds lighten. */
     --success: 113 55.7% 63.7%; /* #7BD66F */
     --success-soft: 128 27.3% 10.8%;
     --warning: 41.8 72.5% 64.3%; /* #E6BE62 */
     --warning-soft: 43.6 40.7% 10.6%;
-    --info: 210.9 44.6% 71%;
-    --info-soft: 213.6 35.2% 13.9%;
+    --info: 193.7 63.3% 64.7%; /* #6CC4DE */
+    --info-soft: 195 40% 11%;
 
     --accent-purple: 267 28.2% 72.2%;
     --accent-purple-foreground: 225 21.1% 7.5%;
@@ -261,21 +254,25 @@
     --accent-pink: 335.6 46.4% 72.9%;
     --accent-pink-soft: 332 24.6% 12%;
 
-    --hero-from: 209 31.2% 36.5%;
-    --hero-to: 137.4 19.7% 30.8%;
-    --hero-deep-from: 212.6 32.7% 21%;
-    --hero-deep-to: 162.5 26.1% 18%;
+    --hero-from: 223.1 100% 74.9%;
+    --hero-to: 4.7 100% 65.1%;
+    --hero-deep-from: 220 33.3% 3.5%;
+    --hero-deep-to: 222.9 28% 14.7%;
     --hero-foreground: 0 0% 100%;
-    --hero-muted: 208.4 37.3% 90%;
+    --hero-muted: 217.2 18.7% 69.6%;
+
+    /* The rail sits a step darker than the dark page, edged by a hairline. */
+    --rail: 220 33.3% 3.5%; /* #06080C */
+    --rail-foreground: 218.2 33.3% 93.5%;
 
     --streak: 36.9 69.6% 51%;
 
-    --flame: 24.6 86.9% 61%; /* #F28C45 */
-    --flame-tip: 23 100% 73.9%; /* #FFAD7A */
-    --flame-gold: 36.1 100% 71%; /* #FFC46B */
-    --flame-gold-tip: 36.3 100% 85.1%; /* #FFE1B3 */
-    --accent-soft: 213.3 32.1% 22%; /* #26364A */
-    --flame-muted: 212.3 24.2% 31.6%; /* #3D4F64 */
+    --flame: 24.6 86.9% 61%;
+    --flame-tip: 23 100% 73.9%;
+    --flame-gold: 36.1 100% 71%;
+    --flame-gold-tip: 36.3 100% 85.1%;
+    --accent-soft: 223.3 50.6% 16.7%;
+    --flame-muted: 222 22% 30%;
 
     --chart-1: 212.8 76.8% 56.1%; /* #3987E5 */
     --chart-2: 17.1 70.2% 50%; /* #D95926 */
@@ -284,7 +281,48 @@
     --chart-5: 338.2 61.1% 57.6%; /* #D55181 */
     --chart-6: 120 100% 25.7%; /* #008300 */
 
-    --overlay: 240 9.1% 4.3%;
+    --overlay: 220 33.3% 3.5%;
+  }
+
+  /* THE RAIL: a token island. The sidebar (desktop and the phone drawer), its account menu (a
+     portal, so it carries the class itself), the Settings panel and the sign-in brand panel set
+     `.rail`, and every page token used inside is re-declared with its measured on-ink value, so
+     the components inside need no special classes. Measured on #0A0D13 (and #06080C, dark):
+     foreground 16.4:1, secondary 8.4:1 (6.6:1 on the current row), brand and ring 8.0:1
+     (6.3:1 on the current row), field edge 3.2:1, destructive 7.9:1. */
+  .rail {
+    --background: var(--rail);
+    --foreground: var(--rail-foreground);
+    --card: 221.3 30.8% 10.2%; /* #121722: the search field */
+    --card-foreground: var(--rail-foreground);
+    --popover: 221.3 30.8% 10.2%;
+    --popover-foreground: var(--rail-foreground);
+    --primary: var(--rail-foreground);
+    --primary-foreground: var(--rail);
+    --secondary: 222.9 28% 14.7%;
+    --secondary-foreground: var(--rail-foreground);
+    --muted: 222.9 28% 14.7%;
+    --muted-foreground: 217.2 18.7% 69.6%;
+    --accent: 222.9 28% 14.7%;
+    --accent-foreground: var(--rail-foreground);
+    --surface: var(--rail);
+    --surface-2: 222.9 28% 14.7%; /* #1B2130: hover and the current row */
+    --text-secondary: 217.2 18.7% 69.6%; /* #A3AEC0 */
+    --border: 220 22.6% 18.2%; /* #242B39 */
+    --input: 218.7 14.3% 42.5%; /* #5D687C */
+    --brand: 223.1 100% 76.3%; /* #86A8FF */
+    --brand-foreground: var(--rail);
+    --brand-soft: 224.4 51% 19.2%; /* #18254A */
+    --brand-hover: 223 100% 82%;
+    --ring: 223.1 100% 76.3%;
+    --destructive: 352.4 79.7% 74.9%; /* #F28C99 */
+    --destructive-foreground: var(--rail);
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
+  .dark .rail,
+  .dark.rail {
+    --surface-2: 221.3 26.7% 11.8%; /* #161B26 */
   }
 }
 
@@ -293,8 +331,9 @@
     @apply border-border;
   }
   body {
-    /* Inter-like system UI typography, using the installed platform stack with no external request. */
+    /* Noto Sans (self-hosted, apps/app/src/lib/fonts.ts) for everything read at length. */
     @apply bg-background text-base font-normal text-foreground;
+    caret-color: hsl(var(--brand));
     background-image: radial-gradient(
       70rem 40rem at 58% -12%,
       hsl(var(--foreground) / 0.035),
@@ -417,38 +456,40 @@
   }
 
   /**
-   * The page ground behind sign-in and the error screens: two faint pools of
-   * the brand's own colours, slate blue from the top left and sage from the top
-   * right. No image, nothing to download.
-   *
-   * Fixed and pointer-events-none at the call site, so it never participates
-   * in layout or interaction.
+   * NH's graph paper: the faint red grid networkershome.com and nhprep.com set behind their
+   * headlines, here behind sign-in, the error screens and a new chat. Static (no image, no
+   * animation), fading out toward the bottom so it never sits behind body text, and under 7%
+   * alpha so nothing on it loses contrast. Fixed and pointer-events-none at the call site.
    */
-  .backdrop-wash {
+  .backdrop-wash,
+  .nh-grid {
     background-image:
-      radial-gradient(
-        60rem 40rem at 12% -10%,
-        hsl(var(--hero-from) / 0.1),
-        transparent 60%
-      ),
-      radial-gradient(
-        50rem 34rem at 92% -6%,
-        hsl(var(--hero-to) / 0.08),
-        transparent 60%
-      );
+      linear-gradient(to right, hsl(var(--signal) / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--signal) / 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+    mask-image: linear-gradient(to bottom, #000, transparent 70%);
   }
-  .dark .backdrop-wash {
+  .dark .backdrop-wash,
+  .dark .nh-grid {
     background-image:
-      radial-gradient(
-        60rem 40rem at 12% -10%,
-        hsl(var(--hero-from) / 0.16),
-        transparent 60%
-      ),
-      radial-gradient(
-        50rem 34rem at 92% -6%,
-        hsl(var(--hero-to) / 0.12),
-        transparent 60%
-      );
+      linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+  }
+
+  /**
+   * The NH signal line: the logo pill's red and blue as two flat segments (a hard split, so no
+   * blend passes through violet). Static, 2px, decoration only: under the rail's brand row and
+   * the sign-in panel's lockup. Hidden under forced colours, where it would carry nothing.
+   */
+  .signal-line {
+    height: 2px;
+    background-image: linear-gradient(
+      to right,
+      hsl(var(--signal)) 0 34%,
+      hsl(var(--brand)) 34% 100%
+    );
   }
 
   /** The brand gradient as a fill, and its deeper banner version. */
@@ -484,11 +525,13 @@
   .focus-ring-inset {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:ring-offset-0;
   }
+  /* The composer while you type: its edge takes the acting blue (3:1 or more against the page in
+     both themes) with a soft halo, so where the keyboard is going is never in doubt. */
   .composer-focus:focus-within {
-    border-color: hsl(var(--foreground) / 0.2);
+    border-color: hsl(var(--ring) / 0.7);
     box-shadow:
-      0 0 0 3px hsl(var(--foreground) / 0.045),
-      0 20px 45px -28px hsl(var(--overlay) / 0.85);
+      0 0 0 3px hsl(var(--ring) / 0.14),
+      0 20px 45px -28px hsl(var(--overlay) / 0.6);
   }
 
   /* Windows otherwise renders a 17px grey slab beside the transcript. */
@@ -544,55 +587,37 @@
     animation: soft-pulse 1.6s ease-in-out infinite;
   }
 
-  /* A new chat's greeting (features/chat/empty-state.tsx): the words arrive one after another,
-     each painted with its slice of ONE gradient across the line (sized and offset per word by the
-     component), deep navy drifting into the brand and then sage. The rendered text clears 4.5:1
-     on the page at every point, in both themes (measured in e2e/chat-polish.e2e.ts). */
-  @keyframes word-in {
+  /* A new chat's greeting (features/chat/empty-state.tsx) arrives once, as one line: a short
+     rise, solid ink with NH red on one word (no gradient text). */
+  @keyframes greeting-in {
     from {
       opacity: 0;
-      transform: translateY(0.35em);
+      transform: translateY(0.25em);
     }
     to {
       opacity: 1;
       transform: none;
     }
   }
-  .greeting-word {
-    display: inline-block;
-    background-image: linear-gradient(
-      90deg,
-      hsl(var(--greeting-from)),
-      hsl(var(--greeting-via)) 58%,
-      hsl(var(--greeting-to))
-    );
-    background-repeat: no-repeat;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: word-in var(--motion-slow) var(--ease-enter) both;
-    animation-delay: calc(var(--word, 0) * 70ms);
-  }
-  @media (forced-colors: active) {
-    .greeting-word {
-      background-image: none;
-      color: CanvasText;
-    }
+  .animate-greeting-in {
+    animation: greeting-in var(--motion-slow) var(--ease-enter) both;
   }
 
-  /* A new chat's faint atmosphere (features/chat/chat-view.tsx): a whisper of the brand's blue
-     in the top-left corner and of warmth in the bottom-right, gone once the chat starts. Static
-     (no filter, no animation), kept to the corners, clear of the greeting and the composer, and
-     not drawn at all on short screens. */
+  /* A new chat's ground (features/chat/chat-view.tsx): NH's graph paper, faint, at the top of the
+     pane only, gone once the chat starts and not drawn at all on short screens. */
   .empty-atmosphere {
     background-image:
-      radial-gradient(34rem 20rem at 50% 0%, hsl(var(--foreground) / 0.035), transparent 72%),
-      radial-gradient(30rem 20rem at 100% 100%, hsl(var(--brand) / 0.025), transparent 72%);
+      linear-gradient(to right, hsl(var(--signal) / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--signal) / 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000, transparent 75%);
   }
   .dark .empty-atmosphere {
     background-image:
-      radial-gradient(34rem 20rem at 50% 0%, hsl(var(--foreground) / 0.06), transparent 72%),
-      radial-gradient(28rem 18rem at 100% 100%, hsl(var(--foreground) / 0.025), transparent 74%);
+      linear-gradient(to right, hsl(var(--foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.045) 1px, transparent 1px);
   }
 
   /* A sidebar chat title too long for its row (components/marquee-title.tsx). At rest it is
@@ -669,25 +694,9 @@
   }
 
   /**
-   * The sign-in screens (components/auth-form.tsx): the dark theme's two pools of light drift
-   * slowly, and a field that was not accepted shakes once. Both stop under reduced motion (the
-   * rules below and html[data-motion="reduce"]).
+   * The sign-in screens (components/auth-form.tsx): a field that was not accepted shakes once.
+   * It stops under reduced motion (the rules below and html[data-motion="reduce"]).
    */
-  @keyframes auth-drift {
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-    }
-    33% {
-      transform: translate(5vw, -5vh) scale(1.1);
-    }
-    66% {
-      transform: translate(-5vw, 5vh) scale(0.95);
-    }
-  }
-  .animate-auth-drift {
-    animation: auth-drift 20s ease-in-out infinite;
-  }
   @keyframes auth-shake {
     0%,
     100% {
@@ -702,13 +711,6 @@
   }
   .animate-auth-shake {
     animation: auth-shake var(--motion-slow) cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-  }
-  /* Their main button's soft glow, in the ink colour: dark on white, light on dark. */
-  .auth-glow {
-    box-shadow: 0 0 20px hsl(var(--foreground) / 0.1);
-  }
-  .dark .auth-glow {
-    box-shadow: 0 0 20px hsl(var(--foreground) / 0.15);
   }
   .stagger > * {
     animation: settle-in var(--motion-slow) var(--ease-enter) both;
@@ -780,7 +782,7 @@
     .animate-rise-in,
     .animate-soft-pulse,
     .stagger > *,
-    .greeting-word,
+    .animate-greeting-in,
     .marquee-track {
       animation: none !important;
       transform: none !important;
@@ -819,21 +821,42 @@
   }
 
   /* High contrast: secondary text moves most of the way to the main text colour, and every
-     edge (borders, field outlines) becomes clearly visible. Measured: light, text #3B434D
-     9.43:1 on the page and 10.02:1 on a card, edges #66707D 5.02:1 on a card; dark, text
-     #D0D6DF 12.91:1 on the page and 11.91:1 on a card, edges #9AA3B2 6.83:1 on a card. The
-     dark rule is more specific, so it wins over the light one there. */
+     edge (borders, field outlines) becomes clearly visible. Measured: light, text #2F3744
+     11.9:1 on the page, edges #5E6778 5.8:1 on a card; dark, text #D3DAE4 13.4:1 on the page,
+     edges #8C97AA 6.1:1 on a card; the rail, text #D4DCE8 13.7:1 and edges #7D889C 5.3:1 on
+     its ink. The rail rule is more specific, so it wins inside the rail in both themes. */
   html[data-contrast="high"] {
-    --text-secondary: 213.3 13.2% 26.7%;
-    --muted-foreground: 213.3 13.2% 26.7%;
-    --border: 213.9 10.1% 44.5%;
-    --input: 213.9 10.1% 44.5%;
+    --text-secondary: 217.1 18.3% 22.5%;
+    --muted-foreground: 217.1 18.3% 22.5%;
+    --border: 219.2 12.1% 42%;
+    --input: 219.2 12.1% 42%;
   }
   html.dark[data-contrast="high"] {
-    --text-secondary: 216 19% 84.5%;
-    --muted-foreground: 216 19% 84.5%;
-    --border: 217.5 13.5% 65.1%;
-    --input: 217.5 13.5% 65.1%;
+    --text-secondary: 215.3 23.9% 86.1%;
+    --muted-foreground: 215.3 23.9% 86.1%;
+    --border: 218 15% 60.8%;
+    --input: 218 15% 60.8%;
+  }
+  html[data-contrast="high"] .rail {
+    --text-secondary: 216.9 31% 87.1%;
+    --muted-foreground: 216.9 31% 87.1%;
+    --border: 219.4 11.8% 55.1%;
+    --input: 219.4 11.8% 55.1%;
+  }
+
+  /* Forced colours (Windows contrast themes): the system palette replaces ours, so the current
+     place, shown by a fill, gets a real outline, and the decorative line and grid step aside. */
+  @media (forced-colors: active) {
+    [aria-current="page"] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+    .signal-line,
+    .backdrop-wash,
+    .nh-grid,
+    .empty-atmosphere {
+      display: none;
+    }
   }
 
   /* Reduce motion, chosen in the app: the same as the prefers-reduced-motion rules above,
@@ -850,7 +873,7 @@
   html[data-motion="reduce"] .animate-rise-in,
   html[data-motion="reduce"] .animate-soft-pulse,
   html[data-motion="reduce"] .stagger > *,
-  html[data-motion="reduce"] .greeting-word,
+  html[data-motion="reduce"] .animate-greeting-in,
   html[data-motion="reduce"] .marquee-track {
     animation: none !important;
     transform: none !important;

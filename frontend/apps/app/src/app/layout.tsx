@@ -6,13 +6,12 @@ import type { CSSProperties, ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import { PREPAINT_SCRIPT } from "@/lib/appearance";
-import { notoSans, notoSansDevanagari } from "@/lib/fonts";
+import { lato, notoSans, notoSansDevanagari } from "@/lib/fonts";
 import { APP_NAME, BRAND } from "@/lib/brand";
 import { siteUrl } from "@/lib/site";
 
-// Every face is the platform's own (tailwind.config.ts in packages/ui): nothing
-// to download. Code is read a lot in a tutor's answers, and the system monospace
-// face reads better at length than a wide display mono.
+// Noto Sans and Lato are self-hosted (lib/fonts.ts); code uses the system monospace face, which
+// reads better at length than a wide display mono.
 const fonts = {
   "--font-mono": 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
 } as CSSProperties;
@@ -22,8 +21,8 @@ export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
   description: BRAND.description,
   applicationName: APP_NAME,
-  // The one brand asset (lib/brand.ts), so the tab icon changes with the logo.
-  icons: { icon: { url: BRAND.markSrc, type: "image/svg+xml" } },
+  // The tab icon (lib/brand.ts): the mark on NH's console-ink tile, legible on any tab colour.
+  icons: { icon: { url: BRAND.faviconSrc, type: "image/svg+xml" } },
   // A private app: nothing here is for search engines.
   robots: { index: false, follow: false },
 };
@@ -31,13 +30,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#0A0A0C" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A0D13" },
   ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${notoSans.variable} ${notoSansDevanagari.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${notoSans.variable} ${notoSansDevanagari.variable} ${lato.variable}`} suppressHydrationWarning>
       <head>
         {/* Text size, contrast, motion and reading spacing from the last visit, before the
             first paint (lib/appearance.ts); the signed-in app then applies the server's value. */}

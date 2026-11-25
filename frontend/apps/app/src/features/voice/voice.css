@@ -1,6 +1,6 @@
 /*
- * Voice mode's tutor face (tutor-face.tsx), from the owner's prototype in PadhAI's calm colours: a blue glow
- * while listening, amber while thinking, green while speaking (never violet or indigo). Colour and movement say
+ * Voice mode's tutor face (tutor-face.tsx), from the owner's prototype, in Networkers Home's console ink with
+ * NH blue's glow while listening, amber while thinking, green while speaking (never violet or indigo). Colour and movement say
  * what it is doing; eyes, mouth and hands its manner (data-expression). Only transform and opacity move, on the
  * motion tokens; with reduced motion, the device's or the app's, it holds still. The mic's level (--voice-level,
  * 0-1, set by the view) grows the glow a little while it listens.
@@ -8,9 +8,9 @@
 
 .tutor {
   --tutor-size: clamp(8.5rem, 32vmin, 11.25rem);
-  --tutor-head: hsl(212 18% 19%);
-  --tutor-head-light: hsl(212 16% 27%);
-  --tutor-glow: hsl(207 72% 72%);
+  --tutor-head: hsl(220 31% 10%);
+  --tutor-head-light: hsl(222.9 28% 17%);
+  --tutor-glow: hsl(223.1 100% 74.9%);
   --voice-level: 0;
   position: relative;
   display: grid;
@@ -20,8 +20,8 @@
 }
 
 .dark .tutor {
-  --tutor-head: hsl(216 18% 24%);
-  --tutor-head-light: hsl(216 16% 32%);
+  --tutor-head: hsl(222.9 28% 17%);
+  --tutor-head-light: hsl(222 26% 25%);
 }
 
 .tutor[data-face="thinking"] {
@@ -94,7 +94,7 @@
   height: 20%;
   border-radius: 40%;
   background: linear-gradient(145deg, var(--tutor-head-light), var(--tutor-head));
-  box-shadow: 0 10px 20px -6px hsl(212 30% 10% / 0.45);
+  box-shadow: 0 10px 20px -6px hsl(220 31% 6% / 0.45);
   transition: transform var(--motion-slow) var(--ease-standard);
 }
 

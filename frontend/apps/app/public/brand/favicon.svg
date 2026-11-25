@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="NetSec AI">
+  <rect width="32" height="32" rx="7" fill="#0A0D13"/>
+  <g transform="translate(5.6 5.2) scale(0.65)" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 2.8 29.1 26H2.9L16 2.8Z"/>
+    <path d="m16 2.8-4.35 15.3L2.9 26"/>
+    <path d="m16 2.8 4.35 15.3L29.1 26"/>
+    <path d="m11.65 18.1 8.7 0L16 26l-4.35-7.9Z"/>
+  </g>
+  <rect x="6" y="27" width="7" height="1.6" fill="#DA291C"/>
+  <rect x="13" y="27" width="13" height="1.6" fill="#1F4FD8"/>
+</svg>

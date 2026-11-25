@@ -12,6 +12,19 @@ export const GREETINGS = [
   "Describe the symptom and the platform.",
 ] as const;
 
+/** The stem of each greeting's key word: the one Networkers Home would set in red. */
+const ACCENTS = ["troubleshoot", "config", "network", "securing", "symptom", "learn", "practi"];
+
+/**
+ * The index of the word to accent in a greeting (the first word holding a key stem), or null when
+ * none does, as with a program's own greeting that names no stem: then the line stays all ink.
+ */
+export function accentWord(text: string): number | null {
+  const words = text.toLowerCase().split(" ");
+  const index = words.findIndex((word) => ACCENTS.some((stem) => word.includes(stem)));
+  return index < 0 ? null : index;
+}
+
 /**
  * A picker that gives each chat one greeting and keeps it, and never gives a new chat the
  * greeting the last one got.

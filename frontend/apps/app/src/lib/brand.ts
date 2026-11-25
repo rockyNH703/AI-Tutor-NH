@@ -14,8 +14,13 @@ export const BRAND = {
   name: "NetSec AI",
   wordmark: { lead: "NetSec", accent: " AI" },
   description: "NetSec AI, an assistant for network, security and infrastructure engineers.",
-  /** Served from `public/`. A square image that carries its own background. */
+  /** Served from `public/`. The outline mark (drawn on the console ink, e.g. the crash screen). */
   markSrc: "/brand/padhai-mark.svg",
+  /** The browser tab's icon: the mark in white on NH's console-ink tile, with the signal line, so
+   *  it reads on light and dark tabs alike. */
+  faviconSrc: "/brand/favicon.svg",
+  /** The parent brand, shown under the wordmark. */
+  parent: "Networkers Home",
 } as const;
 
 export const APP_NAME = BRAND.name;

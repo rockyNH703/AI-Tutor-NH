@@ -17,6 +17,19 @@ export const notoSans = localFont({
   fallback: ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
 });
 
+/**
+ * Lato Black, Networkers Home's own face (SIL Open Font License, src/fonts/lato/LICENSE), for the
+ * display voice only: the greeting, page titles and the wordmark (font-display). One weight, Latin
+ * only (22 KB, Google Fonts' lato v25, SHA-256 08664859…afbd92), preloaded: the greeting is the
+ * first paint's largest text.
+ */
+export const lato = localFont({
+  src: [{ path: "../fonts/lato/lato-latin-900.woff2", weight: "900", style: "normal" }],
+  variable: "--font-lato",
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+});
+
 export const notoSansDevanagari = localFont({
   src: [{ path: "../fonts/noto-sans/noto-sans-devanagari-wght.woff2", weight: "100 900", style: "normal" }],
   variable: "--font-noto-sans-devanagari",
