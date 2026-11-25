@@ -125,7 +125,13 @@ Adding an endpoint means adding it to `ROUTES`. `routes.test.ts` fails unless th
 - **Timing:** battles and dailies poll by `nextChangeAt` against the server clock (`clock.ts`, `poll.ts`). There's
   one polite live region, focus moves at round start and on the result, and the timer bar is hidden under reduced
   motion.
-- **Secrecy:** nothing shows a key or an explanation before a round or a daily is over.
+- **Exam battles** (2026-11-25, not released; `exam-view.tsx`, `exam-palette.tsx`): one countdown to `endsAt` that
+  never increases, a question palette, and a save queue that survives unmount. Every pick, Clear and mark is sent
+  at once to `/responses` with the row's `rev` (compare-and-set; one rebase on a conflict). Saves never set `busy`.
+  At local `endsAt` the exam locks; at `endsAt` + 0.5 s it sends `submit {auto: true}` with the queue. A 409 is
+  re-read and worded from the new state, never a reason. The exam polls at `startsAt`, every 10 s, then at the
+  cutoff + 100 ms. Legacy round battles render from their `format`. API: docs/api-contract.md "NH Friend Zone".
+- **Secrecy:** nothing shows a key or an explanation before a round, an exam or a daily is over.
 - **Testing:** the headed e2e suite is `playwright.friendzone.config.ts` with `e2e/friendzone/`.
 
 **Preview UI.** The Tools (Troubleshooter, Summarizer), the leaderboard and similar sample-data UI render only with `PREVIEW_FEATURES=1`: a server env var read per request by `(app)/layout.tsx` (`lib/preview.ts`), never set in production. `e2e/gated.e2e.ts` and `e2e/preview.e2e.ts` check both states. Build the real versions on `/v1` APIs; `features/learning-hub/demo-data.ts` is a placeholder, not data. The My Courses, Course Creator and Flashcards previews were removed when My Learning (now Skills & Certifications) replaced them (the chat's own `flashcards` block stays).

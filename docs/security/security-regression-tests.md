@@ -215,7 +215,10 @@ WSL on a `netsec_nhprep_*_test` database; the e2e files need the NHprep stack.
 ## NH Friend Zone
 
 Backend: `backend/tests/test_friend_zone_*.py`. Frontend: `features/friendzone/*.test.ts(x)` and
-`lib/server/proxy-core.test.ts`. Invariants I14 to I25 are in [THREAT_MODEL.md](THREAT_MODEL.md).
+`lib/server/proxy-core.test.ts`. Invariants I14 to I26 are in [THREAT_MODEL.md](THREAT_MODEL.md).
+The exam battle's tests (2026-11-25) are in `test_friend_zone_exam.py`; the round-by-round tests in
+`test_friend_zone_battles.py`, `test_friend_zone_progress.py` and `test_friend_zone_scoring.py` were rewritten for the
+exam. `test_friend_zone_scoring.py` keeps its `round_seconds` and `points` tests for legacy round battles.
 
 | Test | What it proves | Evidence |
 |---|---|---|
@@ -226,13 +229,39 @@ Backend: `backend/tests/test_friend_zone_*.py`. Frontend: `features/friendzone/*
 | `test_friend_zone_relations.py::test_unfriend_and_block_end_access_at_once_and_look_the_same` | A photo stops at the next request (I23); a block looks like an unfriend (I21) | — |
 | `test_friend_zone_relations.py::test_a_qa_member_and_a_live_member_never_meet` | Search, profile, request, block and report are 404 across cohorts (I19) | — |
 | `test_friend_zone_relations.py::test_races_end_in_one_consistent_state` | Crossing requests make one friendship; a block beats an accept (I20) | — |
-| `test_friend_zone_battles.py::test_a_battle_runs_round_by_round_and_the_server_decides_it` | No key, explanation or opponent pick before a round closes; answers are final; the server scores (I15, I16) | — |
-| `test_friend_zone_battles.py::test_only_human_approved_*`, `::test_a_question_withdrawn_mid_round_*` | Only competitive questions; a changed question voids its round (I18) | — |
-| `test_friend_zone_battles.py::test_a_block_voids_an_active_battle_*` | A block voids the battle and reads as `ended` | — |
-| `test_friend_zone_progress.py` | XP and badges are awarded once, never for void, capped or QA play (I25); AI checks count only for the exact text and only under the policy (I18) | — |
-| `test_friend_zone_daily.py` | One attempt; server timing; secrecy until finished; QA never rewarded | — |
-| `test_friend_zone_admin.py` | Moderation is audited; suspension hides at once and ends battles; QA cleanup is complete; retention | — |
+| `test_friend_zone_battles.py::test_an_exam_runs_on_one_paper_and_the_server_decides_it` | Both players get one paper in the same order; nothing graded and no key, explanation or review before completion; the server scores (+4/−1) and decides once; the drafts are deleted (I15, I16, I26) | — |
+| `test_friend_zone_exam.py::test_exams_of_10_20_and_30_have_60_seconds_a_question` | Lengths 10, 20 and 30, and 5 is 422; `endsAt − startsAt` = length × 60 s; both whole sets are served at the start (I15) | — |
+| `test_friend_zone_exam.py::test_a_save_inside_the_allowance_is_graded_and_the_cutoff_completes` | Between `endsAt` and the cutoff a read does not complete and a save is applied and graded; 50 ms past the cutoff a read completes it, also for a player who never polled; a later save is 409; an unsubmitted player is recorded at `endsAt` (I15) | — |
+| `test_friend_zone_exam.py::test_submit_records_the_time_and_an_auto_submit_the_deadline` | An explicit submit records its time before `endsAt`; `auto` records `endsAt` even when early; a save after my submit is 409; an applied submit gets through while the poll limiter refuses reads; a submit after completion is 200 with nothing applied (I15) | — |
+| `test_friend_zone_exam.py::test_compare_and_set_keeps_the_latest_intent_and_the_palette_survives_a_reread` | A set on no row inserts it; a replayed, stale or aborted-then-late `baseRev` is not applied; a Clear beats a late pick; `visit` never changes a row; duplicate and chained rounds in one batch; a refused batch applies nothing; `invalid_choice` for a letter that is not an option and for a round outside the exam; 422 for malformed items; never the other's responses (I15, I16) | — |
+| `test_friend_zone_exam.py::test_the_paper_comes_at_the_start_and_nothing_secret_before_the_end` | No paper and no save during the countdown; the exam payload's exact key set; `cutoffAt` = `endsAt` + 2 s; stored scores masked in the battle and the list; `rounds` and `review` empty; `/progress/mistakes` empty for an early submitter until completion (I26) | — |
+| `test_friend_zone_exam.py::test_practice_is_recorded_one_answer_at_a_time` | The learning-day count stays exact when answers are graded at completion (3 earlier + 7 → 2, 3 + 10 → 2, 0 + 5 → 1) (I26) | — |
+| `test_friend_zone_exam.py::test_a_changed_question_is_void_and_a_shrunk_one_never_aborts_completion` | A question changed after the start is void for both and its answers are not graded (O1); a draft whose option was removed does not abort completion (I18) | — |
+| `test_friend_zone_battles.py::test_only_human_approved_single_answer_short_non_nhprep_questions_are_competitive` | Only competitive questions are in the pool (I18) | — |
+| `test_friend_zone_battles.py::test_a_question_withdrawn_mid_exam_scores_nothing_and_shows_nothing` | A question withdrawn mid-exam is voided: null stem, key and explanation, left out of every count, its draft discarded (I18, I26) | — |
+| `test_friend_zone_battles.py::test_the_retired_answer_route_always_refuses_and_grades_nothing` | `/answers` is 409 `battle_not_open` and grades nothing (I26) | — |
+| `test_friend_zone_battles.py::test_who_may_battle_and_the_conflicts` | Friends with a shared program only; lengths; `not_enough_questions`; a replayed `requestId` answers the same battle; `battle_exists`; a stranger gets 404; decline and expiry (I16) | — |
+| `test_friend_zone_exam.py::test_a_block_or_unfriend_mid_exam_voids_it_and_keeps_the_drafts_as_practice_under_the_policy` | A block or an unfriend mid-exam: void, read as `ended`, the saved answers graded as practice under `FRIEND_ZONE_KEY_POLICY`, no XP, no notice (I21) | — |
+| `test_friend_zone_battles.py::test_a_block_voids_a_running_exam_and_a_member_plays_one_battle_at_a_time` | A block voids the exam and reads as `ended`, with no review and no notice; `busy_in_battle` while one runs (I20, I21) | — |
+| `test_friend_zone_exam.py::test_after_the_cutoff_a_block_leaves_the_real_result` | A block after the cutoff completes the exam first: the real result stands (I20) | — |
+| `test_friend_zone_exam.py::test_a_deleted_opponent_is_decided_at_completion` | A deleted opponent never ends the exam early: a forfeit win with 1 answer, void with 0, no XP under half (I20) | — |
+| `test_friend_zone_admin.py::test_suspension_voids_a_running_exam_and_one_past_its_cutoff` | A suspension voids a running exam and one past its cutoff (O5); the other player reads `ended` (I21) | — |
+| `test_friend_zone_exam.py::test_races_complete_exactly_once_without_deadlock` | Submit + submit, submit + save, submit + read past the cutoff, block + read past the cutoff, auto + explicit (`asyncio.gather`): one completion, one set of notices, XP and graded rows, no deadlock (I16, I20) | — |
+| `test_friend_zone_exam.py::test_the_answer_is_built_inside_the_transaction` | A read and a submit racing past the cutoff both answer the completed result (I16) | — |
+| `test_friend_zone_exam.py::test_an_overdue_exam_completes_on_every_path_and_stays_completed` | `busy()` ignores an exam past its cutoff; GET /me, GET /battles, create, accept and ready each complete and commit it | — |
+| `test_friend_zone_exam.py::test_an_exam_whose_only_present_player_submitted_completes_without_a_read` | The opponent leaves after my submit: `busy()` no longer counts the exam and GET /me completes it (no wait for the cutoff) | — |
+| `test_friend_zone_exam.py::test_a_submit_that_applies_nothing_is_throttled_before_the_row_lock` | After my submit, a looping `POST …/submit` gets 429 without waiting for the battle row lock the opponent's saves need | — |
+| `test_migrations.py::test_migration_0032_ends_legacy_battles_and_allows_exams` | Invitations past their time expired, open ones left (O9), waiting ones cancelled, active battles void `upgraded`, history untouched; a round battle of 20 and an exam of 5 are refused by the CHECK; the downgrade refuses while an exam exists | — |
+| `test_friend_zone_scoring.py::test_exam_marks_are_plus_four_minus_one_and_can_be_negative`, `::test_the_exam_winner_is_decided_by_marks_then_fewer_incorrect_then_the_earlier_submission`, `::test_time_taken_is_whole_seconds_floored_from_the_start` | Every `exam_winner` branch, including negative totals; two submits 0.3 s apart across a wall-clock second (I15) | — |
+| `test_friend_zone_progress.py::test_a_won_battle_gives_xp_a_badge_and_stats_once`, `::test_void_and_capped_battles_give_no_xp`, `::test_qa_members_never_earn_xp`, `::test_answering_less_than_half_earns_nothing` | XP and badges are awarded once, never for void, capped, QA or under-half play (I25) | — |
+| `test_friend_zone_exam.py::test_every_row_of_the_xp_table`, `::test_perfect_score_at_20_and_30_questions`; `test_friend_zone_scoring.py::test_perfect_score_needs_an_exam_of_10_20_or_30_all_right` | Every row of the battle XP table, including a capped loser with the winner still getting +30; Perfect Score at 10, 20 and 30, none with a voided question, for a legacy or a length-5 battle (I25) | — |
+| `test_friend_zone_progress.py::test_ai_checks_bind_only_unchanged_content_and_count_only_under_the_policy` | AI checks count only for the exact text and only under the policy (I18) | — |
+| `test_friend_zone_daily.py` | One attempt; server timing; secrecy until finished; QA never rewarded. Passes **untouched** by the exam change | — |
+| `test_friend_zone_admin.py::test_a_report_is_listed_shown_and_resolved_with_an_audit`, `::test_suspension_hides_a_member_and_ends_their_requests_and_battles`, `::test_qa_cleanup_removes_every_qa_row_and_nothing_live`, `::test_retention_removes_only_what_the_owner_approved` | Moderation is audited; suspension hides at once and ends battles; QA cleanup is complete, also with exam drafts present; retention (I24) | — |
+| `test_friend_zone_admin.py::test_end_open_completes_overdue_exams_and_in_full_ends_the_rest` | `end-open` is a dry run without `--apply`; `--complete-only` completes only the overdue exam; the full run voids a running exam and cancels an invitation as `operator`, a legacy round battle as `upgraded`, and writes one `cancel_battle` audit row (I24) | — |
 | `proxy-core.test.ts` "two Friend Zone conflicts pass only their exact, validated fields" | The BFF forwards only `{battleId}` and `{available, needed}` | — |
+| `proxy-core.test.ts` "an exam submit's body reaches the API unchanged …"; `routes.test.ts` (`SENT_BODIES` for the save and submit bodies) | The deadline's auto-submit carries the unsaved answers through the BFF; `/answers` is no longer proxied (I26) | — |
+| `features/friendzone/*.test.ts(x)` (the exam) | The deadline sends the auto-submit with the queue, never a save last; the compare-and-set rebase; a 409 message chosen from the re-read state, naming no reason (I21) | — |
 
 ## Deploy scripts and tooling
 

@@ -21,6 +21,7 @@
 - [File Library](#file-library)
 - [Jobs worker](#jobs-worker)
 - [NH programs](#nh-programs)
+- [NH Friend Zone](#nh-friend-zone)
 - [Switches that are owner decisions](#switches-that-are-owner-decisions)
 - [Changing the database container on purpose](#changing-the-database-container-on-purpose)
 - [Never do this](#never-do-this)
@@ -379,9 +380,73 @@ and `0031`; API: [api-contract.md](api-contract.md#nh-friend-zone)). Phases 1 an
 | `suspend <player_id> --reason …`, `unsuspend <player_id>` | hides a member at once; their requests end and their open battles are void |
 | `qa-report`, `qa-cleanup`, `qa-verify` | the QA cohort's rows: counted, deleted, and proven gone |
 | `retention` | the approved retention: closed requests and unstarted invitations after 30 days; resolved reports 180 days after resolution; audit rows after a year |
+| `end-open [--complete-only]` | settles open battles: [operations.md, "NH Friend Zone"](operations.md#nh-friend-zone). The full `--apply` ends what is still open with the internal end reason `operator` (players see `ended`) and audits the run as one `cancel_battle` row |
 
 Rollback: `FRIEND_ZONE_MODE=off` and an API restart hide everything. A code rollback to before `0030` needs the
 migrations downgraded, and they refuse while any Friend Zone row exists.
+
+### Exam battle release (migration `0032`)
+
+The release that turns battles into exams (2026-11-25; [api-contract.md](api-contract.md#nh-friend-zone)). Each
+production step needs the owner's word. The kill switch is `FRIEND_ZONE_MODE=off` plus an API restart: it hides all of
+Friend Zone at once. Every API restart also cancels in-flight chat replies, so pick a quiet time.
+
+**Before the release**
+
+1. Tell any other session working in this checkout before the gate and before the deploy, and confirm no other
+   `0032` is in flight.
+2. Restore drill and host disk space: asked of the owner at release time (O10, O12). Without the drill, report
+   "restore NOT TESTED".
+
+**Migration window**
+
+3. `FRIEND_ZONE_MODE=off` in api.env, restart `netsecai-api`, confirm `/ready`.
+4. Count `fz_battles` by status, format and cohort for `invited`, `waiting` and `active` (read-only, counts only).
+5. An active exam: wait for it to end, or, with the owner's approval, `friend_zone_admin.py end-open --apply`.
+6. Wait at least 10 minutes (the invitation lifetime), then count again and tell the owner. An invitation still open
+   after the wait is the owner's call (O9).
+7. `bun run security` PASS on the clean commit, push `main`, `deploy:netsec`. It backs up, runs `0032` and restarts.
+   `0032` expires the invitations past their time, voids active round battles as `upgraded`, and turns no row into
+   an exam.
+8. Status MATCH: frontend = backend = GitHub `main`.
+9. Disable `netsecai-pg-backup.timer` again (the owner's standing instruction), then `status:netsec`.
+10. `end-open --complete-only --apply` if anything is overdue. Then, read-only: no open `format='rounds'` battle,
+    and the competitive pool per program and month under `human_or_ai`, so the owner knows where 20 and 30 questions
+    are possible.
+
+**Test accounts first**
+
+11. Check (read-only) that both test accounts have **live** Friend Zone profiles. A listed address that never
+    joined would join the QA cohort for good.
+12. Set `FRIEND_ZONE_MODE=qa` and `FRIEND_ZONE_QA_EMAILS=<the two test accounts>` **in one edit**: `qa` with an empty
+    list stops the API from starting. Restart, confirm `/ready`.
+13. A headed Chrome check, two contexts, at the production 60 s a question:
+    - a 10-question exam: navigate, visit, mark, answered and marked, change, clear, skip and revisit;
+    - a refresh mid-exam (answers, deadline and current question survive);
+    - offline, then online: the queue is sent;
+    - one player submits early while the other goes on;
+    - the other is auto-submitted at the deadline (a real 10-minute wait);
+    - result, review and XP lines; XP only on the first two battles of the day (2 a day with the same friend);
+    - 320 px and 390 px screenshots, looked at;
+    - a third battle blocked mid-exam: void.
+14. `FRIEND_ZONE_MODE=on` (the list emptied), restart. Ask everyone with Friend Zone open to **reload the tab**.
+
+**Active exams before any later deploy or kill-switch flip:** count them as in step 4. Let them end, or, with the
+owner's approval, run `end-open --apply` first. An exam past its cutoff that nobody reads is completed by the next
+read; with Friend Zone off, `end-open --complete-only --apply` completes it.
+
+**Rollback** (code only; production never downgrades the schema):
+- Kill switch off, then `end-open --apply` while the new code is still deployed.
+- `rollback:netsec` to the HISTORY entry that was live just before this release (`tail
+  /opt/netsecai/app-state/HISTORY`; never a hard-coded commit).
+- `0032` stays. The old code tolerates its new nullable columns, the new table, the `'rounds'` default and the
+  format-aware CHECK. Exam history still renders; the old code shows speed points there.
+- Deploying again later finds `0032` applied. The new code resolves any round battle from the rollback period as
+  `upgraded`; run `end-open --apply` before switching Friend Zone back on.
+
+**Forward recovery:** the kill switch hides everything at once; fix forward, gate, deploy again. `0032` runs in one
+transaction: a failed migration rolls back whole and the deploy stops. A database restore is never routine: it needs
+owner-approved disk space and the PC copy of the dump brought back.
 
 ## Switches that are owner decisions
 

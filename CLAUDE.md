@@ -53,6 +53,10 @@ Honest state (2026-10-29):
   Programs → Quizzes & Games (`app/friendzone`, migrations `0030` and `0031`, `features/friendzone/`). A QA cohort is
   isolated by the database; only questions verified for their exact text are used (`FRIEND_ZONE_KEY_POLICY`). Runbook
   and operator scripts: docs/deployment.md "NH Friend Zone"; API: docs/api-contract.md "NH Friend Zone".
+  - **Exam battles** (plan Rev 2, 2026-11-25, not released; migration `0032`): a battle is one JEE/NEET-style paper
+    for both players (10, 20 or 30 questions, 60 s each, one deadline plus a 2 s allowance), answers saved and
+    editable until submit, graded and scored (+4/−1) by the server only at completion. Round battles stay as history;
+    `/answers` is a 409. Release runbook: docs/deployment.md "Exam battle release"; `friend_zone_admin.py end-open`.
 - **GitHub Actions do not run** (the account is out of credit). The enforced check is the local gate
   `bun run security`.
 

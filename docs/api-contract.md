@@ -584,7 +584,7 @@ request. A month chat retrieves only that month's mapped material, with no fallb
 
 ## NH Friend Zone
 
-Friends and 1v1 quiz battles for enrolled NH students (`app/friendzone`, 2026-11-24, Phase 1 in progress, not
+Friends and 1v1 quiz battles for enrolled NH students (`app/friendzone`, 2026-11-24, Phases 1 and 2, not
 released). Open only while `FRIEND_ZONE_MODE` admits the account (`off`; `qa` with `FRIEND_ZONE_QA_EMAILS`; `on`), it
 is eligible as for NH programs (an open invoice claim, checked on every request), and it has joined and is not
 suspended. Anything else is the same 404 `not_found`, except `GET /me`. Every response is `Cache-Control: no-store`.
@@ -598,7 +598,7 @@ suspended. Anything else is the same 404 `not_found`, except `GET /me`. Every re
 
 | Route | Answer |
 |---|---|
-| `GET /v1/friend-zone/me` | `{enabled, eligible, member, suspended, profile, serverTime}` |
+| `GET /v1/friend-zone/me` | `{enabled, eligible, member, suspended, profile, serverTime}`; completes the caller's overdue exam, but never for a suspended member |
 | `POST /v1/friend-zone/me` `{displayName, discoverable?, showProgram?, showStats?}` | 201 the profile (switches default false); 409 `already_member`; 422 `displayName` refused |
 | `PATCH /v1/friend-zone/me` `{version, set: {…}}` | the profile; 409 `version_conflict` |
 | `POST /v1/friend-zone/search` `{invoiceNumber}` | 200 a player (name and initials); every miss 404 `no_match`, identical; at least 0.4 s every answer; 10 an hour (429 with `Retry-After`), 30 a day per account, 200 a day per address |
@@ -617,51 +617,150 @@ A player is `{playerId, displayName, initials, relation: self|friend|incoming|ou
 programs}`. Notifications (`friend_request`, `friend_accepted`) name no one and open
 `/programs/{slug}/quizzes?zone=friends`.
 
-**Battles** (1v1, live, between friends who both have the program open). The opponent's accept is their Ready; the
-challenger's Ready picks the questions and starts a 3 s countdown. Each round has its own window (20-45 s, by the
-question's length), then a 3 s reveal. Every state read moves the battle on by the database clock: poll it, using
-`nextChangeAt`. Only competitive questions are used: active, single-answer, approved by a person for their current
-content, not NHprep-keyed, at most 105 words; a question withdrawn or changed mid-round voids that round for both.
-A correct answer scores 100 + 50 × time left ÷ window; three missed rounds in a row forfeit. Live answers count in the
-practice record; QA ones never do.
+**Battles** (1v1 exams between friends who both have the program open; the exam format, 2026-11-25, not released).
+The opponent's accept is their Ready; the challenger's Ready picks the questions and starts a 3 s countdown. Both
+players get one paper, the same questions in the same order: `length` questions (10, 20 or 30) and one shared deadline
+of 60 s per question. Each player moves freely between questions; every pick, Clear and mark is saved at once and
+stays editable until they submit or the deadline. The opponent shows only as in progress or submitted. Every state
+read moves the battle on by the database clock: poll it, using `nextChangeAt`. Only competitive questions are used:
+active, single-answer, approved for their current content (`FRIEND_ZONE_KEY_POLICY`, below), not NHprep-keyed, at
+most 105 words.
+
+**Three instants**, all from the database clock (owner D8):
+- `startsAt` = Ready + 3 s. The paper is sent only from then on.
+- `endsAt` = `startsAt` + `length` × 60 s: the deadline. The timer shown counts to it and never extends.
+- `exam.cutoffAt` = `endsAt` + 2 s: a network allowance, the same for both players. Saves and submits are accepted
+  while `startsAt` ≤ now < `cutoffAt`, judged when the write runs (a request queued past the cutoff is refused).
+
+**Saving** (`POST …/responses`; owner D3). Each item is one question:
+- `{round, op: "set", choice, marked, baseRev}` writes its whole state. `choice` is a letter, or null for a Clear.
+  All three fields are sent explicitly (else 422).
+- `{round, op: "visit"}` records that the question was seen. It never changes an existing row, and sends nothing
+  else (else 422).
+- The server owns each question's `rev` (compare-and-set). A set applies only when `baseRev` equals the row's `rev`
+  (0 when no row exists), and adds 1. Otherwise it is not applied, and the item comes back `{applied: false, rev}`
+  with the current row in `responses`. A late, retried or replayed request is therefore harmless. On a conflict a
+  client rebases its latest intent on the new `rev` once and sends it again.
+- A save writes nothing else: no grading, practice record or XP.
+- Two tabs: last write wins by arrival.
+
+**Submitting** (`POST …/submit`). Any items still unsaved go with it and are applied as final values, without
+compare-and-set. An explicit submit is recorded at the earlier of now and `endsAt`. `auto: true` is the client's own
+submit at the deadline (sent at its local `endsAt` + 0.5 s, with everything unsaved). It is always recorded at
+`endsAt`, whatever the clock says, so no one gains by sending it. A submit after the battle ended, or after I already
+submitted, answers 200 with the battle and applies nothing; it is never 409.
+
+**Completion.** An exam completes when every present player has submitted, or when any read or write sees the cutoff
+passed. It never completes between `endsAt` and the cutoff, so a save inside the allowance is never lost. A player
+still unsubmitted is submitted at `endsAt`. Nothing is graded before completion. Then, once:
+- A question is voided if it is no longer competitive, or changed after the exam started. It scores 0 for both and
+  is left out of every count. Answers saved on it are discarded: not graded, not practice (owner O1).
+- Every saved answer on a counted question is graded by the database, and live ones are recorded as practice on the
+  completion day (owner O2). QA ones never are.
+- The result is decided, XP is awarded, and the `battle_finished` notice is sent. Saved responses are deleted.
+
+**Scoring** (owner D1, D2), over the counted questions:
+- +4 a correct answer, −1 an incorrect one, 0 unanswered; no speed bonus. `score` is these marks and can be negative.
+- An answered question that is also marked for review counts (D6).
+- The winner has more marks; then fewer incorrect; then the earlier final submission, in whole seconds since
+  `startsAt` (an auto-submit counts as the deadline). Otherwise it is a draw.
+
+| Ending | Result |
+|---|---|
+| Both answered nothing | `void`, `absent` |
+| The opponent deleted their account | a forfeit to the remaining player if they answered at least one question; otherwise `void` |
+| A block or an unfriend while the exam still runs | `void`, `ended`. Answers saved so far still count as practice; no result, review or XP |
+| A block or an unfriend once the exam is decided (both submitted, or past the cutoff) | the battle is completed first, so the real result stands |
+| A suspension | voids every open battle, including an exam past its cutoff that nobody has read (owner O5) |
 
 | Route | Answer |
 |---|---|
-| `GET /v1/friend-zone/battles?view=open\|history&cursor=` | `{items: [{battleId, status, result, role, opponent, program, month, length, createdAt, endedAt, expiresAt}], nextCursor}` |
-| `POST /v1/friend-zone/battles` `{opponentId, program, month, topicId?, difficulty?, length: 5\|10, requestId}` | 201 the battle (`invited`, 10 min); the same `requestId` answers the same battle; 409 `not_enough_questions` (`current: {available, needed}`), `battle_exists` (`current: {battleId}`), `invite_limit` (3 waiting); 30 a day |
-| `GET /v1/friend-zone/battles/{battleId}` | the battle (below); at most 180 reads and answers a minute |
+| `GET /v1/friend-zone/battles?view=open\|history&cursor=` | `{items: [{battleId, status, result, role, opponent, program, month, length, createdAt, endedAt, expiresAt}], nextCursor}`; completes the caller's overdue exam |
+| `POST /v1/friend-zone/battles` `{opponentId, program, month, topicId?, difficulty?, length: 10\|20\|30 (default 10), requestId}` | 201 the battle (`invited`, 10 min); the same `requestId` answers the same battle; 409 `not_enough_questions` (`current: {available, needed}`), `battle_exists` (`current: {battleId}`), `invite_limit` (3 waiting); 30 a day |
+| `GET /v1/friend-zone/battles/{battleId}` | the battle (below); at most 180 reads and saves a minute |
 | `POST …/battles/{battleId}/accept` | the battle, `waiting` (3 min for the challenger's Ready); 409 `busy_in_battle`, `battle_not_open` |
 | `POST …/battles/{battleId}/ready` | the battle, `active` (or `cancelled`, `not_enough_questions`); 409 `busy_in_battle`, `battle_not_open` |
 | `POST …/battles/{battleId}/decline` / `cancel` | the battle, `declined` / `cancelled` |
-| `POST …/battles/{battleId}/answers` `{round, choice: "A"-"H"}` | the battle; final at once (the same choice again answers the same); 409 `already_answered`, `round_closed`, `invalid_choice` |
+| `POST …/battles/{battleId}/responses` `{responses: [item] (1-30)}` | 200 `{serverTime, status, submittedAt, opponentSubmitted, responses: [{round, choice, marked, rev}], items: [{round, applied, rev}]}`: small on purpose, no paper. `responses` is every row of mine after the save; `items` has one entry per item sent, in order (`rev` 0: no row). 409 `battle_not_open` (not active, outside the window, or I have submitted), `invalid_choice` (a letter that is not one of that question's options, or a `round` that is not a question of this exam). Counts toward the 180 a minute |
+| `POST …/battles/{battleId}/submit` `{responses: [item] (0-30, default []), auto: false}` | 200 the battle, with `submitApplied`. The body is required (`{}` is enough). A submit that applies is never rate-limited; one that applies nothing (`submitApplied: false`) counts toward the 180 a minute, so a loop of late submits can be 429 |
+| `POST …/battles/{battleId}/answers` `{round, choice}` | **Deprecated.** Kept for /v1 compatibility: always 409 `battle_not_open`, grading nothing. The web app no longer proxies it |
 
 A battle is `{battleId, status, endReason, result: points|forfeit|draw|void, program, month, topicId, difficulty,
-length, roundsClosed, expiresAt, startsAt, endsAt, nextChangeAt, serverTime, me, opponent, question, rounds,
-review}`. `question` is the open round only (`{round, stem, options: [{key, text}], seconds, opensAt, closesAt,
-myChoice}`), never its key; `rounds` are the closed ones (`{round, voided, correctKey, myChoice, theirChoice,
-myPoints, theirPoints}`); `review` (with explanations) only once `completed`. A block or an unfriend ends the pair's
-open battle (`cancelled` before the start, `completed`/`void` after). Notifications: `battle_invite`,
-`battle_accepted`, `battle_finished` (not for a void battle), naming no one. A battle's `endReason` is `finished`,
-`forfeit`, `absent`, `expired`, `declined`, `cancelled`, `not_enough_questions`, or `ended` (a block, an unfriend, a
-suspension or a deleted account, which may not be told apart).
+length, roundsClosed, expiresAt, startsAt, endsAt, nextChangeAt, serverTime, me, opponent, question, rounds, review,
+format, repeatsFromPrevious, exam, xp, submitApplied}`:
+- `format`: `exam`, or `rounds` for a battle from before the exam format (history only).
+- `exam`: only while `active` and from `startsAt` on, else null. `{secondsPerQuestion, endsAt, cutoffAt, questions:
+  [{round, stem, options: [{key, text}]}], responses: [mine], submittedAt (mine), opponentSubmitted}`. It never
+  carries a key, an explanation or the opponent's responses. A question's row exists once it was visited (round 1 at
+  the start). GET always carries the whole paper while the exam runs (about 30 KB at most).
+- `me` and `opponent`: `{playerId, displayName, initials, role, ready, score, correct, answered, winner,
+  timeTakenSeconds}`. `score`, `correct`, `answered` and `winner` are masked until `completed`, here and in the list.
+  `timeTakenSeconds` is whole seconds from the start to the submit, for a completed exam only; otherwise null.
+- `question`: always null for an exam (a legacy battle's open round).
+- `rounds` (`{round, voided, correctKey, myChoice, theirChoice, myPoints, theirPoints}`) is empty and `review` (with
+  explanations) null until `completed` (a completed void exam has both empty). A voided exam question has `stem`, `correctKey` and `explanation` null, and
+  `options` `[]`.
+- `xp`: my XP lines for this battle (`[{reason: battle|win|draw, amount}]`), once `completed`; null before.
+- `repeatsFromPrevious`: a rematch takes fresh questions first and repeats from the last battle only when the pool is
+  short; this is how many repeat.
+- `submitApplied` (additive, 2026-11-25): null on every answer except `POST …/submit`. There it is `true` when this
+  submit was applied, and `false` when it applied nothing because the exam was not running for me: not started yet,
+  not active, already completed, or I had already submitted. Such a submit goes through the poll limit before it
+  touches the battle.
+
+**Polling.** `nextChangeAt` is `startsAt` during the countdown, `exam.cutoffAt` during the exam, and null once
+completed. Read at `startsAt`, then about every 10 s, then once at the cutoff + 100 ms. Don't poll faster after
+`endsAt`: nothing completes before the cutoff. A 409 `battle_not_open` on a save does not say why: re-read the
+battle and choose the message from its new state (time up, ended, or submitted in another tab).
+
+**Documented /v1 exception** (owner O4, 2026-11-25). Two meanings change in place, not through a new endpoint:
+- `length` accepts 10, 20 or 30 (default 10); it was 5 or 10 (default 5). A rematch of a length-5 battle is 10.
+- `score` is the exam's marks (+4/−1, can be negative); it was 100 + up to 50 for speed per round.
+
+Legacy `rounds` battles keep rendering as they were stored, with their old points. Any one still open (only possible
+after a code rollback) is voided or cancelled with the internal end reason `upgraded`; its `endReason` on the wire is
+`ended`.
+
+A block or an unfriend ends the pair's open battle (`cancelled` before the start; during an exam as in the table
+above). Notifications: `battle_invite`, `battle_accepted`, `battle_finished` (not for a void battle), naming no one.
+A battle's `endReason` is `finished`, `forfeit`, `absent`, `expired`, `declined`, `cancelled`,
+`not_enough_questions`, or `ended` (a block, an unfriend, a suspension, a deleted account, a legacy battle ended by
+the upgrade, or an operator's `end-open`, which may not be told apart). `upgraded` and `operator` are internal end
+reasons only (`fz_battles.end_reason`); the API always shows them as `ended`.
 
 **Phase 2** (shipped with Phase 1; owner, 2026-11-24):
 
 | Route | Answer |
 |---|---|
-| `POST /v1/friend-zone/battles/{battleId}/rematch` `{requestId}` | 201 a new invitation (`invited`) to the same friend with the same settings, and fresh questions where the pool allows; only after a battle decided by play; the same `requestId` answers the same; 409 `battle_exists`, `invite_limit`, `not_enough_questions`; the friend's bell says "Rematch invitation" |
+| `POST /v1/friend-zone/battles/{battleId}/rematch` `{requestId}` | 201 a new invitation (`invited`) to the same friend with the same settings (a length-5 battle becomes 10), and fresh questions first, repeating from the last battle only as needed (`repeatsFromPrevious`); only after a battle decided by play; the same `requestId` answers the same; 409 `battle_exists`, `invite_limit`, `not_enough_questions`; the friend's bell says "Rematch invitation" |
 | `GET /v1/friend-zone/me/xp?cursor=` | `{xp, level, levelFloor, nextLevelAt, items: [{reason, amount, createdAt}], nextCursor}`, your own only |
 | `GET /v1/friend-zone/players/{playerId}` | now also `stats`: `{battles, wins, losses, draws, correct, answered, xp, level, levelFloor, nextLevelAt, badges: [{key, title, description}], dailiesCompleted, dailyStreak}` for yourself, and for a friend only when they show their stats; otherwise `null` |
 
 XP is awarded by the server only, once per (reason, event), and for live members only:
-- **Battles:** completed, having answered at least half the counted rounds, +20; a win by points (both answered at
-  least half) +30; a draw +10. At most 5 rewarded battles a day, and 2 a day with the same friend.
+- **Battles** (unchanged by the exam format, owner D7): +20 a battle, +30 a win, +10 a draw. At most 5 rewarded
+  battles a day, and 2 a day with the same friend, counted on the completion day.
 - **Daily challenges:** completed +25; perfect +15; streaks of 3, 7, 14 and 30 days +20, +50, +100, +200.
   Completed means all ten served and at least half of the counted (not withdrawn) questions answered.
-- **Forfeit:** the player who forfeits earns nothing.
 
-Level n starts at 50·n·(n−1) XP. The badges are `first_battle`, `quiz_champion` (10 rewarded wins against 3 or more
-friends), `daily_challenger` (10 dailies), `consistency_master` (7 in a row) and `perfect_score`. Notifications:
+For a battle, a player is **eligible** when it counted at least one question and they answered at least half of the
+counted ones (rounded up); in a forfeit, only the winner can be. A player is **awarded** when eligible, live, and
+under both caps.
+
+| Outcome | Player A | Player B |
+|---|---|---|
+| Points result, both eligible | awarded: +20, and the winner also +30 | the same |
+| Points result, only one eligible | that player, if awarded: +20, no +30 | nothing |
+| Points result, both eligible, the loser at a cap | the winner, if awarded: +20 +30 (the loser's cap doesn't block it) | nothing |
+| Draw (equal marks and equal incorrect) | each, if awarded: +20 +10 | a capped player gets nothing |
+| Forfeit (the opponent deleted their account) | the remaining player, if awarded: +20, never +30 | — |
+| Absent (both answered nothing), or any void (block, unfriend, suspension, upgrade, operator) | nothing | nothing |
+| Answered fewer than half | nothing | — |
+| A player who answered nothing beats a negative score | a win in the stats only: no XP and no Quiz Champion progress | — |
+
+Level n starts at 50·n·(n−1) XP. The badges are `first_battle` (the first awarded battle), `quiz_champion` (10 rewarded wins against 3 or more friends), `daily_challenger` (10 dailies),
+`consistency_master` (7 in a row) and `perfect_score` (everything right in a daily challenge, or in an exam battle of
+10, 20 or 30 questions with every question counted, as an awarded player; a badge only, no XP; possible in a
+forfeit). Notifications:
 `level_up`, `badge_unlocked`, `xp_milestone`, `daily_available`, `daily_completed`.
 
 Which questions count is set by `FRIEND_ZONE_KEY_POLICY`. Under `human_only`, a question counts only with a person's

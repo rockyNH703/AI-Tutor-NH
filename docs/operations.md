@@ -12,6 +12,7 @@
 - [Logs and what they contain](#logs-and-what-they-contain)
 - [Backups and restore](#backups-and-restore)
 - [Runbooks](#runbooks)
+- [NH Friend Zone](#nh-friend-zone)
 
 ## What runs in production
 
@@ -88,3 +89,22 @@ Each row starts from what you see. Steps that change production need the owner's
 | Sign-in codes don't arrive | The API log's `auth email failed` | The email backend refuses, or `AUTH_INTERNAL_TOKEN` differs between `api.env` and `web.env` (`status:netsec` checks it) |
 | Uploads refused with `files_capacity_reached` | `infra-check.sh` (disk) | Under 5 GB free disk, or the database at 3 GiB (`app/files/service.py`). Free space or grow the disk |
 | A legacy port listens (4000/3210/3211/6791) | `status:netsec` | A stale release is serving: find its owner before acting. Never stop PadhAI's services |
+
+## NH Friend Zone
+
+Friend Zone has no timer process: an exam battle that is over (past its cutoff, or every present player submitted,
+as when the opponent left after my submit) completes on the next read or write that sees it
+(api-contract.md, ["NH Friend Zone"](api-contract.md#nh-friend-zone)). When nobody reads it, or before a deploy or
+a kill-switch flip, settle open battles with `scripts/friend_zone_admin.py end-open`, run like the other operator
+scripts through `systemd-run` with api.env ([deployment.md, "Environment files"](deployment.md#environment-files)).
+It is a dry run until `--apply`; applying it needs the owner's authorization.
+
+| Command | What it does |
+|---|---|
+| `end-open` | dry run: prints each open battle's id, status, format and cohort |
+| `end-open --complete-only --apply` | completes only the exams past their cutoff, or with every present player submitted; voids nothing. The mode for when `FRIEND_ZONE_MODE` is off |
+| `end-open --apply` | also voids exams still running and cancels invitations and waiting battles still open, with the internal end reason `operator`; voids or cancels any open round battle as `upgraded`. Players see both as `ended`. When it ended anything, it writes one `cancel_battle` row in `fz_moderation_actions` (the note counts the battles) |
+
+Each battle is settled on its own, in the engine's lock order, by the same advance as a read, under
+`FRIEND_ZONE_KEY_POLICY`, and committed. The release and rollback steps that use it are in
+[deployment.md, "Exam battle release"](deployment.md#exam-battle-release-migration-0032).
