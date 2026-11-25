@@ -19,8 +19,6 @@ export const BRAND = {
   /** The browser tab's icon: the mark in white on NH's console-ink tile, with the signal line, so
    *  it reads on light and dark tabs alike. */
   faviconSrc: "/brand/favicon.svg",
-  /** The parent brand, shown under the wordmark. */
-  parent: "Networkers Home",
 } as const;
 
 export const APP_NAME = BRAND.name;

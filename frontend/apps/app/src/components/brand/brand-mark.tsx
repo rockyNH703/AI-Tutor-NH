@@ -35,30 +35,6 @@ export function BrandMark({
   );
 }
 
-/**
- * Networkers Home's monogram as a tile: white NH on the NH blue, drawn as shapes (no font, no
- * image), fixed in every theme. Decorative: the parent's name always sits beside it in text.
- */
-export function NhTile({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 22 14"
-      aria-hidden
-      className={cn("h-3.5 w-[22px] shrink-0", className)}
-    >
-      <rect width="22" height="14" rx="3" className="fill-nh-blue" />
-      <g className="fill-white">
-        <rect x="3.2" y="3" width="2.2" height="8" />
-        <rect x="8.6" y="3" width="2.2" height="8" />
-        <path d="M3.2 3h2.3l5.3 8H8.5z" />
-        <rect x="12.2" y="3" width="2.2" height="8" />
-        <rect x="16.6" y="3" width="2.2" height="8" />
-        <rect x="12.2" y="6" width="6.6" height="2" />
-      </g>
-    </svg>
-  );
-}
-
 /** The NetSec AI wordmark, in Networkers Home's own face (Lato Black). */
 export function BrandWordmark({ className }: { className?: string }) {
   return (
@@ -75,8 +51,8 @@ export function BrandWordmark({ className }: { className?: string }) {
 }
 
 /**
- * Mark and wordmark, endorsed by the parent brand: used in the rail, the Settings panel, the
- * sign-in panel and the unsubscribe card. `compact` drops the lockup a size.
+ * Mark and wordmark: the rail, the Settings panel, the sign-in panel and the unsubscribe card.
+ * `compact` drops the lockup a size.
  */
 export function BrandLockup({
   compact = false,
@@ -85,16 +61,9 @@ export function BrandLockup({
   return (
     <span className={cn("flex min-w-0 items-center gap-2.5", className)}>
       <BrandMark size={compact ? 30 : 34} />
-      <span className="flex min-w-0 flex-col gap-1">
-        <BrandWordmark
-          className={compact ? "text-lg leading-none" : "text-xl leading-none"}
-        />
-        <span className="flex items-center gap-1.5 text-2xs font-medium leading-none text-text-secondary">
-          <span className="sr-only">by</span>
-          <NhTile />
-          <span className="truncate">{BRAND.parent}</span>
-        </span>
-      </span>
+      <BrandWordmark
+        className={compact ? "text-xl leading-none" : "text-2xl leading-none"}
+      />
     </span>
   );
 }

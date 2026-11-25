@@ -73,10 +73,8 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // NH red, the brand's mark (never a state); the NH monogram's fixed blue; the rail's
-        // console ink. See globals.css.
+        // NH red, the brand's mark (never a state), and the rail's console ink. See globals.css.
         signal: "hsl(var(--signal))",
-        "nh-blue": "hsl(var(--nh-blue))",
         rail: {
           DEFAULT: "hsl(var(--rail))",
           foreground: "hsl(var(--rail-foreground))",

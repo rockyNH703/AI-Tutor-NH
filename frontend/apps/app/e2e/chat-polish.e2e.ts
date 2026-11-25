@@ -285,7 +285,7 @@ test("memory stays flat over fifteen turns", async ({ page, account: _ }) => {
   expect((await heap()) - before, "heap growth (bytes)").toBeLessThan(40 * 1024 * 1024);
 });
 
-test("the greeting: one of the fixed pool, a new one for the next chat, word by word in one gradient", async ({
+test("the greeting: one of the fixed pool, a new one for the next chat, solid ink with one NH-red word", async ({
   page,
   account: _,
 }) => {
@@ -296,28 +296,25 @@ test("the greeting: one of the fixed pool, a new one for the next chat, word by 
   await expect(words).toHaveCount(first.split(" ").length);
   await expect(emptyGreeting(page)).toHaveAccessibleName(first); // one heading, one sentence
 
-  // Word by word: each later word starts later.
-  const delays = await words.evaluateAll((spans) => spans.map((span) => Number.parseFloat(getComputedStyle(span).animationDelay)));
-  expect(delays[0]).toBe(0);
-  for (let index = 1; index < delays.length; index++) expect(delays[index]).toBeGreaterThan(delays[index - 1] as number);
-
-  // One gradient per line: every word of a line carries it at the line's width, offset by its place.
-  await page.waitForTimeout(700);
-  const geometry = await words.evaluateAll((spans) =>
-    spans.map((span) => ({
-      top: (span as HTMLElement).offsetTop,
-      left: (span as HTMLElement).offsetLeft,
-      size: (span as HTMLElement).style.backgroundSize,
-      position: (span as HTMLElement).style.backgroundPosition,
-    })),
-  );
-  const lines = new Map<number, typeof geometry>();
-  for (const word of geometry) lines.set(word.top, [...(lines.get(word.top) ?? []), word]);
-  for (const line of lines.values()) {
-    expect(new Set(line.map((word) => word.size)).size, "one gradient width per line").toBe(1);
-    const start = line[0]?.left ?? 0;
-    for (const word of line) expect(Number.parseFloat(word.position)).toBeCloseTo(start - word.left, 0);
+  // Solid colour, never gradient text; exactly one word in NH red (--signal), the rest in ink.
+  const paint = await words.evaluateAll((spans) => {
+    const probe = document.createElement("span");
+    probe.style.color = "hsl(var(--signal))";
+    document.body.append(probe);
+    const signal = getComputedStyle(probe).color;
+    probe.remove();
+    return spans.map((span) => {
+      const style = getComputedStyle(span);
+      return { color: style.color, clip: style.backgroundClip, red: style.color === signal };
+    });
+  });
+  for (const word of paint) {
+    expect(word.clip, "no gradient text").not.toBe("text");
+    expect(word.color, "a solid, visible colour").not.toBe("rgba(0, 0, 0, 0)");
   }
+  expect(paint.filter((word) => word.red), "one key word in NH red").toHaveLength(1);
+  // One arrival for the whole line, not a word-by-word stagger.
+  expect(await emptyGreeting(page).evaluate((heading) => getComputedStyle(heading).animationName)).toBe("greeting-in");
 
   // The next new chat gets a different greeting.
   await sendAndWait(page, "Explain photosynthesis");
@@ -326,75 +323,25 @@ test("the greeting: one of the fixed pool, a new one for the next chat, word by 
   expect(second).not.toBe(first);
 });
 
-/**
- * The lowest contrast anywhere in the greeting AS RENDERED: each word is photographed once as a
- * solid block of its gradient slice (the colour its letters get at every x) and once hidden (the
- * real ground behind it, atmosphere included); every pixel pair is compared, as WCAG does.
- */
+/** The lowest contrast of the greeting's words (solid colours) against the page behind them. */
 async function renderedGreetingContrast(page: Page): Promise<number> {
-  const heading = emptyGreeting(page);
-  const words = heading.locator("[data-greeting-word]");
-  const origin = await heading.boundingBox();
-  if (!origin) throw new Error("no greeting on screen");
-  const rects = await words.evaluateAll(
-    (spans, at) =>
-      spans.map((span) => {
-        const rect = span.getBoundingClientRect();
-        return { x: rect.left - at.x, y: rect.top - at.y, width: rect.width, height: rect.height };
-      }),
-    { x: origin.x, y: origin.y },
-  );
-  const paint = (mode: "block" | "hidden" | "text") =>
-    words.evaluateAll((spans, how) => {
-      for (const span of spans as HTMLElement[]) {
-        for (const property of ["background-clip", "-webkit-background-clip", "visibility"]) span.style.removeProperty(property);
-        if (how === "block") {
-          span.style.setProperty("background-clip", "border-box", "important");
-          span.style.setProperty("-webkit-background-clip", "border-box", "important");
-        }
-        if (how === "hidden") span.style.setProperty("visibility", "hidden", "important");
-      }
-    }, mode);
-  await paint("block");
-  const gradient = await heading.screenshot({ animations: "disabled" });
-  await paint("hidden");
-  const ground = await heading.screenshot({ animations: "disabled" });
-  await paint("text");
-  return page.evaluate(
-    async ({ gradient, ground, rects, width }) => {
-      const decode = async (png: string) => {
-        const image = new Image();
-        image.src = `data:image/png;base64,${png}`;
-        await image.decode();
-        const canvas = document.createElement("canvas");
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const context = canvas.getContext("2d") as CanvasRenderingContext2D;
-        context.drawImage(image, 0, 0);
-        return { width: image.width, data: context.getImageData(0, 0, image.width, image.height).data };
-      };
-      const [fill, back] = [await decode(gradient), await decode(ground)];
-      const scale = fill.width / width;
-      const luminance = (data: Uint8ClampedArray, index: number) =>
-        [data[index] ?? 0, data[index + 1] ?? 0, data[index + 2] ?? 0]
+  return emptyGreeting(page)
+    .locator("[data-greeting-word]")
+    .evaluateAll((spans) => {
+      const rgb = (value: string) => (value.match(/[d.]+/g) ?? []).slice(0, 3).map(Number);
+      const luminance = ([r, g, b]: number[]) =>
+        [r ?? 0, g ?? 0, b ?? 0]
           .map((value) => value / 255)
           .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
           .reduce((sum, c, channel) => sum + c * ([0.2126, 0.7152, 0.0722][channel] ?? 0), 0);
-      let lowest = Number.POSITIVE_INFINITY;
-      for (const rect of rects) {
-        for (const at of [0.35, 0.5, 0.65]) {
-          const y = Math.round((rect.y + rect.height * at) * scale);
-          for (let x = Math.ceil((rect.x + 1) * scale); x < Math.floor((rect.x + rect.width - 1) * scale); x++) {
-            const index = (y * fill.width + x) * 4;
-            const [a, b] = [luminance(fill.data, index), luminance(back.data, index)];
-            lowest = Math.min(lowest, (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05));
-          }
-        }
-      }
-      return lowest;
-    },
-    { gradient: gradient.toString("base64"), ground: ground.toString("base64"), rects, width: origin.width },
-  );
+      const ground = luminance(rgb(getComputedStyle(document.body).backgroundColor));
+      return Math.min(
+        ...spans.map((span) => {
+          const text = luminance(rgb(getComputedStyle(span).color));
+          return (Math.max(text, ground) + 0.05) / (Math.min(text, ground) + 0.05);
+        }),
+      );
+    });
 }
 
 test("the greeting as rendered clears 4.5:1 at every point: light and dark, wide and narrow", async ({
@@ -415,11 +362,9 @@ test("the greeting as rendered clears 4.5:1 at every point: light and dark, wide
       expect(lines, "the greeting stays on one line, phone or desktop").toBe(1);
       const lowest = await renderedGreetingContrast(page);
       expect(lowest, `"${text}", ${lines} line(s), ${scheme}, ${width}px`).toBeGreaterThanOrEqual(4.5);
-      // Reduced motion: every word in place at once.
-      const styles = await words.evaluateAll((spans) =>
-        spans.map((span) => `${getComputedStyle(span).animationName}|${getComputedStyle(span).opacity}`),
-      );
-      expect(new Set(styles)).toEqual(new Set(["none|1"]));
+      // Reduced motion: the line in place at once.
+      const style = await emptyGreeting(page).evaluate((heading) => `${getComputedStyle(heading).animationName}|${getComputedStyle(heading).opacity}`);
+      expect(style).toBe("none|1");
     }
   }
   await expectAccessible(page);
