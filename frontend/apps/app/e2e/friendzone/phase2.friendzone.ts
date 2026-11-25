@@ -1,4 +1,4 @@
-import type { Page, TestInfo } from "@playwright/test";
+import type { Locator, Page, TestInfo } from "@playwright/test";
 
 import { SMALL_PROGRAM } from "./env";
 import {
@@ -259,15 +259,55 @@ async function playByApi(people: People, asha: Person, bilal: Person, battleId: 
   await expect.poll(async () => (await read()).status, { timeout: 30_000 }).toBe("completed");
 }
 
+/** Whether `item` lies wholly inside `box`'s visible area (1 px of rounding allowed). */
+async function insideBox(box: Locator, item: Locator): Promise<boolean> {
+  const [outer, inner] = await Promise.all([box.boundingBox(), item.boundingBox()]);
+  return Boolean(outer && inner && inner.y >= outer.y - 1 && inner.y + inner.height <= outer.y + outer.height + 1);
+}
+
+/**
+ * The bell's list overflows its scroll box, and the keyboard still reaches every notice: End focuses the last one and
+ * scrolls it into view; Home goes back to the first item, and ArrowDown on to the first notice, scrolled back too.
+ */
+async function expectNoticesReachedByKeys(page: Page, menu: Locator, testInfo: TestInfo, label: string): Promise<void> {
+  const scroller = menu.locator(".overflow-y-auto");
+  const notices = scroller.getByRole("menuitem");
+  await expect(notices.first()).toBeVisible();
+  const scroll = () => scroller.evaluate((element) => ({ height: element.scrollHeight, visible: element.clientHeight, top: element.scrollTop }));
+  const before = await scroll();
+  expect(before.height, `the list overflows its box (${JSON.stringify(before)})`).toBeGreaterThan(before.visible);
+  expect(before.top).toBe(0);
+  await expect.poll(() => insideBox(scroller, notices.last()), { message: "the last notice starts out of view" }).toBe(false);
+
+  await page.keyboard.press("End");
+  await expect(notices.last()).toBeFocused();
+  await expect.poll(() => insideBox(scroller, notices.last()), { message: "End scrolls the last notice into view" }).toBe(true);
+  expect((await scroll()).top, "the box scrolled").toBeGreaterThan(0);
+  await shot(page, testInfo, `bell-${label}-end`);
+
+  await page.keyboard.press("Home");
+  const first = menu.getByRole("menuitem").first();
+  await expect(first).toBeFocused();
+  await expect(first).toBeInViewport();
+  for (let presses = 0; presses < 5 && !(await notices.first().evaluate((element) => element === document.activeElement)); presses++) {
+    await page.keyboard.press("ArrowDown");
+  }
+  await expect(notices.first()).toBeFocused();
+  await expect.poll(() => insideBox(scroller, notices.first()), { message: "the first notice is back in view" }).toBe(true);
+  await shot(page, testInfo, `bell-${label}-home`);
+}
+
 /** Opens the bell from the chat home and chooses the notification titled `title`: it must land on Friend Zone. */
 async function openFromBell(page: Page, title: RegExp, testInfo: TestInfo, label: string): Promise<void> {
   await page.goto("/");
   await page.getByRole("button", { name: /^Notifications, \d+ unread$/ }).click();
   const menu = page.getByRole("menu");
   await expect(menu).toBeVisible();
-  // The bell is shared app UI (features/notifications), not Friend Zone: its known axe finding is recorded, not hidden.
+  await expectNoticesReachedByKeys(page, menu, testInfo, label);
+  // The bell is shared app UI (features/notifications), not Friend Zone: axe's finding on its scroll box is recorded.
   await axe(page, testInfo, `bell-${label}`, "[role='menu']", true, {
-    "scrollable-region-focusable": "the notification list's scroll box (.max-h-[min(24rem,70vh)]) is not focusable; reported to lane A",
+    "scrollable-region-focusable":
+      "roving-focus menu: items are reached with arrow keys and scroll into view (asserted above); Tab is reserved by the menu pattern",
   });
   await menu.getByRole("menuitem", { name: title }).click();
   await page.waitForURL(/\/programs\/networking-ai\/quizzes\?zone=friends(&|$)/);
