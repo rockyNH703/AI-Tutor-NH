@@ -6,7 +6,8 @@
 import { ApiError, describeError } from "@/lib/api/errors";
 import { isUuid } from "@/lib/api/routes";
 import type { Uuid } from "@/lib/api/types";
-import type { Battle, BattleOption, BattlePlayer, BattleQuestion, BattleRound, BattleSummary, Difficulty } from "./battle-api";
+import type { Battle, BattleOption, BattlePlayer, BattleQuestion, BattleSummary, Difficulty, Exam } from "./battle-api";
+import { marksText } from "./exam-model";
 
 export type Phase =
   /** A friend challenged you: Accept or Decline. */
@@ -17,10 +18,12 @@ export type Phase =
   | { kind: "ready" }
   /** You accepted: waiting for the challenger's Ready. */
   | { kind: "waiting-start" }
+  /** The 3 seconds before the paper arrives. */
   | { kind: "countdown" }
-  | { kind: "question"; question: BattleQuestion }
-  /** Between rounds: the round that just closed. */
-  | { kind: "reveal"; round: BattleRound }
+  /** The exam is running and I haven't submitted. */
+  | { kind: "exam"; exam: Exam }
+  /** I submitted: waiting for the other player or the deadline. */
+  | { kind: "submitted"; exam: Exam }
   | { kind: "result" }
   /** Declined, expired or cancelled: never played. */
   | { kind: "ended" };
@@ -33,9 +36,10 @@ export function battlePhase(battle: Battle): Phase {
     case "waiting":
       return challenger ? { kind: "ready" } : { kind: "waiting-start" };
     case "active": {
-      if (battle.question) return { kind: "question", question: battle.question };
-      const last = battle.rounds.reduce<BattleRound | null>((latest, round) => (!latest || round.round > latest.round ? round : latest), null);
-      return last ? { kind: "reveal", round: last } : { kind: "countdown" };
+      // A round battle can't be open any more: the server ends any it finds ("upgraded").
+      if (battle.format !== "exam") return { kind: "ended" };
+      if (!battle.exam) return { kind: "countdown" };
+      return battle.exam.submittedAt ? { kind: "submitted", exam: battle.exam } : { kind: "exam", exam: battle.exam };
     }
     case "completed":
       return { kind: "result" };
@@ -44,10 +48,8 @@ export function battlePhase(battle: Battle): Phase {
   }
 }
 
-/** A key for "something new is on screen": a new phase or a new round. */
+/** A key for "something new is on screen": a new phase. */
 export function phaseKey(phase: Phase): string {
-  if (phase.kind === "question") return `question:${phase.question.round}`;
-  if (phase.kind === "reveal") return `reveal:${phase.round.round}`;
   return phase.kind;
 }
 
@@ -71,10 +73,31 @@ export function accuracy(player: Pick<BattlePlayer, "correct" | "answered">): st
 
 export type Outcome = { headline: string; detail: string };
 
+/** How an exam battle ended, for you (marks: +4 correct, −1 incorrect). */
+function examOutcome(battle: Pick<Battle, "result" | "endReason" | "me" | "opponent">): Outcome {
+  const final = `Final marks ${marksText(battle.me.score)} to ${marksText(battle.opponent.score)}.`;
+  switch (battle.result) {
+    case "void":
+      if (battle.endReason === "absent") return { headline: "No result", detail: "Neither of you answered a question." };
+      return { headline: "No result", detail: "This battle ended early, so it doesn't count." };
+    case "forfeit":
+      return battle.me.winner
+        ? { headline: "You won", detail: "The other member left the battle." }
+        : { headline: "You lost", detail: "This battle was decided by forfeit." };
+    case "draw":
+      return { headline: "Draw", detail: "Same marks, the same number of incorrect answers and the same submit time." };
+    default:
+      if (battle.me.winner) return { headline: "You won", detail: final };
+      if (battle.opponent.winner) return { headline: "You lost", detail: final };
+      return { headline: "Finished", detail: final };
+  }
+}
+
 /** How a battle ended, for you. Blocking, unfriending and suspension all read the same: "ended early". */
-export function outcome(battle: Pick<Battle, "status" | "result" | "endReason" | "me" | "opponent">): Outcome {
+export function outcome(battle: Pick<Battle, "status" | "result" | "endReason" | "me" | "opponent" | "format">): Outcome {
   const them = nameOf(battle.opponent);
   const challenger = battle.me.role === "challenger";
+  if (battle.status === "completed" && battle.format === "exam") return examOutcome(battle);
   if (battle.status === "completed") {
     switch (battle.result) {
       case "void":
@@ -130,16 +153,6 @@ export function summaryLine(summary: BattleSummary): string {
     default:
       return `Not played · ${where}`;
   }
-}
-
-function choiceText(choice: string | null, points: number): string {
-  return choice ? `chose ${choice}, ${points} points` : "didn't answer";
-}
-
-/** What a closed round showed, in one sentence (the reveal, and its announcement). */
-export function revealText(round: BattleRound, them: string): string {
-  if (round.voided) return "Question withdrawn: no points.";
-  return `Correct answer: ${round.correctKey}. You ${choiceText(round.myChoice, round.myPoints)}. ${them} ${choiceText(round.theirChoice, round.theirPoints)}.`;
 }
 
 export function roundAnnouncement(question: Pick<BattleQuestion, "round" | "seconds">, length: number): string {

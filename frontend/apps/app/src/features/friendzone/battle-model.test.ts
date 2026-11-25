@@ -8,7 +8,6 @@ import {
   battlePhase,
   outcome,
   phaseKey,
-  revealText,
   roundAnnouncement,
   shortcutChoice,
   summaryLine,
@@ -31,7 +30,6 @@ const player = (patch: Partial<BattlePlayer> = {}): BattlePlayer => ({
 const base = { status: "active" as const, result: null, endReason: null, me: player(), opponent: player({ role: "opponent" }) };
 const OPTIONS = ["A", "B", "C", "D"].map((key) => ({ key, text: `Option ${key}` }));
 const question = { round: 2, stem: "?", options: OPTIONS, seconds: 30, opensAt: "", closesAt: "", myChoice: null };
-const round = (patch = {}) => ({ round: 1, voided: false, correctKey: "B", myChoice: "B", theirChoice: "C", myPoints: 128, theirPoints: 0, ...patch });
 
 describe("the phase", () => {
   const phase = (patch: Partial<Battle>) => battlePhase({ ...base, rounds: [], question: null, ...patch } as Battle);
@@ -42,13 +40,17 @@ describe("the phase", () => {
     expect(phase({ status: "waiting", me: player({ role: "opponent" }) }).kind).toBe("waiting-start");
   });
 
-  test("active: the countdown before any round, a question while one is open, else the latest reveal", () => {
-    expect(phase({}).kind).toBe("countdown");
-    expect(phase({ question }).kind).toBe("question");
-    const reveal = phase({ rounds: [round(), round({ round: 2 })] });
-    expect(reveal.kind === "reveal" && reveal.round.round).toBe(2);
-    expect(phaseKey(reveal)).toBe("reveal:2");
-    expect(phaseKey(phase({ question }))).toBe("question:2");
+  test("an active exam: the countdown before the paper, the exam, then the waiting screen once I submitted", () => {
+    const exam = { secondsPerQuestion: 60, endsAt: "", cutoffAt: "", questions: [], responses: [], submittedAt: null, opponentSubmitted: false };
+    expect(phase({ format: "exam" }).kind).toBe("countdown");
+    expect(phase({ format: "exam", exam }).kind).toBe("exam");
+    expect(phase({ format: "exam", exam: { ...exam, submittedAt: "2026-11-25T10:05:00Z" } }).kind).toBe("submitted");
+    expect(phaseKey(phase({ format: "exam", exam }))).toBe("exam");
+  });
+
+  test("an open round battle can't be played any more (the server ends it): it reads as ended", () => {
+    expect(phase({ question }).kind).toBe("ended");
+    expect(phase({ format: "rounds" }).kind).toBe("ended");
   });
 
   test("completed is the result; declined, expired and cancelled are endings", () => {
@@ -58,6 +60,19 @@ describe("the phase", () => {
 });
 
 describe("outcomes", () => {
+  test("an exam's words: marks with a minus sign, and no round-battle wording", () => {
+    const exam = (patch: Partial<Battle>) => outcome({ ...base, status: "completed", format: "exam", ...patch } as Battle);
+    expect(exam({ result: "points", me: player({ winner: true, score: 12 }), opponent: player({ role: "opponent", score: -3 }) })).toEqual({
+      headline: "You won",
+      detail: "Final marks 12 to −3.",
+    });
+    expect(exam({ result: "void", endReason: "absent" }).detail).toBe("Neither of you answered a question.");
+    // An exam's other voids all read "ended" (I21): the API never sends `deleted` for one, and no reason is named.
+    for (const endReason of ["ended", "deleted"]) expect(exam({ result: "void", endReason }).detail).toBe("This battle ended early, so it doesn't count.");
+    expect(exam({ result: "draw" }).detail).toContain("Same marks");
+    for (const result of ["points", "draw", "void", "forfeit"] as const) expect(exam({ result }).detail).not.toMatch(/round/i);
+  });
+
   const done = (patch: Partial<Battle>) => outcome({ ...base, status: "completed", ...patch } as Battle);
   test("points: won, lost, with the score", () => {
     expect(done({ result: "points", me: player({ winner: true, score: 300 }), opponent: player({ role: "opponent", score: 120 }) })).toEqual({
@@ -92,12 +107,6 @@ describe("outcomes", () => {
 });
 
 describe("words", () => {
-  test("the reveal names the key, both picks and the points; a withdrawn question scores nothing", () => {
-    expect(revealText(round(), "Rehan")).toBe("Correct answer: B. You chose B, 128 points. Rehan chose C, 0 points.");
-    expect(revealText(round({ theirChoice: null }), "Rehan")).toContain("Rehan didn't answer.");
-    expect(revealText(round({ voided: true }), "Rehan")).toBe("Question withdrawn: no points.");
-  });
-
   test("announcements", () => {
     expect(roundAnnouncement(question, 5)).toBe("Question 2 of 5, 30 seconds.");
     expect([30, 11, 10, 6, 5, 1].map(warningFor)).toEqual([null, null, 10, 10, 5, 5]);

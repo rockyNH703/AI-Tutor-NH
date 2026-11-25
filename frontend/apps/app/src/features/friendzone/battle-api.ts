@@ -1,7 +1,8 @@
 /**
  * Friend Zone battles (backend app/friendzone/battle_routes.py; docs/api-contract.md "NH Friend Zone", Battles). The
- * server runs the whole battle by the database clock: a read moves it on. The open round never carries its key, and
- * explanations come only once the battle is completed.
+ * server runs the whole battle by the database clock: a read moves it on. A battle is an exam (`format: "exam"`): one
+ * paper and one deadline for both, answers saved as they change and graded only at the end. Keys and explanations
+ * come only once the battle is completed. `format: "rounds"` battles are history from before the exam.
  */
 
 import type { CONTRACT } from "@/lib/api/contract.gen";
@@ -24,6 +25,8 @@ export type BattlePlayer = {
   correct: number;
   answered: number;
   winner: boolean;
+  /** An exam, once completed: whole seconds from the start to the submit. */
+  timeTakenSeconds?: number | null;
 };
 
 export type BattleOption = { key: string; text: string };
@@ -50,16 +53,35 @@ export type BattleRound = {
   theirPoints: number;
 };
 
+/** A voided exam question has no stem, key or explanation (it changed or was withdrawn after the exam started). */
 export type BattleReview = {
   round: number;
-  stem: string;
+  stem: string | null;
   options: BattleOption[];
-  correctKey: string;
-  explanation: string;
+  correctKey: string | null;
+  explanation: string | null;
   voided: boolean;
   myChoice: string | null;
   theirChoice: string | null;
 };
+
+/** One of my saved exam responses: a row exists once the question was visited. `rev` is the server's revision. */
+export type ExamResponse = { round: number; choice: string | null; marked: boolean; rev: number };
+
+export type ExamQuestion = { round: number; stem: string; options: BattleOption[] };
+
+/** The running exam, once it has started: the same paper for both, my own responses only. */
+export type Exam = {
+  secondsPerQuestion: number;
+  endsAt: string;
+  cutoffAt: string;
+  questions: ExamQuestion[];
+  responses: ExamResponse[];
+  submittedAt: string | null;
+  opponentSubmitted: boolean;
+};
+
+export type BattleXp = { reason: string; amount: number };
 
 export type Battle = {
   battleId: Uuid;
@@ -82,6 +104,15 @@ export type Battle = {
   question: BattleQuestion | null;
   rounds: BattleRound[];
   review: BattleReview[] | null;
+  /** Missing (an older answer) reads as "rounds". */
+  format?: "rounds" | "exam";
+  repeatsFromPrevious?: number;
+  /** Only while active and started. */
+  exam?: Exam | null;
+  /** Mine, only once completed. */
+  xp?: BattleXp[] | null;
+  /** Only on a submit's answer: false when the server took nothing (the battle had moved on, or I had submitted). */
+  submitApplied?: boolean | null;
 };
 
 export type BattleSummary = {
@@ -141,7 +172,32 @@ export function rematchBattle(battleId: Uuid, requestId: Uuid): Promise<Battle> 
   return callRoute<Battle>("POST /v1/friend-zone/battles/{battle_id}/rematch", { params: { battle_id: battleId }, body: { requestId } });
 }
 
-/** One letter for the open round, final at once. */
-export function answerBattle(battleId: Uuid, round: number, choice: string): Promise<Battle> {
-  return callRoute<Battle>("POST /v1/friend-zone/battles/{battle_id}/answers", { params: { battle_id: battleId }, body: { round, choice } });
+/** One question's change: `set` writes its whole state on the revision it was based on; `visit` only marks it seen. */
+export type ResponseItem =
+  | { round: number; op: "set"; choice: string | null; marked: boolean; baseRev: number }
+  | { round: number; op: "visit" };
+
+export type ResponsesResult = {
+  serverTime: string;
+  status: BattleStatus;
+  submittedAt: string | null;
+  opponentSubmitted: boolean;
+  /** Every response row of mine after the save. */
+  responses: ExamResponse[];
+  /** One per item sent, in order; `rev` 0: there is no row. */
+  items: { round: number; applied: boolean; rev: number }[];
+};
+
+/** Save exam answers as they change (compare-and-set per question). */
+export function saveResponses(battleId: Uuid, responses: ResponseItem[], signal?: AbortSignal): Promise<ResponsesResult> {
+  return callRoute<ResponsesResult>("POST /v1/friend-zone/battles/{battle_id}/responses", {
+    params: { battle_id: battleId },
+    body: { responses },
+    signal,
+  });
+}
+
+/** Submit my exam with whatever is still unsaved (final values). `auto`: the deadline's own submit. */
+export function submitExam(battleId: Uuid, responses: ResponseItem[], auto: boolean): Promise<Battle> {
+  return callRoute<Battle>("POST /v1/friend-zone/battles/{battle_id}/submit", { params: { battle_id: battleId }, body: { responses, auto } });
 }

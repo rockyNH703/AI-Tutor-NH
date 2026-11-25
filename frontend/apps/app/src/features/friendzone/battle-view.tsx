@@ -4,9 +4,11 @@ import { Button } from "@v1/ui/button";
 import { ErrorState } from "@v1/ui/empty-state";
 import { Skeleton } from "@v1/ui/skeleton";
 import { cn } from "@v1/ui/utils";
-import { AlarmClock, ArrowLeft, Check, Lock, RotateCcw } from "lucide-react";
-import { type KeyboardEvent, type ReactNode, type RefObject, useCallback, useEffect, useId, useRef, useState } from "react";
+import { AlarmClock, ArrowLeft, Check, CircleCheck, CircleX, Lock, RotateCcw, SkipForward } from "lucide-react";
+import { type ReactNode, type RefObject, useCallback, useEffect, useId, useRef, useState } from "react";
 
+import { navigationGuard } from "@/features/navigation/navigation-guard";
+import { LEARNING_EVENT } from "@/lib/activity";
 import { ApiError } from "@/lib/api/errors";
 import type { Uuid } from "@/lib/api/types";
 import {
@@ -14,48 +16,45 @@ import {
   type BattleMove,
   type BattleQuestion,
   type BattleReview,
-  answerBattle,
+  type ResponseItem,
   getBattle,
   moveBattle,
   rematchBattle,
+  submitExam,
 } from "./battle-api";
-import {
-  type Phase,
-  accuracy,
-  battleFailure,
-  battleMeta,
-  existingBattle,
-  battlePhase,
-  lockedText,
-  nameOf,
-  outcome,
-  phaseKey,
-  revealText,
-  roundAnnouncement,
-  shortcutChoice,
-  warningFor,
-} from "./battle-model";
+import { type Phase, accuracy, battleFailure, battleMeta, existingBattle, battlePhase, lockedText, nameOf, outcome, phaseKey, warningFor } from "./battle-model";
 import { clockOffset, fractionLeft, secondsLeft } from "./clock";
+import { XP_RULE, completionTracker, countedQuestions, durationWords, marksText, readMessage, timeTakenText, xpLabel } from "./exam-model";
+import { type ExamStore, dropExamStore, examStore } from "./exam-store";
+import { ExamView, HowItWorks, WaitingPanel } from "./exam-view";
 import { backoff, isTerminal, nextPollDelay } from "./poll";
 import { canRematch } from "./progress-model";
 
 /**
- * One battle, live (plan section 4 J5-J6, 10, 11). The server's answer is the whole truth: this screen reads it on the
- * poll schedule (poll.ts), counts deadlines on the server's clock (clock.ts), and only draws it. One polite live
- * region says what changed (never every second); focus moves to a new question and to the result, never during the
- * reveal.
+ * One battle, live (plan section 4 J5-J6, 10, 11; the exam: Friend Challenge plan Rev 2 section 6). The server's
+ * answer is the whole truth: this screen reads it on the poll schedule (poll.ts), counts deadlines on the server's
+ * clock (clock.ts), and only draws it. One polite live region says what changed (never every second); focus moves at
+ * the exam's start, on submit or time up, and to the result.
  */
 
-type Live = { battle: Battle | null; offset: number; gone: boolean; failed: boolean };
+/** `unavailable`: the battle was running when it went away (Friend Zone switched off), not a link to someone else's. */
+type Live = { battle: Battle | null; offset: number; gone: boolean; unavailable: boolean; failed: boolean };
 
-function useBattle(battleId: Uuid) {
-  const [live, setLive] = useState<Live>({ battle: null, offset: 0, gone: false, failed: false });
+function useBattle(battleId: Uuid, onApply: (battle: Battle) => void) {
+  const [live, setLive] = useState<Live>({ battle: null, offset: 0, gone: false, unavailable: false, failed: false });
   const battle = useRef<Battle | null>(null);
   const offset = useRef(0);
   const failures = useRef(0);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const inFlight = useRef<AbortController | null>(null);
   const mounted = useRef(true);
+  const applied = useRef(onApply);
+  applied.current = onApply;
+
+  const markGone = useCallback(() => {
+    const unavailable = battle.current?.status === "active";
+    setLive((current) => ({ ...current, gone: true, unavailable }));
+  }, []);
 
   const apply = useCallback((next: Battle, sentAt: number, receivedAt: number) => {
     // A slow read can arrive after a newer answer (a move's reply): the older state never replaces the newer one.
@@ -64,7 +63,8 @@ function useBattle(battleId: Uuid) {
     offset.current = clockOffset(next.serverTime, sentAt, receivedAt);
     battle.current = next;
     failures.current = 0;
-    setLive({ battle: next, offset: offset.current, gone: false, failed: false });
+    applied.current(next);
+    setLive({ battle: next, offset: offset.current, gone: false, unavailable: false, failed: false });
   }, []);
 
   const schedule = useCallback((read: () => void) => {
@@ -91,15 +91,15 @@ function useBattle(battleId: Uuid) {
         if (inFlight.current === controller) inFlight.current = null;
         if (!mounted.current || controller.signal.aborted) return;
         if (error instanceof ApiError && error.code === "not_found") {
-          setLive((current) => ({ ...current, gone: true }));
-          return; // not this account's battle (or no longer): stop
+          markGone();
+          return; // not this account's battle (or no longer, or Friend Zone is off): stop
         }
         failures.current += 1;
         setLive((current) => ({ ...current, failed: true }));
         schedule(read);
       },
     );
-  }, [battleId, apply, schedule]);
+  }, [battleId, apply, schedule, markGone]);
 
   useEffect(() => {
     mounted.current = true;
@@ -134,7 +134,7 @@ function useBattle(battleId: Uuid) {
     clearTimeout(timer.current);
     read();
   }, [read]);
-  return { live, send, refresh };
+  return { live, send, refresh, markGone };
 }
 
 /** Settings > Appearance's Reduce motion (`<html data-motion="reduce">`, lib/appearance.ts), followed while shown. */
@@ -164,13 +164,42 @@ function useNow(interval: number | null): number {
 }
 
 export function BattleView({ battleId, onClose, onOpen }: { battleId: Uuid; onClose: () => void; onOpen: (battleId: Uuid) => void }) {
-  const { live, send, refresh } = useBattle(battleId);
+  const [note, setNote] = useState<string | null>(null);
+  // A 409 (or a failed auto-submit) asks for a re-read; its words come from the state that read brings (I21), as do a
+  // submit's own when the server didn't apply it (`submitApplied: false`).
+  const stale = useRef(false);
+  const { live, send, refresh, markGone } = useBattle(battleId, (next) => {
+    if (next.format !== "exam") return;
+    let unsaved = 0;
+    if (next.status === "active" && next.exam && !next.exam.submittedAt) {
+      const store = examStore(next.battleId);
+      store.adopt(next.exam.responses, next.exam.questions);
+      unsaved = store.getSnapshot().intents.size;
+    } else if (next.status !== "active" || next.exam?.submittedAt) unsaved = dropExamStore(next.battleId);
+    const words = readMessage(next, unsaved, stale.current);
+    if (words) setNote(words);
+    // A re-read that finds the exam still running (a failed auto-submit inside the allowance) keeps the question open
+    // until the end is read; then the "Checking the battle…" note goes if the end has nothing to add.
+    if (words || next.status !== "active" || next.exam?.submittedAt) {
+      if (stale.current && !words) setNote(null);
+      stale.current = false;
+    }
+  });
   // One requestId per Rematch press, kept until the answer is known, so a retry after a dropped connection replays.
   const rematchId = useRef<string | null>(null);
   const counting = live.battle !== null && !isTerminal(live.battle.status);
   const now = useNow(counting ? 250 : null);
   const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
+  // The streak and the bell refresh once, when a battle seen open turns completed (practice is recorded then).
+  const [completed] = useState(completionTracker);
+  const status = live.battle?.status;
+  useEffect(() => {
+    if (status && completed(status)) window.dispatchEvent(new Event(LEARNING_EVENT));
+  }, [status, completed]);
+  // In-page exits ask first while an answer isn't saved (links, reload and Back go through the same guard).
+  const close = () => {
+    if (navigationGuard.confirmLeave()) onClose();
+  };
 
   const act = async (request: () => Promise<Battle>, action: "move" | "answer") => {
     setBusy(true);
@@ -185,6 +214,33 @@ export function BattleView({ battleId, onClose, onOpen }: { battleId: Uuid; onCl
       setBusy(false);
     }
   };
+
+  /** Submit: the explicit one sets busy; the deadline's own (`auto`) never does, and is never refused (plan section 2). */
+  const submit = async (items: ResponseItem[], auto: boolean, retry = auto) => {
+    if (!auto) setBusy(true);
+    setNote(null);
+    try {
+      await send(() => submitExam(battleId, items, auto));
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "not_found") return markGone();
+      const refused = error instanceof ApiError && error.status === 409;
+      if (retry && !refused) return submit(items, true, false); // once more inside the 2 s allowance
+      stale.current = true;
+      if (!refused)
+        setNote(auto ? "Your answers couldn't be sent. Checking the battle…" : battleFailure(error, "answer").message);
+      refresh();
+    } finally {
+      if (!auto) setBusy(false);
+    }
+  };
+  const onServerChange = useCallback(
+    (gone: boolean) => {
+      if (gone) return markGone();
+      stale.current = true;
+      refresh();
+    },
+    [markGone, refresh],
+  );
 
   const rematch = async (from: Uuid) => {
     rematchId.current ??= crypto.randomUUID();
@@ -207,7 +263,7 @@ export function BattleView({ battleId, onClose, onOpen }: { battleId: Uuid; onCl
   if (live.gone)
     return (
       <BattleFrame onClose={onClose}>
-        <BattleGone />
+        <BattleGone unavailable={live.unavailable} />
       </BattleFrame>
     );
   if (!live.battle)
@@ -228,24 +284,29 @@ export function BattleView({ battleId, onClose, onOpen }: { battleId: Uuid; onCl
       now={now}
       busy={busy}
       note={note ?? (live.failed ? "Connection trouble: trying again…" : null)}
-      onClose={onClose}
+      onClose={close}
       onMove={(move) => act(() => moveBattle(battle.battleId, move), "move")}
-      onAnswer={(round, choice) => act(() => answerBattle(battle.battleId, round, choice), "answer")}
       onRematch={() => rematch(battle.battleId)}
+      store={battle.format === "exam" && battle.status === "active" && battle.exam && !battle.exam.submittedAt ? examStore(battle.battleId) : undefined}
+      onSubmit={submit}
+      onServerChange={onServerChange}
     />
   );
 }
 
-/** The view's own title when the battle can't be shown: a heading that takes focus, then why (not an alert). */
-export function BattleGone() {
+/**
+ * The view's own title when the battle can't be shown: a heading that takes focus, then why (not an alert). A battle
+ * that was running when it went away means Friend Zone itself was switched off (a 404 while active).
+ */
+export function BattleGone({ unavailable = false }: { unavailable?: boolean }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
   return (
     <div>
       <h3 ref={heading} tabIndex={-1} className="focus-ring rounded-md text-lg font-semibold text-foreground">
-        This battle isn't available
+        {unavailable ? "Friend Zone is unavailable right now" : "This battle isn't available"}
       </h3>
-      <p className="mt-1 text-sm text-text-secondary">It may have ended, or it isn't yours.</p>
+      <p className="mt-1 text-sm text-text-secondary">{unavailable ? "Try again in a few minutes." : "It may have ended, or it isn't yours."}</p>
     </div>
   );
 }
@@ -276,94 +337,95 @@ export type ScreenProps = {
   note: string | null;
   onClose: () => void;
   onMove: (move: BattleMove) => void;
-  onAnswer: (round: number, choice: string) => void;
   /** Offered on a battle decided by play (points, draw, forfeit). */
   onRematch?: () => void;
+  /** A running exam's save store (BattleView passes the battle's own; tests pass one). */
+  store?: ExamStore;
+  onSubmit?: (items: ResponseItem[], auto: boolean) => void;
+  onServerChange?: (gone: boolean) => void;
 };
 
+const noop = () => {};
+
 /** Everything a battle shows, drawn from one state of it (render-tested state by state). */
-export function BattleScreen({ battle, offset, now, busy, note, onClose, onMove, onAnswer, onRematch }: ScreenProps) {
+export function BattleScreen({ battle, offset, now, busy, note, onClose, onMove, onRematch, store, onSubmit = noop, onServerChange = noop }: ScreenProps) {
   const headingId = useId();
   const phase = battlePhase(battle);
-  const them = nameOf(battle.opponent);
-  const question = phase.kind === "question" ? phase.question : null;
-  const left = question ? secondsLeft(question.closesAt, offset, now) : 0;
   const focusTarget = useRef<HTMLHeadingElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const opened = useRef(false);
   const [said, setSaid] = useState("");
   const key = phaseKey(phase);
-  const warned = useRef<{ round: number; level: number | null }>({ round: 0, level: null });
 
-  // What changed is said once, in the one live region; focus moves only to a new question or to the ending.
+  // What changed is said once, in the one live region; focus moves at the exam's start, on submit and at the end.
   useEffect(() => {
-    if (phase.kind === "question") {
-      setSaid(roundAnnouncement(phase.question, battle.length));
+    if (phase.kind === "exam") {
+      const count = phase.exam.questions.length;
+      setSaid(`The exam has started: ${count} questions, ${durationWords(count * phase.exam.secondsPerQuestion)}.`);
+      focusTarget.current?.focus();
+    } else if (phase.kind === "submitted") {
+      setSaid("Submitted. The result shows when you both have submitted, or at the deadline.");
       focusTarget.current?.focus();
     } else if (phase.kind === "countdown") setSaid("The battle starts in 3 seconds.");
-    else if (phase.kind === "reveal") setSaid(revealText(phase.round, them));
     else if (phase.kind === "result" || phase.kind === "ended") {
       const { headline, detail } = outcome(battle);
       setSaid(`${headline}. ${detail}`);
       focusTarget.current?.focus();
     }
     // The list that opened this view is gone: a state that focuses nothing else starts at the battle's heading.
-    if (!opened.current && phase.kind !== "question" && phase.kind !== "result" && phase.kind !== "ended") title.current?.focus();
+    const own = phase.kind === "exam" || phase.kind === "submitted" || phase.kind === "result" || phase.kind === "ended";
+    if (!opened.current && !own) title.current?.focus();
     opened.current = true;
-  }, [key]); // once per new phase or round, not on every poll
+  }, [key]); // once per new phase, not on every poll
+  // A note (answers not saved, the battle ended) is said too, in the same live line, after the phase's own words.
   useEffect(() => {
-    if (!question) return;
-    const level = warningFor(left);
-    if (warned.current.round !== question.round) warned.current = { round: question.round, level: null };
-    if (level !== null && level !== warned.current.level && left > 0) {
-      warned.current.level = level;
-      setSaid(`${level} seconds left.`);
-    }
-  }, [question, left]);
-  const myChoice = question?.myChoice ?? null;
-  useEffect(() => {
-    if (myChoice) setSaid(`${lockedText(myChoice)}.`);
-  }, [myChoice]);
+    if (note) setSaid(note);
+  }, [note]);
 
-  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (!question || question.myChoice || busy || event.altKey || event.ctrlKey || event.metaKey) return;
-    const target = event.target as HTMLElement;
-    if (target.closest("input, textarea, select, [contenteditable='true']")) return;
-    const choice = shortcutChoice(event.key, question.options);
-    if (!choice) return;
-    event.preventDefault();
-    onAnswer(question.round, choice);
-  };
-
-  // The answer shortcuts work while focus is anywhere in the battle (its buttons are what take focus).
-  return (
-    <section aria-labelledby={headingId} onKeyDown={onKeyDown} className="flex flex-col gap-4">
-      <p role="status" className="sr-only">
-        {said}
-      </p>
-      <BackButton onClose={onClose} />
-      <header>
-        <h3 id={headingId} ref={title} tabIndex={-1} className="focus-ring rounded-md text-lg font-semibold text-foreground">
-          Battle with <bdi dir="auto">{them}</bdi>
-        </h3>
-        <p className="text-sm text-text-secondary">{battleMeta(battle)}</p>
-      </header>
-      {(phase.kind === "question" || phase.kind === "reveal") && <Scoreboard battle={battle} />}
-      <Body
-        battle={battle}
-        phase={phase}
-        offset={offset}
-        now={now}
-        left={left}
-        busy={busy}
-        focusTarget={focusTarget}
-        onMove={onMove}
-        onAnswer={onAnswer}
-        onRematch={onRematch}
-      />
-      {note && <p className="text-sm text-destructive">{note}</p>}
-    </section>
+  const live = (
+    <p role="status" className="sr-only">
+      {said}
+    </p>
   );
+  // One root for every phase, so the one live region stays mounted across phase changes (a fresh region isn't read).
+  return (
+    <div className="flex flex-col gap-4">
+      {live}
+      <BackButton onClose={onClose} />
+      {phase.kind === "exam" ? (
+        <ExamView
+          battle={battle}
+          exam={phase.exam}
+          store={store ?? examStore(battle.battleId)}
+          offset={offset}
+          now={now}
+          busy={busy}
+          said={said}
+          say={setSaid}
+          headingRef={focusTarget}
+          titleId={headingId}
+          onSubmit={onSubmit}
+          onServerChange={onServerChange}
+        />
+      ) : (
+        <section aria-labelledby={headingId} className="flex flex-col gap-4">
+          <header>
+            <h3 id={headingId} ref={title} tabIndex={-1} className="focus-ring rounded-md text-lg font-semibold text-foreground">
+              Battle with <bdi dir="auto">{nameOf(battle.opponent)}</bdi>
+            </h3>
+            <p className="text-sm text-text-secondary">{battleMeta(battle)}</p>
+            {(battle.repeatsFromPrevious ?? 0) > 0 && <p className="text-sm text-text-secondary">{repeatsText(battle.repeatsFromPrevious ?? 0)}</p>}
+          </header>
+          <Body battle={battle} phase={phase} offset={offset} now={now} busy={busy} focusTarget={focusTarget} onMove={onMove} onRematch={onRematch} />
+        </section>
+      )}
+      {note && <p className="text-sm text-destructive">{note}</p>}
+    </div>
+  );
+}
+
+export function repeatsText(count: number): string {
+  return count === 1 ? "1 question repeats from your last battle." : `${count} questions repeat from your last battle.`;
 }
 
 const PANEL = "rounded-2xl border border-border bg-card p-4 sm:p-6";
@@ -373,27 +435,26 @@ function Body({
   phase,
   offset,
   now,
-  left,
   busy,
   focusTarget,
   onMove,
-  onAnswer,
   onRematch,
 }: {
   battle: Battle;
   phase: Phase;
   offset: number;
   now: number;
-  left: number;
   busy: boolean;
   focusTarget: RefObject<HTMLHeadingElement | null>;
   onMove: (move: BattleMove) => void;
-  onAnswer: (round: number, choice: string) => void;
   onRematch?: () => void;
 }) {
   const them = <bdi dir="auto">{nameOf(battle.opponent)}</bdi>;
+  const exam = battle.format === "exam";
   const minutes = Math.max(1, Math.ceil(secondsLeft(battle.expiresAt, offset, now) / 60));
   const expires = battle.expiresAt ? ` It expires in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.` : "";
+  const what = exam ? `an exam battle of ${battle.length} questions (${battle.length} minutes)` : `a live battle of ${battle.length} questions`;
+  const how = exam && <HowItWorks length={battle.length} />;
   const move = (label: string, kind: BattleMove, primary = false) => (
     <Button type="button" variant={primary ? "default" : "outline"} className="min-h-11" disabled={busy} onClick={() => onMove(kind)}>
       {label}
@@ -404,8 +465,9 @@ function Body({
       return (
         <div className={PANEL}>
           <p className="text-sm text-foreground">
-            {them} challenged you to a live battle of {battle.length} questions.{expires} Accepting means you're ready to play now.
+            {them} challenged you to {what}.{expires} Accepting means you're ready to play now.
           </p>
+          {how}
           <div className="mt-4 flex flex-wrap gap-2">
             {move("Accept and play", "accept", true)}
             {move("Decline", "decline")}
@@ -418,6 +480,7 @@ function Body({
           <p className="text-sm text-foreground">
             Waiting for {them} to accept.{expires}
           </p>
+          {how}
           <div className="mt-4 flex flex-wrap gap-2">{move("Cancel challenge", "cancel")}</div>
         </div>
       );
@@ -425,8 +488,9 @@ function Body({
       return (
         <div className={PANEL}>
           <p className="text-sm text-foreground">
-            {them} accepted. Press Ready to start: a 3-second countdown, then the first question.{expires}
+            {them} accepted. Press Ready to start: a 3-second countdown, then the {exam ? "exam" : "first question"}.{expires}
           </p>
+          {how}
           <div className="mt-4 flex flex-wrap gap-2">
             {move("Ready", "ready", true)}
             {move("Cancel", "cancel")}
@@ -439,6 +503,7 @@ function Body({
           <p className="text-sm text-foreground">
             You're in. Waiting for {them} to start the battle.{expires}
           </p>
+          {how}
         </div>
       );
     case "countdown":
@@ -450,27 +515,10 @@ function Body({
           </p>
         </div>
       );
-    case "question":
-      return (
-        <QuestionPanel
-          question={phase.question}
-          length={battle.length}
-          offset={offset}
-          now={now}
-          left={left}
-          busy={busy}
-          headingRef={focusTarget}
-          onAnswer={onAnswer}
-        />
-      );
-    case "reveal":
-      return (
-        <div className={PANEL}>
-          <h4 className="text-base font-semibold text-foreground">Round {phase.round.round} closed</h4>
-          <p className="mt-1 text-sm text-foreground">{revealText(phase.round, nameOf(battle.opponent))}</p>
-          <p className="mt-2 text-xs text-text-secondary">The next question opens in a moment.</p>
-        </div>
-      );
+    case "exam":
+      return null; // BattleScreen draws the running exam itself
+    case "submitted":
+      return <WaitingPanel battle={battle} exam={phase.exam} offset={offset} now={now} headingRef={focusTarget} />;
     case "result":
       return <ResultPanel battle={battle} headingRef={focusTarget} busy={busy} onRematch={onRematch} />;
     case "ended": {
@@ -485,19 +533,6 @@ function Body({
       );
     }
   }
-}
-
-function Scoreboard({ battle }: { battle: Battle }) {
-  return (
-    <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground">
-      <span>
-        You <span className="font-semibold tabular-nums">{battle.me.score}</span>
-      </span>
-      <span>
-        <bdi dir="auto">{nameOf(battle.opponent)}</bdi> <span className="font-semibold tabular-nums">{battle.opponent.score}</span>
-      </span>
-    </p>
-  );
 }
 
 export function QuestionPanel({
@@ -600,6 +635,26 @@ export function QuestionPanel({
   );
 }
 
+/** The scores table's rows: an exam's marks (+4/−1), or a round battle's points (history). */
+function scoreRows(battle: Battle): (readonly [string, string, string])[] {
+  const { me, opponent } = battle;
+  if (battle.format !== "exam")
+    return [
+      ["Score", String(me.score), String(opponent.score)],
+      ["Correct", `${me.correct} of ${me.answered}`, `${opponent.correct} of ${opponent.answered}`],
+      ["Accuracy", accuracy(me), accuracy(opponent)],
+    ];
+  const counted = countedQuestions(battle);
+  return [
+    ["Marks", marksText(me.score), marksText(opponent.score)],
+    ["Correct", String(me.correct), String(opponent.correct)],
+    ["Incorrect", String(me.answered - me.correct), String(opponent.answered - opponent.correct)],
+    ["Unanswered", String(Math.max(0, counted - me.answered)), String(Math.max(0, counted - opponent.answered))],
+    ["Accuracy", accuracy(me), accuracy(opponent)],
+    ["Time taken", timeTakenText(me, battle), timeTakenText(opponent, battle)],
+  ];
+}
+
 function ResultPanel({
   battle,
   headingRef,
@@ -636,13 +691,7 @@ function ResultPanel({
             </tr>
           </thead>
           <tbody className="tabular-nums">
-            {(
-              [
-                ["Score", String(battle.me.score), String(battle.opponent.score)],
-                ["Correct", `${battle.me.correct} of ${battle.me.answered}`, `${battle.opponent.correct} of ${battle.opponent.answered}`],
-                ["Accuracy", accuracy(battle.me), accuracy(battle.opponent)],
-              ] as const
-            ).map(([label, mine, theirs]) => (
+            {scoreRows(battle).map(([label, mine, theirs]) => (
               <tr key={label} className="border-b border-border last:border-0">
                 <th scope="row" className="py-2 font-normal text-text-secondary">
                   {label}
@@ -653,6 +702,7 @@ function ResultPanel({
             ))}
           </tbody>
         </table>
+        {battle.format === "exam" && battle.xp && <XpLines lines={battle.xp} />}
         {onRematch && canRematch(battle.status, battle.result) && (
           <div className="mt-4">
             <Button type="button" className="min-h-11" disabled={busy} onClick={onRematch}>
@@ -663,58 +713,117 @@ function ResultPanel({
           </div>
         )}
       </div>
-      {battle.review && battle.review.length > 0 && <Review items={battle.review} them={them} />}
+      {battle.review && battle.review.length > 0 && <Review items={battle.review} them={them} exam={battle.format === "exam"} />}
     </div>
   );
 }
 
-function Review({ items, them }: { items: BattleReview[]; them: string }) {
+function XpLines({ lines }: { lines: NonNullable<Battle["xp"]> }) {
+  const total = lines.reduce((sum, line) => sum + line.amount, 0);
+  return (
+    <div className="mt-4">
+      <h5 className="text-sm font-semibold text-foreground">Your XP</h5>
+      {lines.length > 0 ? (
+        <ul className="mt-1 flex flex-col gap-0.5 text-sm text-foreground">
+          {lines.map((line) => (
+            <li key={line.reason} className="flex gap-2 tabular-nums">
+              <span className="min-w-0 flex-1">{xpLabel(line.reason)}</span>
+              <span>+{line.amount}</span>
+            </li>
+          ))}
+          <li className="flex gap-2 border-t border-border pt-1 font-semibold tabular-nums">
+            <span className="min-w-0 flex-1">Total</span>
+            <span>+{total} XP</span>
+          </li>
+        </ul>
+      ) : (
+        <>
+          <p className="mt-1 text-sm text-foreground">No XP for this battle.</p>
+          <p className="mt-1 text-xs text-text-secondary">{XP_RULE}</p>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** One player's pick in the review, as an icon and words (never colour alone). */
+function PickLine({ who, choice, correctKey }: { who: ReactNode; choice: string | null; correctKey: string | null }) {
+  const right = choice !== null && choice === correctKey;
+  const Icon = choice === null ? SkipForward : right ? CircleCheck : CircleX;
+  return (
+    <p className="flex items-start gap-1.5 text-sm text-foreground">
+      <Icon aria-hidden className={cn("mt-0.5 h-4 w-4 shrink-0", choice === null ? "text-text-secondary" : right ? "text-success" : "text-destructive")} />
+      <span className="min-w-0 flex-1">
+        {who}: {choice === null ? "not answered" : `${choice}, ${right ? "correct" : "incorrect"}`}
+      </span>
+    </p>
+  );
+}
+
+function Review({ items, them, exam }: { items: BattleReview[]; them: string; exam: boolean }) {
   return (
     <section aria-label="Review" className="flex flex-col gap-3">
       <h4 className="text-base font-semibold text-foreground">Review</h4>
       <ol className="flex flex-col gap-3">
-        {items.map((item) => (
-          <li key={item.round} className={PANEL}>
-            <p className="text-xs font-semibold text-text-secondary">Question {item.round}</p>
-            <p dir="auto" className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">
-              {item.stem}
-            </p>
-            {item.voided && <p className="mt-2 text-sm font-semibold text-foreground">Question withdrawn: no points.</p>}
-            <ul className="mt-3 flex flex-col gap-1.5">
-              {item.options.map((option) => {
-                const marks = [
-                  option.key === item.correctKey ? "Correct answer" : null,
-                  option.key === item.myChoice ? "You" : null,
-                  option.key === item.theirChoice ? them : null,
-                ].filter(Boolean);
-                return (
-                  <li
-                    key={option.key}
-                    className={cn(
-                      "flex flex-wrap items-start gap-2 rounded-lg border px-3 py-2 text-sm",
-                      option.key === item.correctKey ? "border-success/40 bg-success-soft" : "border-border",
-                    )}
-                  >
-                    <span className="font-semibold">{option.key}.</span>
-                    <span dir="auto" className="min-w-0 flex-1 break-words">
-                      {option.text}
-                    </span>
-                    {marks.length > 0 && (
-                      <span className="flex items-center gap-1 text-xs font-semibold">
-                        {option.key === item.correctKey && <Check aria-hidden className="h-3.5 w-3.5" />}
-                        <bdi dir="auto">{marks.join(" · ")}</bdi>
+        {items.map((item) =>
+          exam && item.voided ? (
+            <li key={item.round} className={PANEL}>
+              <p className="text-xs font-semibold text-text-secondary">Question {item.round}</p>
+              <p className="mt-1 text-sm text-foreground">Changed or withdrawn after the exam started: not scored.</p>
+            </li>
+          ) : (
+            <li key={item.round} className={PANEL}>
+              <p className="text-xs font-semibold text-text-secondary">Question {item.round}</p>
+              {item.stem && (
+                <p dir="auto" className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">
+                  {item.stem}
+                </p>
+              )}
+              {item.voided && <p className="mt-2 text-sm font-semibold text-foreground">Question withdrawn: no points.</p>}
+              <ul className="mt-3 flex flex-col gap-1.5">
+                {item.options.map((option) => {
+                  const marks = [
+                    option.key === item.correctKey ? "Correct answer" : null,
+                    option.key === item.myChoice ? "You" : null,
+                    option.key === item.theirChoice ? them : null,
+                  ].filter(Boolean);
+                  return (
+                    <li
+                      key={option.key}
+                      className={cn(
+                        "flex flex-wrap items-start gap-2 rounded-lg border px-3 py-2 text-sm",
+                        option.key === item.correctKey ? "border-success/40 bg-success-soft" : "border-border",
+                      )}
+                    >
+                      <span className="font-semibold">{option.key}.</span>
+                      <span dir="auto" className="min-w-0 flex-1 break-words">
+                        {option.text}
                       </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 text-sm text-foreground">
-              <span className="font-semibold">Why: </span>
-              <span dir="auto">{item.explanation}</span>
-            </p>
-          </li>
-        ))}
+                      {marks.length > 0 && (
+                        <span className="flex items-center gap-1 text-xs font-semibold">
+                          {option.key === item.correctKey && <Check aria-hidden className="h-3.5 w-3.5" />}
+                          <bdi dir="auto">{marks.join(" · ")}</bdi>
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              {exam && (
+                <div className="mt-3 flex flex-col gap-1">
+                  <PickLine who="You" choice={item.myChoice} correctKey={item.correctKey} />
+                  <PickLine who={<bdi dir="auto">{them}</bdi>} choice={item.theirChoice} correctKey={item.correctKey} />
+                </div>
+              )}
+              {item.explanation && (
+                <p className="mt-3 text-sm text-foreground">
+                  <span className="font-semibold">Why: </span>
+                  <span dir="auto">{item.explanation}</span>
+                </p>
+              )}
+            </li>
+          ),
+        )}
       </ol>
     </section>
   );

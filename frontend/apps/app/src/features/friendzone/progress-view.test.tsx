@@ -101,7 +101,7 @@ function finished(result: Battle["result"]): Battle {
   };
 }
 const result = (b: Battle) =>
-  renderToStaticMarkup(<BattleScreen battle={b} offset={0} now={T0} busy={false} note={null} onClose={noop} onMove={noop} onAnswer={noop} onRematch={noop} />);
+  renderToStaticMarkup(<BattleScreen battle={b} offset={0} now={T0} busy={false} note={null} onClose={noop} onMove={noop} onRematch={noop} />);
 
 describe("rematch", () => {
   test("offered after points, a draw or a forfeit; never after a void battle", () => {

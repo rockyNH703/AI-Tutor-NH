@@ -29,15 +29,6 @@ const OPTIONS = [
   { key: "C", text: "RIP" },
   { key: "D", text: "EIGRP" },
 ];
-const QUESTION = {
-  round: 2,
-  stem: "Which protocol runs between autonomous systems?",
-  options: OPTIONS,
-  seconds: 30,
-  opensAt: at(-10_000),
-  closesAt: at(20_000),
-  myChoice: null,
-};
 
 function battle(patch: Partial<Battle>): Battle {
   return {
@@ -66,7 +57,7 @@ function battle(patch: Partial<Battle>): Battle {
 }
 
 function screen(b: Battle, now = T0): string {
-  return renderToStaticMarkup(<BattleScreen battle={b} offset={0} now={now} busy={false} note={null} onClose={noop} onMove={noop} onAnswer={noop} />);
+  return renderToStaticMarkup(<BattleScreen battle={b} offset={0} now={now} busy={false} note={null} onClose={noop} onMove={noop} />);
 }
 function text(html: string): string {
   return html
@@ -102,59 +93,8 @@ describe("before the start", () => {
   });
 
   test("the countdown shows 3-2-1 from the server's start time", () => {
-    expect(text(screen(battle({ startsAt: at(2500) })))).toContain("Get ready 3");
-    expect(text(screen(battle({ startsAt: at(400) })))).toContain("Get ready 1");
-  });
-});
-
-describe("a round", () => {
-  test("open: the question, its time, every option a 44 px button with its key, and the shortcuts' help", () => {
-    const html = screen(battle({ question: QUESTION }));
-    const shown = text(html);
-    expect(shown).toContain("Question 2 of 5");
-    expect(shown).toContain("20 s");
-    expect(html).toContain('tabindex="-1"'); // the question heading takes focus at the round's start
-    expect(html.match(/aria-pressed="false"/g)?.length).toBe(4);
-    expect(html.match(/min-h-11 w-full/g)?.length).toBe(4);
-    expect(shown).toContain("One tap is final.");
-    expect(shown).toContain("press 1–4 or A–D to answer while focus is in the battle");
-    expect(html).toContain("motion-reduce:hidden"); // the bar is not drawn under the device's reduced motion (the app's: a hook)
-  });
-
-  test("10 seconds or less: the words and an icon, never colour alone", () => {
-    const html = screen(battle({ question: { ...QUESTION, closesAt: at(9200) } }));
-    expect(text(html)).toContain("10 seconds left");
-    expect(html).toContain("lucide-alarm-clock");
-  });
-
-  test("locked: the pick is marked in words, and every option stops answering", () => {
-    const html = screen(battle({ question: { ...QUESTION, myChoice: "B" } }));
-    expect(text(html)).toContain("Your answer");
-    expect(text(html)).toContain("Answer locked: B. The answer shows when the round closes.");
-    expect(html.match(/aria-disabled="true"/g)?.length).toBe(4);
-    expect(html).toMatch(/aria-pressed="true"[^>]*>[\s\S]*?BGP/);
-  });
-
-  test("secrecy: nothing shows which option is correct while the round is open", () => {
-    for (const myChoice of [null, "B"]) {
-      const shown = text(screen(battle({ question: { ...QUESTION, myChoice }, rounds: [] })));
-      expect(shown).not.toMatch(/correct/i);
-      expect(shown).not.toContain("Why");
-    }
-  });
-
-  test("the reveal: the key, both picks and the points; a withdrawn question scores nothing", () => {
-    const reveal = screen(
-      battle({
-        roundsClosed: 1,
-        rounds: [{ round: 1, voided: false, correctKey: "B", myChoice: "B", theirChoice: "A", myPoints: 128, theirPoints: 0 }],
-        me: player({ role: "challenger", displayName: "Asha", score: 128 }),
-      }),
-    );
-    expect(text(reveal)).toContain("Round 1 closed Correct answer: B. You chose B, 128 points. ریحان Rehan chose A, 0 points.");
-    expect(text(reveal)).toContain("You 128");
-    const voided = screen(battle({ roundsClosed: 1, rounds: [{ round: 1, voided: true, correctKey: "B", myChoice: "B", theirChoice: null, myPoints: 0, theirPoints: 0 }] }));
-    expect(text(voided)).toContain("Question withdrawn: no points.");
+    expect(text(screen(battle({ format: "exam", startsAt: at(2500) })))).toContain("Get ready 3");
+    expect(text(screen(battle({ format: "exam", startsAt: at(400) })))).toContain("Get ready 1");
   });
 });
 
@@ -207,7 +147,6 @@ describe("the end", () => {
   test("no state uses school words or shows an email or an id", () => {
     const states = [
       battle({ status: "invited", ...opponentSide }),
-      battle({ question: QUESTION }),
       battle({ status: "completed", result: "points", review }),
       battle({ status: "expired" }),
     ];
@@ -239,7 +178,7 @@ describe("the list and the challenge", () => {
     expect(text(html)).toContain("Challenged you · Month 2 · 10 questions");
   });
 
-  test("the challenge form: month, optional topic, difficulty Mixed and length 5 picked first", () => {
+  test("the challenge form: month, optional topic, difficulty Mixed and 10 questions picked first, each length with its time", () => {
     const program = {
       slug: "ccna",
       title: "CCNA",
@@ -259,7 +198,9 @@ describe("the list and the challenge", () => {
     expect(html).toMatch(/<option value="2" selected="">/);
     expect(shown).toContain("Loading topics…");
     expect(html).toMatch(/checked="" value="mixed"/);
-    expect(html).toMatch(/checked="" value="5"/);
+    expect(html).toMatch(/checked="" value="10"/);
+    for (const length of [10, 20, 30]) expect(shown).toContain(`${length} questions · ${length} min`);
+    expect(shown).not.toContain("5 questions ·");
     expect(html).not.toContain("min-h-10"); // every pill is a 44 px target
     expect(buttons(html)).toEqual(["Cancel", "Send challenge"]);
   });

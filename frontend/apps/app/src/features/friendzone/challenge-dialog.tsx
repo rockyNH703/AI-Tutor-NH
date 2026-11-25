@@ -14,7 +14,8 @@ import type { FriendZonePlayer } from "./api";
 import { PlayerName } from "./player";
 
 const DIFFICULTIES = CONTRACT.FriendZoneCreateBattleRequest.difficulty.enum.map((value) => ({ value, label: DIFFICULTY[value] }));
-const LENGTHS = CONTRACT.FriendZoneCreateBattleRequest.length.enum.map((value) => ({ value: String(value), label: `${value} questions` }));
+// One minute per question (D4): the length is also the exam's time.
+const LENGTHS = CONTRACT.FriendZoneCreateBattleRequest.length.enum.map((value) => ({ value: String(value), label: `${value} questions · ${value} min` }));
 const SELECT =
   "focus-field h-11 w-full rounded-xl border border-input bg-card px-3 text-base text-foreground disabled:cursor-not-allowed disabled:bg-surface-2 sm:h-10 sm:text-sm";
 
@@ -69,7 +70,7 @@ export function ChallengeForm({
   const [topicId, setTopicId] = useState("");
   const [topics, setTopics] = useState<BankTopic[] | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("mixed");
-  const [length, setLength] = useState<BattleLength>(5);
+  const [length, setLength] = useState<BattleLength>(10);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -114,8 +115,8 @@ export function ChallengeForm({
       <DialogHeader>
         <DialogTitle>Challenge a friend</DialogTitle>
         <DialogDescription>
-          A live battle with <PlayerName name={friend.displayName} /> on {program.title}: the same questions at the same time. They have 10 minutes
-          to accept.
+          An exam battle with <PlayerName name={friend.displayName} /> on {program.title}: the same questions for both of you, one minute
+          each on one shared timer. They have 10 minutes to accept.
         </DialogDescription>
       </DialogHeader>
       <div className="flex flex-col gap-1.5">

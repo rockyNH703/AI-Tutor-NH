@@ -4,6 +4,7 @@ import { cn } from "@v1/ui/utils";
 import { useSearchParams } from "next/navigation";
 import { type ReactNode, type Ref, useCallback, useEffect, useRef, useState } from "react";
 
+import { navigationGuard } from "@/features/navigation/navigation-guard";
 import { type FriendZoneMe, getFriendZoneMe } from "./api";
 import { keepOnFailure, sequence } from "./latest";
 import { FriendZoneHub } from "./friend-zone-hub";
@@ -42,9 +43,14 @@ export function QuizzesSwitch({ program, practice }: { program: Program; practic
     setPulse((count) => count + 1);
   });
   const replace = (search: string) => window.history.replaceState(null, "", search || window.location.pathname);
-  const pick = (next: QuizzesView) => replace(searchForView(window.location.search, next));
+  const pick = (next: QuizzesView) => {
+    // Practice closes an open battle: while an exam answer isn't saved yet, ask first (the one navigation guard).
+    if (next === "practice" && !navigationGuard.confirmLeave()) return false;
+    replace(searchForView(window.location.search, next));
+    return true;
+  };
   const toPractice = () => {
-    pick("practice");
+    if (!pick("practice")) return;
     practiceButton.current?.focus(); // the button that was used goes away with the Friend Zone side
   };
   return (

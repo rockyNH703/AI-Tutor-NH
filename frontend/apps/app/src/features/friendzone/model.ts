@@ -70,6 +70,7 @@ export function searchForView(search: string, view: QuizzesView): string {
   else {
     params.delete(VIEW_PARAM);
     params.delete(BATTLE_PARAM);
+    params.delete(QUESTION_PARAM);
   }
   const query = params.toString();
   return query ? `?${query}` : "";
@@ -77,6 +78,8 @@ export function searchForView(search: string, view: QuizzesView): string {
 
 /** The battle on screen is `?battle=<id>` (notifications link there too); anything but an id is none. */
 export const BATTLE_PARAM = "battle";
+/** A running exam's current question, `&q=<n>` (exam-view.tsx), dropped with the battle. */
+export const QUESTION_PARAM = "q";
 
 export function battleFromParam(value: string | null): string | null {
   return value && isUuid(value) ? value : null;
@@ -89,6 +92,16 @@ export function searchForBattle(search: string, battleId: string | null): string
     params.set(VIEW_PARAM, FRIEND_ZONE_VALUE);
     params.set(BATTLE_PARAM, battleId);
   } else params.delete(BATTLE_PARAM);
+  params.delete(QUESTION_PARAM); // the question belongs to the battle that was open
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+/** The address with the exam's current question, keeping everything else. */
+export function searchForQuestion(search: string, round: number | null): string {
+  const params = new URLSearchParams(search);
+  if (round === null) params.delete(QUESTION_PARAM);
+  else params.set(QUESTION_PARAM, String(round));
   const query = params.toString();
   return query ? `?${query}` : "";
 }

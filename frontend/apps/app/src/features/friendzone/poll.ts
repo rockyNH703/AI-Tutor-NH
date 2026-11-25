@@ -17,6 +17,9 @@ export const POLL = {
   margin: 50,
   /** Never sooner than this. */
   floor: 100,
+  /** A running exam: read this often (the opponent's Submitted), and once just after the cutoff. */
+  exam: 10_000,
+  examMargin: 100,
 } as const;
 
 const TERMINAL: ReadonlySet<BattleStatus> = new Set(["completed", "declined", "expired", "cancelled"]);
@@ -40,9 +43,23 @@ export function nextPollDelay(battle: Battle, { offset, localNow, hidden, failur
   const until = msUntil(battle.nextChangeAt, offset, localNow);
   // The regular interval, or exactly at the next change if that comes first.
   const capped = (interval: number) => (until === null ? interval : Math.max(POLL.floor, Math.min(interval, until + POLL.margin)));
+  if (battle.format === "exam" && battle.status === "active" && battle.exam) return examDelay(battle.exam, offset, localNow);
   if (battle.status === "invited") return capped(POLL.invited);
   if (battle.status === "waiting") return capped(POLL.waiting);
   if (battle.question) return capped(POLL.roundOpen);
   // The countdown or a reveal: nothing changes until the next round opens (or the battle ends).
   return until === null ? POLL.roundOpen : Math.max(POLL.floor, until + POLL.margin);
+}
+
+/**
+ * A running exam (plan section 6, Polling): every 10 s (the waiting screen: the waiting cadence), and once at the
+ * cutoff + 100 ms, when a read completes it. Past the cutoff and still open (the server's clock is behind ours):
+ * every second, never a 100 ms storm.
+ */
+function examDelay(exam: NonNullable<Battle["exam"]>, offset: number, localNow: number): number {
+  const interval = exam.submittedAt ? POLL.waiting : POLL.exam;
+  const until = msUntil(exam.cutoffAt, offset, localNow);
+  if (until === null) return interval;
+  if (until + POLL.examMargin <= 0) return POLL.roundOpen;
+  return Math.max(POLL.floor, Math.min(interval, until + POLL.examMargin));
 }
