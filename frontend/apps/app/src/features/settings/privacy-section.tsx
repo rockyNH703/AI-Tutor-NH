@@ -20,7 +20,7 @@ import { PASSWORD_MAX, PASSWORD_MIN, type SessionInfo } from "@/lib/api/types";
 import { cacheAttributes } from "@/lib/appearance";
 import { authClient } from "@/lib/auth/client";
 import { relativeTime, shortDate } from "@/lib/time";
-import { Field, SectionHeading, SettingsCard } from "./primitives";
+import { Disclosure, Field, SectionHeading, SettingsCard } from "./primitives";
 import type { SectionProps } from "./section-view";
 import { useUnsavedChanges } from "./use-unsaved-changes";
 
@@ -319,14 +319,47 @@ function DevicesCard() {
     }
   };
 
-  const others = sessions?.filter((session) => !session.current).length ?? 0;
+  const current = sessions?.find((session) => session.current) ?? null;
+  const others = sessions?.filter((session) => !session.current) ?? [];
 
+  const row = (session: SessionInfo) => (
+    <li key={session.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
+      <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-text-secondary">
+        <Laptop className="h-4 w-4" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-foreground">
+          {session.device}
+          {session.current && <Badge variant="brand">This device</Badge>}
+        </p>
+        <p className="text-xs text-text-secondary">
+          {session.current ? "Active now" : `Active ${relativeTime(session.lastSeenAt)}`}
+          {session.ipMasked && ` · ${session.ipMasked}`}
+        </p>
+      </div>
+      {!session.current && (
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={() => signOut(session)}
+          disabled={busy !== null}
+          aria-label={`Sign out ${session.device}, active ${relativeTime(session.lastSeenAt)}`}
+        >
+          {busy === session.id ? "Signing out…" : "Sign out"}
+        </Button>
+      )}
+    </li>
+  );
+
+  // The same height loading and loaded, however many devices there are (no layout shift): this device's row, then
+  // one line for the others, which open on request.
   return (
     <SettingsCard
       title="Signed-in devices"
       description="Only the network is shown, never your full address."
       footer={
-        <Button type="button" size="sm" variant="outline" onClick={signOutOthers} disabled={busy !== null || others === 0}>
+        <Button type="button" size="sm" variant="outline" onClick={signOutOthers} disabled={busy !== null || others.length === 0}>
           {busy === "others" ? "Signing out…" : "Sign out other devices"}
         </Button>
       }
@@ -343,52 +376,43 @@ function DevicesCard() {
           </button>
         </div>
       ) : sessions === null ? (
-        // One row, as tall as a real one: this device is always in the list.
-        <SkeletonGroup label="Loading devices" className="flex items-center gap-3">
-          <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
-          <div className="flex flex-1 flex-col gap-1.5">
-            <Skeleton className="h-4 w-32 rounded-md" />
-            <Skeleton className="h-3 w-24 rounded-md" />
+        <SkeletonGroup label="Loading devices" className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
+            <div className="flex flex-1 flex-col gap-1.5">
+              <Skeleton className="h-4 w-32 rounded-md" />
+              <Skeleton className="h-3 w-24 rounded-md" />
+            </div>
+          </div>
+          <div className="flex min-h-10 items-center">
+            <Skeleton className="h-4 w-40 rounded-md" />
           </div>
         </SkeletonGroup>
       ) : (
-        <ul className="divide-y divide-border">
-          {sessions.map((session) => (
-            <li key={session.id} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
-              <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-text-secondary">
-                <Laptop className="h-4 w-4" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="flex flex-wrap items-center gap-2 text-sm font-bold text-foreground">
-                  {session.device}
-                  {session.current && <Badge variant="brand">This device</Badge>}
-                </p>
-                <p className="text-xs text-text-secondary">
-                  {session.current ? "Active now" : `Active ${relativeTime(session.lastSeenAt)}`}
-                  {session.ipMasked && ` · ${session.ipMasked}`}
-                </p>
-              </div>
-              {!session.current && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => signOut(session)}
-                  disabled={busy !== null}
-                  aria-label={`Sign out ${session.device}, active ${relativeTime(session.lastSeenAt)}`}
-                >
-                  {busy === session.id ? "Signing out…" : "Sign out"}
-                </Button>
-              )}
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-3">
+          {current ? (
+            <ul className="divide-y divide-border">{row(current)}</ul>
+          ) : (
+            <p className="flex min-h-9 items-center text-sm text-text-secondary">This device isn't in the list.</p>
+          )}
+          {others.length === 0 ? (
+            <p className="flex min-h-10 items-center text-sm text-text-secondary">No other devices.</p>
+          ) : (
+            <Disclosure
+              label={`Show ${others.length} other ${others.length === 1 ? "device" : "devices"}`}
+              openLabel="Hide other devices"
+            >
+              <ul aria-label="Other devices" className="divide-y divide-border">
+                {others.map(row)}
+              </ul>
+            </Disclosure>
+          )}
+        </div>
       )}
     </SettingsCard>
   );
 }
 
-/** `accountId` undefined: still loading; null: not connected. */
 function GoogleCard({ accountId, onChange }: { accountId: string | null | undefined; onChange: () => Promise<void> }) {
   const connected = accountId != null;
   const [pending, setPending] = useState(false);

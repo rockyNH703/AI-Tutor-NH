@@ -45,6 +45,7 @@ async function secondDevice(browser: Browser, account: { email: string; password
 }
 
 test("the sections: one address each, one heading each, accessible, no sideways scroll", async ({ page, account: _ }) => {
+  test.setTimeout(120_000); // fourteen sections, each with an accessibility scan
   await page.goto("/settings");
   await expect(page).toHaveURL("/settings/profile");
   for (const [slug, heading] of [
@@ -76,18 +77,18 @@ test("the sections: one address each, one heading each, accessible, no sideways 
 
 test("profile: name and time zone persist, on this device and another", async ({ page, browser, account }) => {
   await page.goto("/settings/profile");
-  await page.getByLabel("Display name").fill("Asha Settings");
+  await page.getByRole("textbox", { name: "Display name" }).fill("Asha Settings");
   await page.getByLabel("Time zone").selectOption("Asia/Kolkata");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Profile saved.")).toBeVisible();
 
   await page.reload();
-  await expect(page.getByLabel("Display name")).toHaveValue("Asha Settings");
+  await expect(page.getByRole("textbox", { name: "Display name" })).toHaveValue("Asha Settings");
   await expect(page.getByLabel("Time zone")).toHaveValue("Asia/Kolkata");
 
   const other = await secondDevice(browser, account);
   await other.goto("/settings/profile");
-  await expect(other.getByLabel("Display name")).toHaveValue("Asha Settings");
+  await expect(other.getByRole("textbox", { name: "Display name" })).toHaveValue("Asha Settings");
   await other.context().close();
 });
 
@@ -181,12 +182,16 @@ test("email: changed only after the code from the new address", async ({ page, a
 test("devices: another device is listed and can be signed out on its own", async ({ page, browser, account }) => {
   const other = await secondDevice(browser, account);
   await page.goto("/settings/privacy");
-  const row = page.getByRole("listitem").filter({ hasText: "Firefox on Linux" });
+  // This device is shown; the others open on request (the card keeps one height, so the page never shifts).
+  await expect(page.getByRole("listitem").filter({ hasText: "This device" })).toBeVisible();
+  await page.getByRole("button", { name: "Show 1 other device" }).click();
+  const row = page.getByRole("list", { name: "Other devices" }).getByRole("listitem").filter({ hasText: "Firefox on Linux" });
   await expect(row).toBeVisible();
   await expect(page.getByRole("listitem").filter({ hasText: "This device" })).toBeVisible();
   await row.getByRole("button", { name: /^Sign out Firefox on Linux/ }).click();
   await expect(page.getByText("Signed out Firefox on Linux.")).toBeVisible();
   await expect(row).toHaveCount(0);
+  await expect(page.getByText("No other devices.")).toBeVisible();
   expect((await other.request.get("/api/v1/me")).status()).toBe(401);
   expect((await page.request.get(`${APP_URL}/api/v1/me`)).status()).toBe(200);
   await other.context().close();
