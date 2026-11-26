@@ -11,9 +11,18 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.assessments.state import SUMMARY_MAX
 from app.auth.emails import MemoryEmailSender
-from app.chat.assistant import INTERACTIVE_BLOCKS, SYSTEM_PROMPT, resolve_assistant_config, system_prompt_for
+from app.chat.assistant import (
+    BANK_BLOCKS,
+    INTERACTIVE_BLOCKS,
+    SYSTEM_PROMPT,
+    TEACHER_PROMPT,
+    resolve_assistant_config,
+    system_prompt_for,
+)
+from app.chat.platform import PLATFORM_MAX_CHARS
 from app.chat.teaching import TEACHING_POLICY
 from app.db.models import MAIN_GOALS, PREFERENCE_CHOICES
+from app.intents import scope
 from app.learning import catalog, tutor
 from app.learning.context import PracticeProgress, StudentContext, SubjectChoice, TutorProgress, build_context
 from app.learning.schemas import FOCUS_AREAS_MAX, PLATFORMS_MAX, LearningPreferencesSet
@@ -31,20 +40,36 @@ from app.learning.tutor import (
 )
 from app.main import create_app
 from app.progress import activity
-from app.rag.context import CONTEXT_HEADER
+from app.rag.context import CONTEXT_HEADER, MEMORY_HEADER
 from tests.conftest import make_settings, register, stream_chat
 
 FIXTURES = Path(__file__).parent / "fixtures"
 LEGACY_MESSAGES = json.loads((FIXTURES / "legacy_llm_messages.json").read_bytes().decode("utf-8"))
 
-# The preferences that shape an answer; the other eight stay stored and add nothing.
-ANSWER_PREFERENCES = {
-    "language",
-    "explanation_level",
-    "response_length",
-    "answer_mode",
-    "step_by_step",
-    "visual_explanations",
+# Every stored preference shapes an answer (session 62): each non-auto choice adds one sentence.
+ANSWER_PREFERENCES = set(PREFERENCE_CHOICES)
+# What each choice must tell the model (the plan's required meanings), as fragments of its sentence.
+MEANINGS = {
+    ("pace", "slow"): ("one idea at a time", "landed"),
+    ("pace", "steady"): ("one idea fully", "next"),
+    ("pace", "fast"): ("essentials", "likely knows"),
+    ("difficulty", "easy"): ("examples and practice problems", "introductory"),
+    ("difficulty", "medium"): ("examples and practice problems", "working"),
+    ("difficulty", "hard"): ("examples and practice problems", "advanced"),
+    ("real_world_examples", "more"): ("real networks",),
+    ("real_world_examples", "fewer"): ("real-world examples", "minimum"),
+    ("personality", "friendly"): ("warm", "casual", "humour"),
+    ("personality", "encouraging"): ("progress", "effort", "never empty praise"),
+    ("personality", "professional"): ("concise", "no humour or small talk"),
+    ("ask_before_answer", "on"): ("new topic", "one short question", "already knows", "incident", "directly"),
+    ("ask_before_answer", "off"): ("directly",),
+    ("practice_questions", "on"): ("one or two short practice questions", "after an explanation"),
+    ("practice_questions", "off"): ("no practice or check questions", "unless"),
+    ("mistake_correction", "gentle"): ("right first", "first mistake", "kindly"),
+    ("mistake_correction", "direct"): ("plainly", "wrong", "correct"),
+    ("highlight_key_concepts", "on"): ("bold", "key terms", "one-line takeaway"),
+    ("highlight_key_concepts", "off"): ("bold", "takeaway"),
+    ("visual_explanations", "more"): ("tables", "step lists", "diagrams"),
 }
 SCHOOL_WORDS = re.compile(
     r"\b(students?|homework|syllabus|ncert|cbse|icse|textbooks?|teachers?|chapters?|class \d{1,2})\b", re.IGNORECASE
@@ -150,12 +175,15 @@ def test_nothing_set_means_no_instructions():
     assert resolve_assistant_config(None, None, neutral).system_prompt == SYSTEM_PROMPT
 
 
-def test_the_retired_settings_add_nothing():
-    retired = {name: choices[-1] for name, choices in PREFERENCE_CHOICES.items() if name not in ANSWER_PREFERENCES}
-    assert len(retired) == 8
-    student = build_context(retired_school_settings(), [SubjectChoice("biology", True, True)], retired, None, {})
+def test_the_retired_school_settings_add_nothing_and_every_preference_adds_its_sentence():
+    student = build_context(retired_school_settings(), [SubjectChoice("biology", True, True)], {}, None, {})
     assert student.grade == "Class 12" and student.subjects  # still read (retrieval), never rendered
     assert build_tutor_instructions(student) == ""
+    every = {name: choices[-1] for name, choices in PREFERENCE_CHOICES.items()}
+    assert len(every) == 14
+    block = build_tutor_instructions(build_context(retired_school_settings(), [], every, None, {}))
+    # One sentence per preference, in PREFERENCE_CHOICES order, under the one heading.
+    assert block == "\n".join([TEACHING_HEADING, *(f"- {TEACHING_TEXT[name][value]}" for name, value in every.items())])
 
 
 async def test_a_user_whose_settings_are_all_neutral_gets_the_legacy_assistant(client, app, fake_llm, monkeypatch):
@@ -181,17 +209,39 @@ async def test_a_user_whose_settings_are_all_neutral_gets_the_legacy_assistant(c
 
 
 # ------------------------------------------------------------------ exact content
-def test_every_answer_preference_choice_has_exactly_one_sentence_and_the_rest_have_none():
-    assert set(TEACHING_TEXT) == ANSWER_PREFERENCES
+def test_every_preference_choice_has_exactly_one_sentence_and_auto_has_none():
+    assert set(TEACHING_TEXT) == ANSWER_PREFERENCES == set(PREFERENCE_CHOICES)
     for name, choices in PREFERENCE_CHOICES.items():
-        if name in TEACHING_TEXT:
-            assert set(TEACHING_TEXT[name]) == set(choices) - {"auto"}, name
+        assert set(TEACHING_TEXT[name]) == set(choices) - {"auto"}, name
         for value in choices:
             block = build_tutor_instructions(build_context({}, [], {name: value}))
-            if value == "auto" or name not in TEACHING_TEXT:
+            if value == "auto":
                 assert block == "", (name, value)
             else:
                 assert block == f"{TEACHING_HEADING}\n- {TEACHING_TEXT[name][value]}", (name, value)
+    # Every sentence is distinct (no choice silently means another) and says what its choice means.
+    sentences = [sentence for choices in TEACHING_TEXT.values() for sentence in choices.values()]
+    assert len(set(sentences)) == len(sentences)
+    for (name, value), fragments in MEANINGS.items():
+        sentence = TEACHING_TEXT[name][value].casefold()
+        for fragment in fragments:
+            assert fragment in sentence, (name, value, fragment)
+
+
+def test_the_heading_says_who_wins_and_that_safety_never_changes():
+    heading, explanation = TEACHING_HEADING.split("\n")
+    assert heading == "## How this user wants answers"
+    for claim in (
+        "the user's own choices",
+        "override the default style above",
+        "a request in the chat overrides them",
+        "never safety",
+        "impact, backout and authorisation notes",
+        "short answer",
+        "fix first in a live incident",
+    ):
+        assert claim in explanation, claim
+    assert "\n\n## " not in TEACHING_HEADING
 
 
 def test_a_full_profile_and_preferences_render_exactly():
@@ -209,13 +259,14 @@ def test_a_full_profile_and_preferences_render_exactly():
             "- Certification goal: CCNP Enterprise",
             "",
             "## How this user wants answers",
-            "These are the user's own preferences. Follow them unless the user asks for something different in "
-            "the conversation.",
+            "These are the user's own choices: they override the default style above, and a request in the chat "
+            "overrides them. They change style, never safety: keep impact, backout and authorisation notes even in "
+            "a short answer, and give the fix first in a live incident.",
             "- Reply in English unless the user asks for another language.",
             "- Go deep: protocol internals, packet-level behaviour, timers and defaults, and the reasoning behind "
             "each recommendation.",
-            "- Where it helps, use tables for comparisons and state summaries, and mermaid diagrams for topologies "
-            "and flows.",
+            "- Where it helps, use tables for comparisons, step lists for procedures and mermaid diagrams for "
+            "topologies and flows.",
             "- Keep answers complete but compact, without padding.",
             "- Lead with the commands or configuration, then explain them.",
             "- Give procedures as numbered steps, each with its exact command and how to check it worked.",
@@ -339,7 +390,10 @@ def test_the_worst_case_fits_the_cap_without_dropping_anything():
         "- Practice record",
     ):
         assert heading in block  # the cap is a backstop, not something the worst case reaches
-    assert block.count("\n- ") == 5 + 2 + len(ANSWER_PREFERENCES)
+    assert block.count("\n- ") == 5 + 2 + len(ANSWER_PREFERENCES) == 5 + 2 + 14
+    # All 14 preferences at their longest sentence, every one kept beside the fullest profile and record.
+    for name in PREFERENCE_CHOICES:
+        assert f"\n- {TEACHING_TEXT[name][_longest_choice(name)]}" in block, name
 
 
 def test_the_fixed_teaching_text_alone_always_fits():
@@ -348,14 +402,19 @@ def test_the_fixed_teaching_text_alone_always_fits():
 
 
 def test_the_worst_case_turn_still_leaves_room_for_history():
-    """System prompt + the settings block + the longest message + a full retrieval context must fit
-    LLM_MAX_INPUT_CHARS with at least a third of it left for earlier messages."""
+    """Everything a production turn can carry at its largest (the instructor prompt, the scope policy and its
+    longest line, the app facts, the settings block, the practice record, the memory block, the longest message
+    and a full retrieval context) must leave at least 16,000 characters of LLM_MAX_INPUT_CHARS for earlier
+    messages; with the interactive blocks on too, at least a fifth of it."""
     settings = make_settings()
     prompt = resolve_assistant_config(None, None, worst_case()).system_prompt
     assert len(prompt) <= len(SYSTEM_PROMPT) + 2 + MAX_TUTOR_BLOCK_CHARS
-    fixed = len(SYSTEM_PROMPT) + 2 + MAX_TUTOR_BLOCK_CHARS + settings.chat_max_message_chars
-    fixed += settings.rag_max_context_chars + len(CONTEXT_HEADER)
-    assert settings.llm_max_input_chars - fixed >= settings.llm_max_input_chars // 3
+    fixed = len(TEACHER_PROMPT) + len(scope.POLICY) + max(len(line) for line in scope.INSTRUCTIONS.values())
+    memory = len(MEMORY_HEADER) + settings.memory_max_context_chars + 40 * settings.memory_recall_limit
+    fixed += PLATFORM_MAX_CHARS + MAX_TUTOR_BLOCK_CHARS + SUMMARY_MAX + memory + 20
+    fixed += settings.chat_max_message_chars + settings.rag_max_context_chars + len(CONTEXT_HEADER)
+    assert settings.llm_max_input_chars - fixed >= 16_000
+    assert settings.llm_max_input_chars - fixed - len(BANK_BLOCKS) >= settings.llm_max_input_chars // 5
 
 
 def test_the_settings_block_is_a_small_part_of_any_model_budget_in_tokens():
@@ -367,8 +426,8 @@ def test_the_settings_block_is_a_small_part_of_any_model_budget_in_tokens():
 def test_over_the_cap_whole_lines_are_dropped_least_important_first():
     oversized = StudentContext(
         role="Network Engineer",
-        focus_areas=tuple("f" * 500 for _ in range(3)),
-        platforms=tuple("p" * 1000 for _ in range(2)),
+        focus_areas=tuple("f" * 600 for _ in range(3)),
+        platforms=tuple("p" * 1200 for _ in range(2)),
         preferences=(("answer_mode", "direct"),),
     )
     full = _render(_about_lines(oversized), [TEACHING_TEXT["answer_mode"]["direct"]])
@@ -381,7 +440,7 @@ def test_over_the_cap_whole_lines_are_dropped_least_important_first():
 
     both = StudentContext(
         role="Network Engineer",
-        focus_areas=tuple("f" * 1000 for _ in range(3)),
+        focus_areas=tuple("f" * 1500 for _ in range(3)),
         platforms=("p" * 10,),
         preferences=(("answer_mode", "direct"),),
     )
@@ -441,7 +500,7 @@ async def test_the_chat_sends_the_users_instructions_and_the_preview_matches(cli
     assert "hint" not in fake_llm.calls[-1][0].content and "Juniper Junos" in fake_llm.calls[-1][0].content
 
 
-def test_the_teaching_defaults_come_only_with_the_flag_and_defer_to_the_users_settings():
+def test_the_instructor_prompt_replaces_the_frozen_one_only_with_the_flag():
     assert make_settings().tutor_teaching_policy is False
     student = build_context({}, [], {"answer_mode": "hints_first"}, None, {"role": "network_engineer"})
     instructions = build_tutor_instructions(student)
@@ -450,20 +509,14 @@ def test_the_teaching_defaults_come_only_with_the_flag_and_defer_to_the_users_se
         [SYSTEM_PROMPT, INTERACTIVE_BLOCKS, instructions, record]
     )
     on = system_prompt_for(student, True, record, teaching=True)
-    assert on == "\n\n".join([SYSTEM_PROMPT, INTERACTIVE_BLOCKS, TEACHING_POLICY, instructions, record])
-    # The settings it would otherwise contradict are named; the user's own sentences come after it.
-    for deferral in ("settings ask for direct answers", "settings ask for hints first", "turn practice questions off"):
-        assert deferral in TEACHING_POLICY
-    # Everything on, at its worst, still leaves a fifth of the input budget for earlier messages.
-    settings = make_settings()
-    fixed = (
-        len(SYSTEM_PROMPT) + len(INTERACTIVE_BLOCKS) + len(TEACHING_POLICY) + MAX_TUTOR_BLOCK_CHARS + SUMMARY_MAX + 8
-    )
-    fixed += settings.chat_max_message_chars + settings.rag_max_context_chars + len(CONTEXT_HEADER)
-    assert settings.llm_max_input_chars - fixed >= settings.llm_max_input_chars // 5
+    assert on == "\n\n".join([TEACHER_PROMPT, INTERACTIVE_BLOCKS, instructions, record])
+    assert SYSTEM_PROMPT not in on  # replaced, never both: no "no test questions" next to the teaching moves
+    # The persona defers to the user's own settings, which come after it.
+    assert "Their own settings, given below, override these defaults" in TEACHING_POLICY
+    assert on.index(TEACHING_POLICY) < on.index(TEACHING_TEXT["answer_mode"]["hints_first"])
 
 
-async def test_with_the_flag_on_every_chat_path_puts_the_teaching_defaults_before_the_settings(fake_llm):
+async def test_with_the_flag_on_every_chat_path_uses_the_instructor_prompt_before_the_settings(fake_llm):
     application = create_app(make_settings(tutor_teaching_policy=True), llm=fake_llm, email_sender=MemoryEmailSender())
     async with application.router.lifespan_context(application):
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=application), base_url="http://t") as client:
@@ -473,13 +526,13 @@ async def test_with_the_flag_on_every_chat_path_puts_the_teaching_defaults_befor
             )
             preview = (await client.post("/v1/learning/tutor-preview", json={}, headers=headers)).json()
             _, events = await stream_chat(client, headers, "Solve: 2x + 3 = 11")
-            assert fake_llm.calls[-1][0].content == f"{SYSTEM_PROMPT}\n\n{TEACHING_POLICY}\n\n{preview['instructions']}"
+            assert fake_llm.calls[-1][0].content == f"{TEACHER_PROMPT}\n\n{preview['instructions']}"
             assert TEACHING_POLICY not in preview["instructions"]  # the preview shows the user's part only
             conversation_id = events[0][1]["conversationId"]
             regenerate = await client.post(f"/v1/conversations/{conversation_id}/regenerate/stream", headers=headers)
             assert regenerate.status_code == 200
             system = fake_llm.calls[-1][0].content
-            assert system.startswith(f"{SYSTEM_PROMPT}\n\n{TEACHING_POLICY}\n\n")
+            assert system.startswith(f"{TEACHER_PROMPT}\n\n")
             assert system.index(TEACHING_POLICY) < system.index(TEACHING_TEXT["answer_mode"]["hints_first"])
 
 

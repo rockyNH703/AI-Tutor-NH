@@ -3,11 +3,12 @@ exercises, the way students ask, and score its replies.
 
     python scripts/eval_tutor_record.py [--runs 5] [--min 0.95]
 
-On the server, where the model and its key are (nothing is written anywhere):
+On the NetSec host, where the model and its key are (nothing is written anywhere; docs/testing.md). A candidate
+runs from a copy of backend/ under /tmp, with WorkingDirectory and PYTHONPATH pointing at the copy, without a deploy:
 
-    systemd-run --pipe --wait --collect -p EnvironmentFile=/etc/aichat/api.env \\
-        -p WorkingDirectory=/opt/aichat/app/backend \\
-        /opt/aichat/app/backend/.venv/bin/python scripts/eval_tutor_record.py
+    systemd-run --pipe --wait --collect --quiet -p EnvironmentFile=/etc/netsecai/api.env \\
+        -p WorkingDirectory=/opt/netsecai/app/backend --setenv=PYTHONPATH=/opt/netsecai/app/backend \\
+        /opt/netsecai/app/backend/.venv/bin/python scripts/eval_tutor_record.py
 
 The app records the student's answers and tells the tutor in its system prompt
 (app/assessments/state.py). A reply passes when it gives the recorded score or progress (or says

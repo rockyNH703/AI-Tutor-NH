@@ -10,8 +10,8 @@ normal turn. Recognised:
 - a topic, then the quiz noun, then only settings: "eigrp metric mcqs, tricky ones" (_topic_then_noun);
 - "next 5", "5 more", "more questions", "aur 5 do": the next batch of the latest test.
 Refused: questions about something ("what/how/why …", "I have questions about …"), labs and other kinds of
-testing (pen/unit/ping/speed test, test lab), exam logistics (date, fee, voucher) and flashcards or interview
-questions (NHprep's cards).
+testing (pen/unit/ping/speed test, test lab), exam logistics (date, fee, voucher), flashcards or interview
+questions (NHprep's cards), and questions about the Quiz me button itself ("how does quiz me work").
 """
 
 from __future__ import annotations
@@ -245,6 +245,16 @@ _BLOCKED = re.compile(
     r"|(?:not|no|without|skip(?:\s+the)?|instead\s+of)\s+(?:a\s+|the\s+|any\s+)?(?:quiz(?:zes)?|tests?|mcqs?|questions?)"
     r"|(?:quiz|test|exam)\s+(?:results?|answers?|scores?|marks?|feature|option|mode|attempts?))\b"
 )
+# "Quiz me" named as the app's button or feature, not asked for (session 62): "how does quiz me work", "where is the
+# quiz me button", "why can't I see quiz me", "quiz me isn't working". Narrow on purpose: a question word followed
+# only by a few function words, or "quiz me" followed by a feature noun or a state; "quiz me on X" never matches.
+_ABOUT_FEATURE = re.compile(
+    r"^(?:how|what|where|why|is|does)\s+"
+    r"(?:(?:do|does|did|is|are|was|can'?t|cannot|i|we|you|the|to|it|this|that|use|see|find|get|exactly|happens"
+    r"|when|press|pressed|click|tap)\s+){0,5}quiz\s+me\b(?!\s+(?:on|about|in|for|from|regarding|covering|with)\b)"
+    r"|\bquiz\s+me\s+(?:button|feature|option|tab|link|card|mode|is|isn'?t|was|wasn'?t|doesn'?t|does|not|won'?t"
+    r"|didn'?t)\b"
+)
 _ASKING = re.compile(
     r"^(?:what(?!\s+about)|how(?!\s+about)|why|when|where|which|who|whom|whose|is|are|was|were|does"
     r"|do(?!\s+(?:\d{1,3}|a\s+few|some)\b)|did|should|would(?!\s+(?:really\s+)?(?:love|like)\b)|will|explain|define"
@@ -444,7 +454,7 @@ def parse(message: str) -> Request | None:
         return None
     if _NEXT.match(text):
         return Request("next", count=_count(text) if re.search(r"\d|" + "|".join(_NUMBERS), text) else DEFAULT_COUNT)
-    if _BLOCKED.search(text):
+    if _BLOCKED.search(text) or _ABOUT_FEATURE.search(text):
         return None
     if not any(cue.search(text) for cue in _CUES) and not _topic_then_noun(text):
         return None

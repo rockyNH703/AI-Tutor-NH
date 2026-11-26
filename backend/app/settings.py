@@ -123,8 +123,9 @@ class Settings(BaseSettings):
     llm_fake_token_delay_s: float = 0.0
     # Total characters sent to the model per turn (system prompt + retrieved context +
     # history + new message). Characters approximate tokens (~4 chars/token for English;
-    # Devanagari costs ~2.6x more tokens per character). See app/rag/context.py.
-    llm_max_input_chars: int = 48_000
+    # Devanagari costs ~2.6x more tokens per character). See app/rag/context.py. 64,000 (2026-11-26): the
+    # instructor prompt and the app facts must not eat the history (tests/test_tutor_instructions.py worst case).
+    llm_max_input_chars: int = 64_000
 
     # ---- chat ----
     chat_max_message_chars: int = 16_000
@@ -307,10 +308,14 @@ class Settings(BaseSettings):
     # app/chat/assistant.py INTERACTIVE_BLOCKS). The web app renders them either way. Off until
     # the owner turns it on; it costs prompt characters on every turn.
     tutor_interactive_blocks: bool = False
-    # Give the tutor its teaching defaults (app/chat/teaching.py: direct answers when asked, mistakes
-    # diagnosed before they are corrected, one hint at a time when stuck); the student's own settings
-    # still come first. Off until the owner turns it on; it costs prompt characters on every turn.
+    # The instructor persona (app/chat/teaching.py): TEACHER_PROMPT replaces SYSTEM_PROMPT (same engineering
+    # rules; adaptive, emotionally aware teaching moves). The user's own settings still come first. Off = the
+    # frozen prompt byte for byte. Turned on only after the teaching evals pass (backend/evals/teaching).
     tutor_teaching_policy: bool = False
+    # The app facts (app/chat/platform.py): what NetSec AI's places and features are and what this account can
+    # use, on every turn, so app questions are answered from facts instead of guesses. No name, email or
+    # invoice number. Off until the teaching evals pass; it costs about 2,000 prompt characters per turn.
+    platform_guide: bool = False
     # Practice tests in the chat come only from the question bank (app/qbank/chat_tests.py): the
     # model names a chapter, the app sets stored questions, and a practice block the model writes
     # itself is never shown as a test. The owner's decision, 2026-10-16.

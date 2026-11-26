@@ -1,15 +1,16 @@
-"""How well does the study scope filter (app/intents/scope.py) decide what PadhAI helps with? Read the
+"""How well does the study scope filter (app/intents/scope.py) decide what NetSec AI helps with? Read the
 labelled synthetic cases exactly as the app does (the fixed rules, then text_for and the scope question,
 checked like every classifier response), then report each kind of mistake separately.
 
     python scripts/eval_scope.py --key-file ../ollalink.txt --sweep                  # dev split: choose the τ
     python scripts/eval_scope.py --key-file ../ollalink.txt --split test --tau-redirect R --tau C   # once, frozen
 
-On the server, where the latency gate is measured (nothing is written anywhere):
+On the NetSec host, where the latency gate is measured (nothing is written anywhere; docs/testing.md). A candidate
+runs from a copy of backend/ under /tmp, with WorkingDirectory and PYTHONPATH pointing at the copy, without a deploy:
 
-    systemd-run --pipe --wait --collect -p EnvironmentFile=/etc/aichat/api.env \\
-        -p WorkingDirectory=/opt/aichat/app/backend \\
-        /opt/aichat/app/backend/.venv/bin/python scripts/eval_scope.py --split test --tau-redirect R --tau C
+    systemd-run --pipe --wait --collect --quiet -p EnvironmentFile=/etc/netsecai/api.env \\
+        -p WorkingDirectory=/opt/netsecai/app/backend --setenv=PYTHONPATH=/opt/netsecai/app/backend \\
+        /opt/netsecai/app/backend/.venv/bin/python scripts/eval_scope.py --split test --tau-redirect R --tau C
 
 Cases: tests/fixtures/scope_cases.jsonl, one JSON object per line: "id", "text", "context" (earlier turns,
 optional), "attachments" (file kinds, optional), "expected" (a decision), "acceptable" (every decision that

@@ -13,7 +13,7 @@ import type {
   LearningPreferences,
   TutorPreviewRequest,
 } from "@/lib/api/types";
-import { LEARNING_FIELDS, PREFERENCES, TUTOR_FIELDS, reachesAssistant } from "./learning-labels";
+import { LEARNING_FIELDS, PREFERENCES, TUTOR_FIELDS, isMainField } from "./learning-labels";
 import { ChoiceGroup, Disclosure, SectionHeading, SettingsCard } from "./primitives";
 import { useAutoSaver } from "./use-auto-saver";
 
@@ -63,10 +63,10 @@ function Choices({
 }
 
 /**
- * The preferences that add nothing to the assistant right now: kept, editable and saved like the
- * others, but folded away under a heading that says so, so the ones that matter come first.
+ * The rest of a page's preferences (all of them reach NetSec AI): folded away so the page stays about one screen
+ * and the main choices come first.
  */
-function NotUsedNow({
+function MorePreferences({
   fields,
   value,
   change,
@@ -77,10 +77,10 @@ function NotUsedNow({
 }) {
   if (!fields.length) return null;
   return (
-    <SettingsCard title="Not used by NetSec AI right now" description="Still saved, but they don't change answers at the moment.">
+    <SettingsCard title="More preferences" description="These shape NetSec AI's answers too.">
       <Disclosure
         icon={SlidersHorizontal}
-        label={`Explore ${fields.length} other ${fields.length === 1 ? "preference" : "preferences"}`}
+        label={`Explore ${fields.length} more ${fields.length === 1 ? "preference" : "preferences"}`}
       >
         <div className="flex flex-col gap-5">
           <Choices fields={fields} value={value} change={change} />
@@ -103,10 +103,10 @@ function LoadFailed({ error, retry }: { error: unknown; retry: () => void }) {
 
 const NEUTRAL_NOTE = "Saved as you choose. No preference leaves it to NetSec AI.";
 
-const LEARNING_USED = LEARNING_FIELDS.filter(reachesAssistant);
-const LEARNING_UNUSED = LEARNING_FIELDS.filter((field) => !reachesAssistant(field));
-const TUTOR_USED = TUTOR_FIELDS.filter(reachesAssistant);
-const TUTOR_UNUSED = TUTOR_FIELDS.filter((field) => !reachesAssistant(field));
+const LEARNING_MAIN = LEARNING_FIELDS.filter(isMainField);
+const LEARNING_MORE = LEARNING_FIELDS.filter((field) => !isMainField(field));
+const TUTOR_MAIN = TUTOR_FIELDS.filter(isMainField);
+const TUTOR_MORE = TUTOR_FIELDS.filter((field) => !isMainField(field));
 
 export function LearningSection() {
   const { value, change, loadError, retry } = usePreferences();
@@ -125,19 +125,20 @@ export function LearningSection() {
       ) : (
         <div className="flex flex-col gap-4">
           <SettingsCard title="How answers are explained" description={NEUTRAL_NOTE}>
-            <Choices fields={LEARNING_USED} value={value} change={change} />
+            <Choices fields={LEARNING_MAIN} value={value} change={change} />
           </SettingsCard>
-          <NotUsedNow fields={LEARNING_UNUSED} value={value} change={change} />
+          <MorePreferences fields={LEARNING_MORE} value={value} change={change} />
         </div>
       )}
     </>
   );
 }
 
-const PREVIEW_NOTE = "Your profile and answer preferences, as NetSec AI receives them. Never your name, email or photo.";
+const PREVIEW_NOTE =
+  "Your profile and answer preferences, added to NetSec AI's standard instructions. Never your name, email or photo.";
 
 /**
- * "What NetSec AI is told": the API's own preview (POST /v1/learning/tutor-preview), built by the
+ * "What your settings tell NetSec AI": the API's own preview (POST /v1/learning/tutor-preview), built by the
  * same function the chat uses, so it cannot differ from a real conversation. `draft` lays unsaved
  * edits over what is stored (the Engineering Profile form sends its own), so the preview is what
  * saving them would tell the assistant. Refreshed after every save and every change of the draft
@@ -179,7 +180,7 @@ export function TutorPreviewCard({
   }, [refreshKey, body]);
 
   return (
-    <SettingsCard title="What NetSec AI is told" description={description}>
+    <SettingsCard title="What your settings tell NetSec AI" description={description}>
       <Disclosure icon={Eye} label="Preview what AI sees">
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
@@ -222,10 +223,10 @@ export function TutorSection() {
       ) : (
         <div className="flex flex-col gap-4">
           <SettingsCard title="Your assistant" description={NEUTRAL_NOTE}>
-            <Choices fields={TUTOR_USED} value={value} change={change} />
+            <Choices fields={TUTOR_MAIN} value={value} change={change} />
           </SettingsCard>
           <TutorPreviewCard refreshKey={saves} />
-          <NotUsedNow fields={TUTOR_UNUSED} value={value} change={change} />
+          <MorePreferences fields={TUTOR_MORE} value={value} change={change} />
         </div>
       )}
     </>

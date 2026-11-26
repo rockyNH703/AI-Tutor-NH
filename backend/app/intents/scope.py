@@ -84,8 +84,9 @@ kindness first."""
 
 INSTRUCTIONS = {
     ALLOW_SUPPORT: "The latest message may be about this app or the user's account (sign-in, settings, memory, "
-    "files, practice), or about how they feel about their work or exams. For the app, help briefly and point them "
-    "to Settings or Help for account changes; never ask for a password or a code. For stress, acknowledge it "
+    "files, practice), or about how they feel about their work or exams. For the app, answer from the app facts "
+    "when they are given (never guess a feature, place or rule) and point them to Settings or Help for account "
+    "changes; never ask for a password, a code or an invoice number. For stress, acknowledge it "
     "kindly and briefly, give two or three practical steps, and offer to help with the work. If they mention "
     "hurting themselves or feeling unsafe, gently urge them to talk to someone they trust now, or to call "
     "Tele-MANAS on 14416 (free, any time).",

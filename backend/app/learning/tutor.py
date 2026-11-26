@@ -12,11 +12,10 @@ what a user previews is exactly what the assistant is told.
   day (owner decisions 2026-09-29 and 2026-10-01), and, once they have answered the question
   bank's practice questions, their practice record (2026-10-22).
 - **Only what shapes the answer.** The assistant gets the Engineering Profile (role, experience,
-  focus areas, platforms, certification goal), as catalog display names, and six answer
-  preferences (language, explanation level, response length, answer mode, step by step, visual
-  explanations). The other preferences stay stored and editable but add nothing, and the academic
-  profile, goals and study time are no longer rendered (2026-10-29: NetSec AI is a professional
-  engineering assistant). Notification settings decide what is delivered and when, and never
+  focus areas, platforms, certification goal), as catalog display names, and one sentence for each
+  of the 14 answer preferences that is not `auto` (session 62; until then only six were rendered).
+  The academic profile, goals and study time are no longer rendered (2026-10-29: NetSec AI is a
+  professional engineering assistant). Notification settings decide what is delivered and when, and never
   reach the assistant.
 - **Settings are information, never instructions.** They are shown under headings that say so.
   Settings are rendered as catalog names; free text (the practice record's topic names, and any
@@ -34,7 +33,7 @@ from collections.abc import Sequence
 
 from app.learning.context import StudentContext, TutorProgress
 
-MAX_TUTOR_BLOCK_CHARS = 3000
+MAX_TUTOR_BLOCK_CHARS = 4000  # the worst case is 3,671 (tests): about 9% headroom
 PRACTICE_NAME_MAX = 60  # each topic named in the practice record
 
 ABOUT_HEADING = (
@@ -50,12 +49,13 @@ PRACTICE_HEADING = (
 )
 TEACHING_HEADING = (
     "## How this user wants answers\n"
-    "These are the user's own preferences. Follow them unless the user asks for something "
-    "different in the conversation."
+    "These are the user's own choices: they override the default style above, and a request in the "
+    "chat overrides them. They change style, never safety: keep impact, backout and authorisation "
+    "notes even in a short answer, and give the fix first in a live incident."
 )
 
-# One fixed sentence per non-auto choice of the preferences that shape an answer. `auto` has no
-# entry, and neither do the other preferences: they add nothing.
+# One fixed sentence per non-auto choice of every preference (session 62: all 14 shape the answer).
+# `auto` has no entry: it adds nothing.
 TEACHING_TEXT: dict[str, dict[str, str]] = {
     "language": {
         "english": "Reply in English unless the user asks for another language.",
@@ -78,12 +78,31 @@ TEACHING_TEXT: dict[str, dict[str, str]] = {
             "behind each recommendation."
         ),
     },
+    "pace": {
+        "slow": "Go slowly: one idea at a time, and check it landed before moving on.",
+        "steady": "Keep a steady pace: cover one idea fully before the next.",
+        "fast": "Move fast: give the essentials quickly and skip what the user likely knows.",
+    },
+    "difficulty": {
+        "easy": "Keep examples and practice problems introductory: one concept at a time.",
+        "medium": "Pitch examples and practice problems at a working engineer's level.",
+        "hard": "Make examples and practice problems advanced: multi-step, with edge cases.",
+    },
+    "real_world_examples": {
+        "more": "Tie explanations to real networks: production designs, outages, vendor quirks.",
+        "fewer": "Keep real-world examples to the minimum the explanation needs.",
+    },
     "visual_explanations": {
         "more": (
-            "Where it helps, use tables for comparisons and state summaries, and mermaid diagrams for "
-            "topologies and flows."
+            "Where it helps, use tables for comparisons, step lists for procedures and mermaid diagrams "
+            "for topologies and flows."
         ),
         "fewer": "Prefer prose and code blocks to tables and diagrams.",
+    },
+    "personality": {
+        "friendly": "Be warm and casual; a little light humour is fine.",
+        "encouraging": "Notice real progress and effort briefly; never empty praise.",
+        "professional": "Be concise and professional: no humour or small talk.",
     },
     "response_length": {
         "short": "Keep answers short: the fix or key point first, detail only if asked.",
@@ -104,6 +123,25 @@ TEACHING_TEXT: dict[str, dict[str, str]] = {
     "step_by_step": {
         "on": "Give procedures as numbered steps, each with its exact command and how to check it worked.",
         "off": "Don't number steps unless the order matters.",
+    },
+    "ask_before_answer": {
+        "on": (
+            "Before explaining a new topic, ask one short question about what the user already knows; "
+            "skip it in an incident or when they ask for the answer directly."
+        ),
+        "off": "Answer directly; don't ask what the user knows first.",
+    },
+    "practice_questions": {
+        "on": "After an explanation, end with one or two short practice questions.",
+        "off": "Ask no practice or check questions unless the user asks for them.",
+    },
+    "mistake_correction": {
+        "gentle": "When the user is wrong, say what is right first, then the first mistake, kindly.",
+        "direct": "When the user is wrong, say plainly what is wrong and correct it.",
+    },
+    "highlight_key_concepts": {
+        "on": "Put key terms in bold and end longer explanations with a one-line takeaway.",
+        "off": "Don't bold terms or add takeaway lines.",
     },
 }
 

@@ -13,6 +13,7 @@ from sqlalchemy import select, text, update
 from sqlalchemy.exc import DBAPIError
 
 from app.access.students import is_nh_student
+from app.chat import bank_turn
 from app.db.models import NhInvoice, Program, ProgramModule, ProgramModuleBook
 from app.qbank import bank_tests, finder
 from app.qbank.importer import import_bank
@@ -384,6 +385,85 @@ async def test_next_five_continues_the_test_with_new_questions(client, app, fake
     assert '"more":false' in second["content"]
     # The card says "Choose N" itself; the stem shown doesn't repeat "(Choose two)" (nit a)
     assert not any("(Choose" in text for text in ids(first) | ids(second))
+
+
+async def test_the_difficulty_preference_is_the_default_only_when_the_request_names_none(app, bank):
+    # 9 VLAN questions: 3 easy, 3 medium, 3 hard (_question).
+    async def served(message: str, default: str | None):
+        async with app.state.db.sessionmaker() as db:
+            return await bank_turn.answer(
+                db,
+                parse(message),
+                user_id=uuid.uuid4(),
+                conversation_id=uuid.uuid4(),
+                reply_id=uuid.uuid4(),
+                earlier=[],
+                goal=None,
+                entitled=True,
+                default_difficulty=default,
+            )
+
+    levels = lambda result: [row.difficulty for row in result.batch.rows]  # noqa: E731
+    # A lean, not a filter: most places at the preferred level, the rest the usual mix.
+    hard = await served("quiz me on vlans", "hard")
+    assert levels(hard) == ["hard", "hard", "hard", "easy", "medium"]
+    # Never stored as the test's own difficulty, so "next 5" and the record stay a mix.
+    assert hard.bank["difficulty"] is None and hard.batch.filters["difficulty"] is None
+    assert levels(await served("give me 3 questions on vlans", "easy")) == ["easy", "easy", "medium"]
+    # The request's own word wins over the preference.
+    assert levels(await served("give me 3 hard questions on vlans", "easy")) == ["hard"] * 3
+    # A topic with no hard questions (the multi-select ones are all easy) still gets a full quiz.
+    thin = await served("give me 3 multi-select questions on vlans", "hard")
+    assert levels(thin) == ["easy"] * 3
+    # No preference, "auto" or anything unknown: the usual mix (easy, easy, medium, medium, hard).
+    for default in (None, "auto", "brutal"):
+        assert levels(await served("quiz me on vlans", default)) == ["easy", "easy", "medium", "medium", "hard"]
+
+
+def test_a_preferred_level_leans_the_mix_and_keeps_the_accuracy_adaptation():
+    assert bank_tests.levels(5, None, preferred="hard") == ["hard"] * 3 + ["easy", "medium"]
+    assert bank_tests.levels(10, None, 0.3, preferred="medium") == ["medium"] * 6 + ["easy", "easy", "medium", "medium"]
+    assert bank_tests.levels(10, None, 0.9, preferred="easy") == ["easy"] * 6 + ["easy", "medium", "hard", "hard"]
+    assert bank_tests.levels(4, "medium", preferred="hard") == ["medium"] * 4  # an asked level is never leaned
+    assert bank_tests.levels(5, None, preferred="auto") == bank_tests.levels(5, None)
+    assert bank_tests.levels(1, None, preferred="hard") == ["hard"]
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "how does quiz me work",
+        "How does Quiz me work?",
+        "what does the quiz me button do",
+        "where is quiz me",
+        "where is the quiz me button?",
+        "why can't I see quiz me",
+        "why can't i see the quiz me button",
+        "how do i use quiz me",
+        "what is quiz me",
+        "is quiz me free",
+        "quiz me isn't working",
+        "the quiz me button is not showing",
+        "how does the quiz me feature work",
+        "what happens when I press quiz me",
+    ],
+)
+def test_questions_about_the_quiz_me_feature_are_not_quiz_requests(message):
+    assert parse(message) is None
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "quiz me on OSPF",
+        "quiz me",
+        "can you quiz me on vlans?",
+        "how about you quiz me on bgp",
+        "quiz me on how ospf works",
+    ],
+)
+def test_real_quiz_requests_still_are(message):
+    assert parse(message) is not None
 
 
 async def test_the_quiz_me_button_shows_only_for_a_student_with_an_nh_invoice(client, app, bank):

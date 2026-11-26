@@ -93,12 +93,19 @@ test("every preference is on exactly one page, and labelled for every value the 
   }
 });
 
-test("the six preferences that reach the assistant, three on each page", () => {
-  expect([...ASSISTANT_FIELDS].sort() as string[]).toEqual(
-    ["answerMode", "explanationLevel", "language", "responseLength", "stepByStep", "visualExplanations"].sort(),
-  );
-  expect(LEARNING_FIELDS.filter(reachesAssistant)).toEqual(["language", "explanationLevel", "visualExplanations"]);
-  expect(TUTOR_FIELDS.filter(reachesAssistant)).toEqual(["responseLength", "answerMode", "stepByStep"]);
+test("every preference reaches the assistant, so nothing is listed as not used", () => {
+  expect([...ASSISTANT_FIELDS].sort() as string[]).toEqual(Object.keys(CONTRACT.LearningPreferencesSet).sort());
+  expect(LEARNING_FIELDS.filter((field) => !reachesAssistant(field))).toEqual([]);
+  expect(TUTOR_FIELDS.filter((field) => !reachesAssistant(field))).toEqual([]);
+});
+
+test("the copy says what the assistant is told", () => {
+  expect(PREFERENCES.language.description).toContain("Hindi and Hinglish turn voice replies off");
+  expect(PREFERENCES.visualExplanations.description).toBe("Tables, step lists and diagrams.");
+  expect(PREFERENCES.answerMode.description).toContain("practice problems and labs, never live incidents");
+  expect(PREFERENCES.stepByStep.options).toEqual({ auto: "No preference", on: "Always", off: "Only when I ask" });
+  expect(PREFERENCES.stepByStep.description).toContain("numbered steps");
+  expect(PREFERENCES.stepByStep.description).toContain("how to check");
 });
 
 test("every main goal the API has is labelled, for engineers, with its code unchanged", () => {

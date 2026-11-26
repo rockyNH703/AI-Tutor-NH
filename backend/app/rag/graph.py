@@ -60,6 +60,9 @@ class TurnState(TypedDict, total=False):
     # Optional, already bounded personal-memory background. It is rendered as a separate
     # untrusted system data block by app.rag.context, never as application policy.
     memory_context: str
+    # document id -> the user's NH program months it is mapped to (app/programs/access.py enrolled_months), named in
+    # the context block labels; empty in a month chat and for anyone not enrolled
+    program_months: dict[str, str]
     retrieval: RetrievalOptions | None
     generation: GenerationOptions
     # files attached to this conversation that the turn may read (app/files): dicts with
@@ -223,6 +226,7 @@ def build_rag_graph(deps: RagDependencies):
             attached_files=state.get("files") or [],
             file_documents=state.get("file_documents") or [],
             max_file_chars=FILES_MAX_CONTEXT_CHARS,
+            program_months=state.get("program_months") or {},
         )
         summary = {
             **state["retrieval_summary"],

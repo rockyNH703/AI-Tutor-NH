@@ -16,7 +16,15 @@ from app.assessments.state import (
     SUMMARY_FRAME,
     USE_RECORD,
 )
-from app.chat.assistant import BANK_BLOCKS, INTENT_NOTE, INTERACTIVE_BLOCKS, SYSTEM_PROMPT, VOICE_TURN
+from app.chat.assistant import (
+    BANK_BLOCKS,
+    INTENT_NOTE,
+    INTERACTIVE_BLOCKS,
+    SYSTEM_PROMPT,
+    TEACHER_PROMPT,
+    VOICE_TURN,
+    system_prompt_for,
+)
 from app.chat.teaching import TEACHING_POLICY
 from app.intents import scope
 from app.intents.taxonomy import GROUP_QUESTION, GROUPS, INTENT_QUESTION, INTENTS
@@ -31,6 +39,7 @@ SCHOOL = re.compile(
 
 FIXED_TEXTS = {
     "SYSTEM_PROMPT": SYSTEM_PROMPT,
+    "TEACHER_PROMPT": TEACHER_PROMPT,
     "VOICE_TURN": VOICE_TURN,
     "INTERACTIVE_BLOCKS": INTERACTIVE_BLOCKS,
     "BANK_BLOCKS": BANK_BLOCKS,
@@ -59,6 +68,23 @@ FIXED_TEXTS = {
     **{f"{name} option": intent.option for name, intent in INTENTS.items()},
     **{f"{name} guidance": intent.guidance for name, intent in INTENTS.items()},
 }
+
+
+ENGINEERING_RULES = (
+    "how to verify (show or debug commands and the output that means success), the risks and how to roll back",
+    "Troubleshooting: rank the likely causes",
+    "say which platform and version your commands are for",
+    "Never invent command output, logs, packet data, versions, CVE or bug IDs, RFC sections or document names.",
+    "never call a configuration tested, verified or guaranteed",
+    "state the impact and a backout plan",
+    "for authorised, scoped engagements and labs",
+    "A value shown as <redacted> was masked by the app; never ask the user to send it again.",
+    "Cite sources inline only, like [1] or [F1]; never write your own list of sources.",
+    "cite a number only for the passage that supports that specific claim",
+    "say the library lacks it",
+    "label that answer as not source-backed",
+    "Never present a command or its output as from the material unless it shows it",
+)
 
 
 def test_the_frozen_prompt_is_an_engineering_assistants():
@@ -107,3 +133,26 @@ def test_the_bank_blocks_keep_the_keys_the_app_parses():
     examples = re.findall(r"\"(?:chapter|chapters)\": \[?\"([^\"]+)\"", BANK_BLOCKS)
     assert examples and all(chat_tests.CHAPTER_ID.fullmatch(example) for example in examples)
     assert "say commands, addresses and interface names" in VOICE_TURN.lower()
+
+
+def test_the_instructor_prompt_keeps_every_engineering_rule_and_drops_the_peer_style():
+    """TUTOR_TEACHING_POLICY on: TEACHER_PROMPT replaces SYSTEM_PROMPT, so it must carry the same rigour."""
+    for clause in ENGINEERING_RULES:
+        assert clause in TEACHER_PROMPT, clause
+    assert "no test questions for the user" not in TEACHER_PROMPT
+    assert "an expert instructor and mentor" in TEACHER_PROMPT
+    assert "Tele-MANAS, 14416" in TEACHER_PROMPT  # distress is handled even with STUDY_SCOPE off
+    assert "\n\n## " not in TEACHER_PROMPT
+
+
+def test_the_teaching_flag_swaps_the_prompt_instead_of_adding_to_it():
+    on = system_prompt_for(None, teaching=True)
+    assert on == TEACHER_PROMPT
+    assert SYSTEM_PROMPT not in on
+    assert system_prompt_for(None) == SYSTEM_PROMPT
+
+
+def test_the_app_facts_follow_the_scope_policy():
+    prompt = system_prompt_for(None, teaching=True, scoped=True, platform="About the NetSec AI app: facts.")
+    assert prompt.index(scope.POLICY) < prompt.index("About the NetSec AI app")
+    assert system_prompt_for(None, platform="") == SYSTEM_PROMPT

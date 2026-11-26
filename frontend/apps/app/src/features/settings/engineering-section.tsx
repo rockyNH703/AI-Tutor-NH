@@ -77,7 +77,7 @@ export function EngineeringFields({
         />
         <CatalogSelect
           label="Certification goal"
-          hint="The certification you're working towards, if any."
+          hint="The certification you're working towards, if any. For a goal with its own course library (such as CCNA, CCNP, AWS, Azure, CEH, Palo Alto or FortiGate), answers search that library and the general references."
           entries={catalog.certifications}
           value={draft.certificationGoal}
           onChange={(certificationGoal) => change({ certificationGoal })}

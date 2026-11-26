@@ -153,9 +153,11 @@ on 2026-10-26 and are not yet re-verified for NetSec):
 - **A chat turn** (`app/chat/service.py`): *prepare* in the request transaction (conversation, 409 if a reply is
   already streaming, quotas, user message + assistant placeholder, the user's context). The prompt is the frozen
   `SYSTEM_PROMPT` (`app/chat/assistant.py`, the engineering assistant), then what `app/learning/tutor.py` adds: the
-  Engineering Profile (role, experience, focus areas, platforms, certification goal), six answer preferences, and
-  a "Practice so far" section once the user has practised. Nothing set and nothing practised: exactly
-  `SYSTEM_PROMPT`. *Generate* is an asyncio task (`app/chat/streams.py`) running the LangGraph graph
+  Engineering Profile (role, experience, focus areas, platforms, certification goal), all 14 answer preferences
+  (2026-11-26; they override the default style, never safety), and a "Practice so far" section once the user has
+  practised. Nothing set and nothing practised: exactly `SYSTEM_PROMPT` (plus the scope policy while `STUDY_SCOPE` is
+  on). Passage labels carry section, page and the user's NH program months (`app/rag/context.py`), so a reply can
+  say where a topic is covered; memory recall runs beside the scope decision. *Generate* is an asyncio task (`app/chat/streams.py`) running the LangGraph graph
   `receive_query → retrieve_context → assemble_context → generate_answer` (`app/rag/graph.py`), emitting SSE
   `meta`/`token`/`done`/`error`. Stop and disconnect cancel it.
 - **Secret masking:** `build_llm` and `build_embeddings` wrap every model provider (primary and fallback) and the
@@ -165,7 +167,9 @@ on 2026-10-26 and are not yet re-verified for NetSec):
 - **One model call per turn:** no graph retries; `FallbackProvider` switches only before the first token.
 - **Kept but off by default** (each needs the owner's decision in production): `TUTOR_INTERACTIVE_BLOCKS` (MCQ,
   quiz, fill-blank, flashcards, graph and diagram widgets, and question-bank tests in the chat; the web app renders
-  them either way), `TUTOR_TEACHING_POLICY`, `INTENT_ROUTER` (Ollalink; the 2026-10-29 taxonomy needs a new
+  them either way), `TUTOR_TEACHING_POLICY` (2026-11-26: the instructor persona, `TEACHER_PROMPT` replaces
+  `SYSTEM_PROMPT`; evals in `backend/evals/teaching`), `PLATFORM_GUIDE` (the app facts on every turn,
+  `app/chat/platform.py`), `INTENT_ROUTER` (Ollalink; the 2026-10-29 taxonomy needs a new
   `eval_intents.py` run before `on`), `STUDY_SCOPE` (since 2026-11-23 read by OpenRouter decision models, masked:
   `app/intents/decision.py`; on only after its held-out eval; only study earns streak credit), `VOICE_MODE` (English only),
   `MEMORY_RECALL_ENABLED` and `MEMORY_AUTOMATIC_PROPOSALS` (explicit memory APIs are on), the jobs worker.

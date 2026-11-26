@@ -32,7 +32,7 @@ const NONE = "No preference";
 export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } = {
   language: {
     label: "Reply language",
-    description: "The language NetSec AI answers in, unless you ask it for another one.",
+    description: "The language NetSec AI answers in, unless you ask it for another one. Hindi and Hinglish turn voice replies off.",
     options: { auto: NONE, english: "English", hindi: "Hindi", hinglish: "Hinglish" },
   },
   explanationLevel: {
@@ -57,7 +57,7 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
   },
   visualExplanations: {
     label: "Visual explanations",
-    description: "Tables, step lists and simple text diagrams.",
+    description: "Tables, step lists and diagrams.",
     options: { auto: NONE, more: "More", fewer: "Fewer" },
   },
   personality: {
@@ -72,12 +72,13 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
   },
   answerMode: {
     label: "How it answers problems",
-    description: "Straight answers, a hint first, or guiding questions that lead you there.",
+    description:
+      "Straight answers, a hint first, or guiding questions that lead you there. Hints and guiding questions apply to practice problems and labs, never live incidents.",
     options: { auto: NONE, direct: "Answer directly", hints_first: "Hint first", socratic: "Guiding questions" },
   },
   stepByStep: {
     label: "Step-by-step",
-    description: "Breaking explanations and solutions into numbered steps.",
+    description: "Procedures as numbered steps, each with its exact command and how to check it worked.",
     options: { auto: NONE, on: "Always", off: "Only when I ask" },
   },
   askBeforeAnswer: {
@@ -103,11 +104,35 @@ export const PREFERENCES: { [K in LearningPreferenceField]: PreferenceInfo<K> } 
 };
 
 /**
- * The preferences that reach the assistant now (the API's app/learning/tutor.py): language, depth,
- * answer length, answer mode, step-by-step and visual explanations. The others stay stored and
- * editable, shown apart as not used by NetSec AI right now.
+ * The preferences that reach the assistant (the API's app/learning/tutor.py): all 14 since session
+ * 62 (the page split is MAIN_FIELDS, below).
  */
 export const ASSISTANT_FIELDS = [
+  "language",
+  "explanationLevel",
+  "pace",
+  "difficulty",
+  "realWorldExamples",
+  "visualExplanations",
+  "personality",
+  "responseLength",
+  "answerMode",
+  "stepByStep",
+  "askBeforeAnswer",
+  "practiceQuestions",
+  "mistakeCorrection",
+  "highlightKeyConcepts",
+] as const satisfies readonly LearningPreferenceField[];
+
+export function reachesAssistant(field: LearningPreferenceField): boolean {
+  return (ASSISTANT_FIELDS as readonly LearningPreferenceField[]).includes(field);
+}
+
+/**
+ * The three choices each settings page shows first; the rest (also used) sit under "More preferences", so each
+ * page stays about one screen.
+ */
+export const MAIN_FIELDS = [
   "language",
   "explanationLevel",
   "visualExplanations",
@@ -116,8 +141,8 @@ export const ASSISTANT_FIELDS = [
   "stepByStep",
 ] as const satisfies readonly LearningPreferenceField[];
 
-export function reachesAssistant(field: LearningPreferenceField): boolean {
-  return (ASSISTANT_FIELDS as readonly LearningPreferenceField[]).includes(field);
+export function isMainField(field: LearningPreferenceField): boolean {
+  return (MAIN_FIELDS as readonly LearningPreferenceField[]).includes(field);
 }
 
 /** The Learning Preferences section, then the AI Assistant section: every field exactly once. */

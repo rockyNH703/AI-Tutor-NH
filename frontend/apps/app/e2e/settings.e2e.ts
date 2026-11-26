@@ -410,7 +410,7 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
 }) => {
   const answers = page.getByRole("group", { name: "How it answers problems" });
   await page.goto("/settings/tutor");
-  await expect(page.getByRole("heading", { name: "What NetSec AI is told" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What your settings tell NetSec AI" })).toBeVisible();
   await page.getByRole("button", { name: "Preview what AI sees" }).click();
   await answers.getByRole("radio", { name: "Hint first" }).check();
   await expect(page.getByText("start with a hint", { exact: false })).toBeVisible();

@@ -8,7 +8,14 @@ production graph (app.main.build_rag). Three kinds of case:
   lesson of a mapped course), 100%.
 - `other`: a question another month covers. Gate: the reply points to that month and does not teach it, >= 90%.
 - `uncovered`: a question no month covers. Gate: the reply says it isn't covered and labels the general
-  explanation, >= 90%.
+  explanation, >= 90%. PERSONA_ON cases run with the instructor persona on whatever TUTOR_TEACHING_POLICY says, so
+  the persona is shown not to break the fixed line or the heading.
+- `qna`: a question in the program's QnA chat (every month). Gate: the reply names the month that covers it, >= 90%.
+- `app`: a question about the app in a month chat. Gate: the reply points to Settings and does not answer it as an
+  uncovered topic, >= 90%.
+
+The prompt is built as production builds it: the persona (TUTOR_TEACHING_POLICY), the scope policy (STUDY_SCOPE)
+and the platform facts (PLATFORM_GUIDE); each case prints its prompt's sha256.
 
 On the production host, after the mapping is loaded (nothing is written anywhere but stdout):
 
@@ -25,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -32,8 +40,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 P1, P2 = "cyber-cloud-security-ai", "network-security-ai"
-# (case id, program slug, month, kind, question, the month an `other` question belongs to)
-CASES: list[tuple[str, str, int, str, str, int | None]] = [
+# (case id, program slug, month (None: the QnA chat), kind, question, the month an `other`/`qna` question belongs to)
+CASES: list[tuple[str, str, int | None, str, str, int | None]] = [
     ("p2m1-in-1", P2, 1, "in", "How does a switch build its MAC address table?", None),
     ("p2m1-in-2", P2, 1, "in", "Explain how OSPF elects a DR and BDR.", None),
     ("p2m1-in-3", P2, 1, "in", "What is the difference between a standard and an extended ACL?", None),
@@ -64,9 +72,14 @@ CASES: list[tuple[str, str, int, str, str, int | None]] = [
     ("p1m4-in-3", P1, 4, "in", "How do I create a security policy on a FortiGate?", None),
     ("p1m4-other", P1, 4, "other", "How do Kubernetes pod security admission levels work?", 6),
     ("p1m4-unc", P1, 4, "uncovered", "How do I configure an Infoblox DNS view?", None),
+    ("p2qna-month-1", P2, None, "qna", "Which month of my program covers FortiGate HA?", 6),
+    ("p2qna-month-2", P2, None, "qna", "Where in my program do I learn how OMP works in Cisco SD-WAN?", 4),
+    ("p2m1-app", P2, 1, "app", "Where in this app do I make your answers shorter?", None),
+    ("p2m1-unc-persona", P2, 1, "uncovered", "How do I write an F5 BIG-IP iRule?", None),
 ]
+PERSONA_ON = frozenset({"p2m1-unc-persona"})  # the persona forced on: the D6 line and heading must survive it
 
-GATES = {"in": 1.0, "other": 0.9, "uncovered": 0.9}
+GATES = {"in": 1.0, "other": 0.9, "uncovered": 0.9, "qna": 0.9, "app": 0.9}
 UNCOVERED = re.compile(r"isn['’]t covered in your Month \d+ material", re.IGNORECASE)
 GENERAL = re.compile(r"general explanation", re.IGNORECASE)
 POINTER_MAX_CHARS = 900  # a pointer, not a lesson
@@ -84,6 +97,10 @@ def check(
         )
     if kind == "other":
         return bool(re.search(rf"\bMonth {other}\b", reply)) and len(reply) <= POINTER_MAX_CHARS
+    if kind == "qna":
+        return bool(re.search(rf"\bMonth {other}\b", reply))
+    if kind == "app":
+        return bool(re.search(r"\bSettings\b", reply)) and not UNCOVERED.search(reply)
     return bool(UNCOVERED.search(reply)) and bool(GENERAL.search(reply))
 
 
@@ -91,6 +108,7 @@ async def _run(args: argparse.Namespace) -> int:
     from sqlalchemy import select
 
     from app.chat.assistant import resolve_assistant_config
+    from app.chat.platform import platform_block
     from app.db.models import Conversation, Program, ProgramModule
     from app.db.session import Database
     from app.llm.base import ChatMessage, GenerationOptions
@@ -109,17 +127,33 @@ async def _run(args: argparse.Namespace) -> int:
         for case_id, slug, month, kind, question, other in CASES:
             async with db.sessionmaker() as session:
                 program = await session.scalar(select(Program).where(Program.slug == slug))
-                module = program and await session.scalar(
-                    select(ProgramModule).where(ProgramModule.program_id == program.id, ProgramModule.month == month)
-                )
-                if module is None:
+                module = None
+                if program is not None and month is not None:
+                    module = await session.scalar(
+                        select(ProgramModule).where(
+                            ProgramModule.program_id == program.id, ProgramModule.month == month
+                        )
+                    )
+                if program is None or (month is not None and module is None):
                     print(f"setup error: {slug} month {month} not found", file=sys.stderr)
                     return 2
-                # Never added to the session: only its program, month and mode are read.
-                turn = await chat_turn(session, Conversation(program_id=program.id, module_id=module.id, mode="tutor"))
+                # Never added to the session: only its program, month and mode are read. No month: the QnA chat.
+                conversation = Conversation(
+                    program_id=program.id, module_id=module.id if module else None, mode="tutor"
+                )
+                turn = await chat_turn(session, conversation)
             config = resolve_assistant_config(
-                None, None, None, program=tutor_block(turn.context, question), curriculum=turn.curriculum
+                None,
+                None,
+                None,
+                teaching=case_id in PERSONA_ON or settings.tutor_teaching_policy,
+                scoped=settings.study_scope == "on",
+                platform=platform_block(settings) if settings.platform_guide else "",
+                program=tutor_block(turn.context, question),
+                curriculum=turn.curriculum,
             )
+            digest = hashlib.sha256(config.system_prompt.encode("utf-8")).hexdigest()[:12]
+            print(f"{case_id}: prompt {len(config.system_prompt)} chars sha256 {digest}")
             documents = {str(item) for item in turn.curriculum.documents}
             courses = {str(item) for item in turn.curriculum.courses}
             for run in range(args.runs):

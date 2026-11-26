@@ -109,6 +109,14 @@ async def test_streams_retrieval_then_tokens_and_puts_numbered_context_in_the_pr
     assert len(h.llm.calls) == 1  # exactly one generation per turn
 
 
+async def test_the_turns_program_months_reach_the_context_labels():
+    h = Harness()
+    state = {**h.state(), "program_months": {"d1": "Month 2: Routing"}}
+    events = [e async for e in h.graph.astream(state, stream_mode="custom")]
+    assert any(e["event"] == "llm_finished" for e in events)
+    assert "[1] Zephyr (source: kb; your_nh_months: Month 2: Routing)" in h.llm.calls[-1][-1].content
+
+
 @pytest.mark.parametrize(
     ("kwargs", "state", "reason"),
     [

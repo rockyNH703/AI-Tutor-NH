@@ -5,13 +5,15 @@ filters). Retrieval options are chosen here, server-side; a client can never sup
 
 The system prompt is the frozen SYSTEM_PROMPT (NetSec AI, the engineering assistant, 2026-10-29),
 followed by what the user's own settings add (app/learning/tutor.py) when they add anything. A user
-who has set nothing gets exactly SYSTEM_PROMPT (tests/test_legacy_tutor.py). The coaching defaults
-(app/chat/teaching.py, only when TUTOR_TEACHING_POLICY is on) go just before the user's settings,
-which come first. What the latest message asks for, when the intent router applies an intent
-(INTENT_ROUTER, app/intents), comes after the settings: one guidance line; with no intent the prompt
-is as it was. While STUDY_SCOPE is on, the scope policy (app/intents/scope.py) comes right after the
-frozen prompt, on every turn. SYSTEM_PROMPT holds no "\\n\\n## ": the fake LLM's PROBE (app/llm/fake.py)
-splits the prompt there to show what the user's settings added.
+who has set nothing gets exactly SYSTEM_PROMPT (tests/test_legacy_tutor.py; plus the scope policy
+while STUDY_SCOPE is on). With TUTOR_TEACHING_POLICY on, TEACHER_PROMPT (the instructor persona,
+app/chat/teaching.py) replaces SYSTEM_PROMPT; it shares its engineering and formatting rules. With
+PLATFORM_GUIDE on, the app facts (app/chat/platform.py) follow the scope policy. What the latest
+message asks for, when the intent router applies an intent (INTENT_ROUTER, app/intents), comes after
+the settings: one guidance line; with no intent the prompt is as it was. While STUDY_SCOPE is on, the
+scope policy (app/intents/scope.py) comes right after the frozen prompt, on every turn. SYSTEM_PROMPT
+holds no "\\n\\n## ": the fake LLM's PROBE (app/llm/fake.py) splits the prompt there to show what the
+user's settings added.
 """
 
 from __future__ import annotations
@@ -28,19 +30,32 @@ from app.learning.context import StudentContext
 from app.learning.tutor import build_tutor_instructions
 from app.rag.graph import RetrievalOptions
 
-SYSTEM_PROMPT = (
-    "You are NetSec AI, an assistant for network, security and infrastructure engineers: routing and switching, "
-    "firewalls and VPNs, wireless, SD-WAN, data center, cloud, Linux and Windows, SOC/SIEM and incident response, "
-    "penetration testing, DevSecOps, automation and AI security.\n"
+# The frozen prompt is built from shared parts so that TEACHER_PROMPT (TUTOR_TEACHING_POLICY on) reuses the
+# same engineering and formatting rules word for word; SYSTEM_PROMPT itself stays byte for byte what it was
+# (tests/test_legacy_tutor.py).
+_AREAS = (
+    "routing and switching, firewalls and VPNs, wireless, SD-WAN, data center, cloud, Linux and Windows, SOC/SIEM "
+    "and incident response, penetration testing, DevSecOps, automation and AI security."
+)
+_PEER_STYLE = (
     "- Write like a senior engineer briefing a peer: lead with the answer, fix or most likely cause, then the "
     "detail. No lecturing, no test questions for the user, no motivational filler.\n"
+)
+_CONFIG_AND_TROUBLESHOOTING = (
     "- Configuration: state prerequisites and assumptions (vendor, platform, software version, topology), give the "
     "exact commands in code blocks, then how to verify (show or debug commands and the output that means success), "
     "the risks and how to roll back.\n"
     "- Troubleshooting: rank the likely causes, give the commands that test each and what to look for, then the fix "
     "and how to verify it. Work layer by layer when the cause is unclear.\n"
-    "- Explaining a feature or protocol: end with the commands that show it working on a device and what to look "
-    "for.\n"
+)
+_EXPLAIN_FOR_PEERS = (
+    "- Explaining a feature or protocol: end with the commands that show it working on a device and what to look for.\n"
+)
+_EXPLAIN_FOR_LEARNERS = (
+    "- Explaining a feature or protocol: where it helps, show it working on a device: the commands and what to "
+    "look for.\n"
+)
+_ENGINEERING_RULES = (
     "- Cloud, containers and automation: use the platform's own diagnostics (VPC flow logs, reachability analyzers, "
     "kubectl describe, logs and events, audit logs), and make the first run safe: Ansible --check --diff and --limit "
     "to one host, terraform plan, kubectl --dry-run=server.\n"
@@ -70,8 +85,8 @@ SYSTEM_PROMPT = (
     "to redact them, and mask any you see. A value shown as <redacted> was masked by the app; never ask the user to "
     "send it again.\n"
     "- If you are not sure, say so and say how to confirm it.\n"
-    "\n"
-    "Formatting:\n"
+)
+_FORMATTING = (
     "- Markdown. Commands, configuration, paths, variables and output always go in code: inline backticks, or "
     "fenced blocks with a language tag (bash, powershell, python, yaml, json, hcl, text), one per device or "
     "context.\n"
@@ -81,6 +96,22 @@ SYSTEM_PROMPT = (
     "- Callouts only where they earn it: a line `:::warning` (or `:::note`, `:::important`), the content, then a "
     "line `:::`.\n"
     "- Cite sources inline only, like [1] or [F1]; never write your own list of sources."
+)
+SYSTEM_PROMPT = (
+    f"You are NetSec AI, an assistant for network, security and infrastructure engineers: {_AREAS}\n"
+    f"{_PEER_STYLE}{_CONFIG_AND_TROUBLESHOOTING}{_EXPLAIN_FOR_PEERS}{_ENGINEERING_RULES}\nFormatting:\n{_FORMATTING}"
+)
+
+# TUTOR_TEACHING_POLICY on: the instructor prompt REPLACES SYSTEM_PROMPT (app/chat/teaching.py): the same
+# engineering and formatting rules, with the teaching moves instead of the peer-briefing style. No "\n\n## ".
+TEACHER_PROMPT = (
+    "You are NetSec AI, an expert instructor and mentor for network, security and infrastructure engineers and for "
+    f"people training to become one: {_AREAS} You teach the way the best human instructors do in a one-to-one "
+    "chat: natural, warm where it helps, always precise.\n"
+    f"{TEACHING_POLICY}\n{_CONFIG_AND_TROUBLESHOOTING}{_EXPLAIN_FOR_LEARNERS}{_ENGINEERING_RULES}\nFormatting:\n"
+    "- Conversational replies are short plain paragraphs, like a chat. Lists only for real steps or parallel "
+    "items, tables for comparisons, headings only in long reference answers.\n"
+    f"{_FORMATTING}"
 )
 
 # Interactive practice blocks. The web app renders them whenever a reply contains them; the model
@@ -171,7 +202,8 @@ VOICE_TURN = (
     "keep it brief unless the user asks for more. Do not use tables, code blocks, diagrams or headings. Say "
     'commands, addresses and interface names the way an engineer reads them aloud (for example "show ip route", '
     '"ten dot one dot one dot one" or "gig one slash zero slash one"), keeping every number exact. Summarise a '
-    "long configuration or output in a sentence or two and offer to write it out in the chat."
+    "long configuration or output in a sentence or two and offer to write it out in the chat. For this spoken reply "
+    "these rules take precedence over the user's answer-length, visual, step-by-step and highlighting settings."
 )
 
 
@@ -187,24 +219,27 @@ def system_prompt_for(
     scope: str | None = None,
     voice: bool = False,
     program: str = "",
+    platform: str = "",
 ) -> str:
-    """The frozen prompt, then the coaching defaults, then what the user's settings add, then what
+    """The frozen prompt, then what the user's settings add, then what
     the latest message asks for (`intent`, applied by the intent router), then the question bank's
     domains (on a turn that asks for a test), then the chat's practice tests as the app recorded them
     (app/assessments/state.py). Each part only when it says something. `bank` None: the model writes
     tests itself (QUESTION_BANK_TESTS off). `scoped` (STUDY_SCOPE on): the scope policy right after
     the frozen prompt, with the line for this turn's `scope` decision, if it has one. `program`: a program chat's
-    tutor block (app/programs/prompt.py), right after them."""
+    tutor block (app/programs/prompt.py), right after them. `teaching` (TUTOR_TEACHING_POLICY): TEACHER_PROMPT
+    replaces SYSTEM_PROMPT. `platform`: the app facts (app/chat/platform.py, PLATFORM_GUIDE), right after the
+    scope policy."""
     blocks = INTERACTIVE_BLOCKS if bank is None else BANK_BLOCKS
-    prompt = f"{SYSTEM_PROMPT}\n\n{blocks}" if interactive else SYSTEM_PROMPT
+    base = TEACHER_PROMPT if teaching else SYSTEM_PROMPT
+    prompt = f"{base}\n\n{blocks}" if interactive else base
     keep = prompt_block(scope) if scoped else ""
-    policy = TEACHING_POLICY if teaching else ""
     instructions = build_tutor_instructions(student)
     spoken = VOICE_TURN if voice else ""
     asks = intent_block(intent)
     chapters = bank if interactive and bank else ""
     return "\n\n".join(
-        part for part in (prompt, keep, program, policy, instructions, spoken, asks, chapters, tests) if part
+        part for part in (prompt, keep, platform, program, instructions, spoken, asks, chapters, tests) if part
     )
 
 
@@ -262,6 +297,7 @@ def resolve_assistant_config(
     voice: bool = False,
     program: str = "",
     curriculum: Any = None,
+    platform: str = "",
 ) -> AssistantConfig:
     """`intent`: what the intent router read in the latest message (app/intents/taxonomy.py); an intent
     answered from the app's own records searches no knowledge. `search` False: no knowledge search on
@@ -281,6 +317,7 @@ def resolve_assistant_config(
             scope=scope,
             voice=voice,
             program=program,
+            platform=platform,
         ),
         retrieval=(RetrievalOptions(curriculum=curriculum) if curriculum is not None else retrieval_for(student))
         if search

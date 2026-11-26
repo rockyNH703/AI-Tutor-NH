@@ -60,6 +60,13 @@ def months_naming(context: ProgramContext, question: str) -> list[tuple[int, str
     return [(number, title) for number, title in context.months if number != context.month and asked & _terms(title)]
 
 
+# A question about the app itself is not a course question, so the ordered steps above do not apply to it.
+APP_QUESTIONS = (
+    "A question about the NetSec AI app or the user's account is not a course question: skip these steps and "
+    "answer it from the app facts when they are given, else point them to Settings > Help & Support."
+)
+
+
 def tutor_block(context: ProgramContext, question: str = "") -> str:
     months = "\n".join(f"- Month {number}: {title}" for number, title in context.months)
     if context.month is not None:
@@ -91,6 +98,7 @@ def tutor_block(context: ProgramContext, question: str = "") -> str:
             months,
             "Never present general knowledge as NH material, and never say the NH material covers something the "
             "reference material does not show.",
+            APP_QUESTIONS,
         ]
     else:
         lines = [
@@ -107,6 +115,7 @@ def tutor_block(context: ProgramContext, question: str = "") -> str:
             "The program's months, so you can say which month a topic belongs to:",
             months,
             "Never present general knowledge as NH material.",
+            APP_QUESTIONS,
         ]
     if context.mode == "interview":
         lines.append(

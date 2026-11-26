@@ -97,7 +97,8 @@ to say:
    `TUTOR_INTERACTIVE_BLOCKS` is on. These are the question-bank form (`BANK_BLOCKS`) while
    `QUESTION_BANK_TESTS` is on, otherwise `INTERACTIVE_BLOCKS`.
 2. **The study scope's policy**, on every turn while `STUDY_SCOPE=on`, plus one line for this turn's decision.
-3. **The teaching defaults**, when `TUTOR_TEACHING_POLICY` is on (`app/chat/teaching.py`).
+3. **The app facts** (`app/chat/platform.py`), when `PLATFORM_GUIDE` is on. (`TUTOR_TEACHING_POLICY` on: `TEACHER_PROMPT`,
+   the instructor persona from `app/chat/teaching.py`, replaces the frozen prompt in step 1; 2026-11-26.)
 4. **The student's settings** (`app/learning/tutor.py`, `build_tutor_instructions`):
    - class, board, goals, subjects and preferences, plus a "Learning so far" line (streak, today, the time left in
      the India learning day) once they have learnt;

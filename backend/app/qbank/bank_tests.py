@@ -50,11 +50,22 @@ class Batch:
     filters: dict
 
 
-def levels(count: int, difficulty: str | None, accuracy: float | None = None) -> list[str | None]:
+LEVELS = ("easy", "medium", "hard")
+PREFERRED_SHARE = 0.6  # of a batch at the user's preferred level (Settings > Difficulty)
+
+
+def levels(
+    count: int, difficulty: str | None, accuracy: float | None = None, *, preferred: str | None = None
+) -> list[str | None]:
     """The difficulty of each place in a batch: the asked one everywhere, else a mix that leans easier after a
-    weak batch (under 50% right) and harder after a strong one (80% or more). 5 → easy, easy, medium, medium, hard."""
+    weak batch (under 50% right) and harder after a strong one (80% or more). 5 → easy, easy, medium, medium, hard.
+    A preferred level (the user's setting, never the request's) takes the first 60% of the places and the mix the
+    rest: a lean, not a filter, so pick_batch still falls back to the nearest level the pool has."""
     if difficulty is not None:
         return [difficulty] * count
+    if preferred in LEVELS:
+        lean = round(count * PREFERRED_SHARE)
+        return [preferred] * lean + levels(count - lean, None, accuracy)
     easy, hard = round(count * 0.35), round(count * 0.2)
     if accuracy is not None and accuracy >= 0.8:
         easy, hard = round(count * 0.2), round(count * 0.4)
@@ -73,11 +84,13 @@ async def pick_batch(
     difficulty: str | None = None,
     accuracy: float | None = None,
     exclude: tuple[str, ...] = (),
+    *,
+    preferred: str | None = None,
 ) -> list[Any]:
     """Up to `count` questions for one test, none repeated (and none of `exclude`). A place whose difficulty has
     nothing left takes the nearest the pool has. Only reads; never commits."""
     rows: list[Any] = []
-    for level in levels(count, difficulty, accuracy):
+    for level in levels(count, difficulty, accuracy, preferred=preferred):
         taken = (*exclude, *(row.question_id for row in rows))
         row = await selection.pick_next(session, user_id, replace(pool, difficulty=level), seed, exclude=taken)
         if row is None and level is not None and difficulty is None:

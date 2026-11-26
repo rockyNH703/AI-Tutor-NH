@@ -15,9 +15,11 @@ from app.db.models import (
     Conversation,
     InvoiceClaim,
     NhInvoice,
+    Program,
     ProgramModule,
     ProgramModuleBook,
     ProgramModuleCourse,
+    ProgramModuleDocument,
 )
 from app.settings import Settings
 
@@ -69,6 +71,44 @@ async def enrolled_books(session: AsyncSession, user: Any, settings: Settings) -
             .order_by(ProgramModuleBook.book_id)
         )
     )
+
+
+MONTHS_PER_DOCUMENT = 3
+MONTH_ROWS_MAX = 5_000  # mapping rows read per turn; the owner maps a few hundred documents per program
+
+
+async def enrolled_months(
+    session: AsyncSession, user: Any, settings: Settings, program_id: uuid.UUID | None = None
+) -> dict[str, str]:
+    """Knowledge Library document id -> the months of this account's open programs it is mapped to, at most
+    MONTHS_PER_DOCUMENT in program order ("Month 1: <title> | Month 2: <title>"), for the context block labels
+    (app/rag/context.py). `program_id` keeps one program (a program's Q&A chat); otherwise every open program, each
+    month prefixed with its program's title when more than one is open. {} while PROGRAMS_MODE shuts the account
+    out, and for a program that is not open to it."""
+    if not programs_allow(user, settings):
+        return {}
+    open_ids = open_program_ids(user.id)
+    if program_id is None:
+        count = await session.scalar(select(func.count(func.distinct(Program.id))).where(Program.id.in_(open_ids)))
+        prefixed = (count or 0) > 1
+    else:
+        prefixed = False
+    query = (
+        select(ProgramModuleDocument.document_id, Program.title, ProgramModule.month, ProgramModule.title)
+        .join(ProgramModule, ProgramModule.id == ProgramModuleDocument.module_id)
+        .join(Program, Program.id == ProgramModule.program_id)
+        .where(Program.id.in_(open_ids))
+        .order_by(ProgramModuleDocument.document_id, Program.position, Program.id, ProgramModule.month)
+        .limit(MONTH_ROWS_MAX)
+    )
+    if program_id is not None:
+        query = query.where(Program.id == program_id)
+    months: dict[str, list[str]] = {}
+    for document_id, program, month, title in await session.execute(query):
+        named = months.setdefault(str(document_id), [])
+        if len(named) < MONTHS_PER_DOCUMENT:
+            named.append(f"{program}, Month {month}: {title}" if prefixed else f"Month {month}: {title}")
+    return {document_id: " | ".join(named) for document_id, named in months.items()}
 
 
 def open_course_ids(user_id: uuid.UUID):

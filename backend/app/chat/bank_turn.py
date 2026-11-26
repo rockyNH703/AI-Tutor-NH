@@ -173,9 +173,11 @@ async def answer(
     goal: str | None,
     entitled: bool,
     books: tuple[str, ...] | None = None,
+    default_difficulty: str | None = None,
 ) -> Served | None:
     """The bank's reply to a quiz request, or None to leave the turn to the model (a "next 5" with no bank test
-    before it in this chat). Only reads."""
+    before it in this chat). Only reads. `default_difficulty` is the user's Difficulty preference: when the request
+    names no level it leans the batch toward that one (bank_tests.levels) and is never stored as the test's own."""
     started = time.perf_counter()
     last = await _last_bank(session, conversation_id)
     accuracy, exclude = None, ()
@@ -228,7 +230,15 @@ async def answer(
         question_format="multi_select" if request.multi_only else None,
     )
     rows = await bank_tests.pick_batch(
-        session, user_id, pool, str(reply_id), request.count, request.difficulty, accuracy, exclude
+        session,
+        user_id,
+        pool,
+        str(reply_id),
+        request.count,
+        request.difficulty,
+        accuracy,
+        exclude,
+        preferred=default_difficulty,
     )
     timing["pickMs"] = round((time.perf_counter() - started) * 1000, 1)
     if not rows:

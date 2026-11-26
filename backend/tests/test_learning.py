@@ -5,6 +5,7 @@ import asyncio
 import re
 
 from app.learning import catalog
+from app.learning.tutor import MAX_TUTOR_BLOCK_CHARS
 from app.qbank.netsec import FAMILIES
 from app.ratelimit import SlidingWindowLimiter
 from tests.conftest import register
@@ -567,7 +568,7 @@ async def test_the_preview_shows_a_draft_without_saving_it(client, app):
     headers = (await register(client, app))["headers"]
     empty = await client.post("/v1/learning/tutor-preview", json={}, headers=headers)
     assert empty.status_code == 200 and empty.json()["instructions"] == ""
-    assert empty.json()["maxChars"] == 3000
+    assert empty.json()["maxChars"] == MAX_TUTOR_BLOCK_CHARS
 
     await client.patch(
         "/v1/engineering/profile", json={"version": 0, "set": {"role": "network_engineer"}}, headers=headers
@@ -595,11 +596,17 @@ async def test_the_preview_shows_a_draft_without_saving_it(client, app):
             "engineering": {"role": None},
             "profile": {"grade": "class_7", "medium": "hindi"},
             "subjects": [{"code": "science"}],
-            "preferences": {"pace": "slow", "personality": "friendly"},
         },
         headers=headers,
     )
     assert retired.status_code == 200 and retired.json()["instructions"] == ""
+    # Pace and tone are no longer retired (2026-11-26): every answer preference reaches the assistant.
+    paced = await client.post(
+        "/v1/learning/tutor-preview",
+        json={"engineering": {"role": None}, "preferences": {"pace": "slow", "personality": "friendly"}},
+        headers=headers,
+    )
+    assert "Go slowly" in paced.json()["instructions"] and "light humour" in paced.json()["instructions"]
 
 
 async def test_the_preview_refuses_unknown_codes(client, app):

@@ -32,6 +32,7 @@ from app.assessments import state as assessments
 from app.auth.service import AuthService
 from app.chat import bank_turn
 from app.chat.assistant import AssistantConfig, resolve_assistant_config
+from app.chat.platform import account_access, account_facts, platform_block
 from app.chat.streams import ActiveGenerations, ChatEvent, Generation
 from app.chat.titles import topic_title
 from app.conversations.repository import DEFAULT_TITLE, ConversationRepository
@@ -68,7 +69,7 @@ from app.memory.commands import (
 from app.memory.recall import MemoryRecall
 from app.nhprep.chat import Card, NhprepChat, nhprep_allows
 from app.programs import service as programs
-from app.programs.access import bank_scope, programs_allow
+from app.programs.access import bank_scope, enrolled_books, enrolled_months, programs_allow
 from app.programs.prompt import tutor_block
 from app.progress.activity import record_question
 from app.progress.learning import (
@@ -203,6 +204,8 @@ class PreparedTurn:
     scope_final: asyncio.Task | None = None
     # A program chat (app/programs): its tutor block, month scope, tracks and courses, from the stored conversation.
     program: programs.ProgramTurn | None = None
+    # The app facts (PLATFORM_GUIDE, app/chat/platform.py) for this account, rendered once when the turn is prepared.
+    platform: str = ""
 
     def meta_event(self) -> ChatEvent:
         return ChatEvent(
@@ -389,6 +392,7 @@ class ChatService:
         scope: str | None = None,
         voice: bool = False,
         program: programs.ProgramTurn | None = None,
+        platform: str = "",
     ) -> AssistantConfig:
         """The turn's prompt and retrieval (app/chat/assistant.py), the same way for a new message, a
         regenerated reply, an intent the router applies (_route) and a study scope decision (_scope). A program
@@ -408,7 +412,25 @@ class ChatService:
             voice=voice,
             program=tutor_block(program.context, program.question) if program is not None else "",
             curriculum=program.curriculum if program is not None else None,
+            platform=platform,
         )
+
+    async def _platform(
+        self, session: AsyncSession, user: User, student: StudentContext | None, program: programs.ProgramTurn | None
+    ) -> str:
+        """The app facts for this account (PLATFORM_GUIDE): flags and owner-written titles only, never a name,
+        address or invoice number. Two indexed reads: the programs its invoices open now and their bank tracks."""
+        if not self.settings.platform_guide:
+            return ""
+        opened = await programs.open_programs(session, user.id) if programs_allow(user, self.settings) else []
+        access = account_access(
+            user,
+            self.settings,
+            student=student,
+            program_titles=[item.title for item in opened],
+            enrolled_books=await enrolled_books(session, user, self.settings),
+        )
+        return platform_block(self.settings, account_facts(access, program_chat=program is not None))
 
     async def _program_place(
         self, session: AsyncSession, user: User, slug: str, month: int | None
@@ -551,7 +573,17 @@ class ChatService:
             conversation,
             user_message,
             assistant.id,
-            self._config(user, conversation, student, tests, bank, search=search, voice=voice, program=program_turn),
+            self._config(
+                user,
+                conversation,
+                student,
+                tests,
+                bank,
+                search=search,
+                voice=voice,
+                program=program_turn,
+                platform=(platform := await self._platform(session, user, student, program_turn)),
+            ),
             files=await files.conversation_files(session, conversation.id, user.id),
             user_attachments=attachments,
             asked_at=asked_at,
@@ -568,6 +600,7 @@ class ChatService:
             speech_format=speech_format or "mp3",
             usage_id=usage.id,
             program=program_turn,
+            platform=platform,
         )
 
     async def prepare_regenerate(self, session: AsyncSession, user: User, conversation_id: uuid.UUID) -> PreparedTurn:
@@ -642,6 +675,7 @@ class ChatService:
                 search=is_meaningful(question) or len(asked) > 1,
                 scope=_decision(scope),
                 program=program_turn,
+                platform=(platform := await self._platform(session, user, student, program_turn)),
             ),
             replaces_message_id=last.id,
             files=await files.conversation_files(session, conversation.id, user.id),
@@ -653,6 +687,7 @@ class ChatService:
             usage_id=usage.id,
             nhprep=nhprep if isinstance(nhprep, dict) else None,
             program=program_turn,
+            platform=platform,
         )
 
     def _reused_intent(self, last: Message, question: str) -> dict | None:
@@ -1097,6 +1132,7 @@ class ChatService:
             scope=_decision(turn.scope),
             voice=turn.voice,
             program=turn.program,
+            platform=turn.platform,
         )
         return config, bank
 
@@ -1118,6 +1154,7 @@ class ChatService:
         scope_shadow: asyncio.Task | None = None
         reading: asyncio.Task | None = None  # the intent router's reading, started beside the scope (_parallel)
         ahead: asyncio.Task | None = None  # the knowledge search, started ahead of the graph
+        recall: asyncio.Task | None = None  # memory recall, beside the scope decision
         speaking: asyncio.Task | None = None  # the server's first words (server_speech)
         card: Card | None = None  # NHprep's lesson card (_app_turn)
         planning = turn.server_speech
@@ -1136,6 +1173,19 @@ class ChatService:
                     turn.conversation.id,
                     hide_nhprep=turn.program is None and not (await bank_scope(session, turn.user, self.settings))[0],
                 )
+                # The NH program months each knowledge document is mapped to, for the passage labels: the account's
+                # open programs in a general chat, the chat's own program in its QnA chat; none in a month chat.
+                months = (
+                    await enrolled_months(
+                        session,
+                        turn.user,
+                        self.settings,
+                        turn.program.context.program_id if turn.program is not None else None,
+                    )
+                    if turn.config.retrieval is not None
+                    and (turn.program is None or turn.program.context.month is None)
+                    else {}
+                )
             if turn.replaces_message_id is not None:  # the replies being regenerated stay until it completes (K-47d)
                 while conversation and conversation[-1].role == "assistant":
                     conversation.pop()  # but the model answers the question afresh, without them
@@ -1146,7 +1196,9 @@ class ChatService:
             found = await self._app_turn(turn, conversation, query)
             turn.served = found if isinstance(found, bank_turn.Served) else None
             card = found if isinstance(found, Card) else None
-            memories = await self._memories(turn.user.id, query) if found is None else []
+            # Memory recall (MEMORY_RECALL_ENABLED) runs beside the study scope and the knowledge search, not before
+            # them: it is used only when the prompt is assembled, so it adds no wait of its own (bounded, never fails).
+            recall = asyncio.ensure_future(self._memories(turn.user.id, query)) if found is None else None
             # Voice turns (VOICE_PARALLEL_ROUTING): the router's reading and the knowledge search start now, beside the
             # study scope, not after it: the same requests on the same words, so the same decisions (OllaLink answers
             # them one after another anyway). A redirect cancels both; an intent that turns the search off drops it.
@@ -1162,7 +1214,7 @@ class ChatService:
                         {
                             "user_id": turn.user.id,
                             "conversation": conversation,
-                            "memory_context": self._memory_context(memories),
+                            "memory_context": "",
                             "retrieval": prepared,
                             "files": turn.files,
                         }
@@ -1199,6 +1251,7 @@ class ChatService:
                         scope=decision,
                         voice=turn.voice,
                         program=turn.program,
+                        platform=turn.platform,
                     )
                 # While the router reads the message (INTENT_ROUTER=on: two Ollalink requests, about 1.1 s from
                 # the server), the knowledge search already runs: an intent can only turn it off, so it is the
@@ -1210,7 +1263,7 @@ class ChatService:
                             {
                                 "user_id": turn.user.id,
                                 "conversation": conversation,
-                                "memory_context": self._memory_context(memories),
+                                "memory_context": "",
                                 "retrieval": prepared,
                                 "files": turn.files,
                             }
@@ -1218,11 +1271,13 @@ class ChatService:
                     )
                 config, intent, shadow = await self._route(turn, conversation, generation, reading)
                 await self._expression(turn, generation, intent, decision)
+                memories = await recall if recall is not None else ()
                 state = {
                     "user_id": turn.user.id,
                     "conversation": conversation,
                     "system_prompt": config.system_prompt,
                     "memory_context": self._memory_context(memories),
+                    "program_months": months,
                     "retrieval": config.retrieval,
                     "generation": options,
                     "files": turn.files,
@@ -1283,7 +1338,7 @@ class ChatService:
             log.warning(
                 "llm returned an empty reply", extra={"provider": provider, "message_id": str(turn.assistant_id)}
             )
-        for task in (reading, ahead):  # a redirect, a stop or a failure left them running
+        for task in (reading, ahead, recall):  # a redirect, a stop or a failure left them running
             if task is not None and not task.done():
                 task.cancel()
         if planning and status != "cancelled":  # the reply ended before its first words were settled
@@ -1487,6 +1542,8 @@ class ChatService:
                     goal=goal,
                     entitled=entitled,
                     books=books,
+                    # The Difficulty preference leans the mix (never a filter); a level the request names wins.
+                    default_difficulty=dict(turn.student.preferences).get("difficulty") if turn.student else None,
                 )
         except Exception:  # noqa: BLE001 - the bank never fails a turn: the model answers instead
             log.exception("bank turn failed", extra={"message_id": str(turn.assistant_id)})
