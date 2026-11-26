@@ -1,8 +1,9 @@
 "use client";
 
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
+import { TabPanel, ViewTabs, useTabIds } from "@/components/view-tabs";
 import { describeError } from "@/lib/api/errors";
 import { type EngineeringCatalog, type EngineeringProfileField, FOCUS_AREAS_MAX, PLATFORMS_MAX } from "@/lib/api/types";
 import { catalogOptions, useEngineeringCatalog } from "./learning-data";
@@ -47,9 +48,16 @@ export function EngineeringFields({
 }) {
   const focusAreas = draft.focusAreas ?? [];
   const platforms = draft.platforms ?? [];
+  const ids = useTabIds();
+  const refused = invalid("focusAreas") ? "focus" : invalid("platforms") ? "platforms" : null;
+  const [shown, setShown] = useState<"focus" | "platforms">(refused ?? "focus");
+  // A group the API refused opens on its own, so its error is not left on a closed tab.
+  useEffect(() => {
+    if (refused) setShown(refused);
+  }, [refused]);
   return (
     <>
-      <SettingsCard title="Your role" description="Leave anything you'd rather not say as Not set.">
+      <SettingsCard title="Your role" description="Anything left as Not set is simply not used.">
         {notice && <Notice tone="warning">{notice}</Notice>}
         <CatalogSelect
           label="Role"
@@ -76,9 +84,20 @@ export function EngineeringFields({
       </SettingsCard>
       <SettingsCard
         title="What you work on"
-        description="NetSec AI favours these in its examples, and writes commands and configuration for your platforms."
+        description="Examples, commands and configuration are written for these."
         footer={footer}
       >
+        <ViewTabs
+          label="What you work on"
+          ids={ids}
+          value={shown}
+          onChange={setShown}
+          tabs={[
+            { value: "focus", label: "Focus areas", count: focusAreas.length || null },
+            { value: "platforms", label: "Platforms", count: platforms.length || null },
+          ]}
+        />
+        <TabPanel ids={ids} value="focus" hidden={shown !== "focus"}>
         <ChipGroup
           legend="Focus areas"
           description={`The technologies you work with most. Up to ${FOCUS_AREAS_MAX}.`}
@@ -88,6 +107,8 @@ export function EngineeringFields({
           onToggle={(code) => change({ focusAreas: toggleCode(focusAreas, code, FOCUS_AREAS_MAX) })}
           error={invalid("focusAreas") ? CHECK_LIST : null}
         />
+        </TabPanel>
+        <TabPanel ids={ids} value="platforms" hidden={shown !== "platforms"}>
         <ChipGroup
           legend="Platforms"
           description={`Vendors, operating systems and clouds you use. Up to ${PLATFORMS_MAX}.`}
@@ -97,6 +118,7 @@ export function EngineeringFields({
           onToggle={(code) => change({ platforms: toggleCode(platforms, code, PLATFORMS_MAX) })}
           error={invalid("platforms") ? CHECK_LIST : null}
         />
+        </TabPanel>
       </SettingsCard>
     </>
   );
@@ -116,7 +138,7 @@ export function EngineeringSection() {
     <>
       <SectionHeading
         title="Engineering Profile"
-        description="Your role, experience, focus areas, platforms and certification goal. NetSec AI uses them to pick the depth, the vendor syntax and the examples in its answers."
+        description="Your role and the technology you work with: NetSec AI picks its depth, vendor syntax and examples from them."
       />
       {loadError ? (
         <SettingsCard title="Couldn't load your Engineering Profile">
@@ -148,7 +170,7 @@ export function EngineeringSection() {
           </form>
           <TutorPreviewCard
             draft={{ engineering: engineeringPreview(form.draft) }}
-            description="What NetSec AI would be told with the choices above, saved or not, together with your answer preferences. Your name, email and photo are never included."
+            description="With the choices above, saved or not. Never your name, email or photo."
           />
         </div>
       )}

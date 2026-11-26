@@ -121,8 +121,9 @@ def certification_code(name: str | None) -> str | None:
 
 
 def subject_name(code: str | None) -> str | None:
-    """A subject's name from its catalog code; None for a code the catalog doesn't have (app/study)."""
-    entry = catalog.lookup(catalog.SUBJECTS, code)
+    """An exam track's (or a school subject's) name from its catalog code; None for a code the catalog doesn't have
+    (app/study)."""
+    entry = catalog.lookup(catalog.EXAM_TRACKS, code) or catalog.lookup(catalog.SUBJECTS, code)
     return entry.name if entry else None
 
 

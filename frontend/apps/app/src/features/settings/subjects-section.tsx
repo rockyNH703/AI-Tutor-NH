@@ -31,6 +31,14 @@ const TIME_FIELDS = [
   "preferredStudyTime",
 ] as const satisfies readonly LearnerProfileField[];
 
+/** A control still loading, at its own size: the card keeps its final layout when the profile arrives. */
+function Pending({ className }: { className: string }) {
+  return <Skeleton className={`rounded-xl ${className}`} />;
+}
+
+/** Two short fields side by side on phones; from lg the wrapper drops out and they are rows like the others. */
+const PAIR = "flex flex-col gap-5 min-[360px]:grid min-[360px]:grid-cols-2 min-[360px]:items-end min-[360px]:gap-3 lg:contents";
+
 /**
  * Settings > Practice & Lab Time (slug `subjects`, its address since it was Subjects & Study): the
  * daily and weekly practice goals and the preferred practice time, which Practice & Goals, Lab
@@ -42,98 +50,91 @@ export function SubjectsSection() {
   const form = useProfileForm(TIME_FIELDS, "Practice goals saved.");
   const draft = form.draft;
   const check = (field: LearnerProfileField) => (form.invalid(field) ? "Check this value." : null);
+  const minutes = (field: "dailyActiveMinutesGoal" | "weeklyActiveMinutesGoal", label: string, max: number) => (
+    <Field label={label} error={check(field)}>
+      {(props) =>
+        draft ? (
+          <Input
+            {...props}
+            className="w-full sm:w-32"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={max}
+            value={draft[field] ?? ""}
+            onChange={(event) => form.change({ [field]: wholeNumber(event.target.value, max) })}
+          />
+        ) : (
+          <Pending className="h-11 w-full sm:h-10 sm:w-32" />
+        )
+      }
+    </Field>
+  );
+
+  // One tree loading and loaded: only the controls are placeholders, so nothing moves when they arrive.
+  const goals = (
+    <form onSubmit={form.submit}>
+      <SettingsCard title="Time goals" footer={<SaveFooter dirty={form.dirty} pending={form.pending} onCancel={form.reset} />}>
+        {form.notice && <Notice tone="warning">{form.notice}</Notice>}
+        <div className={PAIR}>
+          {minutes("dailyActiveMinutesGoal", "Daily goal (minutes)", DAILY_MINUTES_MAX)}
+          {minutes("weeklyActiveMinutesGoal", "Weekly goal (minutes)", WEEKLY_MINUTES_MAX)}
+        </div>
+        <Field
+          label="Preferred practice time"
+          hint="In your time zone. The daily reminder, if it's on, comes then."
+          error={check("preferredStudyTime")}
+        >
+          {(props) =>
+            draft ? (
+              <Input
+                {...props}
+                className="w-full sm:w-40"
+                type="time"
+                step={60}
+                value={draft.preferredStudyTime ?? ""}
+                onChange={(event) => form.change({ preferredStudyTime: event.target.value.slice(0, 5) || null })}
+              />
+            ) : (
+              <Pending className="h-11 w-full sm:h-10 sm:w-40" />
+            )
+          }
+        </Field>
+      </SettingsCard>
+    </form>
+  );
 
   return (
     <>
       <SectionHeading
         title="Practice & Lab Time"
-        description="How much time you want to spend practising in NetSec AI, and when. Practice & Goals measures your days and weeks against it."
+        description="Your goals count active time: minutes you're using NetSec AI, not all your lab work. Practice & Goals tracks them."
       />
-      {form.loadError ? (
-        <SettingsCard title="Couldn't load your practice goals">
-          <p className="text-sm text-text-secondary">{describeError(form.loadError).message}</p>
-          <button
-            type="button"
-            onClick={form.retry}
-            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-          >
-            Try again
-          </button>
-        </SettingsCard>
-      ) : !draft ? (
-        <SkeletonGroup label="Loading your practice goals">
-          <Skeleton className="h-72 w-full rounded-2xl" />
-        </SkeletonGroup>
-      ) : (
-        <div className="flex flex-col gap-4">
-          <form onSubmit={form.submit}>
-            <SettingsCard
-              title="Practice and lab time"
-              description="Goals are measured in active time in NetSec AI: minutes you're actually using the app, not all your lab work."
-              footer={<SaveFooter dirty={form.dirty} pending={form.pending} onCancel={form.reset} />}
+      <div className="flex flex-col gap-4">
+        {form.loadError ? (
+          <SettingsCard title="Couldn't load your practice goals">
+            <p className="text-sm text-text-secondary">{describeError(form.loadError).message}</p>
+            <button
+              type="button"
+              onClick={form.retry}
+              className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
             >
-              {form.notice && <Notice tone="warning">{form.notice}</Notice>}
-              <Field label="Daily goal (minutes)" error={check("dailyActiveMinutesGoal")}>
-                {(props) => (
-                  <Input
-                    {...props}
-                    className="w-full sm:w-32"
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    max={DAILY_MINUTES_MAX}
-                    value={draft.dailyActiveMinutesGoal ?? ""}
-                    onChange={(event) =>
-                      form.change({ dailyActiveMinutesGoal: wholeNumber(event.target.value, DAILY_MINUTES_MAX) })
-                    }
-                  />
-                )}
-              </Field>
-              <Field label="Weekly goal (minutes)" error={check("weeklyActiveMinutesGoal")}>
-                {(props) => (
-                  <Input
-                    {...props}
-                    className="w-full sm:w-32"
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    max={WEEKLY_MINUTES_MAX}
-                    value={draft.weeklyActiveMinutesGoal ?? ""}
-                    onChange={(event) =>
-                      form.change({ weeklyActiveMinutesGoal: wholeNumber(event.target.value, WEEKLY_MINUTES_MAX) })
-                    }
-                  />
-                )}
-              </Field>
-              <Field
-                label="Preferred practice time"
-                hint="In your time zone. The daily reminder, if you turn it on, comes at this time."
-                error={check("preferredStudyTime")}
-              >
-                {(props) => (
-                  <Input
-                    {...props}
-                    className="w-full sm:w-40"
-                    type="time"
-                    step={60}
-                    value={draft.preferredStudyTime ?? ""}
-                    onChange={(event) => form.change({ preferredStudyTime: event.target.value.slice(0, 5) || null })}
-                  />
-                )}
-              </Field>
-            </SettingsCard>
-          </form>
-          <SettingsCard title="What you work on">
-            <Notice>
-              Your technologies and platforms are part of your{" "}
-              <Link href="/settings/engineering" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-                Engineering Profile
-              </Link>{" "}
-              now: choose your focus areas and platforms there, and NetSec AI shapes its answers around them.
-            </Notice>
+              Try again
+            </button>
           </SettingsCard>
-        </div>
-      )}
+        ) : draft ? (
+          goals
+        ) : (
+          <SkeletonGroup label="Loading your practice goals">{goals}</SkeletonGroup>
+        )}
+        <p className="text-sm text-text-secondary">
+          Your focus areas and platforms are in your{" "}
+          <Link href="/settings/engineering" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
+            Engineering Profile
+          </Link>
+          .
+        </p>
+      </div>
     </>
   );
 }

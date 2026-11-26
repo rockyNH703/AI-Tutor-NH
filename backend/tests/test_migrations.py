@@ -9,6 +9,7 @@ import asyncio
 import subprocess
 import sys
 import threading
+import uuid
 
 import asyncpg
 
@@ -333,7 +334,8 @@ KNOWLEDGE_LIBRARY = "0023_knowledge_library"
 KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
 FRIEND_ZONE_PROGRESS = "0031_friend_zone_progress"
 FRIEND_ZONE_EXAM = "0032_friend_zone_exam"
-HEAD = FRIEND_ZONE_EXAM
+CHAT_SHARES = "0033_chat_pins_archive_shares"
+HEAD = CHAT_SHARES
 
 
 async def _refused(sql: str, *args) -> bool:
@@ -341,6 +343,15 @@ async def _refused(sql: str, *args) -> bool:
     try:
         await _query(sql, *args)
     except asyncpg.CheckViolationError:
+        return True
+    return False
+
+
+async def _duplicate(sql: str, *args) -> bool:
+    """Whether a unique index refuses the statement."""
+    try:
+        await _query(sql, *args)
+    except asyncpg.UniqueViolationError:
         return True
     return False
 
@@ -1179,6 +1190,52 @@ def test_migration_0032_ends_legacy_battles_and_allows_exams():
         run(_query("DELETE FROM fz_battles WHERE format = 'exam'"))
         alembic("downgrade", FRIEND_ZONE_PROGRESS)
         assert run(_query("SELECT to_regclass('public.fz_battle_responses') AS t"))[0]["t"] is None
+        alembic("upgrade", "head")
+        assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == HEAD
+    finally:
+        run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+
+
+def test_migration_0033_adds_pins_archive_and_shares_without_touching_existing_chats():
+    run(_admin('DROP DATABASE IF EXISTS "aichat_migrations_test" WITH (FORCE)'))
+    run(_admin('CREATE DATABASE "aichat_migrations_test"'))
+    try:
+        alembic("upgrade", FRIEND_ZONE_EXAM)
+        user = run(
+            _query(
+                "INSERT INTO users (email, password_hash, display_name) VALUES ($1, 'x', 'Chat owner') RETURNING id",
+                f"owner-{uuid.uuid4().hex[:8]}@example.com",
+            )
+        )[0]["id"]
+        chat = run(_query("INSERT INTO conversations (user_id, title) VALUES ($1, 'Old chat') RETURNING id", user))[0][
+            "id"
+        ]
+
+        alembic("upgrade", CHAT_SHARES)
+        row = run(_query("SELECT title, pinned_at, archived_at FROM conversations WHERE id = $1", chat))[0]
+        assert (row["title"], row["pinned_at"], row["archived_at"]) == ("Old chat", None, None)  # neither, untouched
+        assert run(_refused("UPDATE conversations SET pinned_at = now(), archived_at = now() WHERE id = $1", chat))
+
+        share = (
+            "INSERT INTO conversation_shares (conversation_id, user_id, token_hash, snapshot, message_count) "
+            "VALUES ($1, $2, $3, '{}', 1)"
+        )
+        run(_query(share, chat, user, "a" * 64))
+        assert run(_duplicate(share, chat, user, "b" * 64))  # one live link per chat
+        run(_query("UPDATE conversation_shares SET revoked_at = now()"))
+        run(_query(share, chat, user, "c" * 64))  # a revoked link frees the place
+        run(_query("DELETE FROM conversations WHERE id = $1", chat))
+        assert run(_query("SELECT count(*) AS n FROM conversation_shares"))[0]["n"] == 0  # the chat takes its links
+
+        alembic("downgrade", FRIEND_ZONE_EXAM)
+        assert run(_query("SELECT to_regclass('public.conversation_shares') AS t"))[0]["t"] is None
+        columns = {
+            r["column_name"]
+            for r in run(
+                _query("SELECT column_name FROM information_schema.columns WHERE table_name = 'conversations'")
+            )
+        }
+        assert not {"pinned_at", "archived_at"} & columns
         alembic("upgrade", "head")
         assert run(_query("SELECT version_num FROM alembic_version"))[0]["version_num"] == HEAD
     finally:

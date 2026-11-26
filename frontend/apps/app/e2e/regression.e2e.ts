@@ -13,6 +13,7 @@ import {
   send,
   test,
   waitForIdle,
+  chatAction,
 } from "./support";
 
 /**
@@ -109,6 +110,8 @@ test("changing the password: a wrong current one is refused, the new one signs i
   const next = `${PASSWORD}-changed`;
   try {
     await page.goto("/settings/privacy");
+    // The form opens from its row's button (Privacy is a list of rows; each form opens in place).
+    await page.getByRole("button", { name: "Change password", exact: true }).click();
     await page.getByLabel("Current password").fill("not-the-password");
     await page.getByLabel("New password", { exact: true }).fill(next);
     await page.getByLabel("Confirm new password").fill(next);
@@ -167,14 +170,14 @@ test("cancelling a rename or a delete changes nothing", async ({ page, account: 
   const title = "Keep This Chat"; // its automatic name (app/chat/titles.py)
   await expect(link).toHaveText(title);
 
-  await item.getByRole("button", { name: /^Rename/ }).click();
+  await chatAction(item, "Rename");
   const rename = page.getByRole("dialog", { name: "Rename chat" });
   await rename.getByLabel("Name").fill("This must not stick");
   await rename.getByRole("button", { name: "Cancel" }).click();
   await expect(rename).toBeHidden();
   await expect(link).toHaveText(title);
 
-  await item.getByRole("button", { name: /^Delete/ }).click();
+  await chatAction(item, "Delete");
   const remove = page.getByRole("dialog", { name: "Delete this chat?" });
   await remove.getByRole("button", { name: "Cancel" }).click();
   await expect(remove).toBeHidden();

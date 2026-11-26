@@ -10,13 +10,21 @@ import { useStreak } from "@/features/streak/streak-store";
 import { LEARNING_EVENT } from "@/lib/activity";
 import { describeError } from "@/lib/api/errors";
 import { getLearningDays } from "@/lib/api/progress";
-import type { LearningDays } from "@/lib/api/types";
+import type { LearningDays, LearningStreak } from "@/lib/api/types";
 import { SectionHeading, SettingsCard, ToggleRow } from "./primitives";
+
+/**
+ * The calendar's drawn height, held while it loads so the card doesn't collapse and regrow: up to a
+ * ~1490px window its days are 10px or less (LearningActivityCalendar's layout), a 136-138px drawing. In px,
+ * like the drawing, which doesn't scale with the text size. Wider windows (up to 170px) and the phone's
+ * scroll hint add a little below it, where nothing follows: it is the page's last block, so that moves nothing.
+ */
+const CALENDAR_SPACE = "min-h-[138px]";
 
 // d3 and the calendar load on this page only, not with the rest of the app.
 const LearningActivityCalendar = dynamic(
   () => import("@/features/streak/LearningActivityCalendar").then((module) => module.LearningActivityCalendar),
-  { ssr: false, loading: () => <Skeleton className="h-40 w-full rounded-xl" /> },
+  { ssr: false, loading: () => <Skeleton className="h-[138px] w-full rounded-xl" /> },
 );
 
 function longDate(iso: string): string {
@@ -32,7 +40,50 @@ function daysLabel(n: number): string {
   return `${n} ${n === 1 ? "day" : "days"}`;
 }
 
-/** Settings > Learning & Streak: the streak, today's learning, and the year's calendar. */
+/**
+ * The three numbers. While they load (`data` null) a dash holds each value's place in the value's own type,
+ * so the card is already its final height and nothing below it moves when they arrive.
+ */
+function StreakStats({ data }: { data: LearningStreak | null }) {
+  const dash = (
+    <span aria-hidden className="text-text-secondary">
+      –
+    </span>
+  );
+  return (
+    <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="flex flex-col-reverse">
+        <dt className="text-xs text-text-secondary">Current streak</dt>
+        <dd className="flex items-center gap-1.5 text-2xl font-bold tabular-nums text-foreground">
+          <Flame aria-hidden className={data?.todayActive ? "h-5 w-5 fill-current text-streak" : "h-5 w-5 text-text-secondary"} />
+          {data ? daysLabel(data.currentStreak) : dash}
+        </dd>
+      </div>
+      <div className="flex flex-col-reverse">
+        <dt className="text-xs text-text-secondary">Longest streak</dt>
+        <dd className="text-2xl font-bold tabular-nums text-foreground">{data ? daysLabel(data.longestStreak) : dash}</dd>
+      </div>
+      <div className="col-span-2 flex flex-col-reverse sm:col-span-1">
+        <dt className="text-xs text-text-secondary">Today's practice</dt>
+        <dd className="flex items-center gap-1.5 text-base font-semibold text-foreground">
+          {!data ? (
+            dash
+          ) : data.todayActive ? (
+            <>
+              <CheckCircle2 aria-hidden className="h-5 w-5 text-success" /> Completed
+            </>
+          ) : (
+            <>
+              <Circle aria-hidden className="h-5 w-5 text-text-secondary" /> Not completed
+            </>
+          )}
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+/** Settings > Learning & Streak: the streak, today's learning, the header switch, and the year's calendar. */
 export function StreakSection() {
   const appearance = useAppearance();
   const streak = useStreak();
@@ -52,64 +103,39 @@ export function StreakSection() {
   }, [loadCalendar]);
 
   const data = streak.data;
+  const failed = !data && streak.status !== "loading";
+  const shown = appearance?.appearance;
   const selectedDay = selected ? calendar?.days.find((day) => day.date === selected) : null;
 
   return (
     <>
       <SectionHeading
         title="Practice Streak"
-        description="Your practice streak counts the days you practised with NetSec AI: a real question, fully answered. Days follow India time."
+        description="Days you asked a real question and got a full answer. Days follow India time."
       />
       <div className="flex flex-col gap-4">
-        {streak.status === "loading" ? (
-          <SkeletonGroup label="Loading your practice streak">
-            <Skeleton className="h-36 w-full rounded-2xl" />
-          </SkeletonGroup>
-        ) : !data ? (
-          <SettingsCard title="Couldn't load your practice streak">
+        <SettingsCard title={failed ? "Couldn't load your practice streak" : "Your practice streak"}>
+          {data ? (
+            <StreakStats data={data} />
+          ) : failed ? (
             <p className="text-sm text-text-secondary">Your practice streak is safe; it just can't be shown right now.</p>
-          </SettingsCard>
-        ) : (
-          <SettingsCard title="Your practice streak">
-            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <div className="flex flex-col-reverse">
-                <dt className="text-xs text-text-secondary">Current streak</dt>
-                <dd className="flex items-center gap-1.5 text-2xl font-bold tabular-nums text-foreground">
-                  <Flame aria-hidden className={data.todayActive ? "h-5 w-5 fill-current text-streak" : "h-5 w-5 text-text-secondary"} />
-                  {daysLabel(data.currentStreak)}
-                </dd>
-              </div>
-              <div className="flex flex-col-reverse">
-                <dt className="text-xs text-text-secondary">Longest streak</dt>
-                <dd className="text-2xl font-bold tabular-nums text-foreground">{daysLabel(data.longestStreak)}</dd>
-              </div>
-              <div className="col-span-2 flex flex-col-reverse sm:col-span-1">
-                <dt className="text-xs text-text-secondary">Today's practice</dt>
-                <dd className="flex items-center gap-1.5 text-base font-semibold text-foreground">
-                  {data.todayActive ? (
-                    <>
-                      <CheckCircle2 aria-hidden className="h-5 w-5 text-success" /> Completed
-                    </>
-                  ) : (
-                    <>
-                      <Circle aria-hidden className="h-5 w-5 text-text-secondary" /> Not completed
-                    </>
-                  )}
-                </dd>
-              </div>
-            </dl>
-            <p className="text-sm text-text-secondary">
-              {data.todayActive
-                ? "Today counts. Come back tomorrow to keep it going."
-                : data.currentStreak
-                  ? "Ask NetSec AI a real question today to keep your practice streak going."
-                  : "Ask NetSec AI a real question to start a practice streak."}{" "}
-              Greetings like "hi" and unanswered questions don't count.
-            </p>
-          </SettingsCard>
-        )}
+          ) : (
+            <SkeletonGroup label="Loading your practice streak">
+              <StreakStats data={null} />
+            </SkeletonGroup>
+          )}
+          {/* Always here (disabled until the account's appearance is known), so the card never changes height. */}
+          <div className="border-t border-border pt-4">
+            <ToggleRow
+              label="Show my practice streak in the header"
+              checked={shown?.showStreak ?? true}
+              disabled={!shown}
+              onCheckedChange={(showStreak) => appearance?.change({ showStreak })}
+            />
+          </div>
+        </SettingsCard>
 
-        <SettingsCard title="Activity" description="Each square is a day; the darker, the more you practised.">
+        <SettingsCard title="Activity" description="Darker days had more practice. Choose a day for its details.">
           {calendarError ? (
             <div className="flex flex-col items-start gap-2">
               <p className="text-sm text-text-secondary">{describeError(calendarError).message}</p>
@@ -121,43 +147,32 @@ export function StreakSection() {
                 Try again
               </button>
             </div>
-          ) : !calendar ? (
-            <SkeletonGroup label="Loading your calendar">
-              <Skeleton className="h-40 w-full rounded-xl" />
-            </SkeletonGroup>
           ) : (
-            <>
-              <div className="max-w-full overflow-x-clip">
-                <LearningActivityCalendar days={calendar.days} start={calendar.start} onSelect={setSelected} />
+            <div>
+              <div className={`${CALENDAR_SPACE} max-w-full overflow-x-clip`}>
+                {calendar ? (
+                  <LearningActivityCalendar days={calendar.days} start={calendar.start} onSelect={setSelected} />
+                ) : (
+                  <SkeletonGroup label="Loading your calendar">
+                    <Skeleton className="h-[138px] w-full rounded-xl" />
+                  </SkeletonGroup>
+                )}
               </div>
-              <div aria-live="polite" className="min-h-[3.5rem] rounded-xl bg-surface px-4 py-3 text-sm">
-                {selected ? (
-                  <>
-                    <p className="font-semibold text-foreground">{longDate(selected)}</p>
-                    <p className="text-text-secondary">
+              <div aria-live="polite" className="text-sm">
+                {selected && (
+                  <p className="mt-3 rounded-xl bg-surface px-3.5 py-2.5">
+                    <span className="font-semibold text-foreground">{longDate(selected)}</span>{" "}
+                    <span className="text-text-secondary">
                       {selectedDay
                         ? `✓ Practice day · ${selectedDay.interactions} practice interaction${selectedDay.interactions === 1 ? "" : "s"}`
                         : "No practice that day"}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-text-secondary">Choose a day to see what you did.</p>
+                    </span>
+                  </p>
                 )}
               </div>
-            </>
+            </div>
           )}
         </SettingsCard>
-
-        {appearance?.appearance && (
-          <SettingsCard title="In the header">
-            <ToggleRow
-              label="Show my practice streak in the header"
-              description="The 🔥 next to the time left today. Your practice streak counts either way."
-              checked={appearance.appearance.showStreak}
-              onCheckedChange={(showStreak) => appearance.change({ showStreak })}
-            />
-          </SettingsCard>
-        )}
       </div>
     </>
   );

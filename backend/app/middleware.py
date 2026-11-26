@@ -18,6 +18,13 @@ from app.logging import get_logger, request_id_var, user_id_var
 
 log = get_logger("app.access")
 _REQUEST_ID = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
+# A shared chat's token is its only credential: never written to a log (app/conversations/shares.py).
+_SHARED_TOKEN = re.compile(r"^(/v1/shared/)[^/]+")
+
+
+def logged_path(path: str | None) -> str | None:
+    """The path as the access log keeps it: a shared-chat token is replaced, everything else is kept."""
+    return _SHARED_TOKEN.sub(lambda match: f"{match.group(1)}<token>", path) if path else path
 
 
 class _BodyTooLarge(Exception):
@@ -96,7 +103,7 @@ class RequestContextMiddleware:
                 "request",
                 extra={
                     "method": scope.get("method"),
-                    "path": scope.get("path"),
+                    "path": logged_path(scope.get("path")),
                     "status": status["code"],
                     "duration_ms": round((time.perf_counter() - started) * 1000, 1),
                 },

@@ -3,7 +3,7 @@
 import { Button } from "@v1/ui/button";
 import { EmptyState, ErrorState } from "@v1/ui/empty-state";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { BookOpen, Gamepad2, GraduationCap, Lock, MessageCircle, Mic, PlayCircle } from "lucide-react";
+import { BookOpen, ChevronRight, Gamepad2, GraduationCap, Lock, MessageCircle, Mic, PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
@@ -78,7 +78,7 @@ function ProgramScreen({
   const heading = title ?? (state.status === "ready" ? state.program.title : "Your program");
   return (
     <ProgramPage label={heading}>
-      <h2 className="text-xl font-semibold text-foreground">{heading}</h2>
+      <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">{heading}</h2>
       {intro && <p className="mt-1 max-w-prose text-sm text-text-secondary">{intro}</p>}
       <div className="mt-6">
         {state.status === "loading" && <Loading />}
@@ -168,23 +168,28 @@ const AREA_INFO: Record<ProgramArea, { text: string; icon: typeof GraduationCap 
   videos: { text: "NH lesson videos for each month", icon: PlayCircle },
 };
 
-const CARD = "focus-ring flex h-full min-h-11 items-start gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:bg-surface-2";
+/** One list of places, each a full-width row: scanned top to bottom, like the sidebar it mirrors. */
+const LIST = "flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card elev-1";
+const ROW = "focus-ring-inset flex min-h-14 items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-2";
 
 export function ProgramLanding({ slug }: { slug: string }) {
   return (
     <ProgramScreen slug={slug} intro="Your NetworkersHome program. Pick where to start.">
       {() => (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className={`${LIST} max-w-2xl`}>
           {PROGRAM_AREAS.map((area) => {
             const { text, icon: Icon } = AREA_INFO[area.path];
             return (
               <li key={area.path}>
-                <Link href={`/programs/${slug}/${area.path}`} className={CARD}>
-                  <Icon aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-brand" />
-                  <span>
+                <Link href={`/programs/${slug}/${area.path}`} className={ROW}>
+                  <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold text-foreground">{area.label}</span>
                     <span className="block text-sm text-text-secondary">{text}</span>
                   </span>
+                  <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-text-secondary" />
                 </Link>
               </li>
             );
@@ -195,25 +200,26 @@ export function ProgramLanding({ slug }: { slug: string }) {
   );
 }
 
-/** The months as cards: the month's number (the course's order), its title and what it holds. */
+/** The months in the course's order, one row each: its number, its title and what it holds. */
 function MonthGrid({ program, href, note }: { program: Program; href: (month: number) => string; note?: (material: ProgramMaterial) => string }) {
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <ol className={`${LIST} max-w-3xl`}>
       {program.months.map((month) => (
         <li key={month.month}>
-          <Link href={href(month.month)} className={CARD}>
-            <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-sm font-semibold text-foreground">
+          <Link href={href(month.month)} className={ROW}>
+            <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-sm font-bold tabular-nums text-foreground">
               {month.month}
             </span>
-            <span className="min-w-0">
+            <span className="min-w-0 flex-1">
               <span className="sr-only">Month {month.month}: </span>
-              <span className="block text-base font-semibold leading-snug text-foreground">{month.title}</span>
-              <span className="mt-1 block text-xs text-text-secondary">{(note ?? materialLine)(month.material)}</span>
+              <span className="block text-sm font-semibold leading-snug text-foreground">{month.title}</span>
+              <span className="mt-0.5 block text-xs text-text-secondary">{(note ?? materialLine)(month.material)}</span>
             </span>
+            <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-text-secondary" />
           </Link>
         </li>
       ))}
-    </ul>
+    </ol>
   );
 }
 

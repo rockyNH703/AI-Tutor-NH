@@ -23,6 +23,12 @@ describe("middleware page gate", () => {
     expect(gate("/unsubscribe", "?token=abc.def", false)).toEqual({ action: "next" });
     expect(gate("/unsubscribe", "?token=abc.def", true)).toEqual({ action: "next" });
     expect(gate("/unsubscribe/x", "", false)).toEqual({ action: "redirect", location: "/login?redirect=%2Funsubscribe%2Fx" });
+    // A shared chat needs no account; only a token-shaped single segment is public.
+    const token = "A".repeat(32);
+    expect(gate(`/share/${token}`, "", false)).toEqual({ action: "next" });
+    expect(gate("/share/short", "", false).action).toBe("redirect");
+    expect(gate(`/share/${token}/x`, "", false).action).toBe("redirect");
+    expect(gate("/share", "", false).action).toBe("redirect");
   });
 
   test("the API is never redirected — it answers JSON itself", () => {

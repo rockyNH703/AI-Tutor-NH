@@ -175,6 +175,7 @@ on 2026-10-26 and are not yet re-verified for NetSec):
   "Practice tests"), plus flashcards, `:::cheatsheet[Title]`, ```` ```video ```` (YouTube privacy-enhanced,
   click-to-load: the CSP's one frame host besides Turnstile) and ```` ```topology ````. Details:
   `frontend/CLAUDE.md`. Teaching them is a follow-up ([ROADMAP.md](ROADMAP.md)).
+- **Shared chats (2026-11-26):** the owner's chat menu makes a snapshot link; the public page `/share/<token>` reads the unauthenticated `GET /v1/shared/{token}` (`app/conversations/shares.py`): the token is stored only as its SHA-256 and redacted from the access log, a new link or Stop sharing ends the old one, NH material is withheld, program chats are not shareable (THREAT_MODEL I27, P25).
 - **Retrieval never fails a turn:** skipped or failed with a reason code. Every search is scoped by
   `AccessScope(user_id)` (global sources plus the user's own); options come only from `resolve_assistant_config`.
   The embedding dimension is fixed at **1536** in three places, kept in sync by a test; changing model or dimension

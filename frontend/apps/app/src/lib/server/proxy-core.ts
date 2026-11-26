@@ -127,7 +127,8 @@ function codeForStatus(status: number): string {
 const IPV4 = /^(?:\d{1,3}\.){3}\d{1,3}$/;
 const IPV6 = /^[0-9a-f:]+$/i;
 
-function clientIp(headers: Headers): string | null {
+/** The visitor's address as Cloudflare saw it (`cf-connecting-ip`, checked to be an IP), or null: never a client's own header. */
+export function clientIp(headers: Headers): string | null {
   const ip = headers.get("cf-connecting-ip")?.trim();
   if (!ip) return null;
   return IPV4.test(ip) || (ip.includes(":") && IPV6.test(ip)) ? ip : null;

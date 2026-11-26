@@ -126,7 +126,17 @@ const nextConfig = {
     ];
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // A shared chat (app/share/[token]): never indexed, never kept in a cache, so a revoked link stops at once.
+      {
+        source: "/share/:token",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store, max-age=0" },
+        ],
+      },
+    ];
   },
   webpack(config) {
     config.resolve.alias = { ...config.resolve.alias, katex$: KATEX };

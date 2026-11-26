@@ -11,15 +11,17 @@
  *   /login /signup always reachable; a signed-in visitor is sent on by the page itself
  *                  (the page knows whether the cookie is still valid; we do not)
  *   /unsubscribe   always reachable: an email's link must work on any device, signed in or not
+ *   /share/<token> always reachable: a shared chat is read-only and needs no account (one segment, a token's shape)
  */
 
 export const PUBLIC_PAGES = new Set(["/login", "/signup", "/unsubscribe"]);
+const SHARED_CHAT = /^\/share\/[A-Za-z0-9_-]{32}$/;
 
 export type GateDecision = { action: "next" } | { action: "redirect"; location: string };
 
 export function gate(pathname: string, search: string, hasSession: boolean): GateDecision {
   if (pathname === "/api" || pathname.startsWith("/api/")) return { action: "next" };
-  if (PUBLIC_PAGES.has(pathname)) return { action: "next" };
+  if (PUBLIC_PAGES.has(pathname) || SHARED_CHAT.test(pathname)) return { action: "next" };
   if (hasSession) return { action: "next" };
   const target = `${pathname}${search}`;
   return {

@@ -140,7 +140,9 @@ export function NhEnrolmentCard() {
   return (
     <SettingsCard
       title="NH enrolment"
-      description="Your NetworkersHome programs, opened by your invoice numbers."
+      description={
+        data.programs.length === 0 ? "No program yet: an invoice number opens one." : "Your NetworkersHome programs, opened by your invoice numbers."
+      }
       footer={
         adding ? null : (
           <Button type="button" size="sm" variant="outline" className="min-h-11" onClick={() => setAdding(true)}>
@@ -149,9 +151,7 @@ export function NhEnrolmentCard() {
         )
       }
     >
-      {data.programs.length === 0 ? (
-        <p className="text-sm text-text-secondary">No program yet.</p>
-      ) : (
+      {data.programs.length > 0 && (
         <ul className="flex flex-col gap-1">
           {data.programs.map((program) => (
             <li key={program.slug}>

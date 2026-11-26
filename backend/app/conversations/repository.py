@@ -56,11 +56,21 @@ class ConversationRepository:
         *,
         program_id: uuid.UUID | None = None,
         module_id: uuid.UUID | None = None,
+        view: str = "history",
     ) -> tuple[list[Conversation], str | None]:
-        """Ordinary chats; or, with program_id, that program's chats in one month (module_id) or its QnA (None)."""
+        """Ordinary chats; or, with program_id, that program's chats in one month (module_id) or its QnA (None).
+        An ordinary list's `view`: history (every chat not archived, pinned ones too, by activity), pinned (by when
+        they were pinned) or archived (by when they were archived)."""
         query = select(Conversation).where(Conversation.user_id == user_id)
+        order = Conversation.updated_at
         if program_id is None:
             query = query.where(Conversation.program_id.is_(None))
+            if view == "archived":
+                query, order = query.where(Conversation.archived_at.is_not(None)), Conversation.archived_at
+            else:
+                query = query.where(Conversation.archived_at.is_(None))
+                if view == "pinned":
+                    query, order = query.where(Conversation.pinned_at.is_not(None)), Conversation.pinned_at
         else:
             in_month = (
                 Conversation.module_id == module_id if module_id is not None else Conversation.module_id.is_(None)
@@ -68,15 +78,10 @@ class ConversationRepository:
             query = query.where(Conversation.program_id == program_id, conversation_visible(user_id), in_month)
         if cursor:
             ts, row_id = decode_cursor(cursor)
-            query = query.where(
-                or_(Conversation.updated_at < ts, and_(Conversation.updated_at == ts, Conversation.id < row_id))
-            )
-        rows = list(
-            await self.db.scalars(
-                query.order_by(Conversation.updated_at.desc(), Conversation.id.desc()).limit(limit + 1)
-            )
-        )
-        next_cursor = encode_cursor(rows[limit - 1].updated_at, rows[limit - 1].id) if len(rows) > limit else None
+            query = query.where(or_(order < ts, and_(order == ts, Conversation.id < row_id)))
+        rows = list(await self.db.scalars(query.order_by(order.desc(), Conversation.id.desc()).limit(limit + 1)))
+        key = order.key
+        next_cursor = encode_cursor(getattr(rows[limit - 1], key), rows[limit - 1].id) if len(rows) > limit else None
         return rows[:limit], next_cursor
 
     async def create(
@@ -104,6 +109,24 @@ class ConversationRepository:
     async def rename(self, conversation: Conversation, title: str) -> None:
         conversation.title = title
         await self.touch(conversation.id)
+
+    async def set_place(self, conversation: Conversation, *, pinned: bool | None, archived: bool | None) -> None:
+        """Pin, unpin, archive or restore (the caller holds the row lock). Archiving unpins; pinning an archived chat
+        is refused: restore it first. Setting what is already set changes nothing (its time is kept)."""
+        if archived is True:
+            conversation.pinned_at = None
+            if conversation.archived_at is None:
+                conversation.archived_at = func.clock_timestamp()
+        elif archived is False:
+            conversation.archived_at = None
+        if pinned is True:
+            if conversation.archived_at is not None:
+                raise ValidationFailed("Restore this chat before pinning it.", code="archived")
+            if conversation.pinned_at is None:
+                conversation.pinned_at = func.clock_timestamp()
+        elif pinned is False:
+            conversation.pinned_at = None
+        await self.db.flush()
 
     async def touch(self, conversation_id: uuid.UUID) -> None:
         await self.db.execute(

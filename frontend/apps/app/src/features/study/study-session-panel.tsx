@@ -1,14 +1,14 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
+import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { ConfirmDialog } from "@v1/ui/confirm-dialog";
 import { cn } from "@v1/ui/utils";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
 import { ChoiceGroup } from "@/features/settings/primitives";
-import { useCatalog } from "@/features/settings/learning-data";
+import { trackName, useCatalog } from "@/features/settings/learning-data";
 import { getStudyChapters } from "@/lib/api/study";
 import { STUDY_ACTIVITIES, type StudyActivity, type StudyChapters, type StudySession } from "@/lib/api/types";
 import { ACTIVITY_LABELS, formatStudyTime, isLearningView } from "./study-client";
@@ -56,7 +56,7 @@ export function endedNote(session: StudySession): string | null {
 
 function useSubjectName(): (code: string | null) => string {
   const { catalog } = useCatalog();
-  return (code) => (code ? (catalog?.subjects.find((entry) => entry.code === code)?.name ?? code) : "No exam track");
+  return (code) => (code ? trackName(catalog, code) : "No exam track");
 }
 
 function contextLine(session: StudySession, subjectName: (code: string | null) => string): string {
@@ -68,7 +68,7 @@ function contextLine(session: StudySession, subjectName: (code: string | null) =
 }
 
 const CHAPTER_REASONS: Record<NonNullable<StudyChapters["reason"]>, string> = {
-  no_class: "Domains for lab sessions arrive with the certification question bank, which isn't loaded yet.",
+  no_class: "Domains aren't available for lab sessions yet. You can practise without choosing one.",
   unavailable: "Domains can't be loaded right now. You can practise without choosing one.",
   not_configured: "Domains aren't available. You can practise without choosing one.",
 };
@@ -129,7 +129,8 @@ function ContextForm({
           className={selectClass}
         >
           <option value="">No exam track</option>
-          {catalog?.subjects.map((entry) => (
+          {/* NetSec's tracks; an old session's school subject stays listed while it is the one chosen. */}
+          {[...(catalog?.examTracks ?? []), ...(catalog?.subjects.filter((entry) => entry.code === subject) ?? [])].map((entry) => (
             <option key={entry.code} value={entry.code}>
               {entry.name}
             </option>
@@ -161,14 +162,6 @@ function ContextForm({
           {chapters && chapters !== "loading" && !chapters.available && chapters.reason && (
             <p id={`${id}-chapter-note`} className="text-2xs text-text-secondary">
               {CHAPTER_REASONS[chapters.reason]}
-              {chapters.reason === "no_class" && (
-                <>
-                  {" "}
-                  <Link href="/settings/academic" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-                    Set your level
-                  </Link>
-                </>
-              )}
             </p>
           )}
         </div>
@@ -178,6 +171,7 @@ function ContextForm({
         value={activity}
         options={STUDY_ACTIVITIES.map((value) => ({ value, label: ACTIVITY_LABELS[value] }))}
         onChange={setActivity}
+        stacked
       />
       <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={pending}>
@@ -226,7 +220,24 @@ export function StudySessionPanel() {
         </button>
       </p>
     ) : (
-      <p className="text-sm text-text-secondary">Loading your lab session…</p>
+      // The start form's shape, so the page below does not move when it arrives.
+      <SkeletonGroup label="Loading your lab session" className="flex flex-col gap-4">
+        <Skeleton className="h-4 w-11/12 rounded-md" />
+        <div className="flex flex-col gap-1.5">
+          <Skeleton className="h-5 w-24 rounded-md" />
+          <Skeleton className="h-10 w-full rounded-xl" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-5 w-36 rounded-md" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-10 w-24 rounded-xl" />
+            <Skeleton className="h-10 w-24 rounded-xl" />
+            <Skeleton className="h-10 w-20 rounded-xl" />
+            <Skeleton className="h-10 w-16 rounded-xl" />
+          </div>
+        </div>
+        <Skeleton className="h-10 w-32 rounded-xl" />
+      </SkeletonGroup>
     );
   }
 
@@ -253,10 +264,7 @@ export function StudySessionPanel() {
 
       {!session ? (
         <>
-          <p className="text-sm text-text-secondary">
-            Start a session when you sit down to practise. Time counts only while this page is on screen, in the chat or your
-            files, and you're active.
-          </p>
+          <p className="text-sm text-text-secondary">Time counts while you're active here, in a chat or in your files.</p>
           <ContextForm
             submitLabel="Start session"
             onSubmit={(context) => void studyStore.start(context)}

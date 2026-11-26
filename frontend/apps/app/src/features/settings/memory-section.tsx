@@ -1,10 +1,9 @@
 "use client";
 
-import { Badge } from "@v1/ui/badge";
 import { Button } from "@v1/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@v1/ui/dialog";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { type FormEvent, useCallback, useEffect, useId, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { ApiError, describeError } from "@/lib/api/errors";
@@ -30,7 +29,7 @@ import type {
   MemoryProposal,
 } from "@/lib/api/types";
 import { shortDate } from "@/lib/time";
-import { Notice, SectionHeading, SettingsCard, ToggleRow } from "./primitives";
+import { Disclosure, Notice, SectionHeading, SettingsCard, ToggleRow } from "./primitives";
 
 const KIND_LABELS: Record<MemoryKind, string> = {
   learning_context: "Goals & preferences",
@@ -40,6 +39,10 @@ const KIND_LABELS: Record<MemoryKind, string> = {
 const selectClass = "focus-field h-10 w-full rounded-xl border border-input bg-card px-3 text-base sm:text-sm";
 const textClass = "focus-field min-h-24 w-full resize-y rounded-xl border border-input bg-card px-3 py-2 text-base sm:text-sm";
 const inputClass = "focus-field h-10 w-full rounded-xl border border-input bg-card px-3 text-base sm:text-sm";
+const itemText = "whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground";
+/** 44px on phones, as the Button's default size does; 36px from sm up. */
+const TAP = "h-11 sm:h-9";
+const SNIPPET_LENGTH = 48;
 
 function dateInputValue(value: string | null): string {
   if (!value) return "";
@@ -53,8 +56,10 @@ function dateInputIso(value: string): string | null {
   return value ? new Date(`${value}T23:59:59.999Z`).toISOString() : null;
 }
 
-function formatDate(value: string | null): string {
-  return value ? shortDate(value) : "No expiry";
+/** A row's text, short enough to name its buttons ("Delete: Revising subnetting…"). */
+function snippet(content: string): string {
+  const text = content.replace(/\s+/g, " ").trim();
+  return text.length > SNIPPET_LENGTH ? `${text.slice(0, SNIPPET_LENGTH - 1).trimEnd()}…` : text;
 }
 
 function conflictMessage(error: unknown): string | null {
@@ -63,21 +68,54 @@ function conflictMessage(error: unknown): string | null {
     : null;
 }
 
+/** The id of the item after `id` (else the one before): the row that takes a removed row's place. */
+function neighbour(items: readonly { id: string }[], id: string): string | undefined {
+  const index = items.findIndex((item) => item.id === id);
+  return (items[index + 1] ?? items[index - 1])?.id;
+}
+
+function rowButton(id: string | undefined): HTMLElement | null {
+  return id ? document.querySelector<HTMLElement>(`[data-row="${CSS.escape(id)}"] button`) : null;
+}
+
 function LoadFailure({ title, error, retry }: { title: string; error: unknown; retry: () => void }) {
   return (
     <SettingsCard title={title}>
       <p role="alert" className="text-sm text-text-secondary">
         {describeError(error).message}
       </p>
-      <Button type="button" size="sm" variant="outline" className="self-start" onClick={retry}>
+      <Button type="button" size="sm" variant="outline" className={`${TAP} self-start`} onClick={retry}>
         Try again
       </Button>
     </SettingsCard>
   );
 }
 
-function EmptyState({ children }: { children: string }) {
-  return <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-text-secondary">{children}</p>;
+/** One line of text's height inside a card description, so the card does not grow when the text arrives. */
+function LoadingLine() {
+  return (
+    <span aria-hidden className="block h-5">
+      <span className="block h-4 w-32 max-w-full translate-y-0.5 animate-soft-pulse rounded-md bg-surface-2" />
+    </span>
+  );
+}
+
+type Fact = { term: string; value: string; showTerm?: boolean };
+
+/** An item's facts on one line, a dot between them. A term the value already explains is for screen readers only. */
+function Facts({ facts }: { facts: (Fact | null)[] }) {
+  return (
+    <dl className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-xs text-text-secondary">
+      {facts.map((fact) =>
+        fact ? (
+          <div key={fact.term} className="before:mr-1.5 before:content-['·'] first:before:content-none">
+            <dt className={fact.showTerm ? "inline" : "sr-only"}>{`${fact.term}: `}</dt>
+            <dd className="inline">{fact.value}</dd>
+          </div>
+        ) : null,
+      )}
+    </dl>
+  );
 }
 
 function saveExport(data: unknown) {
@@ -146,8 +184,15 @@ function EditorDialog({
           </div>
           <div className="space-y-1.5">
             <label htmlFor={expiryId} className="text-sm font-bold text-foreground">Expires (optional)</label>
-            <input id={expiryId} className={inputClass} type="date" value={expiresAt} onChange={(event) => setExpiresAt(event.target.value)} />
-            <p className="text-xs text-text-secondary">After this date, NetSec AI will not recall it.</p>
+            <input
+              id={expiryId}
+              className={inputClass}
+              type="date"
+              value={expiresAt}
+              aria-describedby={`${expiryId}-hint`}
+              onChange={(event) => setExpiresAt(event.target.value)}
+            />
+            <p id={`${expiryId}-hint`} className="text-xs text-text-secondary">After this date, NetSec AI will not recall it.</p>
           </div>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
@@ -196,6 +241,7 @@ function ConfirmDialog({
   );
 }
 
+/** A suggestion to review: its text, its facts, why it was proposed, and the three answers. */
 export function MemoryProposalDetails({
   proposal,
   busy,
@@ -209,46 +255,71 @@ export function MemoryProposalDetails({
   onEdit: () => void;
   onReject: () => void;
 }) {
+  const name = snippet(proposal.content);
   return (
-    <li className="rounded-xl border border-border p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="brand">{KIND_LABELS[proposal.kind]}</Badge>
-        <Badge variant="neutral">{proposal.operation === "add" ? "New" : "Correction"}</Badge>
-        <span className="text-xs text-text-secondary">{Math.round(proposal.confidence * 100)}% confidence</span>
-      </div>
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{proposal.content}</p>
-      <dl className="mt-3 grid gap-1 text-xs text-text-secondary sm:grid-cols-2">
-        <div><dt className="inline font-bold text-foreground">Observed: </dt><dd className="inline">{shortDate(proposal.observedAt)}</dd></div>
-        <div><dt className="inline font-bold text-foreground">Expires: </dt><dd className="inline">{formatDate(proposal.expiresAt)}</dd></div>
-        <div className="sm:col-span-2"><dt className="inline font-bold text-foreground">Why proposed: </dt><dd className="inline">{proposal.evidenceReason}</dd></div>
-      </dl>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" size="sm" onClick={onApprove} disabled={busy}>Approve</Button>
-        <Button type="button" size="sm" variant="outline" onClick={onEdit} disabled={busy}>Edit & approve</Button>
-        <Button type="button" size="sm" variant="ghost" onClick={onReject} disabled={busy}>Reject</Button>
+    <li data-row={proposal.id} className="flex flex-col gap-1.5 py-3">
+      <p className={itemText}>{proposal.content}</p>
+      <Facts
+        facts={[
+          { term: "Category", value: KIND_LABELS[proposal.kind] },
+          { term: "Type", value: proposal.operation === "add" ? "New" : "Correction" },
+          { term: "Confidence", value: `${Math.round(proposal.confidence * 100)}% confidence` },
+          { term: "Observed", value: shortDate(proposal.observedAt), showTerm: true },
+          proposal.expiresAt ? { term: "Expires", value: shortDate(proposal.expiresAt), showTerm: true } : null,
+        ]}
+      />
+      <p className="text-xs leading-relaxed text-text-secondary">
+        <span className="font-bold text-foreground">Why proposed:</span> {proposal.evidenceReason}
+      </p>
+      <div className="mt-1.5 flex flex-wrap gap-2">
+        <Button type="button" size="sm" className={TAP} onClick={onApprove} disabled={busy} aria-label={`Approve: ${name}`}>
+          Approve
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className={TAP}
+          onClick={onEdit}
+          disabled={busy}
+          aria-label={`Edit & approve: ${name}`}
+        >
+          Edit & approve
+        </Button>
+        <Button type="button" size="sm" variant="ghost" className={TAP} onClick={onReject} disabled={busy} aria-label={`Reject: ${name}`}>
+          Reject
+        </Button>
       </div>
     </li>
   );
 }
 
+/** An active memory as one row: its text and facts, with Correct and Delete beside it from sm up. */
 export function MemoryItemDetails({ memory, busy, onEdit, onDelete }: { memory: MemoryItem; busy: boolean; onEdit: () => void; onDelete: () => void }) {
   const origin = memory.origin === "approved_extraction" ? "Approved suggestion" : memory.origin === "explicit_chat" ? "Saved from chat" : "Added here";
+  const name = snippet(memory.content);
   return (
-    <li className="rounded-xl border border-border p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="brand">{KIND_LABELS[memory.kind]}</Badge>
-        <Badge variant="source">{origin}</Badge>
+    <li data-row={memory.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <p className={itemText}>{memory.content}</p>
+        <Facts
+          facts={[
+            { term: "Category", value: KIND_LABELS[memory.kind] },
+            { term: "Source", value: origin },
+            { term: "Confirmed", value: shortDate(memory.lastConfirmedAt), showTerm: true },
+            memory.expiresAt ? { term: "Expires", value: shortDate(memory.expiresAt), showTerm: true } : null,
+            memory.validFrom ? { term: "Valid from", value: shortDate(memory.validFrom), showTerm: true } : null,
+            memory.validTo ? { term: "Valid until", value: shortDate(memory.validTo), showTerm: true } : null,
+          ]}
+        />
       </div>
-      <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{memory.content}</p>
-      <dl className="mt-3 grid gap-1 text-xs text-text-secondary sm:grid-cols-2">
-        <div><dt className="inline font-bold text-foreground">Confirmed: </dt><dd className="inline">{shortDate(memory.lastConfirmedAt)}</dd></div>
-        <div><dt className="inline font-bold text-foreground">Expires: </dt><dd className="inline">{formatDate(memory.expiresAt)}</dd></div>
-        {memory.validFrom && <div><dt className="inline font-bold text-foreground">Valid from: </dt><dd className="inline">{shortDate(memory.validFrom)}</dd></div>}
-        {memory.validTo && <div><dt className="inline font-bold text-foreground">Valid until: </dt><dd className="inline">{shortDate(memory.validTo)}</dd></div>}
-      </dl>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={onEdit} disabled={busy}>Correct</Button>
-        <Button type="button" size="sm" variant="ghost" onClick={onDelete} disabled={busy}>Delete</Button>
+      <div className="flex shrink-0 gap-2">
+        <Button type="button" size="sm" variant="outline" className={TAP} onClick={onEdit} disabled={busy} aria-label={`Correct: ${name}`}>
+          Correct
+        </Button>
+        <Button type="button" size="sm" variant="ghost" className={TAP} onClick={onDelete} disabled={busy} aria-label={`Delete: ${name}`}>
+          Delete
+        </Button>
       </div>
     </li>
   );
@@ -264,6 +335,26 @@ export function MemorySection() {
   const [editor, setEditor] = useState<{ type: "new" } | { type: "memory"; item: MemoryItem } | { type: "proposal"; item: MemoryProposal } | null>(null);
   const [confirm, setConfirm] = useState<{ type: "delete"; item: MemoryItem } | { type: "reject"; item: MemoryProposal } | { type: "clear" } | null>(null);
   const [dialogError, setDialogError] = useState<string | null>(null);
+  const addButton = useRef<HTMLButtonElement>(null);
+  const suggestionsCard = useRef<HTMLDivElement>(null);
+  const nextFocus = useRef<(() => HTMLElement | null | undefined) | null>(null);
+
+  // A removed row takes its focused button with it: once the lists have re-rendered, focus goes to the next action
+  // (the neighbouring row, else the list's own control) instead of falling to the page.
+  useEffect(() => {
+    if (!memories || !proposals) return;
+    nextFocus.current?.()?.focus();
+    nextFocus.current = null;
+  }, [memories, proposals]);
+
+  const focusAfterMemory = (id: string) => {
+    const next = neighbour(memories ?? [], id);
+    nextFocus.current = () => rowButton(next) ?? addButton.current;
+  };
+  const focusAfterProposal = (id: string) => {
+    const next = neighbour(proposals ?? [], id);
+    nextFocus.current = () => rowButton(next) ?? suggestionsCard.current?.querySelector<HTMLElement>('[role="switch"]');
+  };
 
   const load = useCallback(async () => {
     setError(null);
@@ -316,12 +407,16 @@ export function MemorySection() {
     setDialogError(null);
     try {
       const saved = await approveMemoryProposal(proposal.id, { expectedVersion: proposal.version, ...edits });
+      focusAfterProposal(proposal.id);
       setProposals((current) => current?.filter((item) => item.id !== proposal.id) ?? []);
       setMemories((current) => [saved, ...(current ?? [])]);
       setEditor(null);
       toast.success("Suggestion approved.");
     } catch (caught) {
-      if (!(await refreshConflict(caught))) setDialogError(describeError(caught).message);
+      if (await refreshConflict(caught)) return;
+      // From the row's Approve there is no dialog to show the error in.
+      if (editor) setDialogError(describeError(caught).message);
+      else toast.error(describeError(caught).message);
     } finally {
       setBusy(null);
     }
@@ -334,10 +429,13 @@ export function MemorySection() {
     try {
       if (editor.type === "new") {
         const saved = await createMemory(values);
+        // The first row moves the card's buttons under the list (a new element): keep focus on "Add memory".
+        nextFocus.current = () => addButton.current;
         setMemories((current) => [saved, ...(current ?? [])]);
         toast.success("Memory added.");
       } else if (editor.type === "memory") {
         const saved = await correctMemory(editor.item.id, { expectedVersion: editor.item.version, ...values });
+        nextFocus.current = () => rowButton(saved.id);
         setMemories((current) => [saved, ...(current?.filter((item) => item.id !== editor.item.id) ?? [])]);
         toast.success("Memory corrected.");
       } else {
@@ -360,14 +458,17 @@ export function MemorySection() {
     try {
       if (confirm.type === "delete") {
         await deleteMemory(confirm.item.id, confirm.item.version);
+        focusAfterMemory(confirm.item.id);
         setMemories((current) => current?.filter((item) => item.id !== confirm.item.id) ?? []);
         toast.success("Memory deleted.");
       } else if (confirm.type === "reject") {
         await rejectMemoryProposal(confirm.item.id, confirm.item.version);
+        focusAfterProposal(confirm.item.id);
         setProposals((current) => current?.filter((item) => item.id !== confirm.item.id) ?? []);
         toast.success("Suggestion rejected.");
       } else {
         await clearMemories();
+        nextFocus.current = () => addButton.current;
         setMemories([]);
         setProposals([]);
         setPreferences((current) => current ? { ...current, automaticProposals: false, version: current.version + 1 } : current);
@@ -394,61 +495,89 @@ export function MemorySection() {
   };
 
   const editorItem = editor && editor.type !== "new" ? editor.item : null;
+  const nothingToClear =
+    !preferences || !proposals || !memories || (memories.length === 0 && proposals.length === 0 && !preferences.automaticProposals);
 
   return (
     <>
-      <SectionHeading title="Memory" description="Review and control the context NetSec AI may recall in future chats." />
+      <SectionHeading title="Memory" description="What NetSec AI may recall in future chats." />
       {error ? (
         <LoadFailure title="Couldn't load memory" error={error} retry={() => void load()} />
-      ) : !preferences || !proposals || !memories ? (
-        <SkeletonGroup label="Loading memory settings" className="space-y-3">
-          <Skeleton className="h-32 w-full rounded-2xl" />
-          <Skeleton className="h-64 w-full rounded-2xl" />
-        </SkeletonGroup>
       ) : (
+        // Every card is drawn at once, its contents loading in place: nothing below moves when they arrive.
         <div className="flex flex-col gap-4">
           {notice && <Notice tone="warning">{notice}</Notice>}
-          <SettingsCard title="Suggestions" description="NetSec AI never saves automatic suggestions until you approve them.">
-            <ToggleRow
-              label="Suggest memories from chats"
-              description="When on, eligible completed chats may create review items here. Turning it off stops future automatic proposals."
-              checked={preferences.automaticProposals}
-              disabled={busy === "preferences"}
-              onCheckedChange={(checked) => void changeAutomatic(checked)}
-            />
-          </SettingsCard>
-
-          <SettingsCard title={`Review suggestions (${proposals.length})`} description="Approve as written, edit first, or reject. Rejected suggestions are not recalled.">
-            {proposals.length === 0 ? <EmptyState>No suggestions need review.</EmptyState> : (
-              <ul aria-label="Memory suggestions" className="space-y-3">
-                {proposals.map((proposal) => (
-                  <MemoryProposalDetails
-                    key={proposal.id}
-                    proposal={proposal}
-                    busy={busy === proposal.id}
-                    onApprove={() => void approve(proposal)}
-                    onEdit={() => { setDialogError(null); setEditor({ type: "proposal", item: proposal }); }}
-                    onReject={() => { setDialogError(null); setConfirm({ type: "reject", item: proposal }); }}
-                  />
-                ))}
-              </ul>
-            )}
-          </SettingsCard>
+          <div ref={suggestionsCard}>
+            <SettingsCard title={proposals?.length ? `Suggestions (${proposals.length})` : "Suggestions"}>
+              {preferences ? (
+                <ToggleRow
+                  label="Suggest memories from chats"
+                  description="You approve each one here before it's saved."
+                  checked={preferences.automaticProposals}
+                  disabled={busy === "preferences"}
+                  onCheckedChange={(checked) => void changeAutomatic(checked)}
+                />
+              ) : (
+                // As tall as the switch row: its label line and one line of description.
+                <SkeletonGroup label="Loading memory settings">
+                  <Skeleton className="h-[2.625rem] w-full rounded-lg" />
+                </SkeletonGroup>
+              )}
+              {proposals && proposals.length > 0 && (
+                <ul aria-label="Memory suggestions" className="divide-y divide-border border-y border-border">
+                  {proposals.map((proposal) => (
+                    <MemoryProposalDetails
+                      key={proposal.id}
+                      proposal={proposal}
+                      busy={busy === proposal.id}
+                      onApprove={() => void approve(proposal)}
+                      onEdit={() => { setDialogError(null); setEditor({ type: "proposal", item: proposal }); }}
+                      onReject={() => { setDialogError(null); setConfirm({ type: "reject", item: proposal }); }}
+                    />
+                  ))}
+                </ul>
+              )}
+              <Disclosure label="How memory works">
+                <ul className="flex list-disc flex-col gap-1 pl-5 text-sm leading-relaxed text-text-secondary">
+                  <li>Only active, unexpired memories are recalled.</li>
+                  <li>A correction replaces the earlier version.</li>
+                  <li>Suggestions come from eligible completed chats. Rejected ones are never recalled.</li>
+                  <li>Turning suggestions off stops new ones.</li>
+                </ul>
+              </Disclosure>
+            </SettingsCard>
+          </div>
 
           <SettingsCard
-            title={`Active memory (${memories.length})`}
-            description="Only active, unexpired items are used for recall. Corrections replace the earlier version."
+            title={memories ? `Active memory (${memories.length})` : "Active memory"}
+            description={!memories ? <LoadingLine /> : memories.length === 0 ? "Nothing saved yet." : undefined}
             footer={
-              <div className="flex flex-wrap justify-end gap-2">
-                <Button type="button" size="sm" variant="outline" onClick={() => void download()} disabled={busy === "export" || memories.length === 0}>
+              <>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className={TAP}
+                  onClick={() => void download()}
+                  disabled={busy === "export" || !memories?.length}
+                >
                   {busy === "export" ? "Exporting…" : "Export JSON"}
                 </Button>
-                <Button type="button" size="sm" onClick={() => { setDialogError(null); setEditor({ type: "new" }); }}>Add memory</Button>
-              </div>
+                <Button
+                  ref={addButton}
+                  type="button"
+                  size="sm"
+                  className={TAP}
+                  disabled={!memories}
+                  onClick={() => { setDialogError(null); setEditor({ type: "new" }); }}
+                >
+                  Add memory
+                </Button>
+              </>
             }
           >
-            {memories.length === 0 ? <EmptyState>No active memories yet. Add one, or approve a suggestion.</EmptyState> : (
-              <ul aria-label="Active memories" className="space-y-3">
+            {memories && memories.length > 0 && (
+              <ul aria-label="Active memories" className="divide-y divide-border">
                 {memories.map((memory) => (
                   <MemoryItemDetails
                     key={memory.id}
@@ -464,9 +593,20 @@ export function MemorySection() {
 
           <SettingsCard
             title="Clear memory"
-            description="Permanently deletes active memory and pending suggestions, and turns automatic suggestions off. This cannot be undone."
+            description="Deletes all memories and suggestions, and turns suggestions off. Can't be undone."
             tone="danger"
-            footer={<Button type="button" size="sm" variant="destructive" disabled={memories.length === 0 && proposals.length === 0 && !preferences.automaticProposals} onClick={() => { setDialogError(null); setConfirm({ type: "clear" }); }}>Clear all memory</Button>}
+            footer={
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                className={TAP}
+                disabled={nothingToClear}
+                onClick={() => { setDialogError(null); setConfirm({ type: "clear" }); }}
+              >
+                Clear all memory
+              </Button>
+            }
           />
         </div>
       )}

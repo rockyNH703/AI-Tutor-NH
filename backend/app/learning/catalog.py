@@ -22,7 +22,7 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass
 
-CATALOG_VERSION = 1
+CATALOG_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -137,7 +137,22 @@ SUBJECTS = _entries(
     ("psychology", "Psychology"),
 )
 
-# Catalog list per learner-profile field (and "subjects" for the subject list).
+# NetSec's exam tracks: the families the certification bank files its books under (app/qbank/netsec.py FAMILIES), so
+# the bank's subject codes have names, and a lab session can name its track. SUBJECTS (the school subjects) stay for
+# PadhAI's dormant learner profile.
+EXAM_TRACKS = _entries(
+    ("routing_switching", "Routing and Switching"),
+    ("security", "Security"),
+    ("cloud", "Cloud Networking"),
+    ("automation", "Automation and DevOps"),
+    ("wireless", "Wireless"),
+    ("data_center", "Data Center"),
+    ("linux", "Linux"),
+    ("ai", "AI"),
+    ("general", "Career and IT Operations"),
+)
+
+# Catalog list per learner-profile field (and "subjects" for the subject list, "examTracks" for the tracks).
 LISTS: dict[str, tuple[Entry, ...]] = {
     "grades": GRADES,
     "boards": BOARDS,
@@ -145,6 +160,7 @@ LISTS: dict[str, tuple[Entry, ...]] = {
     "mediums": MEDIUMS,
     "academicYears": ACADEMIC_YEARS,
     "subjects": SUBJECTS,
+    "examTracks": EXAM_TRACKS,
 }
 FIELD_LISTS = {
     "grade": GRADES,

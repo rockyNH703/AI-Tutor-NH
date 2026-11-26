@@ -105,8 +105,11 @@ test("the chat dialogs keep focus inside, close on Escape and give focus back", 
   };
 
   await test.step("rename: focus starts in the field", async () => {
-    const trigger = item.getByRole("button", { name: /^Rename/ });
+    // From the row's "…" menu, by keyboard: the menu opens on Enter, Rename is chosen with Enter.
+    const trigger = item.getByRole("button", { name: /^Options for / });
     await trigger.focus();
+    await page.keyboard.press("Enter");
+    await page.getByRole("menuitem", { name: "Rename", exact: true }).focus();
     await page.keyboard.press("Enter");
     const dialog = page.getByRole("dialog", { name: "Rename chat" });
     await expect(dialog.getByLabel("Name")).toBeFocused();
@@ -118,8 +121,10 @@ test("the chat dialogs keep focus inside, close on Escape and give focus back", 
   });
 
   await test.step("delete: focus starts on Cancel, never on the destructive button", async () => {
-    const trigger = item.getByRole("button", { name: /^Delete/ });
+    const trigger = item.getByRole("button", { name: /^Options for / });
     await trigger.focus();
+    await page.keyboard.press("Enter");
+    await page.getByRole("menuitem", { name: "Delete", exact: true }).focus();
     await page.keyboard.press("Enter");
     const dialog = page.getByRole("dialog", { name: "Delete this chat?" });
     await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
@@ -151,7 +156,10 @@ test("the skip link goes to the page, then Tab reaches the message box", async (
   await expect(skip).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.locator("#main")).toBeFocused();
-  // A new chat is its greeting and the message box: only Attach files comes before it.
+  // A new chat is its greeting and the message box. First the transcript's scroller (focusable since e3a2041, so the
+  // keys scroll a conversation), then Attach files, then the message box.
+  await page.keyboard.press("Tab");
+  await expect(page.locator('div:has(> section[aria-label="Conversation"])')).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Attach files" })).toBeFocused();
   await page.keyboard.press("Tab");

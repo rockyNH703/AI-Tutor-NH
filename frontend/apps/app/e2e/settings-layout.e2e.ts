@@ -1,4 +1,4 @@
-import { expect, expectNoHorizontalOverflow, test } from "./support";
+import { expect, expectNoHorizontalOverflow, test, waitForHydration } from "./support";
 
 /**
  * Settings as product cards: every section at every width fits (no sideways scroll, no card wider
@@ -29,18 +29,22 @@ test("every Settings section fits at 320 to 1440px, cards included", async ({ pa
 
 test("a field is a row on wide screens and stacks on phones; choice groups keep their names", async ({ page, account: _ }) => {
   const positions = async () => {
-    const label = await page.getByText("Display name", { exact: true }).boundingBox();
-    const input = await page.getByLabel("Display name").boundingBox();
+    // The field in the page's main, after hydration: a run once found a second "Display name" label outside it.
+    const main = page.getByRole("main");
+    const label = await main.locator("label", { hasText: /^Display name$/ }).boundingBox();
+    const input = await main.getByLabel("Display name").boundingBox();
     return { label, input };
   };
 
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/settings/profile");
+  await waitForHydration(page);
   let { label, input } = await positions();
   expect(label && input && label.x + label.width <= input.x).toBe(true); // side by side
 
   await page.setViewportSize({ width: 375, height: 800 });
   await page.goto("/settings/profile");
+  await waitForHydration(page);
   ({ label, input } = await positions());
   expect(label && input && label.y + label.height <= input.y).toBe(true); // stacked
 

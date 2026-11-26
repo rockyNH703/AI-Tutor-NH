@@ -12,7 +12,7 @@ import type {
   TutorPreviewRequest,
 } from "@/lib/api/types";
 import { LEARNING_FIELDS, PREFERENCES, TUTOR_FIELDS, reachesAssistant } from "./learning-labels";
-import { ChoiceGroup, SectionHeading, SettingsCard } from "./primitives";
+import { ChoiceGroup, Disclosure, SectionHeading, SettingsCard } from "./primitives";
 import { useAutoSaver } from "./use-auto-saver";
 
 function preferenceChanges(set: Partial<LearningPreferences>): Partial<LearningPreferenceValues> {
@@ -75,18 +75,15 @@ function NotUsedNow({
 }) {
   if (!fields.length) return null;
   return (
-    <SettingsCard
-      title="Not used by NetSec AI right now"
-      description="These are kept and still saved as you change them, but they don't change NetSec AI's answers at the moment."
-    >
-      <details>
-        <summary className="focus-ring cursor-pointer self-start rounded text-sm font-medium text-brand underline underline-offset-2">
-          {`Show ${fields.length} more ${fields.length === 1 ? "preference" : "preferences"}`}
-        </summary>
-        <div className="mt-6 flex flex-col gap-6">
+    <SettingsCard title="Not used by NetSec AI right now" description="Still saved, but they don't change answers at the moment.">
+      <Disclosure
+        label={`Show ${fields.length} more ${fields.length === 1 ? "preference" : "preferences"}`}
+        openLabel={`Hide ${fields.length === 1 ? "it" : "them"}`}
+      >
+        <div className="flex flex-col gap-5">
           <Choices fields={fields} value={value} change={change} />
         </div>
-      </details>
+      </Disclosure>
     </SettingsCard>
   );
 }
@@ -106,7 +103,7 @@ function LoadFailed({ error, retry }: { error: unknown; retry: () => void }) {
   );
 }
 
-const NEUTRAL_NOTE = "No preference leaves it to NetSec AI. Changes are saved as you make them.";
+const NEUTRAL_NOTE = "Saved as you choose. No preference leaves it to NetSec AI.";
 
 const LEARNING_USED = LEARNING_FIELDS.filter(reachesAssistant);
 const LEARNING_UNUSED = LEARNING_FIELDS.filter((field) => !reachesAssistant(field));
@@ -119,7 +116,7 @@ export function LearningSection() {
     <>
       <SectionHeading
         title="Learning Preferences"
-        description="How you like answers explained: language, depth and visuals. NetSec AI follows these unless you ask it for something else in a chat."
+        description="How answers are explained: language, depth and visuals. A request in a chat overrides them."
       />
       {loadError ? (
         <LoadFailed error={loadError} retry={retry} />
@@ -139,8 +136,7 @@ export function LearningSection() {
   );
 }
 
-const PREVIEW_NOTE =
-  "Added to NetSec AI's standard instructions, from your Engineering Profile and the answer preferences in Learning Preferences and AI Assistant. Your name, email and photo are never included.";
+const PREVIEW_NOTE = "Your profile and answer preferences, as NetSec AI receives them. Never your name, email or photo.";
 
 /**
  * "What NetSec AI is told": the API's own preview (POST /v1/learning/tutor-preview), built by the
@@ -186,6 +182,7 @@ export function TutorPreviewCard({
 
   return (
     <SettingsCard title="What NetSec AI is told" description={description}>
+      <Disclosure label="Show the preview" openLabel="Hide the preview">
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : text === null ? (
@@ -204,6 +201,7 @@ export function TutorPreviewCard({
           {text}
         </pre>
       )}
+      </Disclosure>
     </SettingsCard>
   );
 }
@@ -215,7 +213,7 @@ export function TutorSection() {
     <>
       <SectionHeading
         title="AI Assistant"
-        description="How long NetSec AI's answers are, how it works through problems with you, and what it is told."
+        description="Answer length, how it works through problems, and what it is told."
       />
       {loadError ? (
         <LoadFailed error={loadError} retry={retry} />

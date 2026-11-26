@@ -60,6 +60,14 @@ export function useCatalog() {
   return useSharedCatalog(academicCatalog, getCatalog);
 }
 
+/**
+ * An exam track's name (or an old school subject's, for records made before the tracks); the code itself when the
+ * catalog doesn't know it, or hasn't loaded yet.
+ */
+export function trackName(catalog: AcademicCatalog | null | undefined, code: string): string {
+  return (catalog?.examTracks.find((entry) => entry.code === code) ?? catalog?.subjects.find((entry) => entry.code === code))?.name ?? code;
+}
+
 /** The engineering catalog (roles, experience, focus areas, platforms, certifications), shared the same way. */
 export function useEngineeringCatalog() {
   return useSharedCatalog(engineeringCatalog, getEngineeringCatalog);

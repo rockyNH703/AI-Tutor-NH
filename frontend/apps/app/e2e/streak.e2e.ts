@@ -91,8 +91,9 @@ test("the streak counts real questions only, and opens Practice Streak with the 
   await page.goto("/");
   await expect(streakBadge(page)).toHaveCount(0);
 
-  // And the tutor is told the streak.
-  expect(await tutorKnows(page)).toContain("Learning so far: a 1-day learning streak");
+  // And the tutor is told no streak: chatting alone tells the model nothing of the student's activity; only someone
+  // who practises with the question bank gets a "Practice so far" section (app/learning/tutor.py, _practice_lines).
+  expect(await tutorKnows(page)).not.toContain("practice streak");
 });
 
 test("the bell shows a new sign-in; opening it reads nothing; Read all and Clear all outlast a reload", async ({

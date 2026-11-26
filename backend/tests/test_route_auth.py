@@ -16,6 +16,7 @@ PUBLIC = {
     ("GET", "/ready"): "readiness probe",
     ("GET", "/v1/catalog/academic"): "the same reference data for everyone, needed before sign-up is complete",
     ("POST", "/v1/notifications/unsubscribe"): "the link in an email; authorised by its signed token, not a session",
+    ("GET", "/v1/shared/{token}"): "a chat its owner shared: a read-only snapshot behind an unguessable link (I27)",
 }
 
 PARAMETER = re.compile(r"\{[^}]+\}")

@@ -6,12 +6,12 @@ import { EmptyState, ErrorState } from "@v1/ui/empty-state";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { CheckCircle2, ChevronDown, ClipboardList } from "lucide-react";
 import Link from "next/link";
-import { type ReactNode, useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useState } from "react";
 
+import { TabPanel, ViewTabs, useTabIds, useViewParam } from "@/components/view-tabs";
 import { LazyInlineMarkdown } from "@/features/markdown/lazy-message-content";
-import { useCatalog } from "@/features/settings/learning-data";
-import { Notice } from "@/features/settings/primitives";
-import { Panel, Stat } from "@/features/study/study-activity-view";
+import { trackName, useCatalog } from "@/features/settings/learning-data";
+import { Panel } from "@/features/study/study-activity-view";
 import { describeError } from "@/lib/api/errors";
 import { getLearnerProfile } from "@/lib/api/learning";
 import { getMastery, getMistakes, getPracticePlan, getPracticeTests, getRevisions } from "@/lib/api/progress";
@@ -37,7 +37,11 @@ const summary =
   "focus-ring flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden";
 const MISTAKES_SHOWN = 50;
 const TESTS_SHOWN = 20;
-const ASK_HINT = "Opens a new chat with your request filled in; nothing is sent until you press Send.";
+const ASK_HINT = "Buttons here open a new chat with the request filled in. Nothing is sent until you press Send.";
+/** A track's level (the bank's tier). */
+const TIERS: Record<number, string> = { 1: "Associate", 2: "Professional", 3: "Expert" };
+const VIEWS = ["plan", "mastery", "missed", "tests"] as const;
+type View = (typeof VIEWS)[number];
 
 type Variant = NonNullable<BadgeProps["variant"]>;
 
@@ -165,37 +169,26 @@ function AskButton({ label, name, request, hint }: { label: string; name: string
   );
 }
 
-function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: string) => string }) {
-  const hint = useId();
+function Plan({ plan, subjectName, hint }: { plan: PracticePlan; subjectName: (code: string) => string; hint: string }) {
   return (
     <div className="flex flex-col gap-4">
-      {plan.needsProfile && (
-        <Notice>
-          Practice plans built from your exam tracks arrive with NetSec AI's certification question bank, which
-          isn't loaded yet. Your{" "}
-          <Link href="/settings/engineering" className={link}>
-            Engineering Profile
-          </Link>{" "}
-          already tells NetSec AI your platforms and certification goal.
-        </Notice>
-      )}
       {plan.tasks.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
           title={plan.summary.answered ? "Nothing planned for today" : "No plan yet"}
           description={
             plan.summary.answered
-              ? "Nothing is due for review and no new topic is waiting. You can practise any domain under Practice by domain."
-              : "Your plan comes from the certification practice tests you take in the chat. Choose a domain under Practice by domain to take your first one."
+              ? "Nothing is due and no new topic is waiting. Practise any domain below."
+              : "Your plan builds from the practice tests you take. Choose a domain to take your first one."
           }
           action={null}
         />
       ) : (
         <>
-          {plan.insufficientHistory && (
-            <p className="text-sm text-text-secondary">
-              There are only a few answers to go on so far, so this plan is a starting point: it adapts as you answer more practice
-              questions.
+          {(plan.insufficientHistory || plan.needsProfile) && (
+            <p className="text-xs text-text-secondary">
+              {plan.insufficientHistory ? "A starting point: it adapts as you answer more questions. " : ""}
+              {plan.needsProfile ? "It draws on every certification track for now." : ""}
             </p>
           )}
           <ol className="flex flex-col divide-y divide-border">
@@ -213,7 +206,7 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
                     {subjectName(task.subjectCode)} · Domain {task.chapterNumber}: {task.chapterTitle}
                   </p>
                   <p className="text-xs text-text-secondary">
-                    {reason(task)} About {task.minutes} min, {task.questions} questions.
+                    {reason(task)} {task.minutes} min · {task.questions} questions
                   </p>
                   {task.done && (
                     <p className="flex items-center gap-1.5 text-xs font-semibold text-success">
@@ -231,33 +224,8 @@ function Plan({ plan, subjectName }: { plan: PracticePlan; subjectName: (code: s
               </li>
             ))}
           </ol>
-          <p id={hint} className="text-2xs text-text-secondary">
-            {ASK_HINT}
-          </p>
         </>
       )}
-      <dl className="grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-2">
-        {plan.answeredToday >= plan.answersForLearningDay ? (
-          <Stat
-            value={String(plan.answeredToday)}
-            label="practice answers today"
-            hint="Enough to make today a practice day for your practice streak."
-          />
-        ) : (
-          <Stat
-            value={`${plan.answeredToday} of ${plan.answersForLearningDay}`}
-            label="practice answers today"
-            hint={`${plan.answersForLearningDay} make today a practice day for your practice streak, as a question answered in the chat does.`}
-          />
-        )}
-        {plan.tasks.length > 0 && (
-          <Stat
-            value={`${plan.budgetMinutes} min`}
-            label="planned for today"
-            hint={plan.budgetSource === "goal" ? "Your daily goal from Practice & Lab Time." : "Set a daily goal in Practice & Lab Time to change it."}
-          />
-        )}
-      </dl>
     </div>
   );
 }
@@ -284,15 +252,13 @@ function RevisionRow({ item, subjectName, hint }: { item: RevisionItem; subjectN
   );
 }
 
-function Revision({ revisions, subjectName }: { revisions: Revisions; subjectName: (code: string) => string }) {
-  const hint = useId();
+function Revision({ revisions, subjectName, hint }: { revisions: Revisions; subjectName: (code: string) => string; hint: string }) {
   const now = revisions.items.filter((item) => item.state !== "upcoming");
   const later = revisions.items.filter((item) => item.state === "upcoming");
   if (!revisions.items.length) {
     return (
       <p className="text-sm text-text-secondary">
-        Nothing to review yet. A topic you practise comes back for review after {revisions.ladderDays.join(", ")} days, a
-        longer gap each time you remember it.
+        Nothing to review yet. A topic you practise comes back after {revisions.ladderDays.join(", ")} days.
       </p>
     );
   }
@@ -312,11 +278,6 @@ function Revision({ revisions, subjectName }: { revisions: Revisions; subjectNam
       ) : (
         <p className="text-sm text-text-secondary">Nothing is due today.</p>
       )}
-      {now.some((item) => item.state === "overdue" || item.state === "due") && (
-        <p id={hint} className="text-2xs text-text-secondary">
-          {ASK_HINT}
-        </p>
-      )}
       {later.length > 0 && (
         <details className="group rounded-xl border border-border">
           <summary className={summary}>
@@ -330,42 +291,6 @@ function Revision({ revisions, subjectName }: { revisions: Revisions; subjectNam
           </ul>
         </details>
       )}
-    </div>
-  );
-}
-
-function ExamDate({ profile, plan }: { profile: LearnerProfile; plan: PracticePlan | null }) {
-  // Days left as the server counts them (India days), once the plan for this same date is in. A
-  // date that has passed has none, so that is read from the plan's own day (India).
-  const left = plan && plan.examDate === profile.examDate ? plan.daysToExam : null;
-  const passed = plan !== null && profile.examDate !== null && profile.examDate < plan.date;
-  return (
-    <div className="flex flex-col gap-3">
-      {profile.examDate ? (
-        <dl>
-          <Stat
-            value={day(profile.examDate)}
-            label={profile.targetExam ?? "your exam"}
-            hint={
-              passed
-                ? "This date has passed: set your next exam."
-                : left === null
-                  ? undefined
-                  : left > 0
-                    ? `In ${days(left)}.`
-                    : "The exam is today. Good luck."
-            }
-          />
-        </dl>
-      ) : (
-        <p className="text-sm text-text-secondary">
-          {profile.targetExam ? `You're preparing for ${profile.targetExam}. ` : ""}
-          No exam date is set. With one, the plan turns to review as the exam gets close.
-        </p>
-      )}
-      <Link href="/settings/goals" className={`${link} self-start text-sm`}>
-        {profile.examDate ? "Change in Skills & Certification Goals" : "Set it in Skills & Certification Goals"}
-      </Link>
     </div>
   );
 }
@@ -385,7 +310,7 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
           <details key={`${subject.subjectCode}:${subject.classLevel}:${subject.language}`} className="group">
             <summary className={summary}>
               <span className="min-w-0 break-words">
-                {subjectName(subject.subjectCode)} · Level {subject.classLevel}
+                {subjectName(subject.subjectCode)} · {TIERS[subject.classLevel] ?? `Level ${subject.classLevel}`}
               </span>
               <span className="flex shrink-0 items-center gap-2 text-xs font-medium text-text-secondary">
                 {subjectEstimate(subject)}
@@ -432,9 +357,8 @@ function MasteryList({ mastery, subjectName }: { mastery: Mastery; subjectName: 
         ))}
       </div>
       <p className="text-2xs leading-relaxed text-text-secondary">
-        An estimate is how likely you are to know a topic now, worked out from your practice answers: a guide, not a score. A
-        concept needs at least {mastery.model.minAnswers} answers to {mastery.model.minQuestions} different questions before
-        it can count as mastered.
+        An estimate is a guide from your practice answers, not a score. Mastered needs {mastery.model.minAnswers} answers to{" "}
+        {mastery.model.minQuestions} different questions.
       </p>
     </div>
   );
@@ -507,12 +431,11 @@ function MistakeEntry({ concept, subjectName, hint }: { concept: MistakeConcept;
   );
 }
 
-function MistakeList({ mistakes, subjectName }: { mistakes: Mistakes; subjectName: (code: string) => string }) {
-  const hint = useId();
+function MistakeList({ mistakes, subjectName, hint }: { mistakes: Mistakes; subjectName: (code: string) => string; hint: string }) {
   if (!mistakes.concepts.length) {
     return (
       <p className="text-sm text-text-secondary">
-        No missed questions to review. A question you get wrong in a practice test shows up here, with the right answer.
+        No missed questions. A question you get wrong in a practice test shows up here, with the right answer.
       </p>
     );
   }
@@ -526,9 +449,6 @@ function MistakeList({ mistakes, subjectName }: { mistakes: Mistakes; subjectNam
       <p className="text-2xs leading-relaxed text-text-secondary">
         Recurring: wrong {mistakes.recurringRule.wrong} or more times in {mistakes.recurringRule.days} days.
       </p>
-      <p id={hint} className="text-2xs leading-relaxed text-text-secondary">
-        {ASK_HINT}
-      </p>
     </div>
   );
 }
@@ -537,7 +457,7 @@ function TestList({ tests }: { tests: PracticeTests }) {
   if (!tests.items.length) {
     return (
       <p className="text-sm text-text-secondary">
-        No practice tests yet. Ask NetSec AI for a certification practice test on a domain, or choose one under Practice by domain.
+        No practice tests yet. Choose a domain under Today, or ask for one in a chat.
       </p>
     );
   }
@@ -568,6 +488,66 @@ function TestList({ tests }: { tests: PracticeTests }) {
   );
 }
 
+/** One figure of the summary row: a value (or its placeholder) and what it is. */
+function Figure({ label, value, detail }: { label: string; value: ReactNode; detail?: ReactNode }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5 bg-card px-4 py-3 sm:px-5">
+      <dt className="text-xs text-text-secondary">{label}</dt>
+      <dd className="font-display text-xl font-bold tabular-nums text-foreground">{value}</dd>
+      <dd className="min-h-4 truncate text-2xs text-text-secondary">{detail}</dd>
+    </div>
+  );
+}
+
+/** A value still loading: the height of the figure it stands for. */
+function Pending() {
+  return (
+    <span className="block py-1">
+      <span aria-hidden className="block h-5 w-16 animate-soft-pulse rounded-md bg-surface-2" />
+    </span>
+  );
+}
+
+/** Today at a glance: answers toward a practice day, the plan's minutes, what is due, the exam date. */
+function Summary({ plan, revisions, profile }: { plan: PracticePlan | null; revisions: Revisions | null; profile: Resource<LearnerProfile> }) {
+  const due = revisions?.items.filter((item) => item.state === "overdue" || item.state === "due") ?? [];
+  const overdue = due.filter((item) => item.state === "overdue").length;
+  const exam = profile.data?.examDate ?? null;
+  const left = plan && exam && plan.examDate === exam ? plan.daysToExam : null;
+  const passed = plan !== null && exam !== null && exam < plan.date;
+  return (
+    <dl
+      aria-label="Today at a glance"
+      className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border elev-1 lg:grid-cols-4"
+    >
+      <Figure
+        label="Practice answers today"
+        value={plan ? `${plan.answeredToday} of ${plan.answersForLearningDay}` : <Pending />}
+        detail={plan ? (plan.answeredToday >= plan.answersForLearningDay ? "A practice day" : "for a practice day") : null}
+      />
+      <Figure
+        label="Planned today"
+        value={plan ? (plan.tasks.length ? `${plan.budgetMinutes} min` : "Nothing") : <Pending />}
+        detail={plan?.tasks.length ? `${plan.tasks.length} ${plan.tasks.length === 1 ? "task" : "tasks"}` : null}
+      />
+      <Figure
+        label="Due for review"
+        value={revisions ? due.length : <Pending />}
+        detail={overdue ? `${overdue} overdue` : revisions ? "topics" : null}
+      />
+      <Figure
+        label="Exam date"
+        value={profile.error ? "—" : profile.data ? (exam ? day(exam) : "Not set") : <Pending />}
+        detail={
+          <Link href="/settings/goals" className={link}>
+            {exam ? (passed ? "Passed · set the next" : left !== null && left > 0 ? `In ${days(left)} · change` : "Change") : "Set a date"}
+          </Link>
+        }
+      />
+    </dl>
+  );
+}
+
 /**
  * My Learning: the student's own practice record, from question-bank tests in the chat only (GET
  * /v1/progress/plan, mastery, revisions, mistakes, practice-tests and practice-topics): today's plan,
@@ -584,10 +564,10 @@ export function MyLearningView() {
   const tests = useResource((signal) => getPracticeTests(TESTS_SHOWN, signal));
   const profile = useResource(() => getLearnerProfile());
 
-  const subjectName = (code: string) => catalog?.subjects.find((entry) => entry.code === code)?.name ?? code;
-  // The panels under the plan show once it has answered, and then stay (retrying a failed plan never hides them).
-  const planAnswered = useRef(false);
-  if (plan.data || plan.error) planAnswered.current = true;
+  const subjectName = (code: string) => trackName(catalog, code);
+  const [view, setView] = useViewParam(VIEWS);
+  const ids = useTabIds();
+  const hint = useId();
 
   return (
     <div
@@ -597,61 +577,76 @@ export function MyLearningView() {
       aria-label="Skills & Certifications"
       className="scrollbar-subtle focus-ring-inset h-full overflow-y-auto"
     >
-      <div className="page-container flex flex-col gap-5">
-        <Panel id="learning-plan" title="Today's plan">
-          <Loaded resource={plan} what="your plan">
-            {(data) => <Plan plan={data} subjectName={subjectName} />}
-          </Loaded>
-        </Panel>
+      <div className="page-container page-wide flex flex-col gap-5">
+        <Summary plan={plan.data} revisions={revisions.data} profile={profile} />
 
-        {/* The rest shows once the plan has answered. Drawn under the plan's two-line skeleton, a plan
-            arriving taller pushed every panel down (a layout shift of 0.61 on a phone, 2026-10-23); they
-            are mounted from the start, hidden, so their requests (the chapters' too) run at once. */}
-        <div className={planAnswered.current ? "contents" : "hidden"}>
-          <Panel id="learning-practice" title="Practice by domain">
-            <PracticePicker subjectName={subjectName} />
-          </Panel>
-
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <Panel id="learning-revision" title="Topics to review">
-              <Loaded resource={revisions} what="your topics to review">
-                {(data) => <Revision revisions={data} subjectName={subjectName} />}
-              </Loaded>
-            </Panel>
-            <Panel id="learning-exam" title="Exam date">
-              <Loaded resource={profile} what="your exam date">
-                {(data) => <ExamDate profile={data} plan={plan.data} />}
-              </Loaded>
-            </Panel>
-          </div>
-
-          <Panel id="learning-mastery" title="Topic mastery">
-            <Loaded resource={mastery} what="your topic mastery">
-              {(data) => <MasteryList mastery={data} subjectName={subjectName} />}
-            </Loaded>
-          </Panel>
-
-          <Panel id="learning-mistakes" title="Missed questions">
-            <Loaded resource={mistakes} what="your missed questions">
-              {(data) => <MistakeList mistakes={data} subjectName={subjectName} />}
-            </Loaded>
-          </Panel>
-
-          <Panel id="learning-tests" title="Recent practice tests">
-            <Loaded resource={tests} what="your practice tests">
-              {(data) => <TestList tests={data} />}
-            </Loaded>
-          </Panel>
-
-          <p className="text-xs leading-relaxed text-text-secondary">
-            Everything here comes only from your answers to certification practice tests in the chat: flashcards and
-            exercises NetSec AI writes itself are not counted. Only you can see it. Your lab time is in{" "}
-            <Link href="/study" className={link}>
-              Lab Activity
-            </Link>
-            .
+        <div className="flex flex-col gap-5">
+          <ViewTabs
+            label="Skills & Certifications"
+            ids={ids}
+            value={view}
+            onChange={setView}
+            tabs={[
+              { value: "plan", label: "Today" },
+              { value: "mastery", label: "Mastery" },
+              { value: "missed", label: "Missed questions", count: mistakes.data?.concepts.length || null },
+              { value: "tests", label: "Practice tests", count: tests.data?.items.length || null },
+            ]}
+          />
+          <p id={hint} className="-mt-2 text-2xs text-text-secondary">
+            {ASK_HINT}
           </p>
+          <TabPanel ids={ids} value={view}>
+            {view === "plan" && (
+              <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+                <Panel id="learning-plan" title="Today's plan">
+                  <Loaded resource={plan} what="your plan">
+                    {(data) => <Plan plan={data} subjectName={subjectName} hint={hint} />}
+                  </Loaded>
+                </Panel>
+                <div className="flex flex-col gap-5">
+                  <Panel id="learning-revision" title="Topics to review">
+                    <Loaded resource={revisions} what="your topics to review">
+                      {(data) => <Revision revisions={data} subjectName={subjectName} hint={hint} />}
+                    </Loaded>
+                  </Panel>
+                  <Panel id="learning-practice" title="Practice by domain">
+                    <PracticePicker subjectName={subjectName} hint={hint} />
+                  </Panel>
+                </div>
+              </div>
+            )}
+            {view === "mastery" && (
+              <Panel id="learning-mastery" title="Topic mastery">
+                <Loaded resource={mastery} what="your topic mastery">
+                  {(data) => <MasteryList mastery={data} subjectName={subjectName} />}
+                </Loaded>
+              </Panel>
+            )}
+            {view === "missed" && (
+              <Panel id="learning-mistakes" title="Missed questions">
+                <Loaded resource={mistakes} what="your missed questions">
+                  {(data) => <MistakeList mistakes={data} subjectName={subjectName} hint={hint} />}
+                </Loaded>
+              </Panel>
+            )}
+            {view === "tests" && (
+              <Panel id="learning-tests" title="Recent practice tests">
+                <Loaded resource={tests} what="your practice tests">
+                  {(data) => <TestList tests={data} />}
+                </Loaded>
+              </Panel>
+            )}
+          </TabPanel>
         </div>
+
+        <p className="text-xs leading-relaxed text-text-secondary">
+          Only your answers to practice tests in the chat count here, and only you can see it. Lab time is in{" "}
+          <Link href="/study" className={link}>
+            Lab Activity
+          </Link>
+          .
+        </p>
       </div>
     </div>
   );

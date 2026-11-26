@@ -99,12 +99,12 @@ function PhotoCard() {
   return (
     <SettingsCard
       title="Photo"
-      description={`JPEG, PNG or WebP, up to ${MAX_MB} MB. It's cropped to a square and stored without its location or camera details.`}
+      description={`JPEG, PNG or WebP, up to ${MAX_MB} MB. Cropped square, saved without location or camera details.`}
     >
       <div className="flex flex-wrap items-center gap-4">
-        <Avatar className="h-20 w-20 text-2xl">
+        <Avatar className="h-14 w-14 text-xl">
           {src && <AvatarImage src={src} alt="" />}
-          <AvatarFallback className="text-2xl font-bold">{initial(user)}</AvatarFallback>
+          <AvatarFallback className="text-xl font-bold">{initial(user)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-wrap gap-2">
           <input
@@ -372,12 +372,12 @@ function EmailCard() {
         </>
       }
       footer={
-        <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
-          Change email
-        </Button>
-      }
-    >
-      <Dialog
+        <>
+          <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
+            Change email
+          </Button>
+          {/* The dialog rides with its button (a portal): the card stays one row. */}
+          <Dialog
         open={open}
         onOpenChange={(next) => {
           setOpen(next);
@@ -477,14 +477,16 @@ function EmailCard() {
           )}
         </DialogContent>
       </Dialog>
-    </SettingsCard>
+        </>
+      }
+    />
   );
 }
 
 export function ProfileSection() {
   return (
     <>
-      <SectionHeading title="Profile" description="How you appear in NetSec AI, and the email you sign in with." />
+      <SectionHeading title="Profile" description="How you appear, your time zone, and the email you sign in with." />
       <div className="flex flex-col gap-4">
         <PhotoCard />
         <NameAndZoneCard />

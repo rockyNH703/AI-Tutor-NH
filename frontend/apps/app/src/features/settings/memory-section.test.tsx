@@ -66,4 +66,25 @@ describe("memory details", () => {
     expect(html).toContain("Valid until:");
     expect(html).toContain("Correct");
   });
+
+  test("names each row action after its item, shortened for a long one", () => {
+    const short = renderToStaticMarkup(
+      <MemoryItemDetails memory={memory} busy={false} onEdit={() => {}} onDelete={() => {}} />,
+    );
+    expect(short).toContain('aria-label="Delete: Revising subnetting before the lab exam."');
+
+    const long = renderToStaticMarkup(
+      <MemoryProposalDetails
+        proposal={{ ...proposal, content: `Uses\nJuniper ${"and Cisco ".repeat(10)}gear.` }}
+        busy={false}
+        onApprove={() => {}}
+        onEdit={() => {}}
+        onReject={() => {}}
+      />,
+    );
+    const label = long.match(/aria-label="Approve: ([^"]*)"/)?.[1] ?? "";
+    expect(label.startsWith("Uses Juniper and Cisco")).toBe(true);
+    expect(label.endsWith("…")).toBe(true);
+    expect(label.length).toBeLessThanOrEqual(48);
+  });
 });

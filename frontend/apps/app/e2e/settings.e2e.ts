@@ -306,11 +306,14 @@ test("engineering profile: catalog choices, chips within their limits, previewed
   await expect(focus.getByRole("checkbox", { name: "Cloud Infrastructure" })).toBeEnabled();
   await expect(focus.getByText("7 of 8 chosen")).toBeVisible();
 
+  // Focus areas and Platforms are two tabs of one card; each tab's chips are a named group.
+  await page.getByRole("tab", { name: "Platforms" }).click();
   const platforms = page.getByRole("group", { name: "Platforms" });
   await platforms.getByRole("checkbox", { name: "Cisco IOS / IOS XE" }).check();
   await platforms.getByRole("checkbox", { name: "Palo Alto Networks PAN-OS" }).check();
 
-  // The preview is what saving would tell the assistant, before saving.
+  // The preview (opened from its card) is what saving would tell the assistant, before saving.
+  await page.getByRole("button", { name: "Show the preview" }).click();
   await expect(page.getByText("Role: Network Engineer", { exact: false })).toBeVisible();
   await expectAccessible(page);
   await page.getByRole("button", { name: "Save", exact: true }).click();
@@ -318,6 +321,8 @@ test("engineering profile: catalog choices, chips within their limits, previewed
 
   await page.reload();
   await expect(page.getByLabel("Role")).toHaveValue("network_engineer");
+  await expect(page.getByRole("tab", { name: "Platforms" })).toContainText("2"); // the tab counts what is chosen
+  await page.getByRole("tab", { name: "Platforms" }).click();
   await expect(platforms.getByRole("checkbox", { name: "Palo Alto Networks PAN-OS" })).toBeChecked();
   const profile = await apiJson(page, "/v1/engineering/profile");
   expect([profile.role, profile.experienceLevel, profile.certificationGoal, profile.focusAreas.length, profile.platforms]).toEqual([
@@ -384,6 +389,7 @@ test("learning preferences: saved as they change, in the preview, and told to th
   await expect.poll(async () => (await apiJson(page, "/v1/learning/preferences")).language).toBe("hindi");
 
   await page.goto("/settings/tutor");
+  await page.getByRole("button", { name: "Show the preview" }).click();
   await expect(page.getByText("Reply in Hindi", { exact: false })).toBeVisible();
   expect(await tutorKnows(page)).toContain("Reply in Hindi");
 
@@ -400,6 +406,7 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
   const answers = page.getByRole("group", { name: "How it answers problems" });
   await page.goto("/settings/tutor");
   await expect(page.getByRole("heading", { name: "What NetSec AI is told" })).toBeVisible();
+  await page.getByRole("button", { name: "Show the preview" }).click();
   await answers.getByRole("radio", { name: "Hint first" }).check();
   await expect(page.getByText("start with a hint", { exact: false })).toBeVisible();
   await expectAccessible(page);
@@ -407,6 +414,8 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
   expect(await tutorKnows(page)).toContain("start with a hint");
 
   await page.goto("/settings/tutor");
+  await page.getByRole("button", { name: "Show the preview" }).click();
+  await expect(page.getByText("start with a hint", { exact: false })).toBeVisible(); // what is saved, shown
   await answers.getByRole("radio", { name: "No preference" }).check();
   await expect(page.getByText("start with a hint", { exact: false })).toHaveCount(0);
 });
@@ -482,8 +491,9 @@ test("progress: a question and an active minute count today, and the tutor is to
   await page.getByRole("link", { name: "Close settings" }).click();
   await expect(page).toHaveURL(chat);
   await expect(page.getByRole("navigation", { name: "Chats", exact: true })).toBeVisible();
-  // Before this question is counted: the one real question, and the minute (or more) credited.
-  expect(await tutorKnows(page)).toMatch(/Learning so far: a 1-day learning streak; today \d+ min active and 1 question/);
+  // Chatting alone tells the tutor nothing of this activity: only someone who practises with the question bank gets
+  // a "Practice so far" section (app/learning/tutor.py, _practice_lines; its wording is tested in test_tutor_instructions).
+  expect(await tutorKnows(page)).not.toMatch(/practice streak|min active/);
 });
 
 test("the heartbeat reports a minute while NetSec AI is used, and stops when it isn't", async ({ page, account: _ }) => {
@@ -563,6 +573,8 @@ for (const { path, h1, h2 } of [
     await expect(page.getByRole("heading", { level: 1, name: h1, exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: h2 })).toBeVisible();
     if (path === "/help") {
+      // One topic at a time (tabs): the answer is under Practice and progress.
+      await page.getByRole("tab", { name: /^Practice and progress/ }).click();
       await page.getByText("How is active time measured?").click();
       await expect(page.getByText(/A minute counts when NetSec AI is open and on screen/)).toBeVisible();
     }

@@ -9,6 +9,7 @@ import {
   sendAndWait,
   test,
   waitForHydration,
+  chatAction,
 } from "./support";
 
 /**
@@ -96,7 +97,7 @@ test("no indigo or violet left anywhere on screen, light and dark", async ({ pag
     await expect(page.getByRole("menu")).toBeVisible();
     expect(await legacyColours(page), `account menu (${scheme})`).toEqual([]);
     await page.keyboard.press("Escape");
-    await page.getByRole("complementary").getByRole("button", { name: /^Rename/ }).first().click();
+    await chatAction(page.locator("nav[aria-labelledby='chats-heading'] li").first(), "Rename");
     await expect(page.getByRole("dialog", { name: "Rename chat" })).toBeVisible();
     expect(await legacyColours(page), `rename dialog (${scheme})`).toEqual([]);
     await page.keyboard.press("Escape");

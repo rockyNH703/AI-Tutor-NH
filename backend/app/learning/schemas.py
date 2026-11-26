@@ -335,6 +335,9 @@ class AcademicCatalogOut(ApiModel):
     mediums: list[CatalogEntryOut]
     academic_years: list[CatalogEntryOut]
     subjects: list[CatalogEntryOut]
+    exam_tracks: list[CatalogEntryOut] = Field(
+        description="NetSec's exam tracks: the certification bank's families. A lab session's subject is one of these."
+    )
 
 
 class EngineeringCatalogOut(ApiModel):

@@ -17,6 +17,7 @@ import {
   test,
   uniqueEmail,
   waitForIdle,
+  chatAction,
 } from "./support";
 
 const MARKDOWN = [
@@ -168,7 +169,7 @@ test("a user's whole journey", async ({ page, context }) => {
 
   await test.step("rename the chat", async () => {
     const item = page.locator("li", { has: page.locator(`a[href="/c/${first}"]`) });
-    await item.getByRole("button", { name: /^Rename/ }).click();
+    await chatAction(item, "Rename");
     const dialog = page.getByRole("dialog", { name: "Rename chat" });
     await dialog.getByLabel("Name").fill("Renamed by E2E");
     // The rename shows at once (optimistic); wait for it to be saved before reloading, or the
@@ -214,7 +215,7 @@ test("a user's whole journey", async ({ page, context }) => {
 
   await test.step("delete the chat on screen", async () => {
     const item = page.locator("li", { has: page.locator(`a[href="/c/${second}"]`) });
-    await item.getByRole("button", { name: /^Delete/ }).click();
+    await chatAction(item, "Delete");
     await page.getByRole("button", { name: "Delete", exact: true }).click();
     await expect(page).toHaveURL("/");
     await expect(page.locator(`nav a[href="/c/${second}"]`)).toHaveCount(0);

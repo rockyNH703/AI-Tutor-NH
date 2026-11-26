@@ -3,17 +3,14 @@
 import { Button } from "@v1/ui/button";
 import { ErrorState } from "@v1/ui/empty-state";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import Link from "next/link";
 import { type FormEvent, useEffect, useId, useState } from "react";
 
-import { Notice } from "@/features/settings/primitives";
 import { describeError } from "@/lib/api/errors";
 import { getPracticeTopics } from "@/lib/api/progress";
 import type { PracticeBook, PracticeChapter, PracticeTopics } from "@/lib/api/types";
 import { useAskInChat } from "./ask-in-chat";
 
 const selectClass = "focus-field h-10 w-full rounded-xl border border-input bg-card px-3 text-sm disabled:opacity-60";
-const link = "focus-ring rounded font-semibold text-brand underline underline-offset-2";
 
 /** The plan's request wording (the API's `prompt`), for a chapter the student chose: the tutor sets a bank test. */
 function practiceRequest(
@@ -32,7 +29,8 @@ function practiceRequest(
  * from the chapters the question bank has for the student's class (GET /v1/progress/practice-topics).
  * The button fills a new chat with the request; nothing is sent until the student presses Send.
  */
-export function PracticePicker({ subjectName }: { subjectName: (code: string) => string }) {
+/** `hint`: the id of the page's note that says what the button does. */
+export function PracticePicker({ subjectName, hint }: { subjectName: (code: string) => string; hint: string }) {
   const ask = useAskInChat();
   const [topics, setTopics] = useState<PracticeTopics | null>(null);
   const [error, setError] = useState<unknown>(null);
@@ -75,16 +73,9 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
   }
   if (!topics.available || !topics.subjects.length) {
     return topics.reason === "no_class" ? (
-      <Notice>
-        Practice by domain arrives with NetSec AI's certification question bank, which isn't loaded yet. Set your
-        certification goal in your{" "}
-        <Link href="/settings/engineering" className={link}>
-          Engineering Profile
-        </Link>
-        .
-      </Notice>
+      <p className="text-sm text-text-secondary">Practice by domain isn't available for your account yet.</p>
     ) : (
-      <Notice>There are no stored practice questions for your level yet. You can still ask NetSec AI about any domain.</Notice>
+      <p className="text-sm text-text-secondary">No stored practice questions for you yet. You can still ask about any domain in a chat.</p>
     );
   }
 
@@ -101,7 +92,7 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3">
         <div className="flex min-w-0 flex-col gap-1.5">
           <label htmlFor={`${id}-subject`} className="text-sm font-bold text-foreground">
             Exam track
@@ -170,14 +161,9 @@ export function PracticePicker({ subjectName }: { subjectName: (code: string) =>
           </select>
         </div>
       </div>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-        <Button type="submit" disabled={!chapter} aria-describedby={`${id}-hint`} className="w-full sm:w-auto">
-          Practise in a new chat
-        </Button>
-        <p id={`${id}-hint`} className="text-2xs leading-relaxed text-text-secondary">
-          Opens a new chat with your request filled in; nothing is sent until you press Send.
-        </p>
-      </div>
+      <Button type="submit" disabled={!chapter} aria-describedby={hint} className="w-full sm:w-auto sm:self-start">
+        Practise in a new chat
+      </Button>
     </form>
   );
 }

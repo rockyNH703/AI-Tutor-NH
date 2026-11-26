@@ -9,7 +9,7 @@ import { ACTIVITY_EVENT } from "@/lib/activity";
 import { describeError } from "@/lib/api/errors";
 import { getProgress } from "@/lib/api/progress";
 import type { Progress } from "@/lib/api/types";
-import { Notice, SectionHeading, SettingsCard } from "./primitives";
+import { Disclosure, Notice, SectionHeading, SettingsCard } from "./primitives";
 
 function about(value: number): string {
   return value === 0 ? "0 min" : `about ${value} min`;
@@ -130,39 +130,28 @@ export function ProgressSection() {
               ) : null}
             </SettingsCard>
           </div>
-          {!progress.goals.dailyActiveMinutes && !progress.goals.weeklyActiveMinutes && (
-            <p className="text-sm text-text-secondary">
-              Set daily or weekly goals in{" "}
+          <nav aria-label="Related" className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-secondary">
+            {!progress.goals.dailyActiveMinutes && !progress.goals.weeklyActiveMinutes && (
               <Link href="/settings/subjects" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
-                Practice &amp; Lab Time
+                Set goals
               </Link>
-              .
-            </p>
-          )}
-          <p className="text-sm text-text-secondary">
-            Your estimated lab time, from the lab sessions you start, is in{" "}
+            )}
             <Link href="/study" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
               Lab Activity
             </Link>
-            .
-          </p>
-          <p className="text-sm text-text-secondary">
-            Your practice streak and calendar are in{" "}
             <Link href="/settings/streak" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
               Practice Streak
             </Link>
-            .
-          </p>
+          </nav>
           <SettingsCard title="Recent days">
             <ActivityChart days={progress.days} goal={progress.goals.dailyActiveMinutes} />
-          </SettingsCard>
-          <SettingsCard title="How active time is measured">
-            <p className="text-sm leading-relaxed text-text-secondary">
-              A minute counts when NetSec AI is open and on screen, and you used it (typed, clicked, scrolled) or a reply
-              was being written, within the last two minutes. At most one minute is counted per minute, however many
-              tabs or devices you use. It's how much you used the app, not all of your work, and it's never
-              compared with anyone else's.
-            </p>
+            <Disclosure label="How active time is measured">
+              <p className="text-sm leading-relaxed text-text-secondary">
+                A minute counts when NetSec AI is on screen and you used it (typed, clicked, scrolled) or a reply was being
+                written, within the last two minutes: one minute at most per minute, however many tabs or devices. It's never
+                compared with anyone else's.
+              </p>
+            </Disclosure>
           </SettingsCard>
         </div>
       )}

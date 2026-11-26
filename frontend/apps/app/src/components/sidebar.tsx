@@ -15,18 +15,18 @@ import { cn } from "@v1/ui/utils";
 import { PROGRAM_AREAS, isExpanded, parseSaved, programRoute } from "@/features/programs/program-nav";
 import { usePrograms } from "@/features/programs/use-programs";
 import {
+  Archive,
   Award,
   ChevronRight,
   ChevronsUpDown,
   FolderOpen,
   LogOut,
   type LucideIcon,
-  Pencil,
+  Pin,
   Plus,
   Search,
   Settings,
   Timer,
-  Trash2,
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
@@ -35,6 +35,9 @@ import { type ReactElement, useEffect, useId, useMemo, useRef, useState, useSync
 import { toast } from "sonner";
 
 import { useConversations, useStores } from "@/features/chat/chat-context";
+import { ChatActionsMenu } from "@/features/conversations/chat-actions-menu";
+import { pinnedChats } from "@/features/conversations/conversations-store";
+import { ShareDialog } from "@/features/conversations/share-dialog";
 import { forgetAppPath } from "@/features/navigation/app-return";
 import { DEFAULT_SECTION } from "@/features/settings/sections";
 import { describeError } from "@/lib/api/errors";
@@ -324,6 +327,19 @@ export function SidebarContent({
   const [search, setSearch] = useState("");
   const [renaming, setRenaming] = useState<Conversation | null>(null);
   const [deleting, setDeleting] = useState<Conversation | null>(null);
+  const [sharing, setSharing] = useState<Conversation | null>(null);
+  // The row's "…" button that opened a dialog: focus goes back to it when the dialog closes (if the row is still there).
+  const opener = useRef<HTMLElement | null>(null);
+  const backToOpener = (event: Event) => {
+    if (!opener.current?.isConnected) return;
+    event.preventDefault();
+    opener.current.focus();
+  };
+  const openWith =
+    (open: (conversation: Conversation) => void) => (conversation: Conversation, from: HTMLElement | null) => {
+      opener.current = from;
+      open(conversation);
+    };
   const { signOut, signingOut } = useSignOut();
   // The drawer is the phone layout, where Settings opens on its list of sections.
   const variant = onNavigate ? "drawer" : "rail";
@@ -338,10 +354,56 @@ export function SidebarContent({
     return () => element.removeEventListener("scroll", remember);
   }, [variant]);
 
-  const visible = useMemo(() => {
+  // Pinned chats once, at the top; the rest below by activity. Search looks through both.
+  const pins = useMemo(() => pinnedChats(list), [list]);
+  const { visible, visiblePins } = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return query ? list.items.filter((item) => item.title.toLowerCase().includes(query)) : list.items;
-  }, [list.items, search]);
+    const matches = (item: Conversation) => !query || item.title.toLowerCase().includes(query);
+    const pinnedIds = new Set(pins.map((item) => item.id));
+    return {
+      visiblePins: pins.filter(matches),
+      visible: list.items.filter((item) => !pinnedIds.has(item.id) && matches(item)),
+    };
+  }, [list.items, pins, search]);
+  const searchable = list.items.length + pins.length > 5;
+
+  const row = (item: Conversation) => {
+    const isActive = item.id === active;
+    return (
+      <li
+        key={item.id}
+        className={cn(
+          "group flex items-center gap-1 rounded-xl transition-colors",
+          isActive ? "bg-surface-2 font-medium text-foreground" : "text-foreground/85 hover:bg-surface-2 hover:text-foreground",
+        )}
+      >
+        <Link
+          href={`/c/${item.id}`}
+          onClick={onNavigate}
+          // Start reading the messages with the click, alongside the page itself, instead of
+          // after it arrives (an idempotent read: chat-store ensureLoaded).
+          onNavigate={() => void chat.ensureLoaded(item.id)}
+          aria-current={isActive ? "page" : undefined}
+          className="focus-ring-inset flex h-9 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 text-sm [@media(pointer:coarse)]:h-11"
+        >
+          <span className="min-w-0 flex-1">
+            <MarqueeTitle title={item.title} />
+          </span>
+          <LinkPending />
+        </Link>
+        {/* Always visible on touch and while its menu is open; on hover or focus with a pointer. */}
+        <span className="flex shrink-0 items-center pr-1 opacity-100 transition-opacity has-[[data-state=open]]:opacity-100 md:[@media(hover:hover)_and_(pointer:fine)]:opacity-0 md:focus-within:opacity-100 md:group-hover:opacity-100">
+          <ChatActionsMenu
+            conversation={item}
+            active={isActive}
+            onShare={openWith(setSharing)}
+            onRename={openWith(setRenaming)}
+            onDelete={openWith(setDeleting)}
+          />
+        </span>
+      </li>
+    );
+  };
 
   const rename = async (title: string) => {
     const target = renaming;
@@ -375,7 +437,11 @@ export function SidebarContent({
     <div
       className={cn(
         "rail flex h-full flex-col border-r border-border bg-surface transition-[width] duration-slow ease-standard",
-        collapsed ? "w-20" : "w-72 max-w-full",
+        // The desktop rail's width is the aside's --sidebar-width (dragged, 200-420px), never more than 45% of the
+        // window; while its edge is dragged it follows the pointer with no transition. The drawer keeps 18rem.
+        collapsed
+          ? "w-20"
+          : "w-[var(--sidebar-width,18rem)] max-w-full md:max-w-[45vw] group-has-[[data-dragging]]/rail:transition-none",
       )}
     >
       {/* Outside the scrolling list: the brand stays in view, and a scrollbar never narrows the slogan's line.
@@ -483,7 +549,7 @@ export function SidebarContent({
                 Chats
               </h2>
             </div>
-            {list.items.length > 5 && (
+            {searchable && (
               <div className="relative mx-3 mb-2">
                 <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                 <input
@@ -513,59 +579,30 @@ export function SidebarContent({
                     Try again
                   </button>
                 </div>
-              ) : visible.length === 0 ? (
-                <p className="px-3 py-3 text-sm text-text-secondary">
-                  {list.items.length === 0 ? "Your chats will appear here." : "No chat matches that."}
-                </p>
               ) : (
-                <ul className="space-y-0.5">
-                  {visible.map((item) => {
-                    const isActive = item.id === active;
-                    return (
-                      <li
-                        key={item.id}
-                        className={cn(
-                          "group flex items-center gap-1 rounded-xl transition-colors",
-                          isActive ? "bg-surface-2 font-medium text-foreground" : "text-foreground/85 hover:bg-surface-2 hover:text-foreground",
-                        )}
-                      >
-                        <Link
-                          href={`/c/${item.id}`}
-                          onClick={onNavigate}
-                          // Start reading the messages with the click, alongside the page itself, instead of
-                          // after it arrives (an idempotent read: chat-store ensureLoaded).
-                          onNavigate={() => void chat.ensureLoaded(item.id)}
-                          aria-current={isActive ? "page" : undefined}
-                          className="focus-ring-inset flex h-9 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 text-sm [@media(pointer:coarse)]:h-11"
-                        >
-                          <span className="min-w-0 flex-1">
-                            <MarqueeTitle title={item.title} />
-                          </span>
-                          <LinkPending />
-                        </Link>
-                        {/* Always visible on touch; on hover/focus with a pointer. */}
-                        <span className="flex shrink-0 items-center gap-0.5 pr-1 opacity-100 transition-opacity md:[@media(hover:hover)_and_(pointer:fine)]:opacity-0 md:focus-within:opacity-100 md:group-hover:opacity-100">
-                          <button
-                            type="button"
-                            onClick={() => setRenaming(item)}
-                            aria-label={`Rename “${item.title}”`}
-                            className="focus-ring-inset grid h-7 w-7 place-items-center rounded-lg transition-colors hover:bg-foreground/10 [@media(pointer:coarse)]:h-10 [@media(pointer:coarse)]:w-10"
-                          >
-                            <Pencil aria-hidden className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeleting(item)}
-                            aria-label={`Delete “${item.title}”`}
-                            className="focus-ring-inset grid h-7 w-7 place-items-center rounded-lg text-destructive transition-colors hover:bg-destructive/10 [@media(pointer:coarse)]:h-10 [@media(pointer:coarse)]:w-10"
-                          >
-                            <Trash2 aria-hidden className="h-3.5 w-3.5" />
-                          </button>
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <>
+                  {/* Pinned: its own small group at the top, only when something is pinned. */}
+                  {visiblePins.length > 0 && (
+                    <div className="mb-3">
+                      <h3 className="flex items-center gap-1.5 px-3 pb-1 text-2xs font-semibold uppercase tracking-[0.08em] text-text-secondary">
+                        <Pin aria-hidden className="h-3 w-3" />
+                        Pinned
+                      </h3>
+                      <ul aria-label="Pinned chats" className="space-y-0.5">
+                        {visiblePins.map(row)}
+                      </ul>
+                    </div>
+                  )}
+                  {visible.length === 0 ? (
+                    visiblePins.length === 0 && (
+                      <p className="px-3 py-3 text-sm text-text-secondary">
+                        {list.items.length + pins.length === 0 ? "Your chats will appear here." : "No chat matches that."}
+                      </p>
+                    )
+                  ) : (
+                    <ul className="space-y-0.5">{visible.map(row)}</ul>
+                  )}
+                </>
               )}
               {list.nextCursor && !search && (
                 <button
@@ -619,6 +656,12 @@ export function SidebarContent({
                 Settings
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuItem asChild className="gap-2.5 font-medium">
+              <Link href="/archived" onClick={onNavigate}>
+                <Archive aria-hidden className="h-4 w-4 text-text-secondary" />
+                Archived chats
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onSelect={() => void signOut()}
@@ -641,6 +684,12 @@ export function SidebarContent({
         maxLength={TITLE_MAX}
         submitLabel="Rename"
         onSubmit={rename}
+        onCloseAutoFocus={backToOpener}
+      />
+      <ShareDialog
+        conversation={sharing}
+        onOpenChange={(open) => !open && setSharing(null)}
+        onCloseAutoFocus={backToOpener}
       />
       <ConfirmDialog
         open={deleting !== null}
@@ -655,6 +704,7 @@ export function SidebarContent({
         confirmLabel="Delete"
         destructive
         onConfirm={remove}
+        onCloseAutoFocus={backToOpener}
       />
     </div>
   );

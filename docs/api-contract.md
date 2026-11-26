@@ -286,10 +286,14 @@ learning days (`Asia/Kolkata`). Every number is an estimate from practice, never
 
 | Method | Path | Notes |
 |---|---|---|
-| GET | `/v1/conversations?limit=30&cursor=` | newest activity first → `{items:[{id,title,createdAt,updatedAt}], nextCursor}` |
+| GET | `/v1/conversations?limit=30&cursor=&view=` | newest activity first → `{items:[{id,title,createdAt,updatedAt,pinnedAt,archivedAt}], nextCursor}`; `view`: `history` (default: not archived, pinned ones too), `pinned` (by pin time) or `archived` (by archive time) |
 | POST | `/v1/conversations` | `{title?}` → 201 (title defaults to "New chat"; see naming below) |
 | GET | `/v1/conversations/{id}` | |
-| PATCH | `/v1/conversations/{id}` | `{title}` (1-120 chars) — rename |
+| PATCH | `/v1/conversations/{id}` | `{title?, pinned?, archived?}`, at least one: rename (1-120 chars), pin, archive or restore. Archiving unpins; pinning an archived chat is 422 `archived` (restore it first); a program chat is never pinned or archived (422 `not_movable`). Repeating a change keeps its first time |
+| GET | `/v1/conversations/{id}/share` | `{shared, sharedAt?, messageCount?}`: whether the chat has a live shared link (its token is never shown again) |
+| POST | `/v1/conversations/{id}/share` | 201 `{token, sharedAt, messageCount}`: a read-only SNAPSHOT of the chat now behind a new 32-character token (only its SHA-256 is stored); any earlier link ends. 422 `nothing_to_share` (no messages), `not_shareable` (a program chat); 20 a minute per user |
+| DELETE | `/v1/conversations/{id}/share` | 204: the link stops at once (nothing to stop is not an error) |
+| GET | `/v1/shared/{token}` | public, no sign-in, read-only: `{title, sharedAt, messages:[{role, content, createdAt, attachments}]}` (`attachments`: a count; files are never shared). Replies that showed NetworkersHome material are one neutral line. 404 for unknown, revoked or deleted links alike; `Cache-Control: no-store`, `X-Robots-Tag: noindex`; 120 a minute per address. The web app reads it on the server for `/share/<token>` |
 
 Naming: a conversation starts as "New chat" and is named once, in at most six words, when a reply to a
 meaningful question completes (the `done` event carries the new title; small talk, a stopped or failed

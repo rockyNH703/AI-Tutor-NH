@@ -145,7 +145,7 @@ export function LibraryView() {
 
   return (
     <div
-      className={cn("page-container", dragging && "rounded-2xl ring-2 ring-brand/40")}
+      className={cn("page-container page-wide flex flex-col gap-4", dragging && "rounded-2xl ring-2 ring-brand/40")}
       onDragOver={(event) => {
         if (!Array.from(event.dataTransfer.types).includes("Files")) return;
         event.preventDefault();
@@ -161,23 +161,37 @@ export function LibraryView() {
         add(event.dataTransfer.files);
       }}
     >
-      <section aria-labelledby="storage-heading" className="rounded-2xl border border-border bg-card p-4 elev-1">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
+      {/* One toolbar: what you have, how much room is left, and the way to add more. */}
+      <section aria-labelledby="storage-heading" className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:max-w-xs">
+          <div className="flex items-baseline justify-between gap-3">
             <h2 id="storage-heading" className="text-sm font-bold text-foreground">
               Storage
             </h2>
-            <p className="text-sm text-text-secondary">
+            <p className="text-xs tabular-nums text-text-secondary">
               {usage ? (
                 <>
                   <span className="font-semibold text-foreground">{formatBytes(usage.usedBytes)}</span> of{" "}
-                  {formatBytes(usage.quotaBytes)} used · {formatBytes(usage.remainingBytes)} left
+                  {formatBytes(usage.quotaBytes)} · {formatBytes(usage.remainingBytes)} left
                 </>
               ) : (
                 "Loading…"
               )}
             </p>
           </div>
+          <div
+            className="h-1.5 overflow-hidden rounded-full bg-surface-2"
+            role="meter"
+            aria-label="Storage used"
+            aria-valuemin={0}
+            aria-valuemax={usage?.quotaBytes ?? 100}
+            aria-valuenow={usage?.usedBytes ?? 0}
+            aria-valuetext={usage ? `${formatBytes(usage.usedBytes)} of ${formatBytes(usage.quotaBytes)}` : undefined}
+          >
+            <div className={cn("h-full rounded-full", share >= 90 ? "bg-destructive" : "bg-brand")} style={{ width: `${share}%` }} />
+          </div>
+        </div>
+        <div className="flex items-center gap-3 sm:ml-auto">
           <Button type="button" onClick={() => input.current?.click()}>
             <Upload aria-hidden className="mr-2 h-4 w-4" />
             Upload
@@ -194,29 +208,15 @@ export function LibraryView() {
             }}
           />
         </div>
-        <div
-          className="mt-3 h-2 overflow-hidden rounded-full bg-surface-2"
-          role="meter"
-          aria-label="Storage used"
-          aria-valuemin={0}
-          aria-valuemax={usage?.quotaBytes ?? 100}
-          aria-valuenow={usage?.usedBytes ?? 0}
-          aria-valuetext={usage ? `${formatBytes(usage.usedBytes)} of ${formatBytes(usage.quotaBytes)}` : undefined}
-        >
-          <div className={cn("h-full rounded-full", share >= 90 ? "bg-destructive" : "bg-brand")} style={{ width: `${share}%` }} />
-        </div>
-        <p className="mt-2 text-xs text-text-secondary">
-          PDF, Word, PowerPoint (25 MB) · Excel, images (10 MB) · CSV, text (2 MB). Drop files here or use Upload.
-        </p>
       </section>
 
       {notice && (
-        <p role="status" className="mt-3 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground">
+        <p role="status" className="rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-foreground">
           {notice}
         </p>
       )}
       {uploads.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Uploading">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Uploading">
           {uploads.map((chip) => (
             <AttachmentChip
               key={chip.localId}
@@ -228,7 +228,7 @@ export function LibraryView() {
         </div>
       )}
 
-      <section aria-labelledby="files-heading" className="mt-6">
+      <section aria-labelledby="files-heading">
         <h2 id="files-heading" className="sr-only">
           Your files
         </h2>
@@ -246,11 +246,12 @@ export function LibraryView() {
             ))}
           </SkeletonGroup>
         ) : list.items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-8 text-center">
-            <p className="font-semibold text-foreground">No files yet</p>
-            <p className="mt-1 text-sm text-text-secondary">
-              Upload configs, logs, diagrams or documentation, then ask NetSec AI about them.
-            </p>
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-card/60 px-6 py-10 text-center">
+            <Upload aria-hidden className="h-6 w-6 text-brand" />
+            <div>
+              <p className="font-semibold text-foreground">No files yet</p>
+              <p className="mt-1 text-sm text-text-secondary">Drop configs, logs, diagrams or documentation here, then ask about them.</p>
+            </div>
           </div>
         ) : (
           <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
@@ -308,6 +309,10 @@ export function LibraryView() {
           </ul>
         )}
       </section>
+
+      <p className="text-xs text-text-secondary">
+        PDF, Word, PowerPoint up to 25 MB · Excel, images up to 10 MB · CSV, text up to 2 MB. Drop files anywhere on this page.
+      </p>
 
       <ConfirmDialog
         open={deleting !== null}

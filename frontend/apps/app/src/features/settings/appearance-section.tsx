@@ -22,6 +22,9 @@ const SIZE_LABELS: Record<FontSize, string> = {
   x_large: "Extra large",
 };
 
+/** A divided list of switches: one row each, first and last flush with the card. */
+const LIST = "flex flex-col divide-y divide-border [&>*]:py-3 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0";
+
 /**
  * Saved to the account as it changes (one versioned PATCH per burst of changes) and applied
  * at once to the whole app, so this page is its own preview.
@@ -35,19 +38,19 @@ export function AppearanceSection() {
     <>
       <SectionHeading
         title="Appearance & Accessibility"
-        description="How NetSec AI looks and moves. Saved to your account, so it follows you to every device."
+        description="Saved to your account, so it follows you to every device."
       />
       {!context || !appearance ? (
-        <SkeletonGroup label="Loading appearance" className="space-y-3">
-          <Skeleton className="h-40 w-full rounded-2xl" />
+        <SkeletonGroup label="Loading appearance" className="flex flex-col gap-4">
           <Skeleton className="h-48 w-full rounded-2xl" />
+          <Skeleton className="h-60 w-full rounded-2xl" />
         </SkeletonGroup>
       ) : (
         <div className="flex flex-col gap-4">
           <SettingsCard title="Display">
             <ChoiceGroup<UserTheme>
               legend="Theme"
-              description="Choose Dark, White, or follow your device setting."
+              description="System follows your device."
               value={userTheme(appearance.theme)}
               options={(Object.keys(THEME_LABELS) as UserTheme[]).map((value) => ({
                 value,
@@ -61,31 +64,33 @@ export function AppearanceSection() {
             />
             <ChoiceGroup<FontSize>
               legend="Text size"
-              description="Scales all text and spacing in the app."
+              description="Scales text and spacing."
               value={appearance.fontSize}
               options={(Object.keys(SIZE_LABELS) as FontSize[]).map((value) => ({ value, label: SIZE_LABELS[value] }))}
               onChange={(fontSize) => context.change({ fontSize })}
             />
           </SettingsCard>
           <SettingsCard title="Accessibility">
-            <ToggleRow
-              label="High contrast"
-              description="Darker secondary text and clearly visible borders, in light and dark."
-              checked={appearance.highContrast}
-              onCheckedChange={(highContrast) => context.change({ highContrast })}
-            />
-            <ToggleRow
-              label="Reduce motion"
-              description="Turns off animations. If your device asks for less motion, that is always respected too."
-              checked={appearance.reduceMotion}
-              onCheckedChange={(reduceMotion) => context.change({ reduceMotion })}
-            />
-            <ToggleRow
-              label="Comfortable reading"
-              description="More space between lines, letters and words in NetSec AI's answers."
-              checked={appearance.readingComfort}
-              onCheckedChange={(readingComfort) => context.change({ readingComfort })}
-            />
+            <div className={LIST}>
+              <ToggleRow
+                label="High contrast"
+                description="Darker secondary text and clearer borders."
+                checked={appearance.highContrast}
+                onCheckedChange={(highContrast) => context.change({ highContrast })}
+              />
+              <ToggleRow
+                label="Reduce motion"
+                description="Turns off animations. Your device's setting is respected too."
+                checked={appearance.reduceMotion}
+                onCheckedChange={(reduceMotion) => context.change({ reduceMotion })}
+              />
+              <ToggleRow
+                label="Comfortable reading"
+                description="More line, letter and word spacing in answers."
+                checked={appearance.readingComfort}
+                onCheckedChange={(readingComfort) => context.change({ readingComfort })}
+              />
+            </div>
           </SettingsCard>
         </div>
       )}

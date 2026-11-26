@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@v1/ui/input";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { Laptop } from "lucide-react";
-import { type FormEvent, type ReactNode, useCallback, useEffect, useId, useState } from "react";
+import { type FormEvent, type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { authErrorMessage } from "@/components/auth-form";
@@ -57,14 +57,84 @@ function useSignInMethods(): [Methods, () => Promise<void>] {
   return [methods, load];
 }
 
-function PasswordCard({ hasPassword, onSet }: { hasPassword: boolean; onSet: () => Promise<void> }) {
+/**
+ * A status line still loading: one line of text's height, so the card does not grow when it arrives. A span (it sits
+ * in the card's description paragraph), announced as loading.
+ */
+function LoadingLine() {
+  return (
+    <span role="status" className="block h-5">
+      <span aria-hidden className="block h-4 w-40 max-w-full translate-y-0.5 animate-soft-pulse rounded-md bg-surface-2" />
+      <span className="sr-only">Loading</span>
+    </span>
+  );
+}
+
+/** The password: a row with its status, whose button opens the form in place. */
+function PasswordCard({ hasPassword, onSet }: { hasPassword: boolean | null; onSet: () => Promise<void> }) {
   const { user, setUser } = useUser();
+  const [open, setOpen] = useState(false);
+  const first = useRef<HTMLInputElement>(null);
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   useUnsavedChanges(Boolean(current || next || confirm));
+
+  // Opened from its button: the first field takes focus (the button that opened it is gone). Closed again: focus goes
+  // back to that button, since the form that had it is gone.
+  const opener = useRef<HTMLButtonElement>(null);
+  const returning = useRef(false);
+  useEffect(() => {
+    if (open) first.current?.focus();
+    else if (returning.current) {
+      returning.current = false;
+      opener.current?.focus();
+    }
+  }, [open]);
+
+  const close = () => {
+    returning.current = true;
+    setOpen(false);
+    setCurrent("");
+    setNext("");
+    setConfirm("");
+    setError(null);
+  };
+
+  if (hasPassword === null) {
+    return (
+      <SettingsCard
+        title="Password"
+        description={<LoadingLine />}
+        footer={
+          <Button type="button" size="sm" variant="outline" disabled>
+            Change password
+          </Button>
+        }
+      />
+    );
+  }
+
+  if (!open) {
+    const status = hasPassword
+      ? user.passwordChangedAt
+        ? `Last changed ${relativeTime(user.passwordChangedAt)} (${shortDate(user.passwordChangedAt)}).`
+        : "Not changed since you joined."
+      : "None yet: you sign in with Google or an email code.";
+    return (
+      <SettingsCard
+        title="Password"
+        description={status}
+        footer={
+          <Button ref={opener} type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
+            {hasPassword ? "Change password" : "Set a password"}
+          </Button>
+        }
+      />
+    );
+  }
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -120,9 +190,7 @@ function PasswordCard({ hasPassword, onSet }: { hasPassword: boolean; onSet: () 
         toast.success("Password set. Your other devices have been signed out.");
         await onSet();
       }
-      setCurrent("");
-      setNext("");
-      setConfirm("");
+      close();
       setUser(await getMe()); // for the new "last changed" date
     } finally {
       setPending(false);
@@ -132,23 +200,21 @@ function PasswordCard({ hasPassword, onSet }: { hasPassword: boolean; onSet: () 
   return (
     <form onSubmit={submit}>
       <SettingsCard
-        title={hasPassword ? "Change password" : "Set a password"}
+        title="Password"
         description={
-          hasPassword ? (
-            <>
-              {user.passwordChangedAt
-                ? `Last changed ${relativeTime(user.passwordChangedAt)} (${shortDate(user.passwordChangedAt)}).`
-                : "Not changed since you joined."}{" "}
-              You'll stay signed in here; other devices will be signed out.
-            </>
-          ) : (
-            "You sign in with Google or an email code. Add a password to sign in with it too. It needs a sign-in in the last 15 minutes."
-          )
+          hasPassword
+            ? "You'll stay signed in here; other devices will be signed out."
+            : "Sign in with a password too. It needs a sign-in in the last 15 minutes."
         }
         footer={
-          <Button type="submit" size="sm" disabled={pending}>
-            {pending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
-          </Button>
+          <>
+            <Button type="button" size="sm" variant="outline" onClick={close} disabled={pending}>
+              Cancel
+            </Button>
+            <Button type="submit" size="sm" disabled={pending}>
+              {pending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
+            </Button>
+          </>
         }
       >
         {hasPassword && (
@@ -156,6 +222,7 @@ function PasswordCard({ hasPassword, onSet }: { hasPassword: boolean; onSet: () 
             {(props) => (
               <Input
                 {...props}
+                ref={first}
                 className="w-full sm:max-w-[20rem]"
                 type="password"
                 autoComplete="current-password"
@@ -171,6 +238,7 @@ function PasswordCard({ hasPassword, onSet }: { hasPassword: boolean; onSet: () 
           {(props) => (
             <Input
               {...props}
+              ref={hasPassword ? undefined : first}
               className="w-full sm:max-w-[20rem]"
               type="password"
               autoComplete="new-password"
@@ -256,7 +324,7 @@ function DevicesCard() {
   return (
     <SettingsCard
       title="Signed-in devices"
-      description="Where your account is signed in. Only the network is shown, never your full address."
+      description="Only the network is shown, never your full address."
       footer={
         <Button type="button" size="sm" variant="outline" onClick={signOutOthers} disabled={busy !== null || others === 0}>
           {busy === "others" ? "Signing out…" : "Sign out other devices"}
@@ -275,9 +343,13 @@ function DevicesCard() {
           </button>
         </div>
       ) : sessions === null ? (
-        <SkeletonGroup label="Loading devices" className="space-y-2">
-          <Skeleton className="h-12 w-full rounded-xl" />
-          <Skeleton className="h-12 w-full rounded-xl" />
+        // One row, as tall as a real one: this device is always in the list.
+        <SkeletonGroup label="Loading devices" className="flex items-center gap-3">
+          <Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
+          <div className="flex flex-1 flex-col gap-1.5">
+            <Skeleton className="h-4 w-32 rounded-md" />
+            <Skeleton className="h-3 w-24 rounded-md" />
+          </div>
         </SkeletonGroup>
       ) : (
         <ul className="divide-y divide-border">
@@ -316,8 +388,9 @@ function DevicesCard() {
   );
 }
 
-function GoogleCard({ accountId, onChange }: { accountId: string | null; onChange: () => Promise<void> }) {
-  const connected = accountId !== null;
+/** `accountId` undefined: still loading; null: not connected. */
+function GoogleCard({ accountId, onChange }: { accountId: string | null | undefined; onChange: () => Promise<void> }) {
+  const connected = accountId != null;
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(() => {
     // Google sends the student back here; a link it refused arrives as ?error=.
@@ -370,12 +443,20 @@ function GoogleCard({ accountId, onChange }: { accountId: string | null; onChang
     <SettingsCard
       title="Google"
       description={
-        connected
-          ? "You can sign in with your Google account."
-          : "Sign in with your Google account too. It must use the same email address as this account."
+        accountId === undefined ? (
+          <LoadingLine />
+        ) : connected ? (
+          "Connected: you can sign in with Google."
+        ) : (
+          "Not connected. It must use this account's email address."
+        )
       }
       footer={
-        connected ? (
+        accountId === undefined ? (
+          <Button type="button" size="sm" variant="outline" disabled>
+            Connect Google
+          </Button>
+        ) : connected ? (
           <Button type="button" size="sm" variant="outline" onClick={() => void disconnect()} disabled={pending}>
             {pending ? "Disconnecting…" : "Disconnect Google"}
           </Button>
@@ -439,7 +520,16 @@ function RecoveryCodes({ codes }: { codes: string[] }) {
   );
 }
 
-function TwoFactorCard({ enabled, hasPassword, onChange }: { enabled: boolean; hasPassword: boolean; onChange: () => Promise<void> }) {
+function TwoFactorCard({
+  enabled,
+  hasPassword,
+  onChange,
+}: {
+  /** null while the sign-in methods load. */
+  enabled: boolean | null;
+  hasPassword: boolean | null;
+  onChange: () => Promise<void>;
+}) {
   const [stage, setStage] = useState<TwoFactorStage>({ step: "idle" });
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -514,14 +604,25 @@ function TwoFactorCard({ enabled, hasPassword, onChange }: { enabled: boolean; h
     });
   };
 
-  const description = enabled
-    ? "On. Signing in asks for a code from your authenticator app, whichever way you sign in."
-    : hasPassword
-      ? "Protect your account with a code from an authenticator app (such as Google Authenticator or Microsoft Authenticator) each time you sign in."
-      : "Set a password first: turning two-step sign-in on or off needs it.";
+  const description =
+    enabled === null ? (
+      <LoadingLine />
+    ) : enabled ? (
+      "On: signing in asks for a code from your authenticator app."
+    ) : hasPassword ? (
+      "Off. Adds a code from an authenticator app to every sign-in."
+    ) : (
+      "Off. Set a password first: turning it on needs one."
+    );
 
   let footer: ReactNode = null;
-  if (stage.step === "idle" && enabled) {
+  if (enabled === null) {
+    footer = (
+      <Button type="button" size="sm" variant="outline" disabled>
+        Turn on two-step sign-in
+      </Button>
+    );
+  } else if (stage.step === "idle" && enabled) {
     footer = (
       <div className="flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="outline" onClick={() => reset({ step: "password", action: "codes" })}>
@@ -534,7 +635,7 @@ function TwoFactorCard({ enabled, hasPassword, onChange }: { enabled: boolean; h
     );
   } else if (stage.step === "idle" && hasPassword) {
     footer = (
-      <Button type="button" size="sm" onClick={() => reset({ step: "password", action: "enable" })}>
+      <Button type="button" size="sm" variant="outline" onClick={() => reset({ step: "password", action: "enable" })}>
         Turn on two-step sign-in
       </Button>
     );
@@ -662,14 +763,13 @@ function DeleteAccountCard({ hasPassword }: { hasPassword: boolean }) {
       title="Delete account"
       titleAs="h4"
       tone="danger"
-      description="Permanently deletes your account and everything in it: chats, settings, progress and your photo. This cannot be undone."
+      description="Deletes your account and everything in it: chats, settings, progress and photo. It can't be undone."
       footer={
-        <Button type="button" size="sm" variant="destructive" onClick={() => setOpen(true)}>
-          Delete account
-        </Button>
-      }
-    >
-      <Dialog
+        <>
+          <Button type="button" size="sm" variant="destructive" onClick={() => setOpen(true)}>
+            Delete account
+          </Button>
+          <Dialog
         open={open}
         onOpenChange={(next) => {
           setOpen(next);
@@ -721,8 +821,10 @@ function DeleteAccountCard({ hasPassword }: { hasPassword: boolean }) {
             </DialogFooter>
           </form>
         </DialogContent>
-      </Dialog>
-    </SettingsCard>
+          </Dialog>
+        </>
+      }
+    />
   );
 }
 
@@ -730,24 +832,14 @@ export function PrivacySection({ googleEnabled }: SectionProps) {
   const [methods, reload] = useSignInMethods();
   return (
     <>
-      <SectionHeading
-        title="Privacy & Security"
-        description="How you sign in, the devices signed in to your account, and deleting it."
-      />
-      <div className="flex flex-col gap-4">
-        {methods === null ? (
-          <SkeletonGroup label="Loading sign-in methods" className="space-y-2">
-            <Skeleton className="h-40 w-full rounded-2xl" />
-          </SkeletonGroup>
-        ) : (
-          <>
-            <PasswordCard hasPassword={methods.password} onSet={reload} />
-            <TwoFactorCard enabled={methods.twoFactor} hasPassword={methods.password} onChange={reload} />
-            {(googleEnabled || methods.google) && <GoogleCard accountId={methods.google} onChange={reload} />}
-          </>
-        )}
+      <SectionHeading title="Privacy & Security" description="How you sign in, where you're signed in, and deleting your account." />
+      {/* Every card is drawn at once, its status loading in place: nothing below moves when it arrives. */}
+      <div className="flex flex-col gap-3">
+        <PasswordCard hasPassword={methods ? methods.password : null} onSet={reload} />
+        <TwoFactorCard enabled={methods ? methods.twoFactor : null} hasPassword={methods ? methods.password : null} onChange={reload} />
+        {(googleEnabled || methods?.google) && <GoogleCard accountId={methods ? methods.google : undefined} onChange={reload} />}
         <DevicesCard />
-        <h3 className="mt-4 font-display text-lg font-bold tracking-tight text-destructive">Danger zone</h3>
+        <h3 className="mt-3 font-display text-base font-bold tracking-tight text-destructive">Danger zone</h3>
         <DeleteAccountCard hasPassword={methods?.password ?? true} />
       </div>
     </>

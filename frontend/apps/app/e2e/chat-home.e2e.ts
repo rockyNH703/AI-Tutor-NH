@@ -185,7 +185,9 @@ test("the theme menu: Dark, White, System with a check; saved to the account; ke
   await trigger.click();
   const items = page.getByRole("menuitemradio");
   await expect(items).toHaveText(["Dark", "White", "System"]);
-  await expect(page.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute("aria-checked", "true");
+  // A new account follows the device (the API default is "system"); the choice then sticks to the account.
+  await expect(page.getByRole("menuitemradio", { name: "System" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute("aria-checked", "false");
   await page.getByRole("menuitemradio", { name: "Dark" }).click();
   await expect(page.getByRole("menu")).toHaveCount(0);
   await expect(html).toHaveClass(/\bdark\b/);
@@ -230,8 +232,10 @@ test("the account menu, by keyboard: named, expands, arrows, Escape gives focus 
   await trigger.focus();
   await page.keyboard.press("Enter");
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
-  await expect(page.getByRole("menuitem")).toHaveText(["Settings", "Log out"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["Settings", "Archived chats", "Log out"]);
   await expect(page.getByRole("menuitem", { name: "Settings" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("menuitem", { name: "Archived chats" })).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await expect(page.getByRole("menuitem", { name: "Log out" })).toBeFocused();
   await page.keyboard.press("Escape");
@@ -249,6 +253,8 @@ test("the account menu, by keyboard: named, expands, arrows, Escape gives focus 
   await page.keyboard.press("Enter");
   // Each key once the menu has moved focus: a key pressed before it opened is not the menu's.
   await expect(page.getByRole("menuitem", { name: "Settings" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(page.getByRole("menuitem", { name: "Archived chats" })).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await expect(page.getByRole("menuitem", { name: "Log out" })).toBeFocused();
   await page.keyboard.press("Enter");

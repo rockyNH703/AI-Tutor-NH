@@ -217,6 +217,14 @@ export async function tutorKnows(page: Page): Promise<string> {
   return (await lastReply(page).innerText()).replace(/\s+/g, " ");
 }
 
+/**
+ * A sidebar chat's action from its "…" menu (Share, Rename, Pin, Unpin, Archive, Delete): `row` is the chat's <li>.
+ */
+export async function chatAction(row: Locator, action: string): Promise<void> {
+  await row.getByRole("button", { name: /^Options for / }).click();
+  await row.page().getByRole("menuitem", { name: action, exact: true }).click();
+}
+
 /** The conversation id in the URL. */
 export function conversationIdOf(page: Page): string {
   const id = /\/c\/([0-9a-f-]{36})$/.exec(new URL(page.url()).pathname)?.[1];

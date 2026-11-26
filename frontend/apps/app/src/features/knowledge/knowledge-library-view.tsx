@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
-import { BookOpenCheck, Database, ShieldCheck } from "lucide-react";
+import { EmptyState, ErrorState } from "@v1/ui/empty-state";
+import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
+import { Lock } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -18,68 +20,83 @@ export function KnowledgeLibraryView() {
     );
   }, []);
 
+  // The app header names the page (its h1): these states start at h2.
   if (state === "loading") {
-    return <p className="page-container text-sm text-text-secondary">Checking operator access…</p>;
+    return (
+      <div className="page-container">
+        <SkeletonGroup label="Checking operator access" className="flex flex-col gap-3">
+          <Skeleton className="h-7 w-56 rounded-md" />
+          <Skeleton className="h-4 w-80 max-w-full rounded-md" />
+        </SkeletonGroup>
+      </div>
+    );
   }
   if (state === "denied") {
     return (
       <div className="page-container">
-        <h1 className="text-2xl font-bold">Knowledge Library</h1>
-        <p className="mt-3 text-text-secondary">
-          This area is available only to an explicitly granted Knowledge Library operator.
-        </p>
+        <EmptyState
+          icon={Lock}
+          title="Operators only"
+          description="Only granted operators can open it. Your own files are in the File Library."
+          action={
+            <Button asChild variant="outline">
+              <Link href="/library">Open your File Library</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
   if (state === "error") {
     return (
       <div className="page-container">
-        <h1 className="text-2xl font-bold">Knowledge Library unavailable</h1>
-        <p className="mt-3 text-text-secondary">Operator access could not be checked. No import action was enabled.</p>
+        <ErrorState title="Knowledge Library unavailable" description="Operator access couldn't be checked, so nothing is enabled." />
       </div>
     );
   }
 
   return (
-    <div className="page-container">
-      <div className="rounded-2xl border border-border bg-card p-6 elev-1">
-        <div className="flex items-start gap-4">
-          <div className="rounded-xl bg-brand/10 p-3 text-brand">
-            <BookOpenCheck aria-hidden className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Knowledge Library</h1>
-            <p className="mt-2 text-sm text-text-secondary">
-              Owner review for immutable PDF imports, duplicate decisions, processing revisions, publication and citations.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <section className="rounded-2xl border border-border bg-card p-5">
-          <Database aria-hidden className="h-5 w-5 text-brand" />
-          <h2 className="mt-3 font-bold">Import is API-gated</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            The resumable importer uses a short-lived scoped secret, sequential offsets and a final SHA-256 check. A browser folder picker is intentionally not enabled yet.
-          </p>
-        </section>
-        <section className="rounded-2xl border border-border bg-card p-5">
-          <ShieldCheck aria-hidden className="h-5 w-5 text-brand" />
-          <h2 className="mt-3 font-bold">Publication remains manual</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            Distribution rights, provider egress, extraction quality and duplicate review must pass before a revision can be published.
-          </p>
-        </section>
-      </div>
-
-      <div className="mt-5 rounded-2xl border border-warning/40 bg-warning-soft p-5">
-        <h2 className="font-bold">Controlled rollout</h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          Use the guarded operator workflow and Windows importer after the storage and parser gates pass. Real CCNA books are not accepted through the normal File Library.
+    <div className="page-container flex flex-col gap-5">
+      <header>
+        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">Knowledge Library</h2>
+        <p className="mt-1 max-w-prose text-sm text-text-secondary">
+          Owner review of PDF imports, from upload to a published, citable revision.
         </p>
-        <Button asChild variant="outline" className="mt-4">
-          <Link href="/library">Open personal File Library</Link>
+      </header>
+
+      <section aria-labelledby="knowledge-steps" className="rounded-2xl border border-border bg-card p-5 elev-1">
+        <h3 id="knowledge-steps" className="mb-1 text-sm font-bold text-foreground">
+          How a book gets in
+        </h3>
+        <ol className="flex flex-col divide-y divide-border">
+          {[
+            ["Import", "Through the API only: a short-lived scoped secret, resumable offsets and a final SHA-256 check."],
+            ["Review", "Duplicates, extraction quality and each processing revision are decided by the owner."],
+            ["Publish", "Manual, once distribution rights and provider egress are cleared."],
+          ].map(([step, text], index) => (
+            <li key={step} className="flex gap-3 py-3 last:pb-0">
+              <span
+                aria-hidden
+                className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-soft text-2xs font-bold text-brand"
+              >
+                {index + 1}
+              </span>
+              <p className="text-sm leading-relaxed text-text-secondary">
+                <span className="font-bold text-foreground">{step}. </span>
+                {text}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-warning/40 bg-warning-soft p-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-foreground">
+          Controlled rollout: the operator workflow and the Windows importer only. Books are never taken through the File
+          Library.
+        </p>
+        <Button asChild variant="outline" className="shrink-0">
+          <Link href="/library">Open your File Library</Link>
         </Button>
       </div>
     </div>

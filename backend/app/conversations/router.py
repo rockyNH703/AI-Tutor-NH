@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import uuid
+from typing import Literal
 
-from fastapi import APIRouter, Depends, Query, Request, Response, status
+from fastapi import APIRouter, Depends, Path, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.assessments import state as assessments
-from app.auth.dependencies import Principal, get_principal
+from app.auth.dependencies import Principal, client_info, get_principal
+from app.conversations import shares
 from app.conversations.repository import ConversationRepository
 from app.conversations.schemas import (
     ConversationOut,
@@ -16,11 +18,15 @@ from app.conversations.schemas import (
     MessageAttachmentOut,
     MessageOut,
     MessagePage,
-    RenameConversationRequest,
+    ShareCreatedOut,
+    SharedChatOut,
+    SharedMessageOut,
+    ShareStatusOut,
+    UpdateConversationRequest,
 )
 from app.db.models import Conversation, Message
 from app.db.session import get_session
-from app.errors import NotFound
+from app.errors import NotFound, RateLimited, ValidationFailed
 from app.logging import get_logger
 from app.nhprep.access import nhprep_allows
 from app.programs import service as programs
@@ -28,6 +34,8 @@ from app.programs.access import bank_scope, programs_allow
 from app.programs.schemas import SLUG
 
 router = APIRouter(prefix="/v1/conversations", tags=["conversations"])
+# The public side of a shared link: no sign-in, read-only (app/conversations/shares.py).
+shared_router = APIRouter(prefix="/v1/shared", tags=["conversations"])
 log = get_logger("app.assessments")
 
 
@@ -39,6 +47,8 @@ def conversation_out(c: Conversation, program: dict | None = None) -> Conversati
         created_at=c.created_at,
         updated_at=c.updated_at,
         program=ConversationProgramOut(**program) if program else None,
+        pinned_at=c.pinned_at,
+        archived_at=c.archived_at,
     )
 
 
@@ -161,6 +171,9 @@ async def list_conversations(
     cursor: str | None = Query(None, max_length=200),
     program: str | None = Query(None, pattern=SLUG, max_length=60),
     month: int | None = Query(None, ge=1, le=12),
+    view: Literal["history", "pinned", "archived"] = Query(
+        "history", description="Ordinary chats only: history (not archived), pinned, or archived."
+    ),
     principal: Principal = Depends(get_principal),
     db: AsyncSession = Depends(get_session),
 ):
@@ -170,7 +183,7 @@ async def list_conversations(
     if program is None:
         if month is not None:
             raise NotFound()
-        rows, next_cursor = await repo.list(principal.user.id, limit, cursor)
+        rows, next_cursor = await repo.list(principal.user.id, limit, cursor, view=view)
         return ConversationPage(items=[conversation_out(c) for c in rows], next_cursor=next_cursor)
     if not programs_allow(principal.user, request.app.state.settings):
         raise NotFound()
@@ -214,15 +227,24 @@ async def get_conversation(
 
 
 @router.patch("/{conversation_id}", response_model=ConversationOut)
-async def rename_conversation(
+async def update_conversation(
     conversation_id: uuid.UUID,
-    body: RenameConversationRequest,
+    body: UpdateConversationRequest,
     principal: Principal = Depends(get_principal),
     db: AsyncSession = Depends(get_session),
 ):
+    """Rename, pin or archive one of your chats. Pinning and archiving keep its place in the history (its activity
+    time is unchanged); a program chat stays in its program, so it is never pinned or archived."""
     repo = ConversationRepository(db)
-    conversation = await owned_conversation(repo, principal.user.id, conversation_id)
-    await repo.rename(conversation, body.title)
+    conversation = await repo.get(principal.user.id, conversation_id, lock=True)
+    if conversation is None:
+        raise NotFound("Conversation not found.")
+    if (body.pinned is not None or body.archived is not None) and conversation.program_id is not None:
+        raise ValidationFailed("Program chats can't be pinned or archived.", code="not_movable")
+    if body.pinned is not None or body.archived is not None:
+        await repo.set_place(conversation, pinned=body.pinned, archived=body.archived)
+    if body.title is not None:
+        await repo.rename(conversation, body.title)
     await db.commit()
     await db.refresh(conversation)
     return conversation_out(conversation, await programs.conversation_ref(db, conversation))
@@ -259,3 +281,69 @@ async def list_messages(
     cards = program_chat or nhprep_allows(principal.user, settings)
     items = [message_out(m, attachments.get(m.id, ()), withdrawn, entitled=entitled, nhprep=cards) for m in rows]
     return MessagePage(items=items, next_cursor=older)
+
+
+# ------------------------------------------------------------------ shared links (app/conversations/shares.py)
+
+
+def _share_status(share) -> ShareStatusOut:
+    if share is None:
+        return ShareStatusOut(shared=False)
+    return ShareStatusOut(shared=True, shared_at=share.created_at, message_count=share.message_count)
+
+
+@router.get("/{conversation_id}/share", response_model=ShareStatusOut)
+async def get_share(
+    conversation_id: uuid.UUID, principal: Principal = Depends(get_principal), db: AsyncSession = Depends(get_session)
+):
+    """Whether one of your chats has a live shared link (its token is never shown again)."""
+    return _share_status(await shares.share_status(db, principal.user.id, conversation_id))
+
+
+@router.post("/{conversation_id}/share", response_model=ShareCreatedOut, status_code=status.HTTP_201_CREATED)
+async def create_share(
+    conversation_id: uuid.UUID,
+    request: Request,
+    principal: Principal = Depends(get_principal),
+    db: AsyncSession = Depends(get_session),
+):
+    """Share a chat as it is now: a read-only snapshot behind a new link, which replaces (ends) any earlier link."""
+    if not request.app.state.share_limiter.allow(str(principal.user.id)):
+        raise RateLimited()
+    token, share = await shares.create_share(db, principal.user.id, conversation_id)
+    await db.commit()
+    return ShareCreatedOut(token=token, shared_at=share.created_at, message_count=share.message_count)
+
+
+@router.delete("/{conversation_id}/share", status_code=status.HTTP_204_NO_CONTENT)
+async def revoke_share(
+    conversation_id: uuid.UUID, principal: Principal = Depends(get_principal), db: AsyncSession = Depends(get_session)
+):
+    """Stop sharing: the chat's link stops working at once. Nothing to stop is not an error."""
+    await shares.revoke_share(db, principal.user.id, conversation_id)
+    await db.commit()
+    return Response(status_code=204)
+
+
+@shared_router.get("/{token}", response_model=SharedChatOut)
+async def read_shared_chat(
+    request: Request,
+    response: Response,
+    token: str = Path(pattern=shares.TOKEN_PATTERN),
+    db: AsyncSession = Depends(get_session),
+):
+    """A shared chat, for anyone with its link: read-only, no sign-in. Unknown, revoked and deleted links are all the
+    same 404. Never cached, never indexed."""
+    if not request.app.state.shared_view_limiter.allow(client_info(request).ip or "unknown"):
+        raise RateLimited()
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Robots-Tag"] = "noindex, nofollow"
+    found = await shares.shared_chat(db, token)
+    if found is None:
+        raise NotFound("This shared link doesn't exist or has been turned off.")
+    snapshot, shared_at = found
+    return SharedChatOut(
+        title=snapshot.get("title", ""),
+        shared_at=shared_at,
+        messages=[SharedMessageOut(**message) for message in snapshot.get("messages", [])],
+    )

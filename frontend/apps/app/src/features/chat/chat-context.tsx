@@ -19,7 +19,13 @@ import {
   streamRegenerate,
 } from "@/lib/api/chat";
 import { findFile, getFile, retryFile, sha256Hex, uploadFile } from "@/lib/api/files";
-import { deleteConversation, listConversations, listMessages, renameConversation } from "@/lib/api/conversations";
+import {
+  deleteConversation,
+  listConversations,
+  listMessages,
+  renameConversation,
+  updateConversation,
+} from "@/lib/api/conversations";
 import { retargetAppPath } from "@/features/navigation/app-return";
 import { leaving } from "@/features/navigation/leaving";
 import { fromAnswer, fromReply } from "@/features/streak/celebrations/queue";
@@ -65,7 +71,15 @@ export function ChatProvider({
       },
     });
     return {
-      conversations: new ConversationsStore({ listConversations, renameConversation }, initialConversations),
+      conversations: new ConversationsStore(
+        {
+          listConversations,
+          renameConversation,
+          updateConversation,
+          listPinned: () => listConversations({ limit: 100, view: "pinned" }),
+        },
+        initialConversations,
+      ),
       chat,
       // Keyed like the chat store: a draft and the conversation it becomes share their files.
       attachments: new AttachmentStore({ sha256Hex, findFile, uploadFile, getFile, retryFile }, (key) =>
@@ -77,6 +91,7 @@ export function ChatProvider({
   useEffect(() => {
     const { chat, conversations } = stores;
     if (!initialConversations) void conversations.refresh();
+    else void conversations.refreshPinned(); // the first page came with the page; the pins are read on their own
 
     chat.onConversationCreated = (conversation, draftKey) => {
       stores.attachments.rekey(draftKey, conversation.id);

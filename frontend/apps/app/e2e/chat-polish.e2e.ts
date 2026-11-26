@@ -16,6 +16,7 @@ import {
   test,
   waitForHydration,
   waitForIdle,
+  chatAction,
 } from "./support";
 
 /**
@@ -437,6 +438,9 @@ test("primary controls read clearly in both themes: at rest, hovered, disabled, 
     expect(await tokenContrast(page, "--ring", "--card"), `focus ring on a card, ${scheme}`).toBeGreaterThanOrEqual(3);
 
     await page.goto("/settings/privacy");
+    // The row's outline button opens the form; its submit is the primary Button measured here.
+    await page.getByRole("button", { name: "Change password", exact: true }).click();
+    await expect(page.getByLabel("Current password")).toBeVisible();
     const button = page.getByRole("button", { name: "Change password", exact: true });
     await expect(button).toBeVisible();
     expect(await ownContrast(button), `a primary Button, ${scheme}`).toBeGreaterThanOrEqual(4.5);
@@ -509,10 +513,10 @@ test("a long title moves only while its row is hovered or keyboard-focused; at r
   expect((await state(short)).running).toBe(0);
   expect(await state(long)).toMatchObject({ running: 0, mask: "none", textOverflow: "ellipsis" });
 
-  // Keyboard focus moves it; moving focus on stops it. (Reached back from its own Rename button,
+  // Keyboard focus moves it; moving focus on stops it. (Reached back from its own "…" button,
   // whatever the sidebar lists above the chats.)
   await page.mouse.move(900, 400);
-  await page.getByRole("complementary").getByRole("button", { name: `Rename “${LONG}”` }).focus();
+  await page.getByRole("complementary").getByRole("button", { name: `Options for “${LONG}”` }).focus();
   await page.keyboard.press("Shift+Tab");
   await expect(row(long)).toBeFocused();
   await page.waitForTimeout(600);
@@ -597,10 +601,10 @@ test("keyboard: the controls come in reading order", async ({ page, account: _ }
     /NetSec AI/,
     /^New chat$/,
     /^Osmosis Definition$/,
-    /^Rename/,
-    /^Delete/,
+    /^Options for /,
     /^Account: /,
-    /sidebar$/,
+    /^Resize sidebar$/,
+    /^(Collapse|Expand) sidebar$/,
     /streak/i,
     /^Notifications/,
     /^Colour theme$/,
@@ -683,7 +687,7 @@ test("races: a double Enter sends once; a rename while the reply streams is kept
   await expect(page).toHaveURL(/\/c\/[0-9a-f-]{36}$/);
   const id = new URL(page.url()).pathname.split("/").pop() as string;
   const list = page.locator("nav[aria-labelledby='chats-heading']");
-  await list.locator("li", { has: page.locator(`a[href="/c/${id}"]`) }).getByRole("button", { name: /^Rename/ }).click();
+  await chatAction(list.locator("li", { has: page.locator(`a[href="/c/${id}"]`) }), "Rename");
   const dialog = page.getByRole("dialog", { name: "Rename chat" });
   await dialog.getByLabel("Name").fill("My biology notes");
   await dialog.getByRole("button", { name: "Rename" }).click();

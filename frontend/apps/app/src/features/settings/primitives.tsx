@@ -1,10 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@v1/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@v1/ui/card";
 import { Switch } from "@v1/ui/switch";
 import { cn } from "@v1/ui/utils";
-import { Check } from "lucide-react";
-import { type ReactNode, useEffect, useId, useRef } from "react";
+import { Check, ChevronDown } from "lucide-react";
+import { Children, type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { takeHeadingFocus } from "./heading-focus";
 import { canToggle, chosenText } from "./learning-model";
@@ -33,20 +33,24 @@ export function SectionHeading({ title, description }: { title: string; descript
     if (takeHeadingFocus()) heading.current?.focus({ preventScroll: true });
   }, []);
   return (
-    <div className="mb-6 md:mb-8">
+    <div className="mb-5 md:mb-6">
       <h2
         ref={heading}
         tabIndex={-1}
         data-settings-heading=""
-        className="font-display text-2xl font-bold tracking-tight text-foreground outline-none sm:text-[1.75rem]"
+        className="font-display text-2xl font-bold tracking-tight text-foreground outline-none"
       >
         {title}
       </h2>
-      <p className="mt-1.5 max-w-prose text-sm leading-relaxed text-text-secondary">{description}</p>
+      <p className="mt-1 max-w-prose text-sm leading-relaxed text-text-secondary">{description}</p>
     </div>
   );
 }
 
+/**
+ * A group of settings. One that is only an action (Google, Email, Delete account) is a single row: what it is on the
+ * left, its button on the right. One with fields keeps its action row under them.
+ */
 export function SettingsCard({
   title,
   description,
@@ -63,24 +67,71 @@ export function SettingsCard({
   footer?: ReactNode;
   tone?: "default" | "danger";
 }) {
+  // Children that render nothing (`{open && …}` while closed) leave a one-row card.
+  const content = Children.toArray(children).length > 0;
+  const row = !content && footer;
   return (
     <Card className={tone === "danger" ? "border-destructive/40" : undefined}>
-      <CardHeader className="gap-1.5 p-6 md:p-7">
-        <CardTitle as={titleAs}>{title}</CardTitle>
-        {description && <CardDescription className="max-w-prose leading-relaxed">{description}</CardDescription>}
-      </CardHeader>
-      {children && <CardContent className="flex flex-col gap-6 px-6 pb-6 pt-0 md:px-7 md:pb-7">{children}</CardContent>}
-      {footer && (
+      <div className={cn("flex flex-col gap-3 p-5 md:px-6", row && "sm:flex-row sm:items-center sm:justify-between sm:gap-6")}>
+        <div className="flex min-w-0 flex-col gap-1">
+          <CardTitle as={titleAs} className="text-base">
+            {title}
+          </CardTitle>
+          {description && <CardDescription className="max-w-prose leading-relaxed">{description}</CardDescription>}
+        </div>
+        {row && <div className="flex shrink-0 flex-wrap items-center gap-2">{footer}</div>}
+      </div>
+      {content && <CardContent className="flex flex-col gap-5 px-5 pb-5 pt-0 md:px-6">{children}</CardContent>}
+      {content && footer && (
         <CardFooter
           className={cn(
-            "justify-end gap-2 rounded-b-2xl",
-            tone === "danger" ? "border-destructive/20 bg-destructive/5" : "bg-surface",
+            "justify-end gap-2 rounded-b-2xl px-5 md:px-6",
+            tone === "danger" ? "border-destructive/20 bg-destructive/5" : "bg-surface/60",
           )}
         >
           {footer}
         </CardFooter>
       )}
     </Card>
+  );
+}
+
+/**
+ * Detail on demand (a form used now and then, a long preview): a button that shows or hides it, named by what it
+ * does. Closed, nothing of it is rendered.
+ */
+export function Disclosure({
+  label,
+  openLabel,
+  defaultOpen = false,
+  children,
+}: {
+  label: string;
+  /** The button's name while open (default: the same). */
+  openLabel?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  const id = useId();
+  return (
+    <div className="flex flex-col">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={open ? id : undefined}
+        onClick={() => setOpen((value) => !value)}
+        className="focus-ring inline-flex min-h-10 items-center gap-1.5 self-start rounded-lg text-sm font-semibold text-brand hover:underline"
+      >
+        <ChevronDown aria-hidden className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+        {open ? (openLabel ?? label) : label}
+      </button>
+      {open && (
+        <div id={id} className="mt-3">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -169,12 +220,15 @@ export function ChoiceGroup<T extends string>({
   value,
   options,
   onChange,
+  stacked = false,
 }: {
   legend: string;
   description?: string;
   value: T;
   options: readonly { value: T; label: string; icon?: ReactNode }[];
   onChange: (value: T) => void;
+  /** Legend above the pills at every width (a narrow column), instead of beside them on wide screens. */
+  stacked?: boolean;
 }) {
   const name = useId();
   // A <fieldset> named by aria-labelledby rather than a <legend>, so the name can sit in a column
@@ -183,9 +237,9 @@ export function ChoiceGroup<T extends string>({
     <fieldset
       aria-labelledby={`${name}-legend`}
       aria-describedby={description ? `${name}-description` : undefined}
-      className="xl:flex xl:items-start xl:justify-between xl:gap-8"
+      className={stacked ? undefined : "xl:flex xl:items-start xl:justify-between xl:gap-8"}
     >
-      <div className="min-w-0 xl:max-w-[16rem] xl:flex-1 xl:pt-2">
+      <div className={stacked ? "min-w-0" : "min-w-0 xl:max-w-[16rem] xl:flex-1 xl:pt-2"}>
         <p id={`${name}-legend`} className="text-sm font-bold text-foreground">
           {legend}
         </p>
@@ -195,7 +249,7 @@ export function ChoiceGroup<T extends string>({
           </p>
         )}
       </div>
-      <div className="mt-2 flex flex-wrap gap-2 xl:mt-0 xl:flex-[1.6] xl:justify-start">
+      <div className={stacked ? "mt-2 flex flex-wrap gap-2" : "mt-2 flex flex-wrap gap-2 xl:mt-0 xl:flex-[1.6] xl:justify-start"}>
         {options.map((option) => (
           <label key={option.value} className="relative">
             {/* The real radio lies over its pill, invisible: it is what a pointer, a keyboard and

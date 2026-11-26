@@ -1,8 +1,9 @@
-import { ChevronDown } from "lucide-react";
+import { Activity, Bot, Brain, ChevronDown, KeyRound, Lock, Mic, ShieldAlert, Trash2 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { APP_NAME } from "@/lib/brand";
+import { HelpTopics } from "./help-topics";
 
 /**
  * /help and /about. Plain server-rendered pages, written to be true of the app as it is
@@ -17,10 +18,21 @@ function inline(href: string, text: string) {
   );
 }
 
-export function PageFrame({ title, intro, children }: { title: string; intro: string; children: ReactNode }) {
+export function PageFrame({
+  title,
+  intro,
+  wide = false,
+  children,
+}: {
+  title: string;
+  intro: string;
+  /** Room for two columns on wide screens (About: what it does beside your data). */
+  wide?: boolean;
+  children: ReactNode;
+}) {
   return (
     <div className="h-full overflow-y-auto">
-      <article className="page-container flex flex-col gap-6">
+      <article className={`page-container flex flex-col gap-6${wide ? " page-wide" : ""}`}>
         <header>
           <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h2>
           <p className="mt-1 max-w-prose text-sm leading-relaxed text-text-secondary">{intro}</p>
@@ -205,15 +217,12 @@ export const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
 export function HelpPage() {
   return (
     <PageFrame title="Help & FAQ" intro={`Answers to common questions about ${APP_NAME}.`}>
-      {FAQ.map((group, index) => (
-        <section key={group.topic} aria-labelledby={`faq-${index}`} className="flex flex-col gap-2">
-          <h3 id={`faq-${index}`} className="text-sm font-bold uppercase tracking-wide text-text-secondary">
-            {group.topic}
-          </h3>
-          <div className="divide-y divide-border rounded-2xl border border-border bg-card">
+      <HelpTopics topics={FAQ.map((group) => ({ label: group.topic, count: group.items.length }))}>
+        {FAQ.map((group) => (
+          <div key={group.topic} className="divide-y divide-border rounded-2xl border border-border bg-card">
             {group.items.map((item) => (
               <details key={item.question} className="group">
-                <summary className="focus-ring flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
+                <summary className="focus-ring flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-foreground [&::-webkit-details-marker]:hidden">
                   {item.question}
                   <ChevronDown aria-hidden className="h-4 w-4 shrink-0 text-text-secondary transition-transform group-open:rotate-180" />
                 </summary>
@@ -221,8 +230,8 @@ export function HelpPage() {
               </details>
             ))}
           </div>
-        </section>
-      ))}
+        ))}
+      </HelpTopics>
       <p className="text-sm text-text-secondary">
         Didn't find your answer? {inline("/settings/help", "Contact support")}.
       </p>
@@ -230,47 +239,70 @@ export function HelpPage() {
   );
 }
 
+/** What happens to your data, one line each: the detail lives in Help and Settings. */
+const DATA: readonly { icon: typeof Lock; title: string; text: ReactNode }[] = [
+  { icon: Lock, title: "Private to you", text: "Chats, settings and progress belong to your account; no other user sees them." },
+  {
+    icon: Bot,
+    title: "What the AI is told",
+    text: "Your profile and preferences, never your name, email or photo. Messages go to our AI provider for the answer.",
+  },
+  { icon: KeyRound, title: "Secrets", text: "Remove passwords and keys before you paste a config or log, or attach a file." },
+  {
+    icon: Brain,
+    title: "Memory",
+    text: <>Memories you save shape later answers; manage them in {inline("/settings/memory", "Memory")}.</>,
+  },
+  { icon: Mic, title: "Voice", text: "In voice mode, your recording and the answer go to our speech provider; the recording isn't stored." },
+  { icon: Activity, title: "Active time", text: "Measured only from your own use, never compared with others." },
+  {
+    icon: Trash2,
+    title: "Deleting",
+    text: <>Delete your account and everything in it in {inline("/settings/privacy", "Privacy & Security")}.</>,
+  },
+];
+
 export function AboutPage() {
   return (
-    <PageFrame title={`About ${APP_NAME}`} intro="What it is, and how it treats your data.">
-      <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground">
-        <h3 className="font-bold">What it does</h3>
-        <p>
-          {APP_NAME} is an assistant for network, security and infrastructure engineers. You ask in a chat and it helps
-          with configuration, troubleshooting, logs and packet analysis, security and cloud networking, step by step when
-          you want. It answers from what its AI model knows and from files you attach, and it adapts to the profile and
-          preferences you set; where reference material has been added, it can draw on that too and shows the source.
-          It can also help you prepare for certifications.
-        </p>
-        <p>
-          It's an aid, not a replacement for your own judgement: check its answers against your platform's documentation
-          before you change a production network.
-        </p>
-      </section>
-      <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-sm leading-relaxed text-foreground">
-        <h3 className="font-bold">Your data</h3>
-        <ul className="list-disc space-y-1.5 pl-5">
-          <li>Your chats, settings and progress are stored with your account. Other users can't see them.</li>
-          <li>
-            {APP_NAME} is told your profile and preferences, never your name, email address or photo. What you send is
-            passed to our AI provider to write the answer.
-          </li>
-          <li>Remove passwords, keys and other secrets before you paste a config or log, or attach a file.</li>
-          <li>
-            Memories you save are kept with your account and given to {APP_NAME} when they help an answer. You can see,
-            correct or delete them in {inline("/settings/memory", "Memory")}.
-          </li>
-          <li>In voice mode, your recording and the answer go to our speech provider; the recording is never stored.</li>
-          <li>Active time comes only from how you use the app, and it's never compared with anyone else's.</li>
-          <li>
-            You can delete your account, and everything with it, at any time in{" "}
-            {inline("/settings/privacy", "Privacy & Security")}.
-          </li>
-        </ul>
-      </section>
-      <p className="text-sm text-text-secondary">
-        Questions? See {inline("/help", "Help & FAQ")} or {inline("/settings/help", "contact support")}.
-      </p>
+    <PageFrame title={`About ${APP_NAME}`} intro="What it is, and how it treats your data." wide>
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <section aria-labelledby="about-what" className="flex flex-col gap-3 text-sm leading-relaxed text-foreground sm:gap-4">
+          <h3 id="about-what" className="font-display text-lg font-bold tracking-tight">
+            What it does
+          </h3>
+          <p>
+            An assistant for network, security and infrastructure engineers: configuration, troubleshooting, logs and
+            captures, cloud networking and certification prep. It answers from its AI model and the files you attach, adapts
+            to your profile, and cites reference material when it uses it.
+          </p>
+          <p className="flex gap-3 rounded-xl border border-accent-warm/30 bg-accent-warm-soft px-3.5 py-3">
+            <ShieldAlert aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
+            <span>
+              An aid, not a replacement for your judgement: check answers against your platform's documentation before
+              changing a production network.
+            </span>
+          </p>
+          <p className="text-text-secondary">
+            Questions? {inline("/help", "Help & FAQ")} or {inline("/settings/help", "contact support")}.
+          </p>
+        </section>
+        <section aria-labelledby="about-data" className="rounded-2xl border border-border bg-card p-4 elev-1 sm:p-5">
+          <h3 id="about-data" className="mb-2 font-display text-lg font-bold tracking-tight text-foreground">
+            Your data
+          </h3>
+          <ul className="flex flex-col divide-y divide-border">
+            {DATA.map((item) => (
+              <li key={item.title} className="flex gap-3 py-2 last:pb-0 sm:py-2.5">
+                <item.icon aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                <p className="text-sm leading-relaxed text-text-secondary">
+                  <span className="font-bold text-foreground">{item.title}. </span>
+                  {item.text}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
     </PageFrame>
   );
 }

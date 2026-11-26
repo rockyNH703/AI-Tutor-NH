@@ -140,10 +140,15 @@ export const ROUTES = {
   "PUT /v1/memories/{memory_id}": { auth: true, body: "CorrectMemoryRequest" },
   "DELETE /v1/memories/{memory_id}": { auth: true, body: "DeleteMemoryRequest" },
 
-  "GET /v1/conversations": { auth: true, query: ["limit", "cursor", "program", "month"] },
+  "GET /v1/conversations": { auth: true, query: ["limit", "cursor", "program", "month", "view"] },
   "GET /v1/conversations/{conversation_id}": { auth: true },
-  "PATCH /v1/conversations/{conversation_id}": { auth: true, body: "RenameConversationRequest" },
+  "PATCH /v1/conversations/{conversation_id}": { auth: true, body: "UpdateConversationRequest" },
   "DELETE /v1/conversations/{conversation_id}": { auth: true },
+  // A chat's shared link (app/conversations/shares.py): its status, a new one (snapshot), stop sharing. The public
+  // read (GET /v1/shared/{token}) is not here: the shared page reads it on the server (app/share/[token]).
+  "GET /v1/conversations/{conversation_id}/share": { auth: true },
+  "POST /v1/conversations/{conversation_id}/share": { auth: true },
+  "DELETE /v1/conversations/{conversation_id}/share": { auth: true },
   "GET /v1/conversations/{conversation_id}/messages": { auth: true, query: ["limit", "before"] },
 
   "POST /v1/chat/stream": { auth: true, body: "ChatRequest", stream: true },

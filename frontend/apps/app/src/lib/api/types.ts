@@ -191,6 +191,8 @@ export type AcademicCatalog = {
   mediums: CatalogEntry[];
   academicYears: CatalogEntry[];
   subjects: CatalogEntry[];
+  /** NetSec's exam tracks (the certification bank's families): a lab session's track, and the bank's subject codes. */
+  examTracks: CatalogEntry[];
 };
 
 export type MainGoal = (typeof CONTRACT.LearnerProfileSet.mainGoal.enum)[number];
@@ -670,6 +672,23 @@ export type Conversation = {
   updatedAt: Timestamp;
   /** Set for a program chat; absent or null for an ordinary chat. */
   program?: ConversationProgram | null;
+  /** Pinned to the top of the sidebar; never with archivedAt. */
+  pinnedAt?: Timestamp | null;
+  /** Archived: out of the sidebar, in Archived chats. */
+  archivedAt?: Timestamp | null;
+};
+
+/** Which ordinary chats a list holds: not archived (pinned ones too), pinned, or archived. */
+export type ConversationView = "history" | "pinned" | "archived";
+
+/** A chat's shared link, without its token (shown only when it is made). */
+export type ShareStatus = { shared: boolean; sharedAt?: Timestamp | null; messageCount?: number | null };
+export type ShareCreated = { token: string; sharedAt: Timestamp; messageCount: number };
+/** A shared link's read-only snapshot (GET /v1/shared/{token}, read on the server). */
+export type SharedChat = {
+  title: string;
+  sharedAt: Timestamp;
+  messages: { role: "user" | "assistant"; content: string; createdAt: Timestamp; attachments: number }[];
 };
 
 /** Where a new chat starts: a program's month (or its QnA when month is null), in tutor or interview mode. */
@@ -677,8 +696,8 @@ export type ChatPlace = { program: string; month: number | null; mode: "tutor" |
 
 export type ConversationPage = { items: Conversation[]; nextCursor: string | null };
 
-export type RenameConversationRequest = { title: string };
-export const TITLE_MAX = CONTRACT.RenameConversationRequest.title.maxLength;
+export type UpdateConversationRequest = { title?: string; pinned?: boolean; archived?: boolean };
+export const TITLE_MAX = CONTRACT.UpdateConversationRequest.title.maxLength;
 
 /**
  * `superseded` exists server-side (a reply replaced by regenerate) but is never

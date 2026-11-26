@@ -39,6 +39,7 @@ export function PromptDialog({
   maxLength = 80,
   pending = false,
   onSubmit,
+  onCloseAutoFocus,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,6 +52,8 @@ export function PromptDialog({
   maxLength?: number;
   pending?: boolean;
   onSubmit: (value: string) => void | Promise<void>;
+  /** Where focus goes on close when the opener is gone (call `event.preventDefault()`, then focus). */
+  onCloseAutoFocus?: (event: Event) => void;
 }) {
   const [value, setValue] = React.useState(initialValue);
   const fieldId = React.useId();
@@ -69,6 +72,7 @@ export function PromptDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="sm:max-w-md"
+        onCloseAutoFocus={onCloseAutoFocus}
         // No description: say so, or Radix warns that the dialog has none.
         {...(description ? {} : { "aria-describedby": undefined })}
       >

@@ -24,6 +24,14 @@
             "title": "Boards",
             "type": "array"
           },
+          "examTracks": {
+            "description": "NetSec's exam tracks: the certification bank's families. A lab session's subject is one of these.",
+            "items": {
+              "$ref": "#/components/schemas/CatalogEntryOut"
+            },
+            "title": "Examtracks",
+            "type": "array"
+          },
           "grades": {
             "items": {
               "$ref": "#/components/schemas/CatalogEntryOut"
@@ -57,7 +65,8 @@
           "boardStates",
           "mediums",
           "academicYears",
-          "subjects"
+          "subjects",
+          "examTracks"
         ],
         "title": "AcademicCatalogOut",
         "type": "object"
@@ -1652,6 +1661,18 @@
       },
       "ConversationOut": {
         "properties": {
+          "archivedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archivedat"
+          },
           "createdAt": {
             "format": "date-time",
             "title": "Createdat",
@@ -1661,6 +1682,18 @@
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "pinnedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinnedat"
           },
           "program": {
             "anyOf": [
@@ -8421,22 +8454,6 @@
         "title": "RejectProposalRequest",
         "type": "object"
       },
-      "RenameConversationRequest": {
-        "additionalProperties": false,
-        "properties": {
-          "title": {
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Title",
-            "type": "string"
-          }
-        },
-        "required": [
-          "title"
-        ],
-        "title": "RenameConversationRequest",
-        "type": "object"
-      },
       "ReplaceSubjectsRequest": {
         "additionalProperties": false,
         "description": "The whole list, in the order to show it. Replaces the stored list.",
@@ -8835,6 +8852,125 @@
           "updatedAt"
         ],
         "title": "SettingsOut",
+        "type": "object"
+      },
+      "ShareCreatedOut": {
+        "description": "A new link: its token (shown once; only its hash is kept), when it was made and how many messages it shows.",
+        "properties": {
+          "messageCount": {
+            "title": "Messagecount",
+            "type": "integer"
+          },
+          "sharedAt": {
+            "format": "date-time",
+            "title": "Sharedat",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "sharedAt",
+          "messageCount"
+        ],
+        "title": "ShareCreatedOut",
+        "type": "object"
+      },
+      "ShareStatusOut": {
+        "description": "The chat's shared link, without its token (shown only when it is made): whether one is live, and its snapshot.",
+        "properties": {
+          "messageCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Messagecount"
+          },
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          },
+          "sharedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sharedat"
+          }
+        },
+        "required": [
+          "shared"
+        ],
+        "title": "ShareStatusOut",
+        "type": "object"
+      },
+      "SharedChatOut": {
+        "description": "A shared link's read-only snapshot, for anyone with the link: the title and the messages, nothing else.",
+        "properties": {
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/SharedMessageOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "sharedAt": {
+            "format": "date-time",
+            "title": "Sharedat",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "sharedAt",
+          "messages"
+        ],
+        "title": "SharedChatOut",
+        "type": "object"
+      },
+      "SharedMessageOut": {
+        "properties": {
+          "attachments": {
+            "title": "Attachments",
+            "type": "integer"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "content",
+          "createdAt",
+          "attachments"
+        ],
+        "title": "SharedMessageOut",
         "type": "object"
       },
       "SpeechRequest": {
@@ -9907,6 +10043,49 @@
         "title": "UpdateAppearanceRequest",
         "type": "object"
       },
+      "UpdateConversationRequest": {
+        "additionalProperties": false,
+        "description": "Rename, pin or archive a chat: any of them, at least one. Archiving unpins; a chat is pinned only when it is not\narchived (archived: true and pinned: true together are refused).",
+        "properties": {
+          "archived": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived"
+          },
+          "pinned": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pinned"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "title": "UpdateConversationRequest",
+        "type": "object"
+      },
       "UpdateEngineeringProfileRequest": {
         "additionalProperties": false,
         "description": "`{version, set, reset}` (docs/api-contract.md, \"Versioned edits\"); `reset` empties a field.",
@@ -10645,6 +10824,23 @@
               ],
               "title": "Month"
             }
+          },
+          {
+            "description": "Ordinary chats only: history (not archived), pinned, or archived.",
+            "in": "query",
+            "name": "view",
+            "required": false,
+            "schema": {
+              "default": "history",
+              "description": "Ordinary chats only: history (not archived), pinned, or archived.",
+              "enum": [
+                "history",
+                "pinned",
+                "archived"
+              ],
+              "title": "View",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -10791,7 +10987,8 @@
         ]
       },
       "patch": {
-        "operationId": "rename_conversation_v1_conversations__conversation_id__patch",
+        "description": "Rename, pin or archive one of your chats. Pinning and archiving keep its place in the history (its activity\ntime is unchanged); a program chat stays in its program, so it is never pinned or archived.",
+        "operationId": "update_conversation_v1_conversations__conversation_id__patch",
         "parameters": [
           {
             "in": "path",
@@ -10808,7 +11005,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RenameConversationRequest"
+                "$ref": "#/components/schemas/UpdateConversationRequest"
               }
             }
           },
@@ -10836,7 +11033,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Rename Conversation",
+        "summary": "Update Conversation",
         "tags": [
           "conversations"
         ]
@@ -10952,6 +11149,127 @@
         "summary": "Replace the last reply with a new one (Server-Sent Events)",
         "tags": [
           "chat"
+        ]
+      }
+    },
+    "/v1/conversations/{conversation_id}/share": {
+      "delete": {
+        "description": "Stop sharing: the chat's link stops working at once. Nothing to stop is not an error.",
+        "operationId": "revoke_share_v1_conversations__conversation_id__share_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Share",
+        "tags": [
+          "conversations"
+        ]
+      },
+      "get": {
+        "description": "Whether one of your chats has a live shared link (its token is never shown again).",
+        "operationId": "get_share_v1_conversations__conversation_id__share_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareStatusOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Share",
+        "tags": [
+          "conversations"
+        ]
+      },
+      "post": {
+        "description": "Share a chat as it is now: a read-only snapshot behind a new link, which replaces (ends) any earlier link.",
+        "operationId": "create_share_v1_conversations__conversation_id__share_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareCreatedOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Share",
+        "tags": [
+          "conversations"
         ]
       }
     },
@@ -15496,6 +15814,50 @@
         "summary": "Get Learning Streak",
         "tags": [
           "progress"
+        ]
+      }
+    },
+    "/v1/shared/{token}": {
+      "get": {
+        "description": "A shared chat, for anyone with its link: read-only, no sign-in. Unknown, revoked and deleted links are all the\nsame 404. Never cached, never indexed.",
+        "operationId": "read_shared_chat_v1_shared__token__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9_-]{32}$",
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharedChatOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Read Shared Chat",
+        "tags": [
+          "conversations"
         ]
       }
     },

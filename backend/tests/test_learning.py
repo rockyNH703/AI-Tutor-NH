@@ -5,6 +5,7 @@ import asyncio
 import re
 
 from app.learning import catalog
+from app.qbank.netsec import FAMILIES
 from app.ratelimit import SlidingWindowLimiter
 from tests.conftest import register
 
@@ -12,6 +13,7 @@ from tests.conftest import register
 # CATALOG_VERSION fails here: clients cache the catalog by version and would never see it.
 CATALOG_FINGERPRINTS = {
     1: "b23e2375a9ca24fb2004c9a9432e648a72e112bf2adf2ecb69481b6c15e6c08c",
+    2: "199839b8e057b786cd5d7f514f4b6990639851c7be13d5906c1e06691ba8196a",
 }
 # The same for the engineering catalog and ENGINEERING_VERSION.
 ENGINEERING_FINGERPRINTS = {
@@ -56,7 +58,19 @@ async def test_the_catalog_is_public_and_cacheable_by_version(client):
     body = response.json()
     assert body["version"] == catalog.CATALOG_VERSION
     assert {"code": "class_10", "name": "Class 10", "deprecated": False} in body["grades"]
-    assert set(body) == {"version", "grades", "boards", "boardStates", "mediums", "academicYears", "subjects"}
+    assert set(body) == {
+        "version",
+        "grades",
+        "boards",
+        "boardStates",
+        "mediums",
+        "academicYears",
+        "subjects",
+        "examTracks",
+    }
+    # NetSec's exam tracks name every family of the certification bank (a lab session's "Exam track").
+    assert [entry["code"] for entry in body["examTracks"]] == list(FAMILIES)
+    assert {"code": "routing_switching", "name": "Routing and Switching", "deprecated": False} in body["examTracks"]
     assert response.headers["etag"] == catalog.ETAG
     assert response.headers["cache-control"] == "public, max-age=3600, must-revalidate"
 

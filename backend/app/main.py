@@ -29,6 +29,7 @@ from app.chat.router import router as chat_router
 from app.chat.service import ChatService
 from app.chat.streams import ActiveGenerations
 from app.conversations.router import router as conversations_router
+from app.conversations.router import shared_router
 from app.db.models import EMBEDDING_DIMENSIONS
 from app.db.session import Database
 from app.errors import install_error_handlers
@@ -306,6 +307,9 @@ def create_app(
     app.state.study_action_limiter = SlidingWindowLimiter(limit=30, window_s=60)
     # Unsubscribe links need no sign-in: limited per client address instead.
     app.state.unsubscribe_limiter = SlidingWindowLimiter(limit=30, window_s=60)
+    # Shared chats: making links (per user) and reading them (per address, no sign-in).
+    app.state.share_limiter = SlidingWindowLimiter(limit=20, window_s=60)
+    app.state.shared_view_limiter = SlidingWindowLimiter(limit=120, window_s=60)
     # Practice-test actions per user (answers, mock-exam saves): checked before the reply's row lock.
     app.state.assessment_limiter = SlidingWindowLimiter(limit=120, window_s=60)
     # NHprep (app/nhprep/router.py): every route per user; a playback asks for a signed video link, so it has its own.
@@ -350,6 +354,7 @@ def create_app(
     app.include_router(auth_router)
     app.include_router(internal_auth_router)
     app.include_router(conversations_router)
+    app.include_router(shared_router)  # public, read-only shared chats (no sign-in)
     app.include_router(memory_router)
     app.include_router(chat_router)
     app.include_router(learning_router)

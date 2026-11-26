@@ -187,6 +187,9 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
         await db.commit()
     feedback = await client.put(f"/v1/messages/{message_id}/feedback", json={"rating": "up"}, headers=headers)
     assert feedback.status_code == 200
+    conversation_id = events[0][1]["conversationId"]
+    shared = await client.post(f"/v1/conversations/{conversation_id}/share", headers=headers)  # a shared link
+    assert shared.status_code == 201, shared.text
     assert (await client.patch("/v1/me/settings", json={"preferences": {"k": "v"}}, headers=headers)).status_code == 200
     other_headers = (await sign_in(app, account["email"]))["headers"]  # a second session
     await ingest_docs(

@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { formatStudyTime } from "@/features/study/study-client";
 import { useStudy } from "@/features/study/study-store";
-import { Notice, SectionHeading, SettingsCard } from "./primitives";
+import { SectionHeading, SettingsCard } from "./primitives";
 
 const link = "focus-ring rounded font-semibold text-brand underline underline-offset-2";
 
@@ -23,51 +23,41 @@ export function StudyTrackingSection() {
     <>
       <SectionHeading
         title="Lab Tracking"
-        description="How NetSec AI estimates your lab time in the lab sessions you start. You'll find the numbers in Lab Activity."
+        description="How lab time is estimated in the sessions you start. An estimate, not proof of attention; only you see it."
       />
-      <div className="flex flex-col gap-4">
-        <Notice>
-          Lab time is an estimate of practice activity, not proof of attention or understanding. Only you can see it, and it
-          is never compared with anyone else's.
-        </Notice>
-        <SettingsCard title="What counts as lab time">
-          <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-text-secondary">
-            <li>A lab session you started is running (not paused).</li>
-            <li>You're in the chat or your File Library, and that page is on screen.</li>
-            <li>You're active: typing, clicking, scrolling or touching, or NetSec AI is writing you an answer.</li>
-            <li>
-              Several tabs or devices at once count once. Time offline, or when NetSec AI didn't hear from your device, isn't
-              counted and is never added later.
-            </li>
-          </ul>
-        </SettingsCard>
-        <SettingsCard title="Idle">
-          <p className="text-sm leading-relaxed text-text-secondary">
-            While reading or reviewing, you become idle after {reading} without any input; shortly before, NetSec AI asks whether
-            you're still practising. While practising or taking a test, after {solving}. Idle time is shown, but isn't lab time.
-            These limits are the same for everyone and can't be changed.
-          </p>
-        </SettingsCard>
-        <SettingsCard title="Hidden tabs and other pages">
-          <p className="text-sm leading-relaxed text-text-secondary">
-            When NetSec AI is in a hidden tab or a minimised window, or you're in Settings, Help or Lab Activity, the session keeps
-            running but the time isn't counted. Time in NetSec AI (any time the app is open, practising or not) is shown separately.
-          </p>
-        </SettingsCard>
-        <SettingsCard title="Pause, resume and end">
-          <p className="text-sm leading-relaxed text-text-secondary">
-            Paused time never counts. A session ends when you end it; after 15 minutes without lab activity it ends by
-            itself at your last activity (after an hour, if paused), and every session stops after 8 hours.
-          </p>
-        </SettingsCard>
-        <p className="text-sm text-text-secondary">
-          See your lab time in{" "}
-          <Link href="/study" className={link}>
-            Lab Activity
-          </Link>
-          .
-        </p>
-      </div>
+      <SettingsCard
+        title="The rules"
+        description={
+          <>
+            The same for everyone. Your numbers are in{" "}
+            <Link href="/study" className={link}>
+              Lab Activity
+            </Link>
+            .
+          </>
+        }
+      >
+        <dl className="flex flex-col divide-y divide-border">
+          {[
+            [
+              "Counts",
+              "A running session, the chat or your File Library on screen, and you active (or an answer being written).",
+            ],
+            [
+              "Idle",
+              `After ${reading} without input while reading or reviewing, ${solving} while practising or testing. Shown, not counted.`,
+            ],
+            ["Not counted", "Paused time, hidden tabs, Settings, Help and Lab Activity, and time offline (never added later)."],
+            ["Several tabs", "Tabs and devices at once count once."],
+            ["Ends", "When you end it, 15 minutes after your last activity (an hour if paused), or at 8 hours."],
+          ].map(([term, rule]) => (
+            <div key={term} className="grid gap-1 py-3 first:pt-0 last:pb-0 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4">
+              <dt className="text-sm font-bold text-foreground">{term}</dt>
+              <dd className="text-sm leading-relaxed text-text-secondary">{rule}</dd>
+            </div>
+          ))}
+        </dl>
+      </SettingsCard>
     </>
   );
 }

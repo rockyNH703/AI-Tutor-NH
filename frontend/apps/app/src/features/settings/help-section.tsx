@@ -113,7 +113,7 @@ function SupportForm() {
       </Field>
       <Field
         label="Message"
-        hint={`${message.length.toLocaleString()} / ${SUPPORT_MESSAGE_MAX.toLocaleString()} characters. At least ${SUPPORT_MESSAGE_MIN}; up to 5 links.`}
+        hint={`${message.length.toLocaleString()} / ${SUPPORT_MESSAGE_MAX.toLocaleString()} characters, at least ${SUPPORT_MESSAGE_MIN}. Up to 5 links.`}
         error={
           reason("message")
             ? `Check the message: at least ${SUPPORT_MESSAGE_MIN} characters and at most 5 links.`
@@ -125,7 +125,7 @@ function SupportForm() {
         {(props) => (
           <textarea
             {...props}
-            rows={6}
+            rows={4}
             value={message}
             maxLength={SUPPORT_MESSAGE_MAX}
             required
@@ -135,7 +135,7 @@ function SupportForm() {
         )}
       </Field>
       <p className="text-2xs text-text-secondary">
-        Don't include passwords or sign-in codes. Your app version and browser are sent with it, to help us look into problems.
+        Don't include passwords or sign-in codes. Your app version and browser are sent with it.
       </p>
       {failure && (
         <p role="alert" className="text-sm text-destructive">
@@ -149,55 +149,39 @@ function SupportForm() {
   );
 }
 
+// 44px tall on phones, 40px from sm (the Button's sizes): a whole row a finger can hit.
+const LINK =
+  "focus-ring inline-flex min-h-11 items-center gap-2 rounded font-semibold text-brand underline underline-offset-2 sm:min-h-10";
+
 export function HelpSection() {
   const legal = legalLinks();
   return (
     <>
-      <SectionHeading title="Help & Support" description="Answers to common questions, and a way to reach us." />
+      <SectionHeading title="Help & Support" description="Find an answer, or write to us." />
       <div className="flex flex-col gap-4">
-        <SettingsCard title="Get help">
-          <ul className="flex flex-col gap-2 text-sm">
-            <li>
-              <Link href="/help" className="focus-ring inline-flex items-center gap-2 rounded font-semibold text-brand underline underline-offset-2">
-                <CircleHelp aria-hidden className="h-4 w-4" />
-                Help & FAQ
-              </Link>
-            </li>
-            <li>
-              <Link href="/about" className="focus-ring inline-flex items-center gap-2 rounded font-semibold text-brand underline underline-offset-2">
-                <Info aria-hidden className="h-4 w-4" />
-                About NetSec AI
-              </Link>
-            </li>
-            {legal.terms && (
-              <li>
-                <a
-                  href={legal.terms}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="focus-ring inline-flex items-center gap-2 rounded font-semibold text-brand underline underline-offset-2"
-                >
-                  <ExternalLink aria-hidden className="h-4 w-4" />
-                  Terms of Service<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </li>
-            )}
-            {legal.privacy && (
-              <li>
-                <a
-                  href={legal.privacy}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="focus-ring inline-flex items-center gap-2 rounded font-semibold text-brand underline underline-offset-2"
-                >
-                  <ExternalLink aria-hidden className="h-4 w-4" />
-                  Privacy Policy<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </li>
-            )}
-          </ul>
-        </SettingsCard>
-        <SettingsCard title="Contact support" description="Ask a question, report a problem or tell us what would help.">
+        <nav aria-label="Help links" className="flex flex-wrap gap-x-6 text-sm">
+          <Link href="/help" className={LINK}>
+            <CircleHelp aria-hidden className="h-4 w-4" />
+            Help & FAQ
+          </Link>
+          <Link href="/about" className={LINK}>
+            <Info aria-hidden className="h-4 w-4" />
+            About NetSec AI
+          </Link>
+          {legal.terms && (
+            <a href={legal.terms} target="_blank" rel="noreferrer" className={LINK}>
+              <ExternalLink aria-hidden className="h-4 w-4" />
+              Terms of Service<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          )}
+          {legal.privacy && (
+            <a href={legal.privacy} target="_blank" rel="noreferrer" className={LINK}>
+              <ExternalLink aria-hidden className="h-4 w-4" />
+              Privacy Policy<span className="sr-only"> (opens in a new tab)</span>
+            </a>
+          )}
+        </nav>
+        <SettingsCard title="Contact support">
           <SupportForm />
         </SettingsCard>
       </div>

@@ -1071,12 +1071,6 @@ export const CONTRACT = {
       "minimum": 1
     }
   },
-  "RenameConversationRequest": {
-    "title": {
-      "maxLength": 120,
-      "minLength": 1
-    }
-  },
   "ReplaceSubjectsRequest": {
     "items": {
       "maxItems": 15
@@ -1263,6 +1257,12 @@ export const CONTRACT = {
     },
     "version": {
       "minimum": 0
+    }
+  },
+  "UpdateConversationRequest": {
+    "title": {
+      "maxLength": 120,
+      "minLength": 1
     }
   },
   "UpdateEngineeringProfileRequest": {

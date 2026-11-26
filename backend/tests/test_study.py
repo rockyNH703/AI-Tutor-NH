@@ -535,3 +535,10 @@ async def test_isolation_validation_limits_and_chapters(client, app, clock):
         headers=other.headers,
     )
     assert response.status_code == 503
+
+
+async def test_a_lab_session_is_named_by_a_netsec_exam_track(client, app):
+    # The Exam track list is NetSec's tracks (GET /v1/catalog/academic examTracks), not school subjects.
+    me = await _student(client, app)
+    await me.start(uuid.uuid4(), subject="routing_switching")
+    assert (await me.state())["session"]["segment"]["subject"] == "routing_switching"

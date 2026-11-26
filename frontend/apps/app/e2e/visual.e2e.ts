@@ -2,7 +2,7 @@ import { join } from "node:path";
 import type { Locator, Page, Route } from "@playwright/test";
 
 import { PREVIEW_URL } from "./env";
-import { LONG_MESSAGE, composer, expect, lastReply, seedTurn, send, stopButton, test, waitForIdle } from "./support";
+import { LONG_MESSAGE, chatAction, composer, expect, lastReply, seedTurn, send, stopButton, test, waitForIdle } from "./support";
 
 /**
  * VISUAL CAPTURE, not a pixel test. Photographs every screen that matters at three
@@ -146,7 +146,7 @@ test("signed in: the chat, its states, dialogs, settings and the 404", async ({ 
     await page.goto("/");
     const list = await openList(page, width);
     const row = list.locator("li", { has: page.locator(`a[href="/c/${rich}"]`) });
-    await row.getByRole("button", { name: /^Rename/ }).click();
+    await chatAction(row, "Rename");
     await expect(page.getByRole("dialog", { name: "Rename chat" })).toBeVisible();
     await shot("dialog-rename");
     // Start clean rather than unwinding nested dialogs (a dialog over the drawer) key by key.
@@ -154,10 +154,7 @@ test("signed in: the chat, its states, dialogs, settings and the 404", async ({ 
     await expect(composer(page)).toBeVisible();
 
     const again = await openList(page, width);
-    await again
-      .locator("li", { has: page.locator(`a[href="/c/${rich}"]`) })
-      .getByRole("button", { name: /^Delete/ })
-      .click();
+    await chatAction(again.locator("li", { has: page.locator(`a[href="/c/${rich}"]`) }), "Delete");
     await expect(page.getByRole("dialog", { name: "Delete this chat?" })).toBeVisible();
     await shot("dialog-delete-chat");
     await page.goto("/");

@@ -10,6 +10,7 @@ import {
   send,
   test,
   waitForHydration,
+  chatAction,
 } from "./support";
 
 /**
@@ -165,7 +166,7 @@ for (const width of [1440, 390]) {
       await expect(page.getByRole("menu")).toBeVisible();
       await snap(page, `account-menu-${width}-${theme}`);
       await page.keyboard.press("Escape");
-      await panel.getByRole("button", { name: /^Rename/ }).first().click();
+      await chatAction(panel.locator("nav[aria-labelledby='chats-heading'] li").first(), "Rename");
       await expect(page.getByRole("dialog", { name: "Rename chat" })).toBeVisible();
       await snap(page, `rename-dialog-${width}-${theme}`);
 

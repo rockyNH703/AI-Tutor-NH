@@ -36,6 +36,9 @@ test("signed out, a page asks to sign in; old URLs still land somewhere sensible
 test("signing in never redirects to another site", async ({ page }) => {
   const { email } = await createAccount(page, "redirect");
   for (const target of ["https://evil.example/x", "//evil.example/x", "/\\evil.example/x", "/%5Cevil.example/x"]) {
+    // Leave the app first: a page still loading would answer the sign-out's 401s by going to sign-in itself, and
+    // that navigation would abort the one below.
+    await page.goto("about:blank");
     await page.request.post("/api/v1/auth/logout", { headers: SAME_ORIGIN });
     await page.goto(`/login?redirect=${encodeURIComponent(target)}`);
     await page.getByLabel("Email").fill(email);

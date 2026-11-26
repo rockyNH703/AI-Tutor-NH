@@ -45,6 +45,11 @@ export type ErrorCode =
   | "too_many_files"
   | "retry_not_allowed"
   | "busy"
+  // Pin, archive and share chats
+  | "archived"
+  | "not_movable"
+  | "not_shareable"
+  | "nothing_to_share"
   // NH Friend Zone
   | "already_member"
   | "no_match"
@@ -143,6 +148,10 @@ const KNOWN = new Set<ErrorCode>([
   "too_many_files",
   "retry_not_allowed",
   "busy",
+  "archived",
+  "not_movable",
+  "not_shareable",
+  "nothing_to_share",
   "already_member",
   "no_match",
   "already_friends",
@@ -405,6 +414,26 @@ const COPY: Record<ErrorCode, { title: string; message: string; action: Recovery
     title: "Busy right now",
     message: "Too many files are uploading at once. Please try again in a moment.",
     action: "retry",
+  },
+  archived: {
+    title: "This chat is archived",
+    message: "Restore it from Archived chats before pinning it.",
+    action: "none",
+  },
+  not_movable: {
+    title: "Not for program chats",
+    message: "Program chats stay in their month's history; they can't be pinned or archived.",
+    action: "none",
+  },
+  not_shareable: {
+    title: "Not for program chats",
+    message: "Program chats can't be shared.",
+    action: "none",
+  },
+  nothing_to_share: {
+    title: "Nothing to share yet",
+    message: "There's nothing in this chat to share yet.",
+    action: "none",
   },
   already_member: {
     title: "Already joined",

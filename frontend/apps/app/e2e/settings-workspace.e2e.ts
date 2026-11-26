@@ -120,6 +120,8 @@ test("opened from another app page, Close returns there with focus on its title"
 });
 
 test("every section has its own address and title; with nowhere to return to, Close goes home", async ({ browser, account }) => {
+  // Fourteen sections, each loaded and checked: WebKit on Windows needs more than the default minute for the walk.
+  test.setTimeout(120_000);
   // A fresh browser: nothing remembered.
   const context = await browser.newContext({ baseURL: APP_URL });
   const page = await context.newPage();
@@ -428,6 +430,7 @@ test("signed out, a Settings link signs in first and then opens that section", a
   await expect(page).toHaveURL("/login?redirect=%2Fsettings%2Fprogress");
   await waitForHydration(page);
   await page.getByLabel("Email").fill(account.email);
+  await page.getByRole("button", { name: "Continue with Email" }).click(); // sign-in is email-first
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("/settings/progress");
@@ -454,6 +457,7 @@ test("a session ended from another device: the next action goes to sign-in and b
   // Sign back in (the fixture deletes the account at the end).
   await waitForHydration(page);
   await page.getByLabel("Email").fill(account.email);
+  await page.getByRole("button", { name: "Continue with Email" }).click(); // sign-in is email-first
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("/settings/notifications");
@@ -472,6 +476,7 @@ test("Log out from the Settings panel does what the sidebar's does", async ({ pa
   // Sign back in (the fixture deletes the account at the end).
   await waitForHydration(page);
   await page.getByLabel("Email").fill(account.email);
+  await page.getByRole("button", { name: "Continue with Email" }).click(); // sign-in is email-first
   await page.getByLabel("Password", { exact: true }).fill(account.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL("/");
@@ -519,6 +524,7 @@ test("on a slow network a section shows it is loading, inside the workspace", as
 
 for (const width of [767, 768, 769]) {
   test(`at ${width}px: ${width < 768 ? "the list, then one section per screen" : "the panel beside the section"}`, async ({ page, account: _ }) => {
+    test.setTimeout(120_000); // every section, reached and checked one by one (see above)
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/settings");
     if (width < 768) {

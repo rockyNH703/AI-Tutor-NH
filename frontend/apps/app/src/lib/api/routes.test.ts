@@ -129,7 +129,7 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     },
   ],
   DeleteMeRequest: [{ password: "x" }, {}],
-  RenameConversationRequest: [{ title: "T" }],
+  UpdateConversationRequest: [{ title: "T" }, { pinned: true }, { archived: true }, { archived: false }],
   ChatRequest: [
     { message: "hi" },
     { conversationId: ID, message: "hi" },

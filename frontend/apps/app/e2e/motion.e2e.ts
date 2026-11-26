@@ -7,7 +7,7 @@
 
 import { type Page, expect } from "@playwright/test";
 
-import { composer, openSettingsFromSidebar, seedTurn, send, stopButton, test, waitForHydration, waitForIdle, LONG_MESSAGE } from "./support";
+import { chatAction, composer, openSettingsFromSidebar, seedTurn, send, stopButton, test, waitForHydration, waitForIdle, LONG_MESSAGE } from "./support";
 
 const bell = (page: Page) => page.getByRole("banner").getByRole("button", { name: /^Notifications/ });
 
@@ -100,7 +100,7 @@ test("a dialog scales in place; a menu grows from its trigger; nothing animates 
         requestAnimationFrame(sample);
       }),
   );
-  await row.getByRole("button", { name: /^Rename/ }).click();
+  await chatAction(row, "Rename");
   const points = await centres;
   expect(points.length, "frames sampled while the dialog opened").toBeGreaterThan(2);
   const [x0, y0] = points.at(-1) as number[];

@@ -9,6 +9,9 @@ import type { NotificationPreferences } from "@/lib/api/types";
 import { Notice, SectionHeading, SettingsCard, ToggleRow } from "./primitives";
 import { useAutoSaver } from "./use-auto-saver";
 
+/** A divided list of switches: one row each, first and last flush with the card. */
+const LIST = "flex flex-col divide-y divide-border [&>*]:py-3 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0";
+
 /**
  * In the app (the header's bell: everything, reminders switchable) and by email (security and
  * the reminders chosen here). Says plainly when this server is not sending notification emails
@@ -33,10 +36,7 @@ export function NotificationsSection() {
 
   return (
     <>
-      <SectionHeading
-        title="Notifications"
-        description="What appears in the app's notifications (the bell), and which emails NetSec AI sends you."
-      />
+      <SectionHeading title="Notifications" description="What the bell shows, and what we email you." />
       {loadError ? (
         <SettingsCard title="Couldn't load your notification settings">
           <p className="text-sm text-text-secondary">{describeError(loadError).message}</p>
@@ -49,66 +49,63 @@ export function NotificationsSection() {
           </button>
         </SettingsCard>
       ) : !value ? (
-        <SkeletonGroup label="Loading notification settings" className="space-y-3">
-          <Skeleton className="h-56 w-full rounded-2xl" />
+        <SkeletonGroup label="Loading notification settings" className="flex flex-col gap-4">
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-72 w-full rounded-2xl" />
         </SkeletonGroup>
       ) : (
         <div className="flex flex-col gap-4">
-          <SettingsCard
-            title="In the app"
-            description="Security alerts and practice streak milestones always appear in the bell at the top of the app."
-          >
+          <SettingsCard title="In the app">
             <ToggleRow
               label="Reminders in the app"
-              description="A practice streak reminder in the evening of a day you haven't practised yet, and your practice reminders."
+              description="Practice reminders and the evening streak reminder. Security alerts and streak milestones always appear."
               checked={value.inAppReminders}
               onCheckedChange={(inAppReminders) => change({ inAppReminders })}
             />
           </SettingsCard>
-          {value.delivery === "paused" && (
-            <Notice>
-              NetSec AI isn't sending notification emails yet. Your choices are saved and will apply as soon as it does.
-            </Notice>
-          )}
-          <SettingsCard title="Practice reminders" description="Sent to your email address.">
+          <SettingsCard
+            title="By email"
+            description={
+              value.delivery === "paused"
+                ? "NetSec AI isn't sending notification emails yet. Your choices are saved for when it does."
+                : undefined
+            }
+          >
             {value.remindersNeedTimezone && (
               <Notice tone="warning">
-                Reminders are sent at times in your own day, so they need your time zone.{" "}
+                Email reminders need your time zone.{" "}
                 <Link href="/settings/profile" className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
                   Set your time zone
                 </Link>
                 .
               </Notice>
             )}
-            <ToggleRow
-              label="Daily reminder"
-              description="At your preferred practice time (6 pm until you choose one), only on days you haven't used NetSec AI yet."
-              checked={value.dailyReminder}
-              onCheckedChange={(dailyReminder) => change({ dailyReminder })}
-            />
-            <ToggleRow
-              label="Practice streak reminder"
-              description="In the evening, when a practice streak of two or more days would end that night."
-              checked={value.streakWarning}
-              onCheckedChange={(streakWarning) => change({ streakWarning })}
-            />
-            <ToggleRow
-              label="Weekly summary"
-              description="On Monday mornings: your active time and questions from the week before."
-              checked={value.weeklySummary}
-              onCheckedChange={(weeklySummary) => change({ weeklySummary })}
-            />
-          </SettingsCard>
-          <SettingsCard
-            title="Security"
-            description="A password change is always emailed to you, whatever you choose here."
-          >
-            <ToggleRow
-              label="Sign-in alerts"
-              description="When your account is signed in on a new kind of device."
-              checked={value.securityAlerts}
-              onCheckedChange={(securityAlerts) => change({ securityAlerts })}
-            />
+            <div className={LIST}>
+              <ToggleRow
+                label="Daily reminder"
+                description="At your practice time (6 pm by default), on days you haven't used NetSec AI."
+                checked={value.dailyReminder}
+                onCheckedChange={(dailyReminder) => change({ dailyReminder })}
+              />
+              <ToggleRow
+                label="Practice streak reminder"
+                description="On evenings when a streak of two or more days would end."
+                checked={value.streakWarning}
+                onCheckedChange={(streakWarning) => change({ streakWarning })}
+              />
+              <ToggleRow
+                label="Weekly summary"
+                description="Monday mornings: last week's active time and questions."
+                checked={value.weeklySummary}
+                onCheckedChange={(weeklySummary) => change({ weeklySummary })}
+              />
+              <ToggleRow
+                label="Sign-in alerts"
+                description="A sign-in from a new kind of device. Password changes are always emailed."
+                checked={value.securityAlerts}
+                onCheckedChange={(securityAlerts) => change({ securityAlerts })}
+              />
+            </div>
           </SettingsCard>
         </div>
       )}

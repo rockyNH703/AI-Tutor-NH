@@ -701,6 +701,22 @@ class Conversation(Base):
             "id",
             postgresql_where=text("program_id IS NOT NULL"),
         ),
+        # The sidebar's Pinned section and the Archived chats page (0033): small, per-user lists.
+        Index(
+            "ix_conversations_user_pinned",
+            "user_id",
+            text("pinned_at DESC"),
+            "id",
+            postgresql_where=text("pinned_at IS NOT NULL"),
+        ),
+        Index(
+            "ix_conversations_user_archived",
+            "user_id",
+            text("archived_at DESC"),
+            "id",
+            postgresql_where=text("archived_at IS NOT NULL"),
+        ),
+        CheckConstraint("pinned_at IS NULL OR archived_at IS NULL", name="ck_conversations_pinned_not_archived"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -708,6 +724,9 @@ class Conversation(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     title: Mapped[str] = mapped_column(String(120), nullable=False)
+    # Pinned to the top of the sidebar, or archived out of it (never both); None: neither.
+    pinned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     metadata_: Mapped[dict[str, Any]] = mapped_column(
         "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
@@ -719,6 +738,36 @@ class Conversation(Base):
     )
     module_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     mode: Mapped[str | None] = mapped_column(String(10))
+
+
+class ConversationShare(Base):
+    """A shared link to a chat (0033): a read-only SNAPSHOT of its messages when it was shared, behind an
+    unguessable token of which only the SHA-256 is kept. At most one live link per chat; a new one replaces it, and
+    revoking or deleting the chat (cascade) ends it at once."""
+
+    __tablename__ = "conversation_shares"
+    __table_args__ = (
+        Index(
+            "uq_conversation_shares_live",
+            "conversation_id",
+            unique=True,
+            postgresql_where=text("revoked_at IS NULL"),
+        ),
+        Index("ix_conversation_shares_user", "user_id"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    message_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = _created()
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Message(Base):

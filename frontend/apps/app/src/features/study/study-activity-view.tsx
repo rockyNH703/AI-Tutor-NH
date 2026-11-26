@@ -7,8 +7,9 @@ import { Timer } from "lucide-react";
 import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
 
+import { TabPanel, ViewTabs, useTabIds } from "@/components/view-tabs";
 import { ActivityChart } from "@/features/progress/activity-chart";
-import { useCatalog } from "@/features/settings/learning-data";
+import { trackName, useCatalog } from "@/features/settings/learning-data";
 import { ChoiceGroup } from "@/features/settings/primitives";
 import { GoalBar } from "@/features/settings/progress-section";
 import { describeError } from "@/lib/api/errors";
@@ -102,20 +103,16 @@ function DailyGoal() {
   if (!goal) {
     return (
       <p className="text-sm text-text-secondary">
-        You haven't set a daily goal.{" "}
+        No daily goal yet.{" "}
         <Link href="/settings/subjects" className={link}>
-          Set one in Practice &amp; Lab Time
+          Set one
         </Link>
-        .
       </p>
     );
   }
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-text-secondary">
-        Your goal is measured in active time in NetSec AI (any use of the app), not lab time: today {progress.today.activeMinutes}{" "}
-        min.
-      </p>
+      <p className="text-sm text-text-secondary">Active time in NetSec AI today: {progress.today.activeMinutes} min.</p>
       <GoalBar done={progress.today.activeMinutes} goal={goal} label="Today's goal" />
     </div>
   );
@@ -150,9 +147,21 @@ export function StudySummaryContent({
   }
   if (!shown) {
     return (
-      // As tall as the summary card it stands for: a shorter one let the page jump when it arrived.
-      <SkeletonGroup label="Loading your lab activity" className="space-y-3">
-        <Skeleton className="h-72 w-full rounded-2xl" />
+      // The shape of what it stands for (the totals, then the views), so the page does not jump when it arrives.
+      <SkeletonGroup label="Loading your lab activity" className="flex flex-col gap-5">
+        <div className="rounded-2xl border border-border bg-card p-4 elev-1 sm:p-5">
+          <Skeleton className="mb-3 h-5 w-24 rounded-md" />
+          <div className={TOTALS_GRID}>
+            {["lab", "app", "active", "idle", "paused"].map((key) => (
+              <div key={key} className="flex flex-col gap-1">
+                <Skeleton className="h-8 w-20 rounded-md" />
+                <Skeleton className="h-4 w-24 rounded-md" />
+                <Skeleton className="h-3 w-full rounded-md" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <Skeleton className="h-11 w-full rounded-lg" />
         <Skeleton className="h-56 w-full rounded-2xl" />
       </SkeletonGroup>
     );
@@ -170,45 +179,50 @@ export function StudySummaryContent({
   return (
     <>
       <Panel id="study-totals" title={days === 1 ? "Today" : `Last ${days} days`}>
-        <dl className="grid gap-5 sm:grid-cols-2">
-          <Stat
-            value={formatStudyTime(shown.totals.activeSeconds)}
-            label="estimated lab time"
-            hint="Active practice in your lab sessions."
-          />
-          <Stat
-            value={formatStudyTime(shown.totals.appSeconds)}
-            label="time in NetSec AI"
-            hint="Any time NetSec AI was open, practising or not."
-          />
-        </dl>
-        <dl className="mt-5 grid grid-cols-1 gap-4 border-t border-border pt-4 sm:grid-cols-3">
-          <Stat
-            value={formatStudyTime(shown.totals.activeSeconds)}
-            label="active"
-            hint="In a running session, in the chat or your files, page on screen, and you were active."
-          />
-          <Stat
-            value={formatStudyTime(shown.totals.idleSeconds)}
-            label="idle"
-            hint="In a running session, but no activity was seen, the page was hidden, or you were elsewhere."
-          />
-          <Stat value={formatStudyTime(shown.totals.pausedSeconds)} label="paused" hint="Time you paused a session." />
+        <dl className={TOTALS_GRID}>
+          <Stat value={formatStudyTime(shown.totals.activeSeconds)} label="estimated lab time" hint="Active practice in sessions." />
+          <Stat value={formatStudyTime(shown.totals.appSeconds)} label="time in NetSec AI" hint="Open, practising or not." />
+          <Stat value={formatStudyTime(shown.totals.activeSeconds)} label="active" hint="In a session, on screen, active." />
+          <Stat value={formatStudyTime(shown.totals.idleSeconds)} label="idle" hint="In a session, but no activity was seen." />
+          <Stat value={formatStudyTime(shown.totals.pausedSeconds)} label="paused" hint="Time a session was paused." />
         </dl>
         {shown.firstRecordedDate > shown.from && (
           <p className="mt-4 text-2xs text-text-secondary">
-            Lab time has been recorded since {new Date(`${shown.firstRecordedDate}T00:00:00`).toLocaleDateString()}: earlier
-            days have no data.
+            Recorded since {new Date(`${shown.firstRecordedDate}T00:00:00`).toLocaleDateString()}: earlier days have no data.
           </p>
         )}
       </Panel>
 
-      <Panel id="study-goal" title="Daily goal">
-        <DailyGoal />
-      </Panel>
+      <Breakdowns summary={shown} subjectName={subjectName} />
+    </>
+  );
+}
 
-      {shown.days.length > 1 && (
-        <Panel id="study-trend" title="Trend">
+/** A grid of five totals: two to a row on phones, all five on wide screens. */
+const TOTALS_GRID = "grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-3 xl:grid-cols-5";
+
+/**
+ * The range's detail as views (trend, track, activity, domain, sessions): one at a time instead of a long column.
+ * Every panel stays in the page, hidden but for the open one.
+ */
+function Breakdowns({ summary: shown, subjectName }: { summary: StudySummary; subjectName: (code: string | null) => string }) {
+  const ids = useTabIds();
+  const trend = shown.days.length > 1;
+  const [open, setOpen] = useState<string>(trend ? "trend" : "tracks");
+  const tabs = [
+    ...(trend ? [{ value: "trend", label: "Trend" }] : []),
+    { value: "tracks", label: "Exam tracks" },
+    { value: "activities", label: "Activities" },
+    { value: "domains", label: "Domains" },
+    { value: "sessions", label: "Sessions", count: shown.sessions.length || null },
+  ];
+  const shownTab = tabs.some((tab) => tab.value === open) ? open : (tabs[0]?.value ?? "tracks");
+  const panel = "rounded-2xl border border-border bg-card p-4 elev-1 sm:p-5";
+  return (
+    <div className="flex flex-col gap-4">
+      <ViewTabs label="Lab activity detail" ids={ids} value={shownTab} onChange={setOpen} tabs={tabs} />
+      {trend && (
+        <TabPanel ids={ids} value="trend" hidden={shownTab !== "trend"} className={panel}>
           <ActivityChart
             days={shown.days.map((day) => ({ date: day.date, activeMinutes: Math.floor(day.activeSeconds / 60) }))}
             goal={null}
@@ -216,11 +230,9 @@ export function StudySummaryContent({
             valueLabel="of estimated lab time"
             columnLabel="Lab time"
           />
-        </Panel>
+        </TabPanel>
       )}
-
-      <div className="grid gap-5 md:grid-cols-2">
-        <Panel id="study-subjects" title="By exam track">
+      <TabPanel ids={ids} value="tracks" hidden={shownTab !== "tracks"} className={panel}>
           <Breakdown
             rows={shown.subjects.map((row) => ({
               key: row.subject ?? "none",
@@ -229,8 +241,8 @@ export function StudySummaryContent({
             }))}
             empty="No lab time in this range."
           />
-        </Panel>
-        <Panel id="study-activities" title="By activity">
+      </TabPanel>
+      <TabPanel ids={ids} value="activities" hidden={shownTab !== "activities"} className={panel}>
           <Breakdown
             rows={shown.activities.map((row) => ({
               key: row.activity,
@@ -239,21 +251,18 @@ export function StudySummaryContent({
             }))}
             empty="No lab time in this range."
           />
-        </Panel>
-      </div>
-
-      <Panel id="study-chapters" title="By domain">
+      </TabPanel>
+      <TabPanel ids={ids} value="domains" hidden={shownTab !== "domains"} className={panel}>
         <Breakdown
           rows={shown.chapters.map((row) => ({
             key: row.chapterId,
             label: `${row.chapterTitle}${row.subject ? ` (${subjectName(row.subject)})` : ""}`,
             seconds: row.activeSeconds,
           }))}
-          empty="No domain was chosen for lab time in this range."
+          empty="No domain was chosen in this range."
         />
-      </Panel>
-
-      <Panel id="study-sessions" title="Recent sessions">
+      </TabPanel>
+      <TabPanel ids={ids} value="sessions" hidden={shownTab !== "sessions"} className={panel}>
         {shown.sessions.length ? (
           <ul className="divide-y divide-border">
             {shown.sessions.map((session) => (
@@ -278,9 +287,8 @@ export function StudySummaryContent({
         ) : (
           <p className="text-sm text-text-secondary">No lab sessions in this range.</p>
         )}
-      </Panel>
-    </>
-
+      </TabPanel>
+    </div>
   );
 }
 
@@ -311,7 +319,7 @@ export function StudyActivityView() {
   }, [range, sessionKey, attempt]);
 
   const subjectName = (code: string | null) =>
-    code ? (catalog?.subjects.find((entry) => entry.code === code)?.name ?? code) : "No exam track chosen";
+    code ? trackName(catalog, code) : "No exam track chosen";
 
   return (
     <div
@@ -321,36 +329,43 @@ export function StudyActivityView() {
       aria-label="Lab Activity"
       className="scrollbar-subtle focus-ring-inset h-full overflow-y-auto"
     >
-      <div className="page-container flex flex-col gap-5">
-        <Panel id="study-session" title="Current session">
-          <StudySessionPanel />
-        </Panel>
+      {/* Controls on the left (the session, the goal), the record beside them: in reading order at every width. */}
+      <div className="page-container page-wide grid grid-cols-1 items-start gap-5 lg:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="flex flex-col gap-5 lg:sticky lg:top-0">
+          <Panel id="study-session" title="Current session">
+            <StudySessionPanel />
+          </Panel>
+          <Panel id="study-goal" title="Daily goal">
+            <DailyGoal />
+          </Panel>
+        </div>
 
-        <ChoiceGroup
-          legend="Show"
-          value={range}
-          options={RANGES}
-          onChange={(value) => {
-            setSummary(null);
-            setRange(value);
-          }}
-        />
+        <div className="flex min-w-0 flex-col gap-5">
+          <ChoiceGroup
+            legend="Show"
+            value={range}
+            options={RANGES}
+            onChange={(value) => {
+              setSummary(null);
+              setRange(value);
+            }}
+          />
 
-        <StudySummaryContent
-          summary={summary}
-          error={error}
-          days={Number(range)}
-          subjectName={subjectName}
-          onRetry={() => setAttempt((count) => count + 1)}
-        />
+          <StudySummaryContent
+            summary={summary}
+            error={error}
+            days={Number(range)}
+            subjectName={subjectName}
+            onRetry={() => setAttempt((count) => count + 1)}
+          />
 
-        <p className="text-xs leading-relaxed text-text-secondary">
-          Lab time is an estimate of practice activity, not proof of attention or understanding, and only you can see it.{" "}
-          <Link href="/settings/study-tracking" className={link}>
-            How it's measured
-          </Link>
-          .
-        </p>
+          <p className="text-xs leading-relaxed text-text-secondary">
+            An estimate of practice, not proof of attention, and only you can see it.{" "}
+            <Link href="/settings/study-tracking" className={link}>
+              How it's measured
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
