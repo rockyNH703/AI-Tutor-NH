@@ -3,11 +3,12 @@
 import { Button } from "@v1/ui/button";
 import { Input } from "@v1/ui/input";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { ArrowDown, ArrowUp, X } from "lucide-react";
+import { ArrowDown, ArrowUp, RotateCcw, X } from "lucide-react";
 import Link from "next/link";
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { InlineAction } from "@/components/inline-action";
 import { ApiError, describeError } from "@/lib/api/errors";
 import { getSubjects, replaceSubjects } from "@/lib/api/learning";
 import {
@@ -114,13 +115,9 @@ export function SubjectsSection() {
         {form.loadError ? (
           <SettingsCard title="Couldn't load your practice goals">
             <p className="text-sm text-text-secondary">{describeError(form.loadError).message}</p>
-            <button
-              type="button"
-              onClick={form.retry}
-              className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-            >
+            <InlineAction icon={RotateCcw} onClick={form.retry} className="-ml-2 mt-1">
               Try again
-            </button>
+            </InlineAction>
           </SettingsCard>
         ) : draft ? (
           goals
@@ -233,13 +230,9 @@ export function SubjectListEditor() {
       {error ? (
         <SettingsCard title="Couldn't load your subjects">
           <p className="text-sm text-text-secondary">{describeError(error).message}</p>
-          <button
-            type="button"
-            onClick={() => (catalogError ? retryCatalog() : setAttempt((count) => count + 1))}
-            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-          >
+          <InlineAction icon={RotateCcw} onClick={() => (catalogError ? retryCatalog() : setAttempt((count) => count + 1))} className="-ml-2 mt-1">
             Try again
-          </button>
+          </InlineAction>
         </SettingsCard>
       ) : !catalog || !saved ? (
         <SkeletonGroup label="Loading your subjects">

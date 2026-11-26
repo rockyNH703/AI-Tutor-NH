@@ -62,7 +62,7 @@ export function ChatEmptyState({
           ))
         )}
       </h2>
-      {place && <ProgramWelcome chatKey={chatKey} place={place} />}
+      {place && <ProgramWelcome place={place} />}
     </div>
   );
 }
@@ -70,17 +70,21 @@ export function ChatEmptyState({
 /** The smallest the greeting is set to stay on one line; a longer one wraps (balanced) at this size. */
 const SMALLEST_PX = 12;
 
-/** Shrinks the heading's font in proportion when the sentence is wider than the heading. */
-function fitOneLine(heading: HTMLElement) {
+/**
+ * Shrinks the heading's font in proportion when the sentence is wider than the heading, then measures again: glyph
+ * widths do not scale exactly with the size (hinting and rounding differ by platform; Linux rounds more than Windows),
+ * so a pass that left the last word over the edge takes off what is still too wide. At most three passes.
+ */
+export function fitOneLine(heading: HTMLElement) {
   heading.style.fontSize = "";
   heading.style.whiteSpace = "nowrap";
-  const natural = heading.scrollWidth;
-  const room = heading.clientWidth;
+  let size = Number.parseFloat(getComputedStyle(heading).fontSize);
+  for (let pass = 0; pass < 3 && heading.scrollWidth > heading.clientWidth && size > SMALLEST_PX; pass += 1) {
+    // 1% to spare, so rounding never pushes the last word onto a second line.
+    size = Math.max(SMALLEST_PX, (size * heading.clientWidth * 0.99) / heading.scrollWidth);
+    heading.style.fontSize = `${size}px`;
+  }
   heading.style.whiteSpace = "";
-  if (natural <= room) return;
-  const size = Number.parseFloat(getComputedStyle(heading).fontSize);
-  // 1% to spare, so rounding never pushes the last word onto a second line.
-  heading.style.fontSize = `${Math.max(SMALLEST_PX, (size * room * 0.99) / natural)}px`;
 }
 
 /** Keeps the greeting on one line: now, whenever the heading resizes, and once the web font arrives. */

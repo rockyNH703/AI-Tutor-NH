@@ -182,12 +182,12 @@ describe("user-visible copy has no school vocabulary", () => {
     clearNhprepCache();
   });
 
-  test("NH program chats: what each place says (greeting, line, suggestions, placeholder, header)", () => {
+  test("NH program chats: what each place says (greeting, line, placeholder, header)", () => {
     const program = { title: "Full Stack Networking with AI", months: [{ month: 1, title: "Networking Fundamentals & CCNA Core" }] };
     const shown = (["tutor", "interview"] as const).flatMap((mode) =>
       [1, null].flatMap((month) => {
         const text = placeText({ program: "networking-ai", month, mode }, program);
-        return [text.label ?? "", text.title, text.greeting, text.line, text.placeholder, text.tabTitle, ...text.suggestions, text.back?.label ?? ""];
+        return [text.label ?? "", text.title, text.greeting, text.line, text.placeholder, text.tabTitle, text.back?.label ?? ""];
       }),
     );
     expect(shown).toContain("What shall we learn in Month 1?"); // the walk reached the copy

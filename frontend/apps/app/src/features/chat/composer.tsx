@@ -97,7 +97,12 @@ export function Composer({
     if (previous !== null && chat.resolve(previous) === chat.resolve(chatKey)) return;
     abortDictation(); // words spoken for the previous chat never land in this one
     setNotice(null);
-    setValue(chat.getDraft(chatKey));
+    // Text typed before the page became interactive (a slow phone, Safari) is in the box but not yet in the draft: on
+    // the first arrival it is kept, not replaced by the empty draft.
+    const typedEarly = previous === null ? (textarea.current?.value ?? "") : "";
+    const draft = chat.getDraft(chatKey);
+    if (typedEarly && !draft) chat.setDraft(chatKey, typedEarly);
+    setValue(draft || typedEarly);
     // Focus on arrival where a physical keyboard is likely (not on touch, where it
     // would pop the on-screen keyboard over the conversation).
     if (window.matchMedia?.("(pointer: fine)").matches) textarea.current?.focus();

@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@v1/ui/card";
 import { Switch } from "@v1/ui/switch";
 import { cn } from "@v1/ui/utils";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronRight, type LucideIcon } from "lucide-react";
 import { Children, type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { takeHeadingFocus } from "./heading-focus";
@@ -97,18 +97,22 @@ export function SettingsCard({
 }
 
 /**
- * Detail on demand (a form used now and then, a long preview): a button that shows or hides it, named by what it
- * does. Closed, nothing of it is rendered.
+ * Detail on demand (a form used now and then, a long preview): a full-width disclosure row, as in macOS Settings: an
+ * optional icon, its name, and a chevron that turns down while it is open. The whole row is the button; closed,
+ * nothing of the detail is rendered.
  */
 export function Disclosure({
   label,
   openLabel,
+  icon: Icon,
   defaultOpen = false,
   children,
 }: {
   label: string;
-  /** The button's name while open (default: the same). */
+  /** The button's name while open (default: the same, as macOS keeps it). */
   openLabel?: string;
+  /** What the row leads to (an eye for a preview, sliders for more settings), never decoration. */
+  icon?: LucideIcon;
   defaultOpen?: boolean;
   children: ReactNode;
 }) {
@@ -121,10 +125,17 @@ export function Disclosure({
         aria-expanded={open}
         aria-controls={open ? id : undefined}
         onClick={() => setOpen((value) => !value)}
-        className="focus-ring inline-flex min-h-10 items-center gap-1.5 self-start rounded-lg text-sm font-semibold text-brand hover:underline"
+        className="focus-ring flex min-h-11 w-full items-center gap-3 rounded-xl bg-surface-2/70 px-3.5 py-2.5 text-left text-sm font-semibold text-foreground transition-colors duration-fast hover:bg-surface-2 active:bg-border/70"
       >
-        <ChevronDown aria-hidden className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-        {open ? (openLabel ?? label) : label}
+        {Icon && <Icon aria-hidden className="h-4 w-4 shrink-0 text-text-secondary" />}
+        <span className="min-w-0 flex-1">{open ? (openLabel ?? label) : label}</span>
+        <ChevronRight
+          aria-hidden
+          className={cn(
+            "h-4 w-4 shrink-0 text-text-secondary motion-safe:transition-transform motion-safe:duration-fast",
+            open && "rotate-90",
+          )}
+        />
       </button>
       {open && (
         <div id={id} className="mt-3">

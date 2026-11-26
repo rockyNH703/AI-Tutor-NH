@@ -9,11 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "@v1/ui/dropdown-menu";
 import { cn } from "@v1/ui/utils";
-import { Bell } from "lucide-react";
+import { Bell, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { InlineAction } from "@/components/inline-action";
 import { LEARNING_EVENT } from "@/lib/activity";
 import { clearNotifications, getNotifications, markNotificationsRead } from "@/lib/api/progress";
 import type { AppNotification, NotificationList } from "@/lib/api/types";
@@ -174,9 +175,9 @@ export function NotificationBell() {
           {failed && !list ? (
             <div className="px-3 py-6 text-center text-sm text-text-secondary">
               Couldn't load notifications.{" "}
-              <button type="button" onClick={() => void load()} className="focus-ring rounded font-medium text-brand underline">
+              <InlineAction icon={RotateCcw} onClick={() => void load()} className="-ml-2 mt-1">
                 Try again
-              </button>
+              </InlineAction>
             </div>
           ) : !list ? (
             <p className="px-3 py-6 text-center text-sm text-text-secondary">Loading…</p>

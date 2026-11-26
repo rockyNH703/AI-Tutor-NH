@@ -1,5 +1,6 @@
 "use client";
 
+import { Info } from "lucide-react";
 import { Button } from "@v1/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@v1/ui/dialog";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
@@ -537,7 +538,7 @@ export function MemorySection() {
                   ))}
                 </ul>
               )}
-              <Disclosure label="How memory works">
+              <Disclosure icon={Info} label="How memory works">
                 <ul className="flex list-disc flex-col gap-1 pl-5 text-sm leading-relaxed text-text-secondary">
                   <li>Only active, unexpired memories are recalled.</li>
                   <li>A correction replaces the earlier version.</li>

@@ -182,7 +182,7 @@ test("Back and Forward walk the sections, then back out to the app", async ({ pa
 test("an unsaved edit is asked about on every way out", async ({ page, account: _ }) => {
   await page.goto("/help");
   await openSettingsFromSidebar(page);
-  const name = page.getByLabel("Display name");
+  const name = page.getByRole("textbox", { name: "Display name" });
   await name.fill("Not saved yet");
 
   const ways: [string, () => Promise<unknown>][] = [
@@ -221,7 +221,7 @@ test("an unsaved edit is asked about on every way out", async ({ page, account: 
 test("after leaving an edit behind, Back and Forward take one step each", async ({ page, account: _ }) => {
   await page.goto("/help");
   await openSettingsFromSidebar(page);
-  await page.getByLabel("Display name").fill("Left behind");
+  await page.getByRole("textbox", { name: "Display name" }).fill("Left behind");
   const asked = answerNext(page, true);
   await section(page, "Notifications").click();
   await asked;
@@ -229,7 +229,7 @@ test("after leaving an edit behind, Back and Forward take one step each", async 
 
   await page.goBack();
   await expect(page).toHaveURL("/settings/profile");
-  await expect(page.getByLabel("Display name")).not.toHaveValue("Left behind");
+  await expect(page.getByRole("textbox", { name: "Display name" })).not.toHaveValue("Left behind");
   await page.goBack();
   await expect(page).toHaveURL("/help");
   await page.goForward();

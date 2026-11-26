@@ -3,9 +3,10 @@
 import { Button } from "@v1/ui/button";
 import { Input } from "@v1/ui/input";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { X } from "lucide-react";
+import { Info, RotateCcw, X } from "lucide-react";
 import { type KeyboardEvent, useId, useState } from "react";
 
+import { InlineAction } from "@/components/inline-action";
 import { describeError } from "@/lib/api/errors";
 import {
   EXAM_DATE_MAX_DAYS,
@@ -265,7 +266,7 @@ export function GoalsSection() {
           onChange={(weakTopics) => form.change({ weakTopics })}
           invalid={form.invalid("weakTopics")}
         />
-        <Disclosure label="About these goals">
+        <Disclosure icon={Info} label="About these goals">
           <p className="max-w-prose text-sm leading-relaxed text-text-secondary">
             As the exam date nears, your practice plan turns to review. The target score is your aim in the exam or in
             practice tests. A difficult topic is a protocol, a feature or a skill you want to get right. Goals are kept on
@@ -285,13 +286,9 @@ export function GoalsSection() {
       {form.loadError ? (
         <SettingsCard title="Couldn't load your goals">
           <p className="text-sm text-text-secondary">{describeError(form.loadError).message}</p>
-          <button
-            type="button"
-            onClick={form.retry}
-            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-          >
+          <InlineAction icon={RotateCcw} onClick={form.retry} className="-ml-2 mt-1">
             Try again
-          </button>
+          </InlineAction>
         </SettingsCard>
       ) : draft ? (
         goals

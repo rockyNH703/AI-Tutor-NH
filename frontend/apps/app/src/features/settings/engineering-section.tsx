@@ -1,8 +1,10 @@
 "use client";
 
+import { RotateCcw } from "lucide-react";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { type ReactNode, useEffect, useState } from "react";
 
+import { InlineAction } from "@/components/inline-action";
 import { TabPanel, ViewTabs, useTabIds } from "@/components/view-tabs";
 import { describeError } from "@/lib/api/errors";
 import { type EngineeringCatalog, type EngineeringProfileField, FOCUS_AREAS_MAX, PLATFORMS_MAX } from "@/lib/api/types";
@@ -143,13 +145,9 @@ export function EngineeringSection() {
       {loadError ? (
         <SettingsCard title="Couldn't load your Engineering Profile">
           <p className="text-sm text-text-secondary">{describeError(loadError).message}</p>
-          <button
-            type="button"
-            onClick={() => (catalogError ? retryCatalog() : form.retry())}
-            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-          >
+          <InlineAction icon={RotateCcw} onClick={() => (catalogError ? retryCatalog() : form.retry())} className="-ml-2 mt-1">
             Try again
-          </button>
+          </InlineAction>
         </SettingsCard>
       ) : !catalog || !form.draft ? (
         <SkeletonGroup label="Loading your Engineering Profile">

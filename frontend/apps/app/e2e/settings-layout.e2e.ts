@@ -32,7 +32,7 @@ test("a field is a row on wide screens and stacks on phones; choice groups keep 
     // The field in the page's main, after hydration: a run once found a second "Display name" label outside it.
     const main = page.getByRole("main");
     const label = await main.locator("label", { hasText: /^Display name$/ }).boundingBox();
-    const input = await main.getByLabel("Display name").boundingBox();
+    const input = await main.getByRole("textbox", { name: "Display name" }).boundingBox();
     return { label, input };
   };
 

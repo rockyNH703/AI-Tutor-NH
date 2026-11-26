@@ -1,8 +1,10 @@
 "use client";
 
+import { Eye, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { useEffect, useRef, useState } from "react";
 
+import { InlineAction } from "@/components/inline-action";
 import { describeError, isAbortError } from "@/lib/api/errors";
 import { getLearningPreferences, previewTutor, updateLearningPreferences } from "@/lib/api/learning";
 import type {
@@ -77,8 +79,8 @@ function NotUsedNow({
   return (
     <SettingsCard title="Not used by NetSec AI right now" description="Still saved, but they don't change answers at the moment.">
       <Disclosure
-        label={`Show ${fields.length} more ${fields.length === 1 ? "preference" : "preferences"}`}
-        openLabel={`Hide ${fields.length === 1 ? "it" : "them"}`}
+        icon={SlidersHorizontal}
+        label={`Explore ${fields.length} other ${fields.length === 1 ? "preference" : "preferences"}`}
       >
         <div className="flex flex-col gap-5">
           <Choices fields={fields} value={value} change={change} />
@@ -92,13 +94,9 @@ function LoadFailed({ error, retry }: { error: unknown; retry: () => void }) {
   return (
     <SettingsCard title="Couldn't load your preferences">
       <p className="text-sm text-text-secondary">{describeError(error).message}</p>
-      <button
-        type="button"
-        onClick={retry}
-        className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-      >
+      <InlineAction icon={RotateCcw} onClick={retry} className="-ml-2 mt-1">
         Try again
-      </button>
+      </InlineAction>
     </SettingsCard>
   );
 }
@@ -182,7 +180,7 @@ export function TutorPreviewCard({
 
   return (
     <SettingsCard title="What NetSec AI is told" description={description}>
-      <Disclosure label="Show the preview" openLabel="Hide the preview">
+      <Disclosure icon={Eye} label="Preview what AI sees">
       {error ? (
         <p className="text-sm text-destructive">{error}</p>
       ) : text === null ? (

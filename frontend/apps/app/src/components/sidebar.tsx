@@ -12,6 +12,7 @@ import { PromptDialog } from "@v1/ui/prompt-dialog";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@v1/ui/tooltip";
 import { cn } from "@v1/ui/utils";
+import { InlineAction } from "@/components/inline-action";
 import { PROGRAM_AREAS, isExpanded, parseSaved, programRoute } from "@/features/programs/program-nav";
 import { usePrograms } from "@/features/programs/use-programs";
 import {
@@ -20,14 +21,15 @@ import {
   ChevronRight,
   ChevronsUpDown,
   FolderOpen,
+  GraduationCap,
   LogOut,
   type LucideIcon,
   Pin,
   Plus,
+  RotateCcw,
   Search,
   Settings,
   Timer,
-  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -571,13 +573,9 @@ export function SidebarContent({
               ) : list.status === "error" && list.items.length === 0 ? (
                 <div className="px-3 py-3 text-sm text-text-secondary">
                   <p>Couldn't load your chats.</p>
-                  <button
-                    type="button"
-                    onClick={() => void conversations.refresh()}
-                    className="focus-ring mt-1 rounded text-sm font-medium text-brand underline underline-offset-2"
-                  >
+                  <InlineAction icon={RotateCcw} onClick={() => void conversations.refresh()} className="-ml-2 mt-1">
                     Try again
-                  </button>
+                  </InlineAction>
                 </div>
               ) : (
                 <>

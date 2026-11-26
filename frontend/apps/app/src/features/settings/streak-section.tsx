@@ -1,10 +1,11 @@
 "use client";
 
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { CheckCircle2, Circle, Flame } from "lucide-react";
+import { CheckCircle2, Circle, Flame, RotateCcw } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 
+import { InlineAction } from "@/components/inline-action";
 import { useAppearance } from "@/components/appearance-provider";
 import { useStreak } from "@/features/streak/streak-store";
 import { LEARNING_EVENT } from "@/lib/activity";
@@ -139,13 +140,9 @@ export function StreakSection() {
           {calendarError ? (
             <div className="flex flex-col items-start gap-2">
               <p className="text-sm text-text-secondary">{describeError(calendarError).message}</p>
-              <button
-                type="button"
-                onClick={loadCalendar}
-                className="focus-ring rounded text-sm font-medium text-brand underline underline-offset-2"
-              >
+              <InlineAction icon={RotateCcw} onClick={loadCalendar} className="-ml-2 mt-1">
                 Try again
-              </button>
+              </InlineAction>
             </div>
           ) : (
             <div>

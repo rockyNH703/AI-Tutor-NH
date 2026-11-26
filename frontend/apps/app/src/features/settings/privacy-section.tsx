@@ -5,10 +5,11 @@ import { Button } from "@v1/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@v1/ui/dialog";
 import { Input } from "@v1/ui/input";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { Laptop } from "lucide-react";
+import { Laptop, MonitorSmartphone, RotateCcw } from "lucide-react";
 import { type FormEvent, type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { InlineAction } from "@/components/inline-action";
 import { authErrorMessage } from "@/components/auth-form";
 import { QrCode } from "@/components/qr-code";
 import { useUser } from "@/components/user-context";
@@ -367,13 +368,9 @@ function DevicesCard() {
       {loadError ? (
         <div className="text-sm text-text-secondary">
           <p>{loadError}</p>
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="focus-ring mt-1 rounded font-medium text-brand underline underline-offset-2"
-          >
+          <InlineAction icon={RotateCcw} onClick={() => void load()} className="-ml-2 mt-1">
             Try again
-          </button>
+          </InlineAction>
         </div>
       ) : sessions === null ? (
         <SkeletonGroup label="Loading devices" className="flex flex-col gap-3">
@@ -384,9 +381,7 @@ function DevicesCard() {
               <Skeleton className="h-3 w-24 rounded-md" />
             </div>
           </div>
-          <div className="flex min-h-10 items-center">
-            <Skeleton className="h-4 w-40 rounded-md" />
-          </div>
+          <Skeleton className="h-11 w-full rounded-xl" />
         </SkeletonGroup>
       ) : (
         <div className="flex flex-col gap-3">
@@ -396,11 +391,11 @@ function DevicesCard() {
             <p className="flex min-h-9 items-center text-sm text-text-secondary">This device isn't in the list.</p>
           )}
           {others.length === 0 ? (
-            <p className="flex min-h-10 items-center text-sm text-text-secondary">No other devices.</p>
+            <p className="flex min-h-11 items-center px-3.5 text-sm text-text-secondary">No other devices.</p>
           ) : (
             <Disclosure
+              icon={MonitorSmartphone}
               label={`Show ${others.length} other ${others.length === 1 ? "device" : "devices"}`}
-              openLabel="Hide other devices"
             >
               <ul aria-label="Other devices" className="divide-y divide-border">
                 {others.map(row)}

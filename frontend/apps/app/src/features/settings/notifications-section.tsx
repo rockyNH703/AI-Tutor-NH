@@ -1,8 +1,10 @@
 "use client";
 
+import { RotateCcw } from "lucide-react";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import Link from "next/link";
 
+import { InlineAction } from "@/components/inline-action";
 import { describeError } from "@/lib/api/errors";
 import { getNotificationPreferences, updateNotificationPreferences } from "@/lib/api/preferences";
 import type { NotificationPreferences } from "@/lib/api/types";
@@ -40,13 +42,9 @@ export function NotificationsSection() {
       {loadError ? (
         <SettingsCard title="Couldn't load your notification settings">
           <p className="text-sm text-text-secondary">{describeError(loadError).message}</p>
-          <button
-            type="button"
-            onClick={retry}
-            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-          >
+          <InlineAction icon={RotateCcw} onClick={retry} className="-ml-2 mt-1">
             Try again
-          </button>
+          </InlineAction>
         </SettingsCard>
       ) : !value ? (
         <SkeletonGroup label="Loading notification settings" className="flex flex-col gap-4">

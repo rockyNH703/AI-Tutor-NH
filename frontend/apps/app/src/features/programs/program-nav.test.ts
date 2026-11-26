@@ -74,48 +74,41 @@ describe("monthFromParam: the month in ?month=", () => {
 });
 
 describe("placeText: what a program chat says about its place", () => {
-  test("a month tutor: its month, the way back to Course Module, suggestions that name the month's topic", () => {
+  test("a month tutor: its month, the way back to Course Module, no suggested questions", () => {
     const text = placeText({ program: "networking-ai", month: 2, mode: "tutor" }, PROGRAM);
     expect(text.label).toBe("Month 2");
     expect(text.title).toBe("Advanced Routing & Switching (CCNP ENCOR)");
     expect(text.back).toEqual({ href: "/programs/networking-ai/modules", label: "Course Module" });
     expect(text.greeting).toBe("What shall we learn in Month 2?");
-    expect(text.suggestions).toEqual([
-      "Give me an overview of Advanced Routing & Switching (CCNP ENCOR)",
-      "What are the key concepts in Advanced Routing & Switching (CCNP ENCOR)?",
-    ]);
+    expect("suggestions" in text).toBe(false); // the greeting only (owner, 2026-11-26)
     expect(text.placeholder).toBe("Ask your Month 2 tutor…");
     expect(text.tabTitle).toBe("Month 2 tutor");
   });
 
-  test("a mock interview goes back to Mock Interviews and starts the interview", () => {
+  test("a mock interview goes back to Mock Interviews", () => {
     const text = placeText({ program: "networking-ai", month: 3, mode: "interview" }, PROGRAM);
     expect(text.label).toBe("Month 3");
     expect(text.title).toBe("Mock interview: Network Security & Firewall Technologies (PaloAlto & FortiGate)");
     expect(text.back).toEqual({ href: "/programs/networking-ai/interviews", label: "Mock Interviews" });
-    expect(text.suggestions).toEqual(["Start my mock interview"]);
+    expect("suggestions" in text).toBe(false);
     expect(text.tabTitle).toBe("Month 3 mock interview");
   });
 
-  test("Q&A is a top-level section: no way back, suggestions from the first months", () => {
+  test("Q&A is a top-level section: no way back, no suggested questions", () => {
     const text = placeText({ program: "networking-ai", month: null, mode: "tutor" }, PROGRAM);
     expect(text.label).toBeNull();
     expect(text.title).toBe("Program Q&A");
     expect(text.back).toBeNull();
-    expect(text.suggestions).toEqual([
-      "Give me an overview of Month 1: Networking Fundamentals & CCNA Core",
-      "Give me an overview of Month 2: Advanced Routing & Switching (CCNP ENCOR)",
-    ]);
+    expect("suggestions" in text).toBe(false);
     expect(text.tabTitle).toBe("Program Q&A");
   });
 
-  test("before the program's titles arrive, nothing is invented: no suggestions, generic lines", () => {
+  test("before the program's titles arrive, nothing is invented: generic lines", () => {
     const text = placeText({ program: "networking-ai", month: 2, mode: "tutor" }, null);
     expect(text.label).toBeNull(); // the title already says "Month 2"
     expect(text.title).toBe("Month 2");
-    expect(text.suggestions).toEqual([]);
     expect(text.greeting).toBe("What shall we learn in Month 2?");
-    expect(placeText({ program: "networking-ai", month: null, mode: "tutor" }, null).suggestions).toEqual([]);
+    expect(placeText({ program: "networking-ai", month: null, mode: "tutor" }, null).line).toContain("every month's");
   });
 });
 

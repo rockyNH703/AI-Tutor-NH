@@ -66,8 +66,6 @@ export type PlaceText = {
   back: { href: string; label: string } | null;
   greeting: string;
   line: string;
-  /** Sent as they are: each names a real title, so the tutor's search finds that material. */
-  suggestions: string[];
   placeholder: string;
   tabTitle: string;
 };
@@ -85,7 +83,6 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
       back: null,
       greeting: "Ask anything about your program.",
       line: `Your tutor answers from every month's ${SOURCES}`,
-      suggestions: (program?.months ?? []).slice(0, 2).map((item) => `Give me an overview of Month ${item.month}: ${item.title}`),
       placeholder: "Ask about any month of your program…",
       tabTitle: "Program Q&A",
     };
@@ -99,7 +96,6 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
       back: { href: `/programs/${place.program}/interviews`, label: "Mock Interviews" },
       greeting: `Ready for your Month ${n} mock interview?`,
       line: "One question at a time, with feedback on each answer.",
-      suggestions: ["Start my mock interview"],
       placeholder: "Answer the interviewer, or ask for the next question…",
       tabTitle: `Month ${n} mock interview`,
     };
@@ -110,7 +106,6 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
     back: { href: `/programs/${place.program}/modules`, label: "Course Module" },
     greeting: `What shall we learn in Month ${n}?`,
     line: `Your tutor answers from this month's ${SOURCES}`,
-    suggestions: topic ? [`Give me an overview of ${topic}`, `What are the key concepts in ${topic}?`] : [],
     placeholder: `Ask your Month ${n} tutor…`,
     tabTitle: `Month ${n} tutor`,
   };

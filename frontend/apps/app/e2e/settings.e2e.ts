@@ -97,24 +97,24 @@ test("two tabs: a stale save is refused, the edit is kept and saves on the secon
   await page.goto("/settings/profile");
   await tab.goto("/settings/profile");
 
-  await tab.getByLabel("Display name").fill("From the other tab");
+  await tab.getByRole("textbox", { name: "Display name" }).fill("From the other tab");
   await tab.getByRole("button", { name: "Save", exact: true }).click();
   await expect(tab.getByText("Profile saved.")).toBeVisible();
 
-  await page.getByLabel("Display name").fill("From this tab");
+  await page.getByRole("textbox", { name: "Display name" }).fill("From this tab");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText(/changed somewhere else/)).toBeVisible();
-  await expect(page.getByLabel("Display name")).toHaveValue("From this tab"); // the edit is not lost
+  await expect(page.getByRole("textbox", { name: "Display name" })).toHaveValue("From this tab"); // the edit is not lost
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Profile saved.")).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel("Display name")).toHaveValue("From this tab");
+  await expect(page.getByRole("textbox", { name: "Display name" })).toHaveValue("From this tab");
   await tab.close();
 });
 
 test("leaving with unsaved changes asks first", async ({ page, account: _ }) => {
   await page.goto("/settings/profile");
-  await page.getByLabel("Display name").fill("Not saved yet");
+  await page.getByRole("textbox", { name: "Display name" }).fill("Not saved yet");
   page.once("dialog", (dialog) => dialog.dismiss());
   await page.getByRole("link", { name: "Notifications" }).click();
   await expect(page).toHaveURL("/settings/profile");
@@ -318,7 +318,7 @@ test("engineering profile: catalog choices, chips within their limits, previewed
   await platforms.getByRole("checkbox", { name: "Palo Alto Networks PAN-OS" }).check();
 
   // The preview (opened from its card) is what saving would tell the assistant, before saving.
-  await page.getByRole("button", { name: "Show the preview" }).click();
+  await page.getByRole("button", { name: "Preview what AI sees" }).click();
   await expect(page.getByText("Role: Network Engineer", { exact: false })).toBeVisible();
   await expectAccessible(page);
   await page.getByRole("button", { name: "Save", exact: true }).click();
@@ -394,7 +394,7 @@ test("learning preferences: saved as they change, in the preview, and told to th
   await expect.poll(async () => (await apiJson(page, "/v1/learning/preferences")).language).toBe("hindi");
 
   await page.goto("/settings/tutor");
-  await page.getByRole("button", { name: "Show the preview" }).click();
+  await page.getByRole("button", { name: "Preview what AI sees" }).click();
   await expect(page.getByText("Reply in Hindi", { exact: false })).toBeVisible();
   expect(await tutorKnows(page)).toContain("Reply in Hindi");
 
@@ -411,7 +411,7 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
   const answers = page.getByRole("group", { name: "How it answers problems" });
   await page.goto("/settings/tutor");
   await expect(page.getByRole("heading", { name: "What NetSec AI is told" })).toBeVisible();
-  await page.getByRole("button", { name: "Show the preview" }).click();
+  await page.getByRole("button", { name: "Preview what AI sees" }).click();
   await answers.getByRole("radio", { name: "Hint first" }).check();
   await expect(page.getByText("start with a hint", { exact: false })).toBeVisible();
   await expectAccessible(page);
@@ -419,7 +419,7 @@ test("AI tutor: choices save, the preview shows what the tutor is told, and the 
   expect(await tutorKnows(page)).toContain("start with a hint");
 
   await page.goto("/settings/tutor");
-  await page.getByRole("button", { name: "Show the preview" }).click();
+  await page.getByRole("button", { name: "Preview what AI sees" }).click();
   await expect(page.getByText("start with a hint", { exact: false })).toBeVisible(); // what is saved, shown
   await answers.getByRole("radio", { name: "No preference" }).check();
   await expect(page.getByText("start with a hint", { exact: false })).toHaveCount(0);

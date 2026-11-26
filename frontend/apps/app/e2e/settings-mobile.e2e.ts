@@ -62,7 +62,7 @@ test("on a phone: the list, a section, back up to the same place, and out", asyn
 test("on a phone: an unsaved edit is asked about on All settings, Back and Close", async ({ page, account: _ }) => {
   await page.goto("/settings");
   await row(page, "Profile").click();
-  const name = page.getByLabel("Display name");
+  const name = page.getByRole("textbox", { name: "Display name" });
   await name.fill("Typed on a phone");
   for (const leave of [() => up(page).click(), () => page.goBack(), () => page.getByRole("link", { name: "Close settings" }).click()]) {
     page.once("dialog", (dialog) => void dialog.dismiss());

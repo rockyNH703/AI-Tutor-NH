@@ -25,6 +25,8 @@ import { deviceZone, supportedZones } from "@/lib/time-zones";
 import { NhEnrolmentCard } from "@/features/programs/invoice-flow";
 import { Field, Notice, SectionHeading, SettingsCard } from "./primitives";
 import { useUnsavedChanges } from "./use-unsaved-changes";
+import { InlineAction } from "@/components/inline-action";
+import { Globe } from "lucide-react";
 
 const MAX_MB = Math.round(AVATAR_MAX_BYTES / (1024 * 1024));
 
@@ -261,13 +263,9 @@ function NameAndZoneCard() {
           error={errors.timezone}
           hint={
             detected && detected !== draft.timezone ? (
-              <button
-                type="button"
-                className="focus-ring rounded font-medium text-brand underline underline-offset-2"
-                onClick={() => setDraft({ ...draft, timezone: detected })}
-              >
+              <InlineAction icon={Globe} onClick={() => setDraft({ ...draft, timezone: detected })} className="-ml-2">
                 Use this device's time zone ({detected})
-              </button>
+              </InlineAction>
             ) : undefined
           }
         >

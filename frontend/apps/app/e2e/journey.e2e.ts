@@ -256,7 +256,7 @@ test("a user's whole journey", async ({ page, context }) => {
   await test.step("change the display name in Settings", async () => {
     await openSettingsFromSidebar(page);
     await expect(page).toHaveURL("/settings/profile");
-    await page.getByLabel("Display name").fill("E2E Renamed");
+    await page.getByRole("textbox", { name: "Display name" }).fill("E2E Renamed");
     await page.getByRole("button", { name: "Save", exact: true }).click();
     await expect(page.getByText("Profile saved.")).toBeVisible();
     await expect(page.getByText("E2E Renamed", { exact: true })).toBeVisible();

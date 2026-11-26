@@ -1,9 +1,11 @@
 "use client";
 
+import { Info, RotateCcw } from "lucide-react";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { InlineAction } from "@/components/inline-action";
 import { ActivityChart } from "@/features/progress/activity-chart";
 import { ACTIVITY_EVENT } from "@/lib/activity";
 import { describeError } from "@/lib/api/errors";
@@ -83,13 +85,9 @@ export function ProgressSection() {
       {error ? (
         <SettingsCard title="Couldn't load your progress">
           <p className="text-sm text-text-secondary">{describeError(error).message}</p>
-          <button
-            type="button"
-            onClick={() => setAttempt((count) => count + 1)}
-            className="focus-ring self-start rounded text-sm font-medium text-brand underline underline-offset-2"
-          >
+          <InlineAction icon={RotateCcw} onClick={() => setAttempt((count) => count + 1)} className="-ml-2 mt-1">
             Try again
-          </button>
+          </InlineAction>
         </SettingsCard>
       ) : !progress ? (
         <SkeletonGroup label="Loading your progress" className="space-y-3">
@@ -145,7 +143,7 @@ export function ProgressSection() {
           </nav>
           <SettingsCard title="Recent days">
             <ActivityChart days={progress.days} goal={progress.goals.dailyActiveMinutes} />
-            <Disclosure label="How active time is measured">
+            <Disclosure icon={Info} label="How active time is measured">
               <p className="text-sm leading-relaxed text-text-secondary">
                 A minute counts when NetSec AI is on screen and you used it (typed, clicked, scrolled) or a reply was being
                 written, within the last two minutes: one minute at most per minute, however many tabs or devices. It's never

@@ -105,7 +105,9 @@ def _until(value: str | None) -> datetime | None:
 
 
 async def _modules(db) -> dict[tuple[str, int], object]:
-    rows = await db.execute(select(Program.slug, ProgramModule).join(ProgramModule, ProgramModule.program_id == Program.id))
+    rows = await db.execute(
+        select(Program.slug, ProgramModule).join(ProgramModule, ProgramModule.program_id == Program.id)
+    )
     return {(slug, module.month): module for slug, module in rows.all()}
 
 
@@ -188,7 +190,7 @@ async def inventory(db) -> int:
 
 # ---------------------------------------------------------------- mapping
 async def mapping(db, path: Path, apply: bool) -> int:
-    spec = json.loads(path.read_text(encoding="utf-8"))
+    spec = json.loads(await asyncio.to_thread(path.read_text, encoding="utf-8"))  # no blocking read in the event loop
     sets, months = spec["sets"], spec["months"]
     modules = await _modules(db)
     documents = {

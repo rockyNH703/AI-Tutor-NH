@@ -1,6 +1,8 @@
 "use client";
 
 import { type CSSProperties, type KeyboardEvent, useId, useRef, useState } from "react";
+import { InlineAction } from "@/components/inline-action";
+import { Table2 } from "lucide-react";
 
 /** A day's minutes; `questions` only where the chart shows them (Progress & Goals). */
 export type ChartDay = { date: string; activeMinutes: number; questions?: number };
@@ -154,15 +156,15 @@ export function ActivityChart({
           <span>Today</span>
         </div>
       </div>
-      <button
-        type="button"
+      <InlineAction
+        icon={Table2}
         aria-expanded={table}
         aria-controls={tableId}
         onClick={() => setTable((open) => !open)}
-        className="focus-ring self-start rounded text-xs font-medium text-brand underline underline-offset-2"
+        className="-ml-2 self-start"
       >
         {table ? "Hide table" : "Show as table"}
-      </button>
+      </InlineAction>
       <div id={tableId} hidden={!table} className="overflow-hidden rounded-xl border border-border">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">{title}</caption>

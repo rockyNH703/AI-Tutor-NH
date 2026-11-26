@@ -1,5 +1,6 @@
 "use client";
 
+import { RotateCcw } from "lucide-react";
 import { Button } from "@v1/ui/button";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { ConfirmDialog } from "@v1/ui/confirm-dialog";
@@ -7,6 +8,7 @@ import { cn } from "@v1/ui/utils";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
+import { InlineAction } from "@/components/inline-action";
 import { ChoiceGroup } from "@/features/settings/primitives";
 import { trackName, useCatalog } from "@/features/settings/learning-data";
 import { getStudyChapters } from "@/lib/api/study";
@@ -215,9 +217,9 @@ export function StudySessionPanel() {
     return study.loadError ? (
       <p role="alert" className="text-sm text-text-secondary">
         Lab time can't be loaded right now.{" "}
-        <button type="button" onClick={() => void studyStore.refresh()} className="focus-ring rounded font-semibold text-brand underline underline-offset-2">
+        <InlineAction icon={RotateCcw} onClick={() => void studyStore.refresh()} className="-ml-2 mt-1">
           Try again
-        </button>
+        </InlineAction>
       </p>
     ) : (
       // The start form's shape, so the page below does not move when it arrives.
@@ -252,13 +254,9 @@ export function StudySessionPanel() {
         <div role="status" className="rounded-xl border border-border bg-surface px-3.5 py-3 text-sm text-foreground">
           <p>{note}</p>
           <p className="mt-1 text-text-secondary">It counted {formatStudyTime(lastEnded.activeSeconds)} of estimated lab time.</p>
-          <button
-            type="button"
-            onClick={() => studyStore.dismissEnded(lastEnded.id)}
-            className="focus-ring mt-2 rounded text-sm font-semibold text-brand underline underline-offset-2"
-          >
+          <InlineAction onClick={() => studyStore.dismissEnded(lastEnded.id)} className="-ml-2 mt-1">
             Dismiss
-          </button>
+          </InlineAction>
         </div>
       )}
 

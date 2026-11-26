@@ -34,7 +34,9 @@ export function useViewParam<T extends string>(values: readonly T[], name = "vie
       if (next === values[0]) search.delete(name);
       else search.set(name, next);
       const query = search.toString();
-      window.history.replaceState(window.history.state, "", `${pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+      // null, not window.history.state: Next skips its router update for a state carrying its own marker (__NA), and
+      // then useSearchParams never sees the new view (the tab changed only on a reload).
+      window.history.replaceState(null, "", `${pathname}${query ? `?${query}` : ""}${window.location.hash}`);
     },
     [name, pathname, values],
   );
@@ -75,7 +77,13 @@ export function ViewTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className={cn("scrollbar-subtle flex gap-1 overflow-x-auto border-b border-border", className)}
+      // The line under the tabs is an inset shadow, so the active tab's underline sits on it without spilling a pixel out
+      // of the scroll box (which drew a stray scrollbar on Windows). Narrow screens still swipe the row; the bar itself
+      // is hidden, and the arrow keys bring each tab into view.
+      className={cn(
+        "flex gap-1 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_hsl(var(--border))] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        className,
+      )}
     >
       {tabs.map((tab, index) => {
         const selected = tab.value === value;
@@ -94,7 +102,7 @@ export function ViewTabs<T extends string>({
             onClick={() => onChange(tab.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
-              "focus-ring-inset -mb-px flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-t-lg border-b-2 px-3 text-sm font-semibold transition-colors",
+              "focus-ring-inset flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-t-lg border-b-2 px-3 text-sm font-semibold transition-colors",
               selected ? "border-brand text-foreground" : "border-transparent text-text-secondary hover:text-foreground",
             )}
           >

@@ -3,7 +3,19 @@
 import { Button } from "@v1/ui/button";
 import { EmptyState, ErrorState } from "@v1/ui/empty-state";
 import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
-import { BookOpen, ChevronRight, Gamepad2, GraduationCap, Lock, MessageCircle, Mic, PlayCircle } from "lucide-react";
+import {
+  BookOpen,
+  ChevronDown,
+  ChevronRight,
+  Gamepad2,
+  GraduationCap,
+  ListChecks,
+  Lock,
+  type LucideIcon,
+  MessageCircle,
+  Mic,
+  PlayCircle,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
@@ -14,7 +26,14 @@ import { withRequest } from "@/features/my-learning/ask-in-chat";
 import { NhprepSlot } from "@/features/nhprep/nhprep-slot";
 import { ApiError, describeError } from "@/lib/api/errors";
 import { getNhprepLessons } from "@/lib/api/nhprep";
-import { type BankTopic, type Program, type ProgramMaterial, type ProgramMonthDetail, getProgramMonth } from "@/lib/api/programs";
+import {
+  type BankTopic,
+  type Program,
+  type ProgramMaterial,
+  type ProgramMonth,
+  type ProgramMonthDetail,
+  getProgramMonth,
+} from "@/lib/api/programs";
 import type { NhprepLessonSummary, Uuid } from "@/lib/api/types";
 import { PROGRAM_AREAS, type ProgramArea, monthFromParam, programChatPath } from "./program-nav";
 import { refreshPrograms, usePrograms } from "./use-programs";
@@ -151,13 +170,13 @@ function States<T>({ state, retry, children }: { state: Load<T>; retry: () => vo
   return <>{children(state.data)}</>;
 }
 
-function materialLine(material: ProgramMaterial): string {
-  const parts = [
-    material.documents ? (material.documents === 1 ? "1 book or guide" : `${material.documents} books and guides`) : "",
-    material.lessons ? `${material.lessons} lessons` : "",
-    material.questions ? `${material.questions} practice questions` : "",
-  ].filter(Boolean);
-  return parts.length ? parts.join(", ") : "Material coming soon";
+/** What a month holds, each count with its own word ("1 lesson", "154 lessons"); a count of none is left out. */
+function materialParts(material: ProgramMaterial): { icon: LucideIcon; count: number; label: string }[] {
+  return [
+    { icon: BookOpen, count: material.documents, label: material.documents === 1 ? "book or guide" : "books and guides" },
+    { icon: PlayCircle, count: material.lessons, label: material.lessons === 1 ? "lesson" : "lessons" },
+    { icon: ListChecks, count: material.questions, label: material.questions === 1 ? "practice question" : "practice questions" },
+  ].filter((part) => part.count > 0);
 }
 
 const AREA_INFO: Record<ProgramArea, { text: string; icon: typeof GraduationCap }> = {
@@ -200,22 +219,43 @@ export function ProgramLanding({ slug }: { slug: string }) {
   );
 }
 
-/** The months in the course's order, one row each: its number, its title and what it holds. */
-function MonthGrid({ program, href, note }: { program: Program; href: (month: number) => string; note?: (material: ProgramMaterial) => string }) {
+/**
+ * The program pages' cards (owner, 2026-11-26: Apple-style course cards). One grid for all of them: it fills the width
+ * it has, two cards side by side from about 41rem and one below that, never three, so it follows the pane beside a
+ * resizable sidebar rather than the window. One surface: white, a hairline edge, a soft tint and a darker edge on hover,
+ * a slight give on press.
+ */
+const CARD_GRID = "grid max-w-4xl grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-3 sm:gap-4";
+const CARD =
+  "group focus-ring rounded-2xl border border-border bg-card elev-1 transition-[background-color,border-color,transform] duration-fast ease-out hover:border-foreground/15 hover:bg-surface-2/40 active:bg-surface-2/70 motion-safe:active:scale-[0.99]";
+/** A card's place in its sequence (a month, a lesson): "01". */
+const NUMBER =
+  "grid h-8 min-w-8 shrink-0 place-items-center rounded-lg bg-surface-2 px-1.5 text-xs font-semibold tabular-nums tracking-wide text-text-secondary";
+/** The quiet line at a card's foot: what it holds, or what opening it does. */
+const FOOT = "flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border pt-3 text-xs text-text-secondary";
+const ARROW =
+  "h-4 w-4 shrink-0 text-text-secondary transition-[color,transform] duration-fast ease-out group-hover:text-foreground motion-safe:group-hover:translate-x-0.5";
+
+const twoDigits = (n: number) => String(n).padStart(2, "0");
+
+/** A card per month, in the course's order, its whole surface the way into that month's chat. */
+function MonthCards({ program, href, foot }: { program: Program; href: (month: number) => string; foot: (month: ProgramMonth) => ReactNode }) {
   return (
-    <ol className={`${LIST} max-w-3xl`}>
+    <ol className={CARD_GRID}>
       {program.months.map((month) => (
-        <li key={month.month}>
-          <Link href={href(month.month)} className={ROW}>
-            <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-sm font-bold tabular-nums text-foreground">
-              {month.month}
+        <li key={month.month} className="flex">
+          <Link href={href(month.month)} className={`${CARD} flex min-h-44 w-full flex-col p-5`}>
+            <span className="flex items-center justify-between gap-3">
+              <span aria-hidden className={NUMBER}>
+                {twoDigits(month.month)}
+              </span>
+              <ChevronRight aria-hidden className={ARROW} />
             </span>
-            <span className="min-w-0 flex-1">
+            <h3 className="mt-4 text-pretty font-display text-base font-bold leading-snug tracking-tight text-foreground sm:text-[1.0625rem]">
               <span className="sr-only">Month {month.month}: </span>
-              <span className="block text-sm font-semibold leading-snug text-foreground">{month.title}</span>
-              <span className="mt-0.5 block text-xs text-text-secondary">{(note ?? materialLine)(month.material)}</span>
-            </span>
-            <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-text-secondary" />
+              {month.title}
+            </h3>
+            <span className="mt-auto block pt-5">{foot(month)}</span>
           </Link>
         </li>
       ))}
@@ -223,10 +263,34 @@ function MonthGrid({ program, href, note }: { program: Program; href: (month: nu
   );
 }
 
+/** Course Module's foot: what the month holds, each count with its word. */
+function MaterialFoot({ material }: { material: ProgramMaterial }) {
+  const parts = materialParts(material);
+  if (parts.length === 0) return <span className={FOOT}>Material coming soon</span>;
+  return (
+    <ul className={FOOT}>
+      {parts.map(({ icon: Icon, count, label }) => (
+        <li key={label} className="inline-flex items-center gap-1.5">
+          <Icon aria-hidden className="h-3.5 w-3.5 shrink-0" />
+          <span>
+            <span className="font-semibold tabular-nums text-foreground">{count.toLocaleString()}</span> {label}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function ProgramModules({ slug }: { slug: string }) {
   return (
     <ProgramScreen slug={slug} title="Course Module" intro="Open a month to learn with its own AI tutor.">
-      {(program) => <MonthGrid program={program} href={(month) => programChatPath(slug, month, "tutor")} />}
+      {(program) => (
+        <MonthCards
+          program={program}
+          href={(month) => programChatPath(slug, month, "tutor")}
+          foot={(month) => <MaterialFoot material={month.material} />}
+        />
+      )}
     </ProgramScreen>
   );
 }
@@ -235,10 +299,21 @@ export function ProgramInterviews({ slug }: { slug: string }) {
   return (
     <ProgramScreen slug={slug} title="Mock Interviews" intro="Pick a month: its interviewer asks one question at a time and gives feedback.">
       {(program) => (
-        <MonthGrid
+        <MonthCards
           program={program}
           href={(month) => programChatPath(slug, month, "interview")}
-          note={(material) => (material.documents || material.lessons ? "Start a mock interview" : "Material coming soon")}
+          foot={({ material }) =>
+            material.documents || material.lessons ? (
+              <span className={FOOT}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Mic aria-hidden className="h-3.5 w-3.5 shrink-0" />
+                  Start a mock interview
+                </span>
+              </span>
+            ) : (
+              <span className={FOOT}>Material coming soon</span>
+            )
+          }
         />
       )}
     </ProgramScreen>
@@ -327,29 +402,34 @@ function MonthTopics({ slug, month }: { slug: string; month: number }) {
         !detail.quizAvailable ? (
           <p className="text-sm text-text-secondary">No practice questions are mapped to this month yet.</p>
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-8">
             {byTrack(detail.topics).map(([track, topics]) => (
               <section key={track} aria-label={track}>
-                <h4 className="mb-2 text-sm font-semibold text-foreground">
+                <h4 className="mb-3 text-sm font-semibold text-foreground">
                   {track} <span className="font-normal text-text-secondary">({topics.length})</span>
                 </h4>
-                <ul className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
+                {/* A card per topic; the whole card asks for the quiz (its name says so: "Quiz me on …"). */}
+                <ul className={CARD_GRID}>
                   {topics.map((topic) => (
-                    <li key={topic.topicId} className="flex flex-wrap items-center gap-3 px-4 py-2">
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm text-foreground">{topic.title}</span>
-                        <span className="block text-xs text-text-secondary">{topic.chapter}</span>
-                      </span>
-                      <Button
+                    <li key={topic.topicId} className="flex">
+                      <button
                         type="button"
-                        size="sm"
-                        variant="outline"
-                        className="min-h-11"
                         aria-label={`Quiz me on ${topic.title}`}
                         onClick={() => quiz(topic.title)}
+                        className={`${CARD} flex min-h-32 w-full flex-col p-4 text-left sm:p-5`}
                       >
-                        Quiz me
-                      </Button>
+                        <span className="block text-pretty text-sm font-semibold leading-snug text-foreground sm:text-base">{topic.title}</span>
+                        <span className="mt-1 block text-xs text-text-secondary">{topic.chapter}</span>
+                        <span className="mt-auto block w-full pt-4">
+                          <span className={`${FOOT} justify-between`}>
+                            <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+                              <ListChecks aria-hidden className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
+                              Quiz me
+                            </span>
+                            <ChevronRight aria-hidden className={ARROW} />
+                          </span>
+                        </span>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -436,23 +516,42 @@ function LessonList({ ids }: { ids: Uuid[] }) {
   const left = ids.length - shown;
   return (
     <div className="flex flex-col gap-4">
-      <ul className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
-        {lessons.map((lesson) => (
-          <li key={lesson.id}>
+      {/* A card per lesson, in the month's order; an open one takes the whole row for its video and notes. */}
+      <ol className={CARD_GRID}>
+        {lessons.map((lesson, index) => (
+          <li
+            key={lesson.id}
+            className={
+              open === lesson.id ? "col-span-full flex flex-col rounded-2xl border border-border bg-card elev-1" : "flex"
+            }
+          >
             <button
               type="button"
               aria-expanded={open === lesson.id}
               onClick={() => setOpen(open === lesson.id ? null : lesson.id)}
-              className="focus-ring-inset flex min-h-11 w-full items-center gap-3 px-4 py-2 text-left transition-colors hover:bg-surface-2"
+              className={
+                open === lesson.id
+                  ? "group focus-ring flex w-full items-center gap-3 rounded-2xl p-4 text-left transition-colors duration-fast hover:bg-surface-2/40 sm:p-5"
+                  : `${CARD} flex min-h-24 w-full items-center gap-3 p-4 text-left sm:p-5`
+              }
             >
-              <BookOpen aria-hidden className="h-4 w-4 shrink-0 text-brand" />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm text-foreground">{lesson.title}</span>
-                <span className="block truncate text-xs text-text-secondary">{lesson.course.title}</span>
+              <span aria-hidden className={NUMBER}>
+                {twoDigits(index + 1)}
               </span>
+              <span className="min-w-0 flex-1">
+                <span className="line-clamp-2 text-pretty text-sm font-semibold leading-snug text-foreground">{lesson.title}</span>
+                <span className="mt-0.5 flex items-center gap-1.5 text-xs text-text-secondary">
+                  <PlayCircle aria-hidden className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{lesson.course.title}</span>
+                </span>
+              </span>
+              <ChevronDown
+                aria-hidden
+                className={`h-4 w-4 shrink-0 text-text-secondary transition-transform duration-fast ease-out group-hover:text-foreground ${open === lesson.id ? "rotate-180" : ""}`}
+              />
             </button>
             {open === lesson.id && (
-              <div className="px-4 pb-4">
+              <div className="px-4 pb-4 sm:px-5 sm:pb-5">
                 <NhprepSlot
                   eager
                   card={{
@@ -468,7 +567,7 @@ function LessonList({ ids }: { ids: Uuid[] }) {
             )}
           </li>
         ))}
-      </ul>
+      </ol>
       {left > 0 && (
         <Button type="button" variant="outline" className="min-h-11 self-start" onClick={() => setShown(shown + LESSONS_PAGE)}>
           Show more lessons ({left} left)

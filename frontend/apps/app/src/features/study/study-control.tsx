@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@v1/ui/dialog";
 import { cn } from "@v1/ui/utils";
-import { Timer } from "lucide-react";
+import { ChevronRight, Timer } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import { formatStudyTime, isLearningView } from "./study-client";
 import { STATUS_LABELS, StudySessionPanel, type TabStatus, tabStatus } from "./study-session-panel";
 import { studyStore, type StudySnapshot, useStudy } from "./study-store";
+import { inlineAction } from "@/components/inline-action";
 
 const pill =
   "focus-ring inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold tabular-nums text-foreground hover:bg-surface-2 sm:px-3";
@@ -84,12 +85,9 @@ export function StudyControl() {
             </DialogDescription>
           </DialogHeader>
           <StudySessionPanel />
-          <Link
-            href="/study"
-            onClick={() => setOpen(false)}
-            className="focus-ring self-start rounded text-sm font-semibold text-brand underline underline-offset-2"
-          >
+          <Link href="/study" onClick={() => setOpen(false)} className={cn(inlineAction, "-ml-2 self-start")}>
             See your Lab Activity
+            <ChevronRight aria-hidden className="h-4 w-4 text-text-secondary" />
           </Link>
         </DialogContent>
       </Dialog>

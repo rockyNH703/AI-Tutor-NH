@@ -106,7 +106,8 @@ export function SettingsPanel({ variant }: { variant: "panel" | "list" }) {
             onKeyDown={onSearchKey}
             placeholder="Search settings"
             autoComplete="off"
-            aria-controls={listId}
+            // Only while the list is there: with no match it isn't rendered, and an id pointing at nothing is invalid ARIA.
+            aria-controls={results.length > 0 ? listId : undefined}
             className="focus-field h-11 w-full rounded-xl border border-input bg-card pl-9 pr-3 text-base text-foreground placeholder:text-text-secondary sm:text-sm md:h-10"
           />
         </div>

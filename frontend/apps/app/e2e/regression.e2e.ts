@@ -12,6 +12,7 @@ import {
   seedTurn,
   send,
   test,
+  waitForHydration,
   waitForIdle,
   chatAction,
 } from "./support";
@@ -205,4 +206,53 @@ test("a new chat has no suggested questions; its first message is an ordinary me
   await expect(page.getByRole("article", { name: "You" })).toHaveText(/Give me the Quadratic Formula/);
   await expect(lastReply(page)).toContainText("You said: Give me the Quadratic Formula");
   await expect(chatLinks(page)).toHaveCount(1);
+});
+
+test("Skills & Certifications: each tab opens its view at once, keeps it in the address and after a reload", async ({
+  page,
+  account: _,
+}) => {
+  await page.goto("/learning");
+  await waitForHydration(page);
+  const tabs = page.getByRole("tablist", { name: "Skills & Certifications" });
+  const panel = page.getByRole("tabpanel");
+  // Every view by click, no reload in between (the address changed, but the view used to stay until a refresh).
+  for (const [tab, title, query] of [
+    ["Mastery", "Topic mastery", "?view=mastery"],
+    ["Missed questions", "Missed questions", "?view=missed"],
+    ["Practice tests", "Recent practice tests", "?view=tests"],
+    ["Today", "Today's plan", ""],
+  ] as const) {
+    await tabs.getByRole("tab", { name: tab }).click();
+    await expect(tabs.getByRole("tab", { name: tab })).toHaveAttribute("aria-selected", "true");
+    await expect(panel.getByRole("heading", { level: 2, name: title })).toBeVisible();
+    await expect(page).toHaveURL(`/learning${query}`);
+  }
+  // The arrow keys move and select too; a reload keeps the view.
+  await tabs.getByRole("tab", { name: "Today" }).press("ArrowRight");
+  await expect(panel.getByRole("heading", { level: 2, name: "Topic mastery" })).toBeVisible();
+  await page.reload();
+  await expect(panel.getByRole("heading", { level: 2, name: "Topic mastery" })).toBeVisible();
+});
+
+test("text typed before the page is interactive is kept, and sends", async ({ page, account: _ }) => {
+  // Hold the app's scripts (a slow phone, Safari) so the typing really comes before React starts.
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/_next/static/chunks/**", async (route) => {
+    await held;
+    await route.continue();
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await composer(page).pressSequentially("Typed before the page was ready");
+  release();
+  await waitForHydration(page);
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await expect(composer(page)).toHaveValue("Typed before the page was ready");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(page).toHaveURL(/\/c\/[0-9a-f-]{36}$/);
+  await waitForIdle(page);
+  await expect(page.getByRole("article", { name: "You" })).toHaveText(/Typed before the page was ready/);
 });
