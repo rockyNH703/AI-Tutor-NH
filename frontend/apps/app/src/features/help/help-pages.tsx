@@ -74,7 +74,7 @@ export const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
         answer: (
           <>
             Fill in your profile, {inline("/settings/learning", "Learning Preferences")} and{" "}
-            {inline("/settings/tutor", "AI Assistant")}. The AI Assistant page shows exactly what {APP_NAME} is told. Your
+            {inline("/settings/tutor", "AI Assistant")}. The AI Assistant page shows what your settings add to its instructions. Your
             name, email address and photo are never sent to it.
           </>
         ),
@@ -156,8 +156,9 @@ export const FAQ: readonly { topic: string; items: readonly Faq[] }[] = [
         question: "What is a practice streak?",
         answer: (
           <>
-            The number of days in a row on which you were active for at least a minute or asked a question. Days follow
-            the time zone in your {inline("/settings/profile", "Profile")}. See yours in{" "}
+            The number of days in a row on which NetSec AI fully answered at least one real question of yours, or you
+            answered 5 practice-test questions in the chat. Greetings, stopped or failed replies and regenerated answers
+            don&apos;t count. Days follow India time (IST) for everyone. See yours in{" "}
             {inline("/settings/progress", "Practice & Goals")}.
           </>
         ),

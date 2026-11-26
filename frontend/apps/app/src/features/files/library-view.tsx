@@ -283,13 +283,13 @@ export function LibraryView() {
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   {file.status === "ready" && (
-                    <Button type="button" variant="outline" size="sm" onClick={() => askInChat(file)}>
+                    <Button type="button" variant="outline" size="sm" className="h-11 sm:h-9" onClick={() => askInChat(file)}>
                       <MessageSquarePlus aria-hidden className="mr-1.5 h-4 w-4" />
                       Ask in chat
                     </Button>
                   )}
                   {file.status === "failed" && file.retryable && (
-                    <Button type="button" variant="outline" size="sm" onClick={() => void retry(file)}>
+                    <Button type="button" variant="outline" size="sm" className="h-11 sm:h-9" onClick={() => void retry(file)}>
                       <RotateCcw aria-hidden className="mr-1.5 h-4 w-4" />
                       Retry
                     </Button>
@@ -298,6 +298,7 @@ export function LibraryView() {
                     type="button"
                     variant="ghost"
                     size="sm"
+                    className="h-11 w-11 p-0 sm:h-9 sm:w-9"
                     onClick={() => setDeleting(file)}
                     aria-label={`Delete ${file.filename}`}
                   >

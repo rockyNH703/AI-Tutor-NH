@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 
 import { APP_URL } from "./env";
-import { chatAction, expect, expectAccessible, seedTurn, test, waitForHydration } from "./support";
+import { SAME_ORIGIN, chatAction, expect, expectAccessible, seedTurn, test, waitForHydration } from "./support";
 
 /**
  * Pin, archive and share chats (features/conversations), and the sidebar's resizable edge (components/sidebar-resizer).
@@ -58,6 +58,23 @@ test("pin, unpin, archive, restore and delete from Archived chats, all kept acro
   await confirm.getByRole("button", { name: "Delete" }).click();
   await expect(page.getByRole("main").getByText("No archived chats")).toBeVisible();
   expect((await page.request.get(`${APP_URL}/api/v1/conversations/${second}`)).status()).toBe(404);
+});
+
+test("phones: an archived chat's Restore and Delete are 44px touch targets, compact again from 640px", async ({
+  page,
+  account: _,
+}) => {
+  const id = await seedTurn(page, "Explain OSPF areas");
+  const archived = await page.request.patch(`${APP_URL}/api/v1/conversations/${id}`, { data: { archived: true }, headers: SAME_ORIGIN });
+  expect(archived.status(), "archive").toBe(200);
+  const actions = page.getByRole("list", { name: "Archived chats" }).getByRole("button");
+  const heights = () => actions.evaluateAll((buttons) => buttons.map((button) => Math.round(button.getBoundingClientRect().height)));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/archived");
+  await expect(actions.first()).toBeVisible();
+  expect(await heights(), "Restore and Delete on a phone").toEqual([44, 44]);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect.poll(heights, { message: "the compact size beside a mouse" }).toEqual([36, 36]);
 });
 
 test("share: a read-only link that works signed out, updates to a new link, and stops when sharing stops", async ({

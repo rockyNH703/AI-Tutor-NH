@@ -181,7 +181,7 @@ export function ArchivedView() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="gap-1.5"
+                    className="h-11 gap-1.5 sm:h-9"
                     disabled={busy === item.id}
                     onClick={() => void restore(item)}
                     aria-label={`Restore “${item.title}”`}
@@ -193,7 +193,7 @@ export function ArchivedView() {
                     type="button"
                     size="sm"
                     variant="ghost"
-                    className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    className="h-11 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive sm:h-9"
                     disabled={busy === item.id}
                     onClick={() => setDeleting(item)}
                     aria-label={`Delete “${item.title}”`}
