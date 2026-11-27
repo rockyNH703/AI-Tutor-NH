@@ -123,9 +123,10 @@ class Settings(BaseSettings):
     llm_fake_token_delay_s: float = 0.0
     # Total characters sent to the model per turn (system prompt + retrieved context +
     # history + new message). Characters approximate tokens (~4 chars/token for English;
-    # Devanagari costs ~2.6x more tokens per character). See app/rag/context.py. 64,000 (2026-11-26): the
-    # instructor prompt and the app facts must not eat the history (tests/test_tutor_instructions.py worst case).
-    llm_max_input_chars: int = 64_000
+    # Devanagari costs ~2.6x more tokens per character). See app/rag/context.py. 64,000 (2026-11-26), then
+    # 66,000 (2026-11-27, the longer teaching wording): the instructor prompt and the app facts must not eat
+    # the history (tests/test_tutor_instructions.py worst case).
+    llm_max_input_chars: int = 66_000
 
     # ---- chat ----
     chat_max_message_chars: int = 16_000

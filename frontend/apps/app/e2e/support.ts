@@ -144,7 +144,8 @@ export const test = base.extend<Fixtures>({
 /** Open the account menu at the foot of the sidebar (or of the phone drawer: pass it as `scope`). */
 export async function accountMenu(page: Page, scope?: Locator): Promise<Locator> {
   await (scope ?? page.getByRole("complementary")).getByRole("button", { name: /^Account: / }).click();
-  const menu = page.getByRole("menu");
+  // By name: a menu closed just before can still be in the DOM while it fades out (CI strict-mode clash).
+  const menu = page.getByRole("menu", { name: /^Account: / });
   await expect(menu).toBeVisible();
   return menu;
 }
@@ -317,8 +318,6 @@ export async function describeFocus(page: Page) {
 export async function expectAccessible(page: Page): Promise<void> {
   // Measure the page at rest: mid-fade (the Settings workspace fades in) every colour is part
   // transparent and reads as low contrast. Endless animations (a loading pulse) are left running.
-  // Two frames first, so a style change just made (a theme switch) has started its transition (CI race).
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await page
     .waitForFunction(
       () =>

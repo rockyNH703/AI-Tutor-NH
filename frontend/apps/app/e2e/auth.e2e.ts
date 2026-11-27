@@ -136,7 +136,9 @@ test("two-step sign-in: turned on in Settings, then asked for by password, by em
   await expect(page.getByRole("list", { name: "Recovery codes" }).getByRole("listitem")).toHaveCount(10);
   const recovery = (await page.getByRole("list", { name: "Recovery codes" }).getByRole("listitem").first().textContent()) ?? "";
   const setupKey = ((await page.getByText(/^Setup key:/).textContent()) ?? "").replace("Setup key:", "");
-  await page.getByLabel("3. Enter the 6-digit code the app shows").fill(totp(setupKey));
+  // One time step for the turn-on code and its replay below: across a 30 s boundary the "replay" was a fresh code (CI).
+  const turnedOnAt = Date.now();
+  await page.getByLabel("3. Enter the 6-digit code the app shows").fill(totp(setupKey, turnedOnAt));
   await page.getByRole("button", { name: "Turn on", exact: true }).click();
   await expect(page.getByText("Two-step sign-in is on.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Turn off" })).toBeVisible();
@@ -152,10 +154,10 @@ test("two-step sign-in: turned on in Settings, then asked for by password, by em
   await expect(form.getByRole("heading", { name: "Two-factor authentication" })).toBeVisible();
   expect((await form.request.get("/api/v1/me")).status()).toBe(401);
   // The code used to turn it on is spent; the app's next code works.
-  await form.getByLabel("Authenticator code").fill(totp(setupKey));
+  await form.getByLabel("Authenticator code").fill(totp(setupKey, turnedOnAt));
   await form.getByRole("button", { name: "Authenticate" }).click();
   await expect(form.getByRole("alert").filter({ hasText: "That code was just used" })).toBeVisible();
-  await form.getByLabel("Authenticator code").fill(totp(setupKey, Date.now() + 30_000));
+  await form.getByLabel("Authenticator code").fill(totp(setupKey, turnedOnAt + 30_000));
   await form.getByRole("button", { name: "Authenticate" }).click();
   await expect(form).toHaveURL(`${APP_URL}/`);
   expect((await form.request.get("/api/v1/me")).status()).toBe(200);
