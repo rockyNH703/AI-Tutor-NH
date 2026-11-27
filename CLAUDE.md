@@ -165,11 +165,12 @@ on 2026-10-26 and are not yet re-verified for NetSec):
   community strings and PSKs in pasted configs become `<redacted>` before a provider sees them. Pattern-based;
   stored messages keep the original; Ollalink requests (classifiers, voice) are **not** masked.
 - **One model call per turn:** no graph retries; `FallbackProvider` switches only before the first token.
+- **On in production since 2026-11-27 (owner):** `TUTOR_TEACHING_POLICY` (the instructor persona: `TEACHER_PROMPT`
+  replaces `SYSTEM_PROMPT`; evals in `backend/evals/teaching`) and `PLATFORM_GUIDE` (the app facts on every turn,
+  `app/chat/platform.py`). Both default off in code; production sets them in api.env.
 - **Kept but off by default** (each needs the owner's decision in production): `TUTOR_INTERACTIVE_BLOCKS` (MCQ,
   quiz, fill-blank, flashcards, graph and diagram widgets, and question-bank tests in the chat; the web app renders
-  them either way), `TUTOR_TEACHING_POLICY` (2026-11-26: the instructor persona, `TEACHER_PROMPT` replaces
-  `SYSTEM_PROMPT`; evals in `backend/evals/teaching`), `PLATFORM_GUIDE` (the app facts on every turn,
-  `app/chat/platform.py`), `INTENT_ROUTER` (Ollalink; the 2026-10-29 taxonomy needs a new
+  them either way), `INTENT_ROUTER` (Ollalink; the 2026-10-29 taxonomy needs a new
   `eval_intents.py` run before `on`), `STUDY_SCOPE` (since 2026-11-23 read by OpenRouter decision models, masked:
   `app/intents/decision.py`; on only after its held-out eval; only study earns streak credit), `VOICE_MODE` (English only),
   `MEMORY_RECALL_ENABLED` and `MEMORY_AUTOMATIC_PROPOSALS` (explicit memory APIs are on), the jobs worker.

@@ -151,7 +151,7 @@ def test_the_block_starts_with_the_rule():
 
 def test_size_with_everything_on():
     block = platform_block(make_settings(**FLAGS_ON), account_facts(full_access()))
-    assert len(block) <= 2300, len(block)
+    assert len(block) <= 2600, len(block)
 
 
 def test_size_with_everything_on_and_the_longest_titles_fits_the_budget():
@@ -160,7 +160,7 @@ def test_size_with_everything_on_and_the_longest_titles_fits_the_budget():
     block = platform_block(
         make_settings(**FLAGS_ON), account_facts(full_access(program_titles=long, track_titles=long))
     )
-    assert PLATFORM_MAX_CHARS == 2_600
+    assert PLATFORM_MAX_CHARS == 2_900
     assert len(block) <= PLATFORM_MAX_CHARS, len(block)
 
 
@@ -321,3 +321,10 @@ def test_practice_by_domain_is_offered_only_to_accounts_with_stored_questions():
     served = AccountAccess(False, True, False, False, False, False, False, (), ())
     assert any(line.startswith("Practice by domain") for line in account_facts(served))
     assert not any("Practice by domain" in line for line in account_facts(none))
+
+
+def test_the_guide_says_where_each_answer_preference_is_set():
+    """Live check 2026-11-27: "where do I change the reply language" was answered with the wrong section."""
+    block = platform_block(make_settings(**FLAGS_ON))
+    assert "Settings > Learning Preferences: Reply language" in block
+    assert "Settings > AI Assistant: Tone" in block

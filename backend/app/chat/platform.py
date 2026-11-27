@@ -41,12 +41,26 @@ SETTINGS_SECTIONS = (
     "Help & Support",
 )
 PROGRAM_AREAS = ("Course Module", "QnA", "Quizzes & Games", "Mock Interviews", "Videos & Links")
+# Where each answer preference lives (frontend learning-labels.ts LEARNING_FIELDS / TUTOR_FIELDS), so "where do I change
+# X" is answered from fact.
+LEARNING_PREFERENCES = ("Reply language", "Depth", "Pace", "Difficulty", "Real-world examples", "Visual explanations")
+AI_ASSISTANT = (
+    "Tone",
+    "Answer length",
+    "How it answers problems",
+    "Step-by-step",
+    "Check what I know first",
+    "Practice questions",
+    "Correcting mistakes",
+    "Highlight key ideas",
+)
 
 # (label, the web app file it appears in): the drift test reads each file.
 LABELS: tuple[tuple[str, str], ...] = (
     *((label, _SIDEBAR) for label in ("New chat", "Skills & Certifications", "File Library")),
     *((label, _SIDEBAR) for label in ("Lab Activity", "My Programs", "Settings", "Archived chats", "Log out")),
     *((title, _UI + "features/settings/sections.ts") for title in SETTINGS_SECTIONS),
+    *((label, _UI + "features/settings/learning-labels.ts") for label in (*LEARNING_PREFERENCES, *AI_ASSISTANT)),
     *(
         (label, _UI + "features/settings/help-section.tsx")
         for label in ("Help & FAQ", "About NetSec AI", "Contact support")
@@ -86,7 +100,7 @@ RULE = (
 )
 # The guide's ceiling with every feature on (tests/test_platform_guide.py; the history budget reserves it). The title
 # caps keep even the worst-case account lines under it: NH has four programs today.
-PLATFORM_MAX_CHARS = 2_600
+PLATFORM_MAX_CHARS = 2_900
 _TITLE_MAX, _TITLES_MAX = 40, 4
 
 
@@ -184,6 +198,8 @@ def platform_block(settings: Settings, account: Sequence[str] = ()) -> str:
         "- Sidebar: New chat, Skills & Certifications, File Library, Lab Activity (Start a lab session)"
         f"{', My Programs' if programs else ''}; account menu: Settings, Archived chats, Log out.",
         f"- Settings sections: {', '.join(SETTINGS_SECTIONS)}.",
+        f"- Settings > Learning Preferences: {', '.join(LEARNING_PREFERENCES)}. Settings > AI Assistant: "
+        f"{', '.join(AI_ASSISTANT)}.",
         "- Settings > Help & Support: Help & FAQ, About NetSec AI, Contact support (gives a reference number).",
         "- Chat menu: Share, Rename, Pin, Archive, Delete. Reply: Copy reply, Regenerate reply, Good reply, Bad reply.",
         f"- Practice streak: a day (India time) counts when NetSec AI fully answered at least one {question} of "
