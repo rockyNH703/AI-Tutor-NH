@@ -9,8 +9,9 @@ import re
 import uuid
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
 
-from sqlalchemy import func, or_, select, update
+from sqlalchemy import case, func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -88,6 +89,31 @@ async def claim(session: AsyncSession, user_id: uuid.UUID, raw: str) -> Claimed 
             return Claimed("claimed", program)
         holder = await session.scalar(select(InvoiceClaim.user_id).where(InvoiceClaim.invoice_id == invoice.id))
     return Claimed("already", program) if holder == user_id else None
+
+
+MAX_CLAIMS = 50
+
+
+async def claim_states(session: AsyncSession, user_id: uuid.UUID) -> list[tuple[Program, str, datetime]]:
+    """This account's claims, newest first: (program, state, claimed_at), the state read from the invoice row now
+    (the same rule as open_program_ids). Never the invoice number."""
+    state = case(
+        (NhInvoice.status.in_(("revoked", "refunded")), "revoked"),
+        (
+            or_(NhInvoice.status != "active", NhInvoice.valid_until <= func.clock_timestamp()),
+            "expired",
+        ),
+        else_="active",
+    )
+    rows = await session.execute(
+        select(Program, state, InvoiceClaim.claimed_at)
+        .join(NhInvoice, NhInvoice.id == InvoiceClaim.invoice_id)
+        .join(Program, Program.id == NhInvoice.program_id)
+        .where(InvoiceClaim.user_id == user_id)
+        .order_by(InvoiceClaim.claimed_at.desc(), InvoiceClaim.id.desc())
+        .limit(MAX_CLAIMS)
+    )
+    return [(row[0], row[1], row[2]) for row in rows.all()]
 
 
 async def open_programs(session: AsyncSession, user_id: uuid.UUID) -> list[Program]:

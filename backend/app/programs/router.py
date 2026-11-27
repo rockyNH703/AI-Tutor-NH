@@ -24,6 +24,7 @@ from app.programs.schemas import (
     ClaimOut,
     ClaimRequest,
     MonthDetailOut,
+    ProgramClaimOut,
     ProgramListOut,
     ProgramMaterial,
     ProgramMonthOut,
@@ -64,17 +65,23 @@ async def list_programs(
     principal: Principal = Depends(get_principal),
     db: AsyncSession = Depends(get_session),
 ):
-    """The programs this account's invoices open now (the sidebar), and whether to ask for an invoice."""
+    """The programs this account's invoices open now (My Programs), its own claims' states (never a number), and
+    whether to ask for an invoice."""
     response.headers.update(NO_STORE)
     if not programs_allow(principal.user, request.app.state.settings):
         return ProgramListOut(enabled=False, programs=[], invoice_prompt=False)
     programs = await service.open_programs(db, principal.user.id)
     months = await service.months(db, [program.id for program in programs])
     prompt = not programs and principal.user.invoice_prompt_done_at is None
+    claims = await service.claim_states(db, principal.user.id)
     return ProgramListOut(
         enabled=True,
         programs=[_program_out(program, months.get(program.id, [])) for program in programs],
         invoice_prompt=prompt,
+        claims=[
+            ProgramClaimOut(program=ProgramRef(slug=program.slug, title=program.title), state=state, claimed_at=at)
+            for program, state, at in claims
+        ],
     )
 
 

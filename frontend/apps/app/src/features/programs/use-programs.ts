@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { type ProgramList, listPrograms } from "@/lib/api/programs";
 
 /**
- * The account's NH programs (GET /v1/programs), read once per page load and shared by the sidebar, the first-run
- * invoice prompt and Settings. `refreshPrograms()` reads them again (after a claim). While loading or on an error
- * nothing program-related is shown: the API is the boundary, the sidebar only follows it.
+ * The account's NH programs and claims (GET /v1/programs), read once per page load and shared by My Programs and
+ * every program page. `refreshPrograms()` reads them again (after a claim). While loading or on an error nothing
+ * program-related is shown: the API is the boundary, the pages only follow it.
  */
 const EVENT = "netsec:programs";
 let shared: Promise<ProgramList> | null = null;

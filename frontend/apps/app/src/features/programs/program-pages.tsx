@@ -17,18 +17,18 @@ import {
   PlayCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 
-import { useStores } from "@/features/chat/chat-context";
 import { QuizzesSwitch } from "@/features/friendzone/quizzes-switch";
-import { withRequest } from "@/features/my-learning/ask-in-chat";
 import { NhprepSlot } from "@/features/nhprep/nhprep-slot";
 import { ApiError, describeError } from "@/lib/api/errors";
 import { getNhprepLessons } from "@/lib/api/nhprep";
 import {
   type BankTopic,
   type Program,
+  type ProgramClaim,
+  type ProgramList,
   type ProgramMaterial,
   type ProgramMonth,
   type ProgramMonthDetail,
@@ -37,8 +37,10 @@ import {
 import type { NhprepLessonSummary, Uuid } from "@/lib/api/types";
 import { ARROW, CARD, CARD_GRID, FOOT, NUMBER, twoDigits } from "./card-styles";
 import { QuizTopicsView } from "./quiz-topics-view";
-import { PROGRAM_AREAS, type ProgramArea, monthFromParam, programChatPath } from "./program-nav";
-import { refreshPrograms, usePrograms } from "./use-programs";
+import { InvoiceForm } from "./invoice-flow";
+import { PROGRAM_AREAS, type ProgramArea, endedClaims, monthFromParam, programChatPath } from "./program-nav";
+import { ProgramNav } from "./program-nav-bar";
+import { type ProgramsState, refreshPrograms, usePrograms } from "./use-programs";
 
 /**
  * The program's own pages: its landing page, Course Module, Mock Interviews, Quizzes & Games and Videos & Links.
@@ -99,6 +101,7 @@ function ProgramScreen({
   const heading = title ?? (state.status === "ready" ? state.program.title : "Your program");
   return (
     <ProgramPage label={heading}>
+      <ProgramNav slug={slug} className="mb-6" />
       <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">{heading}</h2>
       {intro && <p className="mt-1 max-w-prose text-sm text-text-secondary">{intro}</p>}
       <div className="mt-6">
@@ -107,10 +110,10 @@ function ProgramScreen({
           <EmptyState
             icon={Lock}
             title="This program isn't on your account"
-            description="Add the invoice number of your NetworkersHome program in Settings to open it here."
+            description="Add the invoice number of your NetworkersHome program in My Programs to open it here."
             action={
               <Button asChild size="sm" className="min-h-11">
-                <Link href="/settings/profile">Add an invoice</Link>
+                <Link href="/programs">Add an invoice</Link>
               </Button>
             }
           />
@@ -195,7 +198,7 @@ const ROW = "focus-ring-inset flex min-h-14 items-center gap-3 px-4 py-3 transit
 
 export function ProgramLanding({ slug }: { slug: string }) {
   return (
-    <ProgramScreen slug={slug} intro="Your NetworkersHome program. Pick where to start.">
+    <ProgramScreen slug={slug} title="Overview" intro="Your NetworkersHome program. Pick where to start.">
       {() => (
         <ul className={`${LIST} max-w-2xl`}>
           {PROGRAM_AREAS.map((area) => {
@@ -218,6 +221,169 @@ export function ProgramLanding({ slug }: { slug: string }) {
         </ul>
       )}
     </ProgramScreen>
+  );
+}
+
+/**
+ * My Programs (/programs, the sidebar's place for every account): a card for each program the account's invoices
+ * open, a card for each claim whose access ended, and the invoice form, the one place an invoice is entered. With no
+ * program the form is the page's empty state. Statuses come from GET /v1/programs (`claims`), so they outlast a reload
+ * and a new sign-in; a refused attempt is shown for this visit only.
+ */
+export function MyPrograms() {
+  return <MyProgramsView state={usePrograms()} />;
+}
+
+const ENDED_REASON: Record<Exclude<ProgramClaim["state"], "active">, string> = {
+  expired: "Its invoice has expired, so this program no longer opens here.",
+  revoked: "Its invoice is no longer active, so this program no longer opens here.",
+};
+
+/** The page from the program list's state (unit-tested with plain values). */
+export function MyProgramsView({ state }: { state: ProgramsState }) {
+  const [focusSlug, setFocusSlug] = useState<string | null>(null);
+  const cards = useRef(new Map<string, HTMLAnchorElement>());
+  const { data } = state;
+  useEffect(() => {
+    // After a claim the list is read again: focus moves to the program's card once it is there.
+    const node = focusSlug && data ? cards.current.get(focusSlug) : undefined;
+    if (!node) return;
+    node.focus();
+    setFocusSlug(null);
+  }, [focusSlug, data]);
+
+  return (
+    <ProgramPage label="My Programs">
+      <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">Your programs</h2>
+      <p className="mt-1 max-w-prose text-sm text-text-secondary">
+        Your NetworkersHome programs, each opened by its invoice number.
+      </p>
+      <div className="mt-6">
+        {!data && state.status !== "error" && (
+          <SkeletonGroup className={CARD_GRID}>
+            <Skeleton className="h-44 w-full rounded-2xl" />
+            <Skeleton className="h-44 w-full rounded-2xl" />
+          </SkeletonGroup>
+        )}
+        {!data && state.status === "error" && (
+          <ErrorState
+            title="Your programs couldn't be loaded"
+            description="Check your connection, then try again."
+            action={
+              <Button type="button" size="sm" variant="outline" className="min-h-11" onClick={refreshPrograms}>
+                Try again
+              </Button>
+            }
+          />
+        )}
+        {data && !data.enabled && (
+          <EmptyState
+            icon={GraduationCap}
+            title="Programs aren't available right now"
+            description="NetworkersHome programs open here when they're available to your account."
+            action={null}
+          />
+        )}
+        {data?.enabled && <ProgramsAndInvoice data={data} cards={cards.current} onClaimed={setFocusSlug} />}
+      </div>
+    </ProgramPage>
+  );
+}
+
+function ProgramsAndInvoice({
+  data,
+  cards,
+  onClaimed,
+}: {
+  data: ProgramList;
+  cards: Map<string, HTMLAnchorElement>;
+  onClaimed: (slug: string) => void;
+}) {
+  const ended = endedClaims(
+    data.claims,
+    data.programs.map((program) => program.slug),
+  );
+  const empty = data.programs.length === 0;
+  const formId = useId();
+  return (
+    <div className="flex flex-col gap-8">
+      {(data.programs.length > 0 || ended.length > 0) && (
+        <ul aria-label="Your programs" className={CARD_GRID}>
+          {data.programs.map((program) => (
+            <li key={program.slug} className="flex">
+              <Link
+                href={`/programs/${program.slug}`}
+                ref={(node) => {
+                  if (node) cards.set(program.slug, node);
+                  else cards.delete(program.slug);
+                }}
+                className={`${CARD} flex min-h-44 w-full flex-col p-5`}
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <span aria-hidden className={NUMBER}>
+                    <GraduationCap className="h-4 w-4" />
+                  </span>
+                  <ChevronRight aria-hidden className={ARROW} />
+                </span>
+                <h3 className="mt-4 text-pretty font-display text-base font-bold leading-snug tracking-tight text-foreground sm:text-[1.0625rem]">
+                  {program.title}
+                </h3>
+                <span className="mt-auto block pt-5">
+                  <span className={`${FOOT} justify-between`}>
+                    <span className="tabular-nums">
+                      {program.months.length} {program.months.length === 1 ? "month" : "months"}
+                    </span>
+                    <span className="font-semibold text-foreground">Open program</span>
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+          {ended.map((claim) => (
+            <li key={claim.program.slug} className="flex">
+              <div className="flex min-h-44 w-full flex-col rounded-2xl border border-border bg-surface-2/40 p-5">
+                <span aria-hidden className={NUMBER}>
+                  <Lock className="h-4 w-4" />
+                </span>
+                <h3 className="mt-4 text-pretty font-display text-base font-bold leading-snug tracking-tight text-foreground sm:text-[1.0625rem]">
+                  {claim.program.title}
+                </h3>
+                <p className="mt-1 text-sm text-text-secondary">
+                  {ENDED_REASON[claim.state as keyof typeof ENDED_REASON]} Contact NetworkersHome if this isn't right.
+                </p>
+                <span className="mt-auto block pt-5">
+                  <span className={FOOT}>
+                    <span className="font-semibold text-foreground">Access ended</span>
+                  </span>
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {/* One form in one place in the tree, so its status stays put when the first program's card appears above it. */}
+      <section
+        aria-labelledby={`${formId}-heading`}
+        className={empty ? "max-w-2xl rounded-2xl border border-border bg-card p-6 elev-1 sm:p-8" : "max-w-2xl"}
+      >
+        {empty && (
+          <span aria-hidden className="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-brand-soft text-brand">
+            <GraduationCap className="h-5 w-5" />
+          </span>
+        )}
+        <h3 id={`${formId}-heading`} className="font-display text-lg font-bold tracking-tight text-foreground">
+          {empty ? "Add an invoice to open your program" : "Add another invoice"}
+        </h3>
+        <p className="mt-1 max-w-prose text-sm text-text-secondary">
+          {empty
+            ? "Enter the invoice number of your NetworkersHome program. It is checked against NetworkersHome's records at once, and your program opens here: a tutor for every month, quizzes, mock interviews and videos."
+            : "Another NetworkersHome program? Its invoice number opens it here, beside the ones above."}
+        </p>
+        <div className="mt-5">
+          <InvoiceForm onClaimed={(result) => onClaimed(result.program.slug)} />
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -353,7 +519,7 @@ function useMonth(slug: string, month: number) {
 
 export function ProgramQuizzes({ slug }: { slug: string }) {
   return (
-    <ProgramScreen slug={slug} title="Quizzes & Games" intro="Quiz yourself on a month's topics in that month's chat.">
+    <ProgramScreen slug={slug} title="Quizzes & Games" intro="Pick a topic, choose your quizzes, and take a timed test.">
       {(program) => <QuizzesSwitch program={program} practice={<QuizzesFor slug={slug} program={program} />} />}
     </ProgramScreen>
   );
@@ -371,14 +537,6 @@ function QuizzesFor({ slug, program }: { slug: string; program: Program }) {
 
 function MonthTopics({ slug, month }: { slug: string; month: number }) {
   const [state, retry] = useMonth(slug, month);
-  const { chat } = useStores();
-  const router = useRouter();
-  const quiz = (title: string) => {
-    // The request goes into the month chat's own draft (as "Ask in chat" does elsewhere); nothing is sent by itself.
-    const key = chat.freshDraftKey({ program: slug, month, mode: "tutor" });
-    chat.setDraft(key, withRequest(chat.getDraft(key), `Quiz me on ${title}`));
-    router.push(programChatPath(slug, month, "tutor"));
-  };
   return (
     <States state={state} retry={retry}>
       {(detail) =>
@@ -386,7 +544,7 @@ function MonthTopics({ slug, month }: { slug: string; month: number }) {
           <p className="text-sm text-text-secondary">No practice questions are mapped to this month yet.</p>
         ) : (
           // Topics first, a topic's quizzes on their own view (owner, 2026-11-27): no endless list of cards.
-          <QuizTopicsView month={month} quizzes={detail.topics} onQuiz={quiz} />
+          <QuizTopicsView slug={slug} month={month} quizzes={detail.topics} />
         )
       }
     </States>

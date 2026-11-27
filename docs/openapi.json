@@ -1149,6 +1149,34 @@
         "title": "AssessmentResponseRequest",
         "type": "object"
       },
+      "Available": {
+        "properties": {
+          "easy": {
+            "title": "Easy",
+            "type": "integer"
+          },
+          "hard": {
+            "title": "Hard",
+            "type": "integer"
+          },
+          "medium": {
+            "title": "Medium",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "easy",
+          "medium",
+          "hard",
+          "total"
+        ],
+        "title": "Available",
+        "type": "object"
+      },
       "AvatarOut": {
         "properties": {
           "url": {
@@ -2118,6 +2146,32 @@
         "title": "DiagramOut",
         "type": "object"
       },
+      "Durations": {
+        "properties": {
+          "maxMinutes": {
+            "title": "Maxminutes",
+            "type": "integer"
+          },
+          "multipliers": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Multipliers",
+            "type": "array"
+          },
+          "secondsPerQuestion": {
+            "title": "Secondsperquestion",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "secondsPerQuestion",
+          "multipliers",
+          "maxMinutes"
+        ],
+        "title": "Durations",
+        "type": "object"
+      },
       "EmailChangeRequest": {
         "additionalProperties": false,
         "properties": {
@@ -2423,6 +2477,244 @@
           "label"
         ],
         "title": "EvidenceOut",
+        "type": "object"
+      },
+      "ExamCreatedOut": {
+        "properties": {
+          "examId": {
+            "format": "uuid",
+            "title": "Examid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "examId"
+        ],
+        "title": "ExamCreatedOut",
+        "type": "object"
+      },
+      "ExamOptionsOut": {
+        "properties": {
+          "durations": {
+            "$ref": "#/components/schemas/Durations"
+          },
+          "lengths": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Lengths",
+            "type": "array"
+          },
+          "maxQuestions": {
+            "title": "Maxquestions",
+            "type": "integer"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "program": {
+            "$ref": "#/components/schemas/ProgramRef"
+          },
+          "quizzes": {
+            "items": {
+              "$ref": "#/components/schemas/QuizOptionOut"
+            },
+            "title": "Quizzes",
+            "type": "array"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/Rules"
+          }
+        },
+        "required": [
+          "program",
+          "month",
+          "quizzes",
+          "lengths",
+          "maxQuestions",
+          "durations",
+          "rules"
+        ],
+        "title": "ExamOptionsOut",
+        "type": "object"
+      },
+      "ExamOut": {
+        "properties": {
+          "cutoffAt": {
+            "format": "date-time",
+            "title": "Cutoffat",
+            "type": "string"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "endsAt": {
+            "format": "date-time",
+            "title": "Endsat",
+            "type": "string"
+          },
+          "examId": {
+            "format": "uuid",
+            "title": "Examid",
+            "type": "string"
+          },
+          "length": {
+            "title": "Length",
+            "type": "integer"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "program": {
+            "$ref": "#/components/schemas/ProgramRef"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "responses": {
+            "items": {
+              "$ref": "#/components/schemas/ResponseOut"
+            },
+            "title": "Responses",
+            "type": "array"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rev": {
+            "title": "Rev",
+            "type": "integer"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/Rules"
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "title": "Startedat",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "in_progress",
+              "submitted"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "examId",
+          "status",
+          "program",
+          "month",
+          "title",
+          "difficulty",
+          "length",
+          "minutes",
+          "startedAt",
+          "endsAt",
+          "cutoffAt",
+          "serverTime",
+          "rev",
+          "rules",
+          "questions",
+          "responses",
+          "result"
+        ],
+        "title": "ExamOut",
+        "type": "object"
+      },
+      "ExamStartRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "difficulty": {
+            "enum": [
+              "mixed",
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "length": {
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Length",
+            "type": "integer"
+          },
+          "minutes": {
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "program": {
+            "maxLength": 60,
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "title": "Program",
+            "type": "string"
+          },
+          "requestId": {
+            "format": "uuid",
+            "title": "Requestid",
+            "type": "string"
+          },
+          "topicIds": {
+            "items": {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Topicids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "requestId",
+          "program",
+          "month",
+          "topicIds",
+          "difficulty",
+          "length",
+          "minutes"
+        ],
+        "title": "ExamStartRequest",
         "type": "object"
       },
       "FeedbackOut": {
@@ -7273,6 +7565,24 @@
         "title": "NotificationsOut",
         "type": "object"
       },
+      "OptionOut": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "text"
+        ],
+        "title": "OptionOut",
+        "type": "object"
+      },
       "PendingOut": {
         "description": "Practice numeric/cli: the waiting question's wrong tries so far (nothing is revealed).",
         "properties": {
@@ -7365,6 +7675,102 @@
           "topics"
         ],
         "title": "PracticeChapterOut",
+        "type": "object"
+      },
+      "PracticeExamResponseItem": {
+        "additionalProperties": false,
+        "description": "One question's whole state: the letters chosen ([] clears), marked for review, seen.",
+        "properties": {
+          "index": {
+            "exclusiveMaximum": 30.0,
+            "minimum": 0.0,
+            "title": "Index",
+            "type": "integer"
+          },
+          "keys": {
+            "items": {
+              "pattern": "^[A-H]$",
+              "type": "string"
+            },
+            "maxItems": 8,
+            "title": "Keys",
+            "type": "array"
+          },
+          "marked": {
+            "default": false,
+            "title": "Marked",
+            "type": "boolean"
+          },
+          "visited": {
+            "default": true,
+            "title": "Visited",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "index",
+          "keys"
+        ],
+        "title": "PracticeExamResponseItem",
+        "type": "object"
+      },
+      "PracticeExamSaveRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "baseRev": {
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Baserev",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PracticeExamResponseItem"
+            },
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "baseRev",
+          "items"
+        ],
+        "title": "PracticeExamSaveRequest",
+        "type": "object"
+      },
+      "PracticeExamSubmitRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "auto": {
+            "default": false,
+            "title": "Auto",
+            "type": "boolean"
+          },
+          "baseRev": {
+            "anyOf": [
+              {
+                "maximum": 2147483647.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baserev"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PracticeExamResponseItem"
+            },
+            "maxItems": 30,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "title": "PracticeExamSubmitRequest",
         "type": "object"
       },
       "PracticePlanOut": {
@@ -7904,8 +8310,45 @@
         "title": "ProfileSet",
         "type": "object"
       },
+      "ProgramClaimOut": {
+        "description": "One of this account's invoice claims, as My Programs shows its status; never the invoice number.",
+        "properties": {
+          "claimedAt": {
+            "format": "date-time",
+            "title": "Claimedat",
+            "type": "string"
+          },
+          "program": {
+            "$ref": "#/components/schemas/ProgramRef"
+          },
+          "state": {
+            "enum": [
+              "active",
+              "expired",
+              "revoked"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "program",
+          "state",
+          "claimedAt"
+        ],
+        "title": "ProgramClaimOut",
+        "type": "object"
+      },
       "ProgramListOut": {
         "properties": {
+          "claims": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProgramClaimOut"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
           "enabled": {
             "title": "Enabled",
             "type": "boolean"
@@ -8302,6 +8745,79 @@
         "title": "ProposalPage",
         "type": "object"
       },
+      "QuestionOut": {
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "multi": {
+            "title": "Multi",
+            "type": "boolean"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionOut"
+            },
+            "title": "Options",
+            "type": "array"
+          },
+          "quiz": {
+            "title": "Quiz",
+            "type": "string"
+          },
+          "stem": {
+            "title": "Stem",
+            "type": "string"
+          },
+          "topic": {
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "stem",
+          "options",
+          "multi",
+          "quiz",
+          "topic"
+        ],
+        "title": "QuestionOut",
+        "type": "object"
+      },
+      "QuizOptionOut": {
+        "properties": {
+          "available": {
+            "$ref": "#/components/schemas/Available"
+          },
+          "book": {
+            "title": "Book",
+            "type": "string"
+          },
+          "chapter": {
+            "title": "Chapter",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "topicId": {
+            "title": "Topicid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topicId",
+          "title",
+          "chapter",
+          "book",
+          "available"
+        ],
+        "title": "QuizOptionOut",
+        "type": "object"
+      },
       "RecentSessionOut": {
         "properties": {
           "activeSeconds": {
@@ -8479,6 +8995,147 @@
         "title": "ReplaceSubjectsRequest",
         "type": "object"
       },
+      "ResponseOut": {
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keys",
+            "type": "array"
+          },
+          "marked": {
+            "title": "Marked",
+            "type": "boolean"
+          },
+          "visited": {
+            "title": "Visited",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "index",
+          "keys",
+          "marked",
+          "visited"
+        ],
+        "title": "ResponseOut",
+        "type": "object"
+      },
+      "ResultOut": {
+        "properties": {
+          "autoSubmitted": {
+            "title": "Autosubmitted",
+            "type": "boolean"
+          },
+          "byTopic": {
+            "items": {
+              "$ref": "#/components/schemas/TopicScoreOut"
+            },
+            "title": "Bytopic",
+            "type": "array"
+          },
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "incorrect": {
+            "title": "Incorrect",
+            "type": "integer"
+          },
+          "percentage": {
+            "title": "Percentage",
+            "type": "integer"
+          },
+          "review": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewOut"
+            },
+            "title": "Review",
+            "type": "array"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "submittedAt": {
+            "format": "date-time",
+            "title": "Submittedat",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "unanswered": {
+            "title": "Unanswered",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "score",
+          "total",
+          "percentage",
+          "correct",
+          "incorrect",
+          "unanswered",
+          "autoSubmitted",
+          "submittedAt",
+          "byTopic",
+          "review"
+        ],
+        "title": "ResultOut",
+        "type": "object"
+      },
+      "ReviewOut": {
+        "properties": {
+          "correctKeys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Correctkeys",
+            "type": "array"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "keys": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Keys",
+            "type": "array"
+          },
+          "outcome": {
+            "enum": [
+              "correct",
+              "incorrect",
+              "unanswered",
+              "void"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "keys",
+          "correctKeys",
+          "explanation",
+          "outcome"
+        ],
+        "title": "ReviewOut",
+        "type": "object"
+      },
       "RevisionOut": {
         "properties": {
           "bookTitle": {
@@ -8626,6 +9283,41 @@
           "items"
         ],
         "title": "RevisionsOut",
+        "type": "object"
+      },
+      "Rules": {
+        "properties": {
+          "marksPerQuestion": {
+            "default": 1,
+            "title": "Marksperquestion",
+            "type": "integer"
+          },
+          "negativeMarking": {
+            "default": 0,
+            "title": "Negativemarking",
+            "type": "integer"
+          }
+        },
+        "title": "Rules",
+        "type": "object"
+      },
+      "SavedOut": {
+        "properties": {
+          "rev": {
+            "title": "Rev",
+            "type": "integer"
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rev",
+          "serverTime"
+        ],
+        "title": "SavedOut",
         "type": "object"
       },
       "ScenarioOut": {
@@ -9708,6 +10400,126 @@
         "title": "SubjectsOut",
         "type": "object"
       },
+      "SubmittedOut": {
+        "properties": {
+          "cutoffAt": {
+            "format": "date-time",
+            "title": "Cutoffat",
+            "type": "string"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "string"
+          },
+          "endsAt": {
+            "format": "date-time",
+            "title": "Endsat",
+            "type": "string"
+          },
+          "examId": {
+            "format": "uuid",
+            "title": "Examid",
+            "type": "string"
+          },
+          "lateItems": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Lateitems",
+            "type": "array"
+          },
+          "length": {
+            "title": "Length",
+            "type": "integer"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "month": {
+            "title": "Month",
+            "type": "integer"
+          },
+          "program": {
+            "$ref": "#/components/schemas/ProgramRef"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionOut"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "responses": {
+            "items": {
+              "$ref": "#/components/schemas/ResponseOut"
+            },
+            "title": "Responses",
+            "type": "array"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResultOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rev": {
+            "title": "Rev",
+            "type": "integer"
+          },
+          "rules": {
+            "$ref": "#/components/schemas/Rules"
+          },
+          "serverTime": {
+            "format": "date-time",
+            "title": "Servertime",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "title": "Startedat",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "in_progress",
+              "submitted"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "examId",
+          "status",
+          "program",
+          "month",
+          "title",
+          "difficulty",
+          "length",
+          "minutes",
+          "startedAt",
+          "endsAt",
+          "cutoffAt",
+          "serverTime",
+          "rev",
+          "rules",
+          "questions",
+          "responses",
+          "result",
+          "lateItems"
+        ],
+        "title": "SubmittedOut",
+        "type": "object"
+      },
       "SupportRequestIn": {
         "additionalProperties": false,
         "properties": {
@@ -9876,6 +10688,29 @@
           "concepts"
         ],
         "title": "TopicMasteryOut",
+        "type": "object"
+      },
+      "TopicScoreOut": {
+        "properties": {
+          "correct": {
+            "title": "Correct",
+            "type": "integer"
+          },
+          "topic": {
+            "title": "Topic",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "topic",
+          "correct",
+          "total"
+        ],
+        "title": "TopicScoreOut",
         "type": "object"
       },
       "TranscriptOut": {
@@ -15261,9 +16096,213 @@
         ]
       }
     },
+    "/v1/practice-exams": {
+      "post": {
+        "description": "Start a practice test: 201 with its id, or 200 with the same id for a request id already used. 404 when the\nmonth is not open; 422 `one_track` / `unknown_quiz`; 409 `not_enough_questions` with {available, needed}.",
+        "operationId": "start_exam_v1_practice_exams_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExamStartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamCreatedOut"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamCreatedOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start Exam",
+        "tags": [
+          "practice-exams"
+        ]
+      }
+    },
+    "/v1/practice-exams/{exam_id}": {
+      "get": {
+        "description": "The test as its owner sees it: no key, explanation or difficulty until it is submitted. Read after the cutoff,\nit is first submitted with the saved answers (at the deadline).",
+        "operationId": "get_exam_v1_practice_exams__exam_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exam_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Exam Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Exam",
+        "tags": [
+          "practice-exams"
+        ]
+      }
+    },
+    "/v1/practice-exams/{exam_id}/responses": {
+      "put": {
+        "description": "Save answers as they change, when `baseRev` is still the test's revision (409 `stale` with {rev}). 409\n`closed` once submitted or past the cutoff (submitted then, with what was saved before).",
+        "operationId": "save_responses_v1_practice_exams__exam_id__responses_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exam_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Exam Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PracticeExamSaveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Responses",
+        "tags": [
+          "practice-exams"
+        ]
+      }
+    },
+    "/v1/practice-exams/{exam_id}/submit": {
+      "post": {
+        "description": "Submit with any unsent answers as final values. Idempotent: a test already submitted returns its stored result\nand writes nothing; `lateItems` lists the items sent that were not applied (after the cutoff or the submit). The\nsubmit that grades is never rate limited (time-up must get through); one that can apply nothing is.",
+        "operationId": "submit_exam_v1_practice_exams__exam_id__submit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exam_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Exam Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PracticeExamSubmitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmittedOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit Exam",
+        "tags": [
+          "practice-exams"
+        ]
+      }
+    },
     "/v1/programs": {
       "get": {
-        "description": "The programs this account's invoices open now (the sidebar), and whether to ask for an invoice.",
+        "description": "The programs this account's invoices open now (My Programs), its own claims' states (never a number), and\nwhether to ask for an invoice.",
         "operationId": "list_programs_v1_programs_get",
         "responses": {
           "200": {
@@ -15446,6 +16485,62 @@
         "summary": "Get Month",
         "tags": [
           "programs"
+        ]
+      }
+    },
+    "/v1/programs/{slug}/months/{month}/exam-options": {
+      "get": {
+        "description": "What a practice test of this month can be made of: its quizzes with the servable questions per difficulty,\nthe lengths, durations and scoring rules. 404 unless the month is open to the caller.",
+        "operationId": "exam_options_v1_programs__slug__months__month__exam_options_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 60,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "title": "Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "required": true,
+            "schema": {
+              "maximum": 12,
+              "minimum": 1,
+              "title": "Month",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamOptionsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Exam Options",
+        "tags": [
+          "practice-exams"
         ]
       }
     },

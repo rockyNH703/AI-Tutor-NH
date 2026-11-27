@@ -22,7 +22,7 @@ const SHELL_CALLS = new Set([
   // Lab time (features/study): the header's session state and its beat, on every page of the shell.
   "/api/v1/study/session",
   "/api/v1/study/beat",
-  // The sidebar's My Programs (features/programs/use-programs.ts), on every page of the shell since 2026-11-23.
+  // The program list (features/programs/use-programs.ts): the header's title reads it on every page of the shell.
   "/api/v1/programs",
 ]);
 

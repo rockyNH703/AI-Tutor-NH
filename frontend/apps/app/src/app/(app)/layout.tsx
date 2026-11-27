@@ -10,7 +10,6 @@ import { PreviewProvider } from "@/components/preview-context";
 import { ServiceUnavailable } from "@/components/service-unavailable";
 import { UserProvider } from "@/components/user-context";
 import { ChatProvider } from "@/features/chat/chat-context";
-import { InvoicePrompt } from "@/features/programs/invoice-flow";
 import { NavigationGuardRoot } from "@/features/navigation/navigation-guard-root";
 import { ActivityHeartbeat } from "@/features/progress/activity-heartbeat";
 import { SessionKeeper } from "@/features/progress/session-keeper";
@@ -57,7 +56,6 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
             <StudyHeartbeat />
             <SessionKeeper />
             <NavigationGuardRoot />
-            <InvoicePrompt />
             {children}
           </ChatProvider>
         </AppearanceProvider>

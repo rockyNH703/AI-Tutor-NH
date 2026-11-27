@@ -140,6 +140,18 @@ const SENT_BODIES: Record<string, Record<string, unknown>[]> = {
     { message: "Start", program: "networking-ai", month: 2, tutorMode: "interview" },
   ],
   ClaimRequest: [{ invoiceNumber: "NH-2026-0012" }],
+  // Practice exams: a new exam (idempotent by requestId), saves on the exam's rev, and a submit with what is unsent.
+  ExamStartRequest: [
+    { requestId: ID, program: "networking-ai", month: 1, topicIds: ["CCNA-D1-T01"], difficulty: "mixed", length: 10, minutes: 10 },
+  ],
+  PracticeExamSaveRequest: [
+    { baseRev: 3, items: [{ index: 0, keys: ["B"], marked: false, visited: true }] },
+    { baseRev: 0, items: [{ index: 2, keys: [], marked: true, visited: true }, { index: 4, keys: ["A", "C"], marked: false, visited: true }] },
+  ],
+  PracticeExamSubmitRequest: [
+    { baseRev: null, items: [], auto: false },
+    { baseRev: null, items: [{ index: 1, keys: ["D"], marked: false, visited: true }], auto: true },
+  ],
   FriendZoneJoinRequest: [{ displayName: "Asha K", discoverable: false, showProgram: false, showStats: false }],
   UpdateFriendZoneProfileRequest: [
     { version: 0, set: { displayName: "Asha K" } },

@@ -210,12 +210,21 @@ async def test_deleting_an_account_leaves_no_row_that_belongs_to_it(client, app,
             text("INSERT INTO auth_two_factors (user_id, secret, backup_codes) VALUES (:u, 'enc', 'enc')"),
             {"u": uuid.UUID(user_id)},
         )
-        await db.execute(  # a practice set from the question bank (its served questions go with it)
+        practice_set = await db.scalar(  # a practice set from the question bank (its served questions go with it)
             text(
                 "INSERT INTO qb_sets (user_id, request_id, mode, filters, requested) "
-                "VALUES (:u, gen_random_uuid(), 'test', '{}', 1)"
+                "VALUES (:u, gen_random_uuid(), 'test', '{}', 1) RETURNING id"
             ),
             {"u": uuid.UUID(user_id)},
+        )
+        await db.execute(  # a practice exam on that set (app/exams)
+            text(
+                "INSERT INTO practice_exams (user_id, request_id, set_id, program_id, month, topic_ids, difficulty, "
+                "length, minutes, paper, ends_at) "
+                "SELECT :u, gen_random_uuid(), :s, id, 1, ARRAY['T1'], 'mixed', 1, 1, ARRAY['Q1'], "
+                "now() + interval '1 minute' FROM programs WHERE slug = 'networking-ai'"
+            ),
+            {"u": uuid.UUID(user_id), "s": practice_set},
         )
         await db.execute(  # an NH invoice this student claimed (app/programs): the claim goes, the invoice stays
             text(

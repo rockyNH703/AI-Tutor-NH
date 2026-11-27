@@ -181,6 +181,12 @@ export const ROUTES = {
   "POST /v1/programs/invoice-prompt/dismiss": { auth: true },
   "GET /v1/programs/{slug}": { auth: true },
   "GET /v1/programs/{slug}/months/{month}": { auth: true },
+  // Practice exams (features/exams): each read and write re-checks the exam's program on the server.
+  "GET /v1/programs/{slug}/months/{month}/exam-options": { auth: true },
+  "POST /v1/practice-exams": { auth: true, body: "ExamStartRequest" },
+  "GET /v1/practice-exams/{exam_id}": { auth: true },
+  "PUT /v1/practice-exams/{exam_id}/responses": { auth: true, body: "PracticeExamSaveRequest" },
+  "POST /v1/practice-exams/{exam_id}/submit": { auth: true, body: "PracticeExamSubmitRequest" },
 
   // NH Friend Zone (features/friendzone): every route but GET /me is a 404 for an account it isn't open to.
   "GET /v1/friend-zone/me": { auth: true },

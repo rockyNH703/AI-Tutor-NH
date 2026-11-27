@@ -10,10 +10,11 @@ import { listProgramChats } from "@/lib/api/programs";
 import type { ChatPlace, Conversation } from "@/lib/api/types";
 import { relativeTime } from "@/lib/time";
 import { placeText, programChatPath } from "./program-nav";
+import { ProgramNav } from "./program-nav-bar";
 import { usePrograms } from "./use-programs";
 
 /**
- * The bar above a program chat, one row on every screen: the way back (a month's tutor to Course Module, its mock
+ * The bar above a program chat: the program bar (ProgramNav), then one row on every screen: the way back (a month's tutor to Course Module, its mock
  * interview to Mock Interviews; Q&A is a section of its own), the place (a "Month 2" chip and the month's topic, from
  * GET /v1/programs, never from the address), New chat and this place's History.
  */
@@ -22,6 +23,8 @@ export function ProgramChatHeader({ place, conversationId }: { place: ChatPlace;
   const text = placeText(place, data?.programs.find((item) => item.slug === place.program) ?? null);
   return (
     <header className="shrink-0 border-b border-border">
+      {/* The program bar first (My Programs, the program, its areas), then this chat's own row. */}
+      <ProgramNav slug={place.program} className="chat-column pt-1" />
       <div className="chat-column flex h-14 items-center gap-1.5 sm:gap-2">
         {text.back && (
           <Link

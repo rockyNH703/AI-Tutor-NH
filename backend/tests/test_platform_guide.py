@@ -180,7 +180,9 @@ def test_support_promises_a_reference_and_no_email_reply():
 
 def test_invoices_are_never_asked_for_in_the_chat():
     block = platform_block(make_settings(**FLAGS_ON), account_facts(full_access(programs=True, program_titles=())))
-    assert "Settings > Profile > NH enrolment > Add an invoice" in block
+    # One place only (owner, 2026-11-27): the My Programs page, never Settings > Profile.
+    assert "My Programs (sidebar) > Add an invoice" in block
+    assert "NH enrolment" not in block and "Settings > Profile" not in block
     assert "invoice number" not in block.lower()
 
 

@@ -143,7 +143,12 @@ async def test_programs_mode_off_hides_every_program_route(client, app, settings
     await invoice(app, "NH-OFF-1")
     headers = (await register(client, app))["headers"]
     listed = await client.get("/v1/programs", headers=headers)
-    assert listed.status_code == 200 and listed.json() == {"enabled": False, "programs": [], "invoicePrompt": False}
+    assert listed.status_code == 200 and listed.json() == {
+        "enabled": False,
+        "programs": [],
+        "invoicePrompt": False,
+        "claims": [],
+    }
     assert (await claim(client, headers, "NH-OFF-1")).status_code == 404
     for url in (f"/v1/programs/{PROGRAM}", f"/v1/programs/{PROGRAM}/months/2", f"/v1/conversations?program={PROGRAM}"):
         assert (await client.get(url, headers=headers)).status_code == 404, url
@@ -161,6 +166,7 @@ async def test_a_claim_opens_the_program_and_every_failure_is_one_generic_answer
         "enabled": True,
         "programs": [],
         "invoicePrompt": True,
+        "claims": [],
     }
 
     claimed = await claim(client, first["headers"], " nh-ok-1 ")
@@ -198,6 +204,58 @@ async def test_two_accounts_claiming_one_invoice_at_once_leave_exactly_one_claim
     assert sorted(result.status_code for result in results) == [201, 404]
     async with app.state.db.sessionmaker() as db:
         assert await db.scalar(text("SELECT count(*) FROM invoice_claims")) == 1
+
+
+async def claims_of(client, headers) -> list[dict]:
+    response = await client.get("/v1/programs", headers=headers)
+    assert response.status_code == 200, response.text
+    return response.json()["claims"]
+
+
+async def test_the_list_carries_only_this_accounts_claims_newest_first_and_never_a_number(client, app):
+    await invoice(app, "NH-MINE-1")
+    await invoice(app, "NH-MINE-2", slug="network-security-ai")
+    await invoice(app, "NH-THEIRS-1", slug="ccna-ccnp-enterprise")
+    mine, theirs = await register(client, app), await register(client, app)
+    assert (await claim(client, mine["headers"], "NH-MINE-1")).status_code == 201
+    assert (await claim(client, mine["headers"], "NH-MINE-2")).status_code == 201
+    assert (await claim(client, theirs["headers"], "NH-THEIRS-1")).status_code == 201
+
+    listed = await client.get("/v1/programs", headers=mine["headers"])
+    claims = listed.json()["claims"]
+    assert [(c["program"]["slug"], c["state"]) for c in claims] == [
+        ("network-security-ai", "active"),  # newest first
+        (PROGRAM, "active"),
+    ]
+    assert claims[0]["program"]["title"] and claims[0]["claimedAt"] >= claims[1]["claimedAt"]
+    assert set(claims[0]) == {"program", "state", "claimedAt"}
+    assert "NH-MINE" not in listed.text and "NH-THEIRS" not in listed.text
+    assert [c["program"]["slug"] for c in await claims_of(client, theirs["headers"])] == ["ccna-ccnp-enterprise"]
+    # Two programs open: both listed, so the web app shows a card for each.
+    assert sorted(p["slug"] for p in listed.json()["programs"]) == sorted(["network-security-ai", PROGRAM])
+
+    # A refused claim (another account's invoice) adds nothing for the caller.
+    assert (await claim(client, theirs["headers"], "NH-MINE-1")).status_code == 404
+    assert [c["program"]["slug"] for c in await claims_of(client, theirs["headers"])] == ["ccna-ccnp-enterprise"]
+
+
+@pytest.mark.parametrize(
+    ("values", "state"),
+    [
+        ({"status": "revoked"}, "revoked"),
+        ({"status": "refunded"}, "revoked"),
+        ({"status": "expired"}, "expired"),
+        ({"valid_until": datetime.now(UTC) - timedelta(minutes=1)}, "expired"),
+    ],
+)
+async def test_an_ended_claim_keeps_its_state_and_opens_nothing(client, app, values, state):
+    headers = (await enrolled(client, app, "NH-ENDS-1"))["headers"]
+    assert [c["state"] for c in await claims_of(client, headers)] == ["active"]
+    await change(app, "NH-ENDS-1", **values)
+    listed = (await client.get("/v1/programs", headers=headers)).json()
+    assert listed["programs"] == []
+    assert [(c["program"]["slug"], c["state"]) for c in listed["claims"]] == [(PROGRAM, state)]
+    assert (await client.get(f"/v1/programs/{PROGRAM}", headers=headers)).status_code == 404
 
 
 async def test_continue_without_an_invoice_stops_the_prompt(client, app):

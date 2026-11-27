@@ -48,6 +48,11 @@ Honest state (2026-10-29):
   against `nh_invoices` on every request, opens its program: month tutor chats isolated to the month's mapped
   material, Q&A, quizzes, mock interviews, videos. Runbook: docs/deployment.md "NH programs" (`program_admin.py`);
   API: docs/api-contract.md "NH programs".
+  - **My Programs and practice exams** (2026-11-27): one sidebar place, **My Programs** (`/programs`), for every
+    account: program cards, the only place to add an invoice (instant match, as before), and Access ended cards
+    from `GET /v1/programs` `claims`. A quiz card opens a test setup, and the test runs on its own page
+    (`/exam/<id>`, `app/exams`, migration `0034`), never in the chat: server deadline, compare-and-set saves,
+    graded once at the submit into the bank's ledger. API: docs/api-contract.md "Practice exams".
 - **NH Friend Zone** (2026-11-24, Phases 1 and 2 in one release, not released; `FRIEND_ZONE_MODE` off): friends found
   by invoice number (opt-in), 1v1 quiz battles, daily challenges, XP, levels and badges for enrolled students, under
   Programs → Quizzes & Games (`app/friendzone`, migrations `0030` and `0031`, `features/friendzone/`). A QA cohort is

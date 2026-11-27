@@ -3086,3 +3086,52 @@ class QbKeyCheck(Base):
     single_defensible: Mapped[bool] = mapped_column(Boolean, nullable=False)
     checked_by: Mapped[str] = mapped_column(String(80), nullable=False)
     checked_at: Mapped[datetime] = _created()
+
+
+# ------------------------------------------------------------------ practice exams (app/exams, 0034)
+PRACTICE_EXAM_DIFFICULTIES = ("mixed", "easy", "medium", "hard")
+
+
+class PracticeExam(Base):
+    """A timed paper of one program month's bank questions, outside the chat (session 62, Task 1C). Its questions are
+    a `test` practice set served whole at the start (`paper` = their ids in order); answers are drafts here
+    (`responses`, compare-and-set on `rev`) until the submit grades them into that set once and stores `result`.
+    The deadline is `ends_at` from the database clock; saves are taken until ends_at plus a 2 s allowance."""
+
+    __tablename__ = "practice_exams"
+    __table_args__ = (
+        UniqueConstraint("user_id", "request_id"),
+        CheckConstraint("month BETWEEN 1 AND 12", name="month"),
+        CheckConstraint(f"difficulty IN {PRACTICE_EXAM_DIFFICULTIES}", name="difficulty"),
+        CheckConstraint("length BETWEEN 1 AND 30", name="length"),
+        CheckConstraint("minutes BETWEEN 1 AND 60", name="minutes"),
+        CheckConstraint("cardinality(paper) = length", name="paper"),
+        CheckConstraint("cardinality(topic_ids) BETWEEN 1 AND 50", name="topic_ids"),
+        CheckConstraint("rev >= 0", name="rev"),
+        CheckConstraint("(submitted_at IS NULL) = (result IS NULL)", name="submitted"),
+    )
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    request_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)  # the start's idempotency key
+    set_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("qb_sets.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    program_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("programs.id", ondelete="RESTRICT"), nullable=False
+    )
+    month: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    topic_ids: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)  # the quizzes chosen (QbTopic ids)
+    difficulty: Mapped[str] = mapped_column(String(6), nullable=False)
+    length: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    minutes: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    paper: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
+    started_at: Mapped[datetime] = _created()
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    auto_submitted: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    rev: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    responses: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, nullable=False, server_default=text("'[]'::jsonb"))
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))

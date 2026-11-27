@@ -1,61 +1,76 @@
 "use client";
 
 import { Button } from "@v1/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@v1/ui/dialog";
 import { Input } from "@v1/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { cn } from "@v1/ui/utils";
+import { CheckCircle2 } from "lucide-react";
+import { type FormEvent, useId, useState } from "react";
 
 import { forgetQuizMeOffer } from "@/features/chat/quiz-me";
-import { SettingsCard } from "@/features/settings/primitives";
 import { ApiError, describeError } from "@/lib/api/errors";
-import { type ClaimResult, claimInvoice, dismissInvoicePrompt } from "@/lib/api/programs";
-import { refreshPrograms, usePrograms } from "./use-programs";
+import { type ClaimResult, claimInvoice } from "@/lib/api/programs";
+import { refreshPrograms } from "./use-programs";
 
-const NOT_VERIFIED = "We couldn't verify this invoice. Check the number, or contact NetworkersHome if it's yours.";
+/** What the form says after an attempt. Shown for this visit only: a refusal is never stored anywhere. */
+export type ClaimFeedback = { tone: "success" | "error"; lines: string[] };
+
+export const NOT_VERIFIED = [
+  "Not verified: we couldn't verify this invoice. Check the number and try again.",
+  "If this is your invoice, contact NetworkersHome.",
+];
+// The API allows 5 attempts an hour and 20 a day per account, and says nothing more (backend auth/service.py).
+export const TOO_MANY = ["Too many attempts. Try again in an hour, or tomorrow if you've made many attempts today."];
 
 /**
- * Enter an NH invoice number; the server checks it against NH's records (one generic answer for every failure, so
- * nothing about other invoices can be learnt here).
+ * The answer to one claim, worded here (never the API's text). Every refusal is the API's one generic 404, whatever
+ * the reason (unknown, another account's, revoked, expired), so nothing about other invoices can be learnt here.
  */
-export function InvoiceForm({
-  onClaimed,
-  autoFocus = false,
-  secondary,
-}: {
-  onClaimed: (result: ClaimResult) => void;
-  autoFocus?: boolean;
-  /** Shown beside Verify invoice, on the same row (the first-run dialog's Continue without an invoice). */
-  secondary?: ReactNode;
-}) {
+export function claimFeedback(outcome: { result: ClaimResult } | { error: unknown }): ClaimFeedback {
+  if ("result" in outcome) {
+    const { status, program } = outcome.result;
+    return {
+      tone: "success",
+      lines: [status === "already" ? `Approved: ${program.title} is already on your account.` : `Approved: ${program.title} is open.`],
+    };
+  }
+  const { error } = outcome;
+  if (error instanceof ApiError && error.code === "not_found") return { tone: "error", lines: NOT_VERIFIED };
+  if (error instanceof ApiError && error.code === "rate_limited") return { tone: "error", lines: TOO_MANY };
+  return { tone: "error", lines: [describeError(error).message] };
+}
+
+/**
+ * Enter an NH invoice number (My Programs, the one place for it): the server checks it against NetworkersHome's
+ * records at once. Verifying keeps the button disabled, so one press is one attempt.
+ */
+export function InvoiceForm({ onClaimed, autoFocus = false }: { onClaimed: (result: ClaimResult) => void; autoFocus?: boolean }) {
   const id = useId();
   const [number, setNumber] = useState("");
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<ClaimFeedback | null>(null);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (pending || !number.trim()) return;
     setPending(true);
-    setError(null);
+    setFeedback(null);
     try {
       const result = await claimInvoice(number.trim());
+      setNumber("");
+      setFeedback(claimFeedback({ result }));
       refreshPrograms();
       forgetQuizMeOffer();
       onClaimed(result);
-    } catch (caught) {
-      if (caught instanceof ApiError && caught.code === "not_found") setError(NOT_VERIFIED);
-      else if (caught instanceof ApiError && caught.code === "rate_limited")
-        setError("Too many attempts for now. Please try again later.");
-      else setError(describeError(caught).message);
+    } catch (error) {
+      setFeedback(claimFeedback({ error }));
     } finally {
       setPending(false);
     }
   };
 
+  const failed = feedback?.tone === "error";
   return (
-    <form onSubmit={submit} className="flex flex-col gap-3" noValidate>
+    <form onSubmit={submit} className="flex flex-col gap-3" noValidate aria-busy={pending || undefined}>
       <label htmlFor={`${id}-invoice`} className="text-sm font-semibold text-foreground">
         NH invoice number
       </label>
@@ -67,117 +82,32 @@ export function InvoiceForm({
         spellCheck={false}
         maxLength={80}
         autoFocus={autoFocus}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
+        aria-invalid={failed || undefined}
+        aria-describedby={`${id}-status`}
         placeholder="For example NH-2026-0012"
+        className="max-w-sm"
       />
-      <p id={`${id}-error`} role="status" className="min-h-5 text-sm text-destructive">
-        {error ?? ""}
-      </p>
-      {/* One row with the dialog's way out (owner: save vertical space); it wraps below on a narrow phone. */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Button type="submit" disabled={pending || !number.trim()} className="min-h-11">
-          {pending ? "Checking…" : "Verify invoice"}
-        </Button>
-        {secondary}
+      <div id={`${id}-status`} role="status" className="min-h-5 text-sm">
+        {pending ? (
+          <p className="text-text-secondary">Verifying your invoice…</p>
+        ) : (
+          feedback && (
+            <div className={cn("flex items-start gap-2", failed ? "text-destructive" : "text-success")}>
+              {!failed && <CheckCircle2 aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />}
+              <div>
+                {feedback.lines.map((line, index) => (
+                  <p key={line} className={index > 0 ? "text-text-secondary" : undefined}>
+                    {line}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )
+        )}
       </div>
+      <Button type="submit" disabled={pending || !number.trim()} className="min-h-11 self-start">
+        {pending ? "Verifying…" : "Verify invoice"}
+      </Button>
     </form>
-  );
-}
-
-/** First sign-in: "Are you an NH student?" Continue without an invoice is remembered by the server. */
-export function InvoicePrompt() {
-  const { data } = usePrograms();
-  const router = useRouter();
-  const [closed, setClosed] = useState(false);
-  const open = !closed && data?.invoicePrompt === true;
-
-  const continueWithout = async () => {
-    setClosed(true);
-    try {
-      await dismissInvoicePrompt();
-    } catch {
-      // Not remembered: the prompt simply comes back on the next visit, which is harmless.
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={(next) => !next && setClosed(true)}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          {/* Centred on a phone: padding on both sides keeps the close button off the title. */}
-          <DialogTitle className="px-6 sm:px-0">Are you a NetworkersHome student?</DialogTitle>
-          <DialogDescription>
-            Enter the invoice number of your NH program to open it here: a tutor for every month of your course,
-            quizzes, mock interviews and videos.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="mt-2">
-          <InvoiceForm
-            autoFocus
-            onClaimed={(result) => {
-              setClosed(true);
-              router.push(`/programs/${result.program.slug}`);
-            }}
-            secondary={
-              <Button type="button" variant="ghost" className="min-h-11" onClick={continueWithout}>
-                Continue without an invoice
-              </Button>
-            }
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-/** Settings > Profile: the programs the account's invoices open, and another invoice to add. */
-export function NhEnrolmentCard() {
-  const { data } = usePrograms();
-  const [adding, setAdding] = useState(false);
-  const [added, setAdded] = useState<string | null>(null);
-  if (!data?.enabled) return null;
-  return (
-    <SettingsCard
-      title="NH enrolment"
-      description={
-        data.programs.length === 0 ? "No program yet: an invoice number opens one." : "Your NetworkersHome programs, opened by your invoice numbers."
-      }
-      footer={
-        adding ? null : (
-          <Button type="button" size="sm" variant="outline" className="min-h-11" onClick={() => setAdding(true)}>
-            Add an invoice
-          </Button>
-        )
-      }
-    >
-      {data.programs.length > 0 && (
-        <ul className="flex flex-col gap-1">
-          {data.programs.map((program) => (
-            <li key={program.slug}>
-              <Link href={`/programs/${program.slug}`} className="focus-ring rounded text-sm font-semibold text-brand hover:underline">
-                {program.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-      {added && (
-        <p role="status" className="mt-2 text-sm text-foreground">
-          Added: {added}
-        </p>
-      )}
-      {adding && (
-        <div className="mt-4">
-          <InvoiceForm
-            autoFocus
-            onClaimed={(result) => {
-              setAdded(result.program.title);
-              setAdding(false);
-            }}
-          />
-        </div>
-      )}
-    </SettingsCard>
   );
 }

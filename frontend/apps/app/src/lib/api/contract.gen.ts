@@ -283,6 +283,48 @@ export const CONTRACT = {
       "pattern": "^[a-z0-9_]+$"
     }
   },
+  "ExamOut": {
+    "status": {
+      "enum": [
+        "in_progress",
+        "submitted"
+      ]
+    }
+  },
+  "ExamStartRequest": {
+    "difficulty": {
+      "enum": [
+        "mixed",
+        "easy",
+        "medium",
+        "hard"
+      ]
+    },
+    "length": {
+      "maximum": 30,
+      "minimum": 1
+    },
+    "minutes": {
+      "maximum": 60,
+      "minimum": 1
+    },
+    "month": {
+      "maximum": 12,
+      "minimum": 1
+    },
+    "program": {
+      "maxLength": 60,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "topicIds": {
+      "items": {
+        "maxLength": 120,
+        "minLength": 1
+      },
+      "maxItems": 50,
+      "minItems": 1
+    }
+  },
   "FeedbackOut": {
     "rating": {
       "enum": [
@@ -976,6 +1018,36 @@ export const CONTRACT = {
       ]
     }
   },
+  "PracticeExamResponseItem": {
+    "index": {
+      "minimum": 0
+    },
+    "keys": {
+      "items": {
+        "pattern": "^[A-H]$"
+      },
+      "maxItems": 8
+    }
+  },
+  "PracticeExamSaveRequest": {
+    "baseRev": {
+      "maximum": 2147483647,
+      "minimum": 0
+    },
+    "items": {
+      "maxItems": 30,
+      "minItems": 1
+    }
+  },
+  "PracticeExamSubmitRequest": {
+    "baseRev": {
+      "maximum": 2147483647,
+      "minimum": 0
+    },
+    "items": {
+      "maxItems": 30
+    }
+  },
   "PracticePlanOut": {
     "budgetSource": {
       "enum": [
@@ -1032,6 +1104,15 @@ export const CONTRACT = {
       "maxLength": 64
     }
   },
+  "ProgramClaimOut": {
+    "state": {
+      "enum": [
+        "active",
+        "expired",
+        "revoked"
+      ]
+    }
+  },
   "ProposalOut": {
     "kind": {
       "enum": [
@@ -1077,6 +1158,16 @@ export const CONTRACT = {
     },
     "version": {
       "minimum": 0
+    }
+  },
+  "ReviewOut": {
+    "outcome": {
+      "enum": [
+        "correct",
+        "incorrect",
+        "unanswered",
+        "void"
+      ]
     }
   },
   "RevisionOut": {
@@ -1179,6 +1270,14 @@ export const CONTRACT = {
         "english",
         "hindi",
         "sanskrit"
+      ]
+    }
+  },
+  "SubmittedOut": {
+    "status": {
+      "enum": [
+        "in_progress",
+        "submitted"
       ]
     }
   },

@@ -1,10 +1,12 @@
 /**
- * NH programs in the web app, as plain data: the five areas, which program and area an address is in, a program
- * group's state in the sidebar, the month in `?month=`, and what a program chat says about its place. One module, so
- * the sidebar, the header, the chat header, the welcome and the composer never word or link things differently.
+ * NH programs in the web app, as plain data: the five areas and the program bar's tabs, which program and area an
+ * address is in, the month in `?month=`, the claims My Programs shows as ended, and what a program chat says about its
+ * place. One module, so My Programs, the program bar, the header, the chat header, the welcome and the composer never
+ * word or link things differently.
  * Nothing here decides access: the API does, on every request.
  */
 
+import type { ProgramClaim } from "@/lib/api/programs";
 import type { ChatPlace } from "@/lib/api/types";
 import { monthNumber } from "./route-params";
 
@@ -36,21 +38,29 @@ export function programRoute(pathname: string | null): { slug: string; area: Pro
   return { slug, area: PROGRAM_AREAS.find((item) => item.path === first)?.path ?? null };
 }
 
-/** The sidebar's saved program groups ({slug: expanded}); anything unreadable is no choice. */
-export function parseSaved(raw: string | null): Record<string, boolean> {
-  if (!raw) return {};
-  try {
-    const value: unknown = JSON.parse(raw);
-    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-    return Object.fromEntries(Object.entries(value).filter((entry): entry is [string, boolean] => typeof entry[1] === "boolean"));
-  } catch {
-    return {};
-  }
+export type ProgramTab = { area: ProgramArea | null; label: string; href: string };
+
+/** The program bar's tabs: Overview (the program's own page, area null), then the five areas. */
+export function programTabs(slug: string): ProgramTab[] {
+  return [
+    { area: null, label: "Overview", href: `/programs/${slug}` },
+    ...PROGRAM_AREAS.map((item) => ({ area: item.path, label: item.label, href: `/programs/${slug}/${item.path}` })),
+  ];
 }
 
-/** A saved choice wins; without one, a program's group is open while you are inside it. */
-export function isExpanded(saved: Record<string, boolean>, slug: string, insideSlug: string | null): boolean {
-  return saved[slug] ?? slug === insideSlug;
+/**
+ * The claims My Programs shows as "Access ended": expired or revoked, once per program (the newest, as the API lists
+ * them newest first), and never a program that another of the account's invoices still opens.
+ */
+export function endedClaims(claims: readonly ProgramClaim[], openSlugs: readonly string[]): ProgramClaim[] {
+  const seen = new Set(openSlugs);
+  const ended: ProgramClaim[] = [];
+  for (const claim of claims) {
+    if (seen.has(claim.program.slug)) continue;
+    seen.add(claim.program.slug); // the newest claim speaks for its program
+    if (claim.state !== "active") ended.push(claim);
+  }
+  return ended;
 }
 
 /** The month in `?month=`, if the program has it; otherwise its first month. */

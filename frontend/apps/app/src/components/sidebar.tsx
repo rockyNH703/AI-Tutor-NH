@@ -13,12 +13,9 @@ import { Skeleton, SkeletonGroup } from "@v1/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@v1/ui/tooltip";
 import { cn } from "@v1/ui/utils";
 import { InlineAction } from "@/components/inline-action";
-import { PROGRAM_AREAS, isExpanded, parseSaved, programRoute } from "@/features/programs/program-nav";
-import { usePrograms } from "@/features/programs/use-programs";
 import {
   Archive,
   Award,
-  ChevronRight,
   ChevronsUpDown,
   FolderOpen,
   GraduationCap,
@@ -33,7 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactElement, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { type ReactElement, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
 import { useConversations, useStores } from "@/features/chat/chat-context";
@@ -113,7 +110,7 @@ function RailTip({ label, collapsed, children }: { label: string; collapsed: boo
  * chat list ("Chats") and the account. Rendered in the desktop rail and inside the mobile drawer
  * (`onNavigate` closes the drawer). The collapse control lives in the header.
  */
-/** A sidebar place (Skills & Certifications, File Library, Lab Activity): its page and everything under it. */
+/** A sidebar place (Skills & Certifications, File Library, Lab Activity, My Programs): its page and everything under it. */
 function PlaceLink({
   href,
   label,
@@ -147,167 +144,6 @@ function PlaceLink({
         {!collapsed && <LinkPending />}
       </Link>
     </RailTip>
-  );
-}
-
-/** Which program groups are open, by slug (UI state only, features/programs/program-nav.ts `isExpanded`). */
-const PROGRAMS_KEY = "netsecai.sidebar.programs";
-const PROGRAMS_EVENT = "netsecai:sidebar-programs";
-
-function readProgramGroups(): string | null {
-  try {
-    return window.localStorage.getItem(PROGRAMS_KEY); // a string: a stable snapshot for useSyncExternalStore
-  } catch {
-    return null; // storage unavailable: every group follows where you are
-  }
-}
-
-function subscribeProgramGroups(onChange: () => void): () => void {
-  window.addEventListener(PROGRAMS_EVENT, onChange);
-  return () => window.removeEventListener(PROGRAMS_EVENT, onChange);
-}
-
-function saveProgramGroups(groups: Record<string, boolean>) {
-  try {
-    window.localStorage.setItem(PROGRAMS_KEY, JSON.stringify(groups));
-  } catch {
-    // ignore: the choice lasts until the page is left
-  }
-  window.dispatchEvent(new Event(PROGRAMS_EVENT));
-}
-
-/**
- * "My Programs": the NH programs this account's invoices open (GET /v1/programs; nothing while it loads or fails, and
- * nothing for anyone without one). Each program is a group that opens and closes on its own; a choice is remembered,
- * and without one the program you are in is open. Only the current area is highlighted (or the program's row, while its
- * group is closed). In the icon rail each program is a link to its page.
- */
-function ProgramsNav({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
-  const { data } = usePrograms();
-  const pathname = usePathname();
-  const raw = useSyncExternalStore(subscribeProgramGroups, readProgramGroups, () => null);
-  const saved = useMemo(() => parseSaved(raw), [raw]);
-  if (!data?.programs.length) return null;
-  const route = programRoute(pathname);
-  const toggle = (slug: string, open: boolean) => {
-    const listed = new Set(data.programs.map((program) => program.slug)); // forget programs no longer listed
-    saveProgramGroups({ ...Object.fromEntries(Object.entries(saved).filter(([key]) => listed.has(key))), [slug]: !open });
-  };
-  return (
-    <nav
-      aria-labelledby="programs-heading"
-      className={cn("shrink-0 space-y-1", collapsed ? "flex flex-col items-center px-3 pb-3" : "px-3 pb-3")}
-    >
-      <h2
-        id="programs-heading"
-        className={cn("mb-2 px-3 text-2xs font-semibold uppercase tracking-[0.08em] text-text-secondary", collapsed && "sr-only")}
-      >
-        My Programs
-      </h2>
-      {data.programs.map((program) =>
-        collapsed ? (
-          <PlaceLink
-            key={program.slug}
-            href={`/programs/${program.slug}`}
-            label={program.title}
-            icon={GraduationCap}
-            collapsed
-            onNavigate={onNavigate}
-          />
-        ) : (
-          <ProgramGroup
-            key={program.slug}
-            slug={program.slug}
-            title={program.title}
-            area={route?.slug === program.slug ? route.area : null}
-            inside={route?.slug === program.slug}
-            open={isExpanded(saved, program.slug, route?.slug ?? null)}
-            onToggle={toggle}
-            onNavigate={onNavigate}
-          />
-        ),
-      )}
-    </nav>
-  );
-}
-
-function ProgramGroup({
-  slug,
-  title,
-  area,
-  inside,
-  open,
-  onToggle,
-  onNavigate,
-}: {
-  slug: string;
-  title: string;
-  area: string | null;
-  inside: boolean;
-  open: boolean;
-  onToggle: (slug: string, open: boolean) => void;
-  onNavigate?: () => void;
-}) {
-  const id = useId();
-  return (
-    <div>
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={id}
-        onClick={() => onToggle(slug, open)}
-        title={title}
-        className={cn(
-          "focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-colors",
-          inside && !open
-            ? "bg-surface-2 text-brand"
-            : inside
-              ? "text-foreground hover:bg-surface-2"
-              : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
-        )}
-      >
-        <GraduationCap aria-hidden className="h-5 w-5 shrink-0" />
-        <span className="line-clamp-2 min-w-0 flex-1">{title}</span>
-        <ChevronRight
-          aria-hidden
-          className={cn("h-4 w-4 shrink-0 transition-transform duration-fast ease-standard", open && "rotate-90")}
-        />
-      </button>
-      {/* An accordion: the row's height follows its content (grid rows 0fr to 1fr), so what is below glides instead of
-          jumping (a motion exception, globals.css). Closed, its links are inert: out of the tab order and unread. */}
-      <div
-        id={id}
-        inert={!open || undefined}
-        className={cn(
-          "grid transition-[grid-template-rows,opacity] duration-base ease-standard",
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-        )}
-      >
-        <div className="min-h-0 overflow-hidden">
-          <ul className="ml-5 mt-0.5 space-y-0.5 border-l border-border pb-1 pl-2">
-            {PROGRAM_AREAS.map((item) => (
-              <li key={item.path}>
-                <Link
-                  href={`/programs/${slug}/${item.path}`}
-                  onClick={onNavigate}
-                  aria-current={area === item.path ? "page" : undefined}
-                  className={cn(
-                    // Inset focus ring: the accordion clips anything drawn outside a link. 36px with a mouse, 44 on touch.
-                    "focus-ring-inset flex min-h-9 items-center rounded-lg px-3 text-sm transition-colors [@media(pointer:coarse)]:min-h-11",
-                    area === item.path
-                      ? "bg-surface-2 font-semibold text-brand"
-                      : "text-text-secondary hover:bg-surface-2 hover:text-foreground",
-                  )}
-                >
-                  {item.label}
-                  <LinkPending />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -482,14 +318,14 @@ export function SidebarContent({
           </RailTip>
         </div>
 
-        {/* Places of their own, not tools: your certification practice, the files NetSec AI can read, your lab time. */}
+        {/* Places of their own, not tools: your certification practice, the files NetSec AI can read, your lab time, and
+            your NH programs (every account: the page holds the invoice form; the API decides what opens). */}
         <div className={cn("shrink-0 space-y-1", collapsed ? "flex flex-col items-center px-3 pb-3" : "px-3 pb-3")}>
           <PlaceLink href="/learning" label="Skills & Certifications" icon={Award} collapsed={collapsed} onNavigate={onNavigate} />
           <PlaceLink href="/library" label="File Library" icon={FolderOpen} collapsed={collapsed} onNavigate={onNavigate} />
           <PlaceLink href="/study" label="Lab Activity" icon={Timer} collapsed={collapsed} onNavigate={onNavigate} />
+          <PlaceLink href="/programs" label="My Programs" icon={GraduationCap} collapsed={collapsed} onNavigate={onNavigate} />
         </div>
-
-        <ProgramsNav collapsed={collapsed} onNavigate={onNavigate} />
 
         {hub.length > 0 && (
           <nav aria-labelledby="hub-heading" className={cn("shrink-0 space-y-1", collapsed ? "px-3" : "px-3")}>

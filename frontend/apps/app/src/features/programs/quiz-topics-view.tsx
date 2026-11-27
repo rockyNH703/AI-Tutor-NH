@@ -1,9 +1,12 @@
 "use client";
 
-import { ArrowLeft, ChevronDown, ChevronRight, ListChecks, Search } from "lucide-react";
+import { Button } from "@v1/ui/button";
+import { ArrowLeft, ChevronDown, ChevronRight, ClipboardList, ListChecks, Search } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { setupHref } from "@/features/exams/setup-model";
 import type { BankTopic } from "@/lib/api/programs";
 import { getMastery } from "@/lib/api/progress";
 import type { Mastery, MasteryState } from "@/lib/api/types";
@@ -23,18 +26,11 @@ import {
 /**
  * Quizzes & Games, one month (owner, 2026-11-27): the month's quiz topics (bank domains) as numbered cards, a topic's
  * own view with its quizzes, and a search over every quiz of the month. The open topic is in the address
- * (`?month=2&topic=…`), so Back and a reload keep it. A quiz card asks for that quiz in the month chat (`onQuiz`), as
- * before. Progress comes only from the practice record (GET /v1/progress/mastery); without one, none is shown.
+ * (`?month=2&topic=…`), so Back and a reload keep it. A quiz card, and a topic's "Take a topic test", open the test
+ * setup (features/exams; session 62), never the chat. Progress comes only from the practice record
+ * (GET /v1/progress/mastery); without one, none is shown.
  */
-export function QuizTopicsView({
-  month,
-  quizzes,
-  onQuiz,
-}: {
-  month: number;
-  quizzes: BankTopic[];
-  onQuiz: (title: string) => void;
-}) {
+export function QuizTopicsView({ slug, month, quizzes }: { slug: string; month: number; quizzes: BankTopic[] }) {
   const params = useSearchParams();
   const tracks = useMemo(() => groupQuizzes(quizzes), [quizzes]);
   const { states, known } = useMasteryStates();
@@ -59,7 +55,7 @@ export function QuizTopicsView({
 
   if (open)
     return (
-      <TopicQuizzes month={month} topic={open} states={states} known={known} onBack={() => show(null)} onQuiz={onQuiz} />
+      <TopicQuizzes slug={slug} month={month} topic={open} states={states} known={known} onBack={() => show(null)} />
     );
 
   const hits = searchQuizzes(tracks, query);
@@ -70,7 +66,13 @@ export function QuizTopicsView({
         hits.length ? (
           <ul className={CARD_GRID} aria-label="Matching quizzes">
             {hits.map(({ quiz, topic }) => (
-              <QuizCard key={quiz.topicId} quiz={quiz} topic={topic.title} state={states.get(quiz.topicId)} onQuiz={onQuiz} />
+              <QuizCard
+                key={quiz.topicId}
+                quiz={quiz}
+                topic={topic.title}
+                state={states.get(quiz.topicId)}
+                href={setupHref(slug, month, topic.key, quiz.topicId)}
+              />
             ))}
           </ul>
         ) : (
@@ -211,20 +213,20 @@ function TopicCard({
   );
 }
 
-function TopicQuizzes({
+export function TopicQuizzes({
+  slug,
   month,
   topic,
   states,
   known,
   onBack,
-  onQuiz,
 }: {
+  slug: string;
   month: number;
   topic: QuizTopic;
   states: Map<string, MasteryState>;
   known: boolean;
   onBack: () => void;
-  onQuiz: (title: string) => void;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   // A new view: focus its heading, so a keyboard or screen reader user starts at the topic, not the page top.
@@ -251,42 +253,49 @@ function TopicQuizzes({
           </li>
         </ol>
       </nav>
-      <div>
-        <h4 ref={heading} tabIndex={-1} className="text-lg font-semibold text-foreground outline-none">
-          {topic.title}
-        </h4>
-        <p className="mt-1 text-sm text-text-secondary">
-          {plural(topic.quizzes.length, "quiz", "quizzes")}
-          {progressText(topic, states, known)}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h4 ref={heading} tabIndex={-1} className="text-lg font-semibold text-foreground outline-none">
+            {topic.title}
+          </h4>
+          <p className="mt-1 text-sm text-text-secondary">
+            {plural(topic.quizzes.length, "quiz", "quizzes")}
+            {progressText(topic, states, known)}
+          </p>
+        </div>
+        <Button asChild className="min-h-11">
+          <Link href={setupHref(slug, month, topic.key)}>
+            <ClipboardList aria-hidden className="h-4 w-4" />
+            Take a topic test
+          </Link>
+        </Button>
       </div>
       <ul className={CARD_GRID} aria-label={`${topic.title} quizzes`}>
         {topic.quizzes.map((quiz) => (
-          <QuizCard key={quiz.topicId} quiz={quiz} state={states.get(quiz.topicId)} onQuiz={onQuiz} />
+          <QuizCard key={quiz.topicId} quiz={quiz} state={states.get(quiz.topicId)} href={setupHref(slug, month, topic.key, quiz.topicId)} />
         ))}
       </ul>
     </div>
   );
 }
 
-/** One quiz; the whole card asks for it in the month chat (its name says so: "Quiz me on …"). */
+/** One quiz; the whole card opens its test setup, with this quiz chosen (its name says so: "Quiz me on …"). */
 function QuizCard({
   quiz,
   topic,
   state,
-  onQuiz,
+  href,
 }: {
   quiz: BankTopic;
   topic?: string;
   state: MasteryState | undefined;
-  onQuiz: (title: string) => void;
+  href: string;
 }) {
   return (
     <li className="flex">
-      <button
-        type="button"
+      <Link
+        href={href}
         aria-label={`Quiz me on ${quiz.title}${state ? `, ${STATE_LABEL[state]}` : ""}`}
-        onClick={() => onQuiz(quiz.title)}
         className={`${CARD} flex min-h-32 w-full flex-col p-4 text-left sm:p-5`}
       >
         <span className="block text-pretty text-sm font-semibold leading-snug text-foreground sm:text-base">{quiz.title}</span>
@@ -301,7 +310,7 @@ function QuizCard({
             <ChevronRight aria-hidden className={ARROW} />
           </span>
         </span>
-      </button>
+      </Link>
     </li>
   );
 }

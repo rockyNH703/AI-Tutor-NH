@@ -335,7 +335,8 @@ KNOWLEDGE_LIFECYCLE = "0024_knowledge_lifecycle"
 FRIEND_ZONE_PROGRESS = "0031_friend_zone_progress"
 FRIEND_ZONE_EXAM = "0032_friend_zone_exam"
 CHAT_SHARES = "0033_chat_pins_archive_shares"
-HEAD = CHAT_SHARES
+PRACTICE_EXAMS = "0034_practice_exams"
+HEAD = PRACTICE_EXAMS
 
 
 async def _refused(sql: str, *args) -> bool:

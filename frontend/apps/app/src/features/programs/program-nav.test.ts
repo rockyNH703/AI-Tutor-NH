@@ -1,13 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
+import type { ProgramClaim } from "@/lib/api/programs";
 import {
   PROGRAM_AREAS,
-  isExpanded,
+  endedClaims,
   monthFromParam,
-  parseSaved,
   placeText,
   programChatPath,
   programRoute,
+  programTabs,
 } from "./program-nav";
 
 const PROGRAM = {
@@ -42,20 +43,47 @@ describe("programRoute: which program and area an address is in", () => {
   });
 });
 
-describe("isExpanded: a program group's state in the sidebar", () => {
-  test("a saved choice wins; without one, the group is open while you are inside it", () => {
-    expect(isExpanded({}, "a", "a")).toBe(true);
-    expect(isExpanded({}, "a", "b")).toBe(false);
-    expect(isExpanded({}, "a", null)).toBe(false);
-    expect(isExpanded({ a: false }, "a", "a")).toBe(false);
-    expect(isExpanded({ a: true }, "a", null)).toBe(true);
+describe("programTabs: the program bar", () => {
+  test("Overview (the program's own page) first, then the five areas, each with its address", () => {
+    expect(programTabs("networking-ai")).toEqual([
+      { area: null, label: "Overview", href: "/programs/networking-ai" },
+      { area: "modules", label: "Course Module", href: "/programs/networking-ai/modules" },
+      { area: "qna", label: "QnA", href: "/programs/networking-ai/qna" },
+      { area: "quizzes", label: "Quizzes & Games", href: "/programs/networking-ai/quizzes" },
+      { area: "interviews", label: "Mock Interviews", href: "/programs/networking-ai/interviews" },
+      { area: "videos", label: "Videos & Links", href: "/programs/networking-ai/videos" },
+    ]);
   });
 
-  test("saved state is read defensively: bad JSON or non-boolean values are ignored", () => {
-    expect(parseSaved(null)).toEqual({});
-    expect(parseSaved("not json")).toEqual({});
-    expect(parseSaved("[1,2]")).toEqual({});
-    expect(parseSaved('{"a":true,"b":"yes","c":false}')).toEqual({ a: true, c: false });
+  test("every tab's area is what programRoute reads from its address, so exactly one is current", () => {
+    for (const tab of programTabs("p")) expect(programRoute(tab.href)?.area).toBe(tab.area);
+  });
+});
+
+describe("endedClaims: the claims My Programs shows as Access ended", () => {
+  const claim = (slug: string, state: ProgramClaim["state"], claimedAt: string): ProgramClaim => ({
+    program: { slug, title: slug.toUpperCase() },
+    state,
+    claimedAt,
+  });
+
+  test("expired and revoked claims, newest first, once per program", () => {
+    const claims = [
+      claim("b", "revoked", "2026-11-03T00:00:00Z"),
+      claim("a", "expired", "2026-11-02T00:00:00Z"),
+      claim("b", "expired", "2026-11-01T00:00:00Z"),
+    ];
+    expect(endedClaims(claims, []).map((c) => [c.program.slug, c.state])).toEqual([
+      ["b", "revoked"],
+      ["a", "expired"],
+    ]);
+  });
+
+  test("an active claim is not ended, and a program another invoice still opens is not shown as ended", () => {
+    const claims = [claim("a", "active", "2026-11-03T00:00:00Z"), claim("a", "expired", "2026-11-01T00:00:00Z")];
+    expect(endedClaims(claims, ["a"])).toEqual([]);
+    expect(endedClaims([claim("c", "revoked", "2026-11-01T00:00:00Z")], ["a"]).map((c) => c.program.slug)).toEqual(["c"]);
+    expect(endedClaims([], [])).toEqual([]);
   });
 });
 

@@ -314,6 +314,13 @@
     --ring: 223.1 100% 76.3%;
     --destructive: 352.4 79.7% 74.9%; /* #F28C99 */
     --destructive-foreground: var(--rail);
+    /* Status on ink (the exam navigator, session 62): the page's light-theme amber and green measure only 2.4-3.9:1
+       here. Measured: warning #E6BE62 8.5:1 on the brand-soft pill, 9.1:1 on the current row, 10.2:1 on a field,
+       11.0:1 on the ink; success #7BD66F 8.3/9.0/10.0/10.8:1; each 9.1:1 or more on its own soft fill. */
+    --success: 113 55.7% 63.7%; /* #7BD66F */
+    --success-soft: 128 27.3% 10.8%; /* #142316 */
+    --warning: 41.8 72.5% 64.3%; /* #E6BE62 */
+    --warning-soft: 43.6 40.7% 10.6%; /* #262010 */
     color: hsl(var(--foreground));
     background-color: hsl(var(--background));
   }
@@ -845,6 +852,9 @@
     --muted-foreground: 216.9 31% 87.1%;
     --border: 219.4 11.8% 55.1%;
     --input: 219.4 11.8% 55.1%;
+    /* warning #F1CE7E 9.9:1 on brand-soft, 12.8:1 on the ink; success #8FE085 9.4:1 and 12.2:1 */
+    --warning: 41.8 80% 72%;
+    --success: 113 60% 70%;
   }
 
   /* Forced colours (Windows contrast themes): the system palette replaces ours, so the current

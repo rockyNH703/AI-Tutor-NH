@@ -188,6 +188,9 @@ async def test_every_data_endpoint_requires_auth(client, app):
         ("GET", "/v1/me"),
         ("GET", "/v1/me/settings"),
         ("POST", "/v1/auth/logout"),
+        ("POST", "/v1/practice-exams"),
+        ("GET", f"/v1/practice-exams/{uuid.uuid4()}"),
+        ("GET", "/v1/programs/networking-ai/months/1/exam-options"),
     ]:
         for body in ({"message": "x"}, {}):
             r = await client.request(method, url, json=body if method == "POST" else None)
@@ -235,3 +238,28 @@ async def test_nhprep_is_a_404_for_an_account_it_is_not_for():
         await assert_all_404(client, (await register(client, app))["headers"], lesson)
         found = await client.get(f"/v1/nhprep/lessons/{lesson}", headers=await student(client, app))
         assert found.status_code == 200, found.text
+
+
+async def test_practice_exams_are_per_user(client, app, settings, tmp_path):
+    """Another enrolled student's practice exam is a 404 on every route, exactly like a missing one."""
+    from tests.test_friend_zone_battles import load_bank
+    from tests.test_programs import PROGRAM, enrolled
+
+    settings.programs_mode = "on"
+    await load_bank(app, tmp_path)
+    alice = await enrolled(client, app, "NH-AUTH-1")
+    bob = await enrolled(client, app, "NH-AUTH-2")
+    body = {"requestId": str(uuid.uuid4()), "program": PROGRAM, "month": 1, "topicIds": ["CCNA-D2-T01"]}
+    created = await client.post(
+        "/v1/practice-exams", json={**body, "difficulty": "mixed", "length": 5, "minutes": 5}, headers=alice["headers"]
+    )
+    assert created.status_code == 201, created.text
+    exam = created.json()["examId"]
+    for method, url, payload in [
+        ("GET", f"/v1/practice-exams/{exam}", None),
+        ("PUT", f"/v1/practice-exams/{exam}/responses", {"baseRev": 0, "items": [{"index": 0, "keys": ["A"]}]}),
+        ("POST", f"/v1/practice-exams/{exam}/submit", {"items": []}),
+    ]:
+        r = await client.request(method, url, json=payload, headers=bob["headers"])
+        assert r.status_code == 404 and r.json()["error"]["code"] == "not_found", (method, url, r.text)
+    assert (await client.get(f"/v1/practice-exams/{exam}", headers=alice["headers"])).status_code == 200

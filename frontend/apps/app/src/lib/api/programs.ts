@@ -9,8 +9,10 @@ import type { ConversationPage, Uuid } from "./types";
 export type ProgramMaterial = { documents: number; lessons: number; questions: number };
 export type ProgramMonth = { month: number; title: string; material: ProgramMaterial };
 export type Program = { slug: string; title: string; months: ProgramMonth[] };
-export type ProgramList = { enabled: boolean; programs: Program[]; invoicePrompt: boolean };
 export type ProgramRef = { slug: string; title: string };
+/** One of the account's invoice claims (never its number): active opens its program now; expired or revoked do not. */
+export type ProgramClaim = { program: ProgramRef; state: "active" | "expired" | "revoked"; claimedAt: string };
+export type ProgramList = { enabled: boolean; programs: Program[]; invoicePrompt: boolean; claims: ProgramClaim[] };
 export type ClaimResult = { status: "claimed" | "already"; program: ProgramRef };
 export type BankTopic = { topicId: string; title: string; chapter: string; book: string };
 export type ProgramMonthDetail = {

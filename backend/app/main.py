@@ -33,6 +33,7 @@ from app.conversations.router import shared_router
 from app.db.models import EMBEDDING_DIMENSIONS
 from app.db.session import Database
 from app.errors import install_error_handlers
+from app.exams.router import router as exams_router
 from app.files.processing import FileWorker
 from app.files.router import router as files_router
 from app.files.service import MAX_UPLOAD_BYTES
@@ -370,4 +371,5 @@ def create_app(
     app.include_router(nhprep_router)  # always mounted (the contract); every route checks NHPREP_MODE itself
     app.include_router(programs_router)  # always mounted (the contract); every route checks PROGRAMS_MODE itself
     app.include_router(friend_zone_router)  # always mounted; every route checks FRIEND_ZONE_MODE and eligibility
+    app.include_router(exams_router)  # always mounted; every route checks PROGRAMS_MODE and the exam's program
     return app

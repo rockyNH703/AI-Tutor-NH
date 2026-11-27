@@ -343,6 +343,11 @@ api.env (like `import_questions.py`). Every write command is a dry run without `
 below. Rollback: `PROGRAMS_MODE=off` and an API restart hides everything; a code rollback before `0028` lists program
 chats as ordinary chats until a roll-forward.
 
+**Practice exams** (2026-11-27, migration `0034_practice_exams`, additive: one table): ride on `PROGRAMS_MODE`, no
+switch of their own. A release runs `0034` after the deploy's backup; the previous release ignores the table. Its
+downgrade refuses while any exam row exists (roll back the code with `rollback:netsec` and leave the table). An
+unfinished exam needs no job: it is graded at its next read after the deadline.
+
 ## NH Friend Zone
 
 Friends, 1v1 battles, daily challenges, XP and badges for enrolled NH students (`app/friendzone`; migrations `0030`

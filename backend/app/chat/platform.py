@@ -76,7 +76,7 @@ LABELS: tuple[tuple[str, str], ...] = (
     ("Start a lab session", _UI + "features/study/study-control.tsx"),
     *((area, _UI + "features/programs/program-nav.ts") for area in PROGRAM_AREAS),
     *((label, _UI + "features/friendzone/quizzes-switch.tsx") for label in ("Practice", "Friend Zone")),
-    *((label, _UI + "features/programs/invoice-flow.tsx") for label in ("NH enrolment", "Add an invoice")),
+    ("Add an invoice", _UI + "features/programs/program-pages.tsx"),
     *((label, _UI + "features/chat/composer.tsx") for label in ("Quiz me", "Voice mode")),
     *((label, _UI + "components/nav-items.ts") for label in ("Troubleshooter", "Summarizer")),
     ("Practice by domain", _UI + "features/my-learning/my-learning-view.tsx"),
@@ -92,7 +92,7 @@ FILE_GROUPS: tuple[tuple[str, int, tuple[str, ...]], ...] = (
 )
 REFUSED_FILES = (".log", ".cfg", ".conf")
 
-ENROL = "Settings > Profile > NH enrolment > Add an invoice"
+ENROL = "My Programs (sidebar) > Add an invoice"  # the one place an invoice is entered (owner, 2026-11-27)
 RULE = (
     "About the NetSec AI app: only for questions about the app or this account, never in wellbeing or personal "
     "replies. Not here? Say you don't know and point to Settings > Help & Support. Never invent features, courses, "
@@ -159,7 +159,7 @@ def account_facts(access: AccountAccess, *, program_chat: bool = False) -> list[
     lines = []
     if access.programs and not program_chat:
         titles = _titles(access.program_titles)
-        lines.append(f"My Programs: {titles}." if titles else f"My Programs: none yet ({ENROL} opens one).")
+        lines.append(f"My Programs: {titles}." if titles else f"My Programs: none yet; open one at {ENROL}.")
     if access.quiz_me:
         lines.append("Quiz me button.")
     if access.typed_quizzes:

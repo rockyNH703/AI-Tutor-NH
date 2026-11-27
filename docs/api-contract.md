@@ -573,7 +573,7 @@ Every response is `Cache-Control: no-store`.
 
 | Route | Answer |
 |---|---|
-| `GET /v1/programs` | `{enabled, invoicePrompt, programs: [{slug, title, months: [{month, title, material}]}]}` |
+| `GET /v1/programs` | `{enabled, invoicePrompt, programs: [{slug, title, months: [{month, title, material}]}], claims: [{program: {slug, title}, state: active\|expired\|revoked, claimedAt}]}`; `claims` (2026-11-27, additive) are the caller's own, newest first, at most 50, never an invoice number |
 | `POST /v1/programs/claims` `{invoiceNumber}` | 201 claimed, 200 already this account's; 404 `invoice_not_verified` for every failure (unknown, inactive, expired, claimed by someone else); 429 `rate_limited` |
 | `POST /v1/programs/invoice-prompt/dismiss` | 204; the first-run question is not asked again |
 | `GET /v1/programs/{slug}` | the program and its months |
@@ -585,6 +585,35 @@ access and binds the conversation; every later turn reads its scope from the sto
 request. A month chat retrieves only that month's mapped material, with no fallback. `ConversationOut.program` is
 `{slug, month, mode}` or null; `GET /v1/conversations` leaves program chats out unless asked for with
 `?program=<slug>&month=<n>` (no `month`: the Q&A). When access ends, the program's chats and messages are 404.
+
+### Practice exams (2026-11-27, `app/exams`)
+
+A timed paper of one month's bank questions, taken on its own page (`/exam/<id>`), never in the chat. Same gate as
+the program routes (`PROGRAMS_MODE`, an open month); `no-store`; another account's exam is 404. Names: `topicId` is a
+QbTopic id (the UI's Quiz), `chapter`/`topic` a QbChapter (the UI's Topic), `book` a QbBook (the UI's Track).
+
+| Route | Answer |
+|---|---|
+| `GET /v1/programs/{slug}/months/{month}/exam-options` | `{program, month, quizzes: [{topicId, title, chapter, book, available: {easy, medium, hard, total}}], lengths, maxQuestions: 30, durations: {secondsPerQuestion: 60, multipliers, maxMinutes: 60}, rules: {marksPerQuestion: 1, negativeMarking: 0}}`; `available` counts servable questions |
+| `POST /v1/practice-exams` `{requestId, program, month, topicIds[1-50], difficulty: mixed\|easy\|medium\|hard, length 1-30, minutes 1-60}` | 201 `{examId}`; the same `requestId` again: 200 and the same exam; 404 month not open; 422 `one_track` (quizzes of two tracks) or `unknown_quiz`; 409 `not_enough_questions` with `error.current = {available, needed}` (nothing written) |
+| `GET /v1/practice-exams/{examId}` | `{examId, status: in_progress\|submitted, program, month, title, difficulty, length, minutes, startedAt, endsAt, cutoffAt, serverTime, rev, rules, questions: [{index, stem, options: [{key, text}], multi, quiz, topic}], responses: [{index, keys, marked, visited}], result}` |
+| `PUT /v1/practice-exams/{examId}/responses` `{baseRev, items[1-30]: {index, keys, marked, visited}}` | `{rev, serverTime}`; 409 `stale` with `error.current = {rev}`; 409 `closed` once submitted or past the cutoff; 422 for a key outside the options or two keys on a single answer |
+| `POST /v1/practice-exams/{examId}/submit` `{baseRev\|null, items[0-30], auto}` | the GET body, submitted, plus `lateItems` (items not applied); idempotent: a submitted exam returns its stored result and writes nothing |
+
+- **Time is the database's.** `endsAt` = start + `minutes`; the cutoff is `endsAt` + 2 s. The first read or write at
+  or after the cutoff submits the saved answers, stamped at `endsAt` (`autoSubmitted`). There is no timer process.
+- **Secrecy.** While `in_progress`, no question carries a key, an explanation or a difficulty.
+- **Scoring.** 1 mark per correct answer, no negative marking. `result`: `{score, total, percentage, correct,
+  incorrect, unanswered, autoSubmitted, submittedAt, byTopic: [{topic, correct, total}], review: [{index, keys,
+  correctKeys, explanation, outcome: correct|incorrect|unanswered|void}]}`. `void`: the question's content changed
+  after the exam began; it is not graded and not in `total`.
+- **Ledger.** The questions are a practice set (`qb_sets`, mode `test`) picked by the bank's own picker; at the
+  submit each answer becomes one graded `qb_set_items` row followed by `record_practice`, once, under the exam's row
+  lock (streak and mastery as any bank answer).
+- **Access.** Every read and write re-checks that the exam's program is still open: when the invoice ends, an
+  unsubmitted exam is 404; a submitted one stays readable by its owner.
+- **Limits.** Start, save and a submit that applies nothing share the practice-test limiter (120/min per user); a
+  submit that grades is never limited.
 
 ## NH Friend Zone
 
