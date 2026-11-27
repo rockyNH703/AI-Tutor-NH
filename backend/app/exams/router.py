@@ -82,9 +82,9 @@ async def start_exam(
     await db.commit()
     if not created:
         response.status_code = status.HTTP_200_OK
-    log.info(
+    log.info(  # never `created`: a reserved LogRecord attribute (a KeyError at INFO, production's level)
         "practice exam start",
-        extra={"user_id": str(user_id), "exam_id": str(exam_id), "created": created, "length": body.length},
+        extra={"user_id": str(user_id), "exam_id": str(exam_id), "new_exam": created, "length": body.length},
     )
     return ExamCreatedOut(exam_id=exam_id)
 

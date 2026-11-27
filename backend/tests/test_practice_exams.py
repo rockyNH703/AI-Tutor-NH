@@ -9,6 +9,7 @@ Time is moved by shifting the stored deadline (`shift`), never by sleeping."""
 from __future__ import annotations
 
 import asyncio
+import logging
 import subprocess
 import sys
 import uuid
@@ -183,6 +184,18 @@ async def test_a_start_is_idempotent_on_its_request_id(client, app, student):
     results = await asyncio.gather(*(client.post(EXAMS, json=body, headers=student["headers"]) for _ in range(2)))
     assert sorted(r.status_code for r in results) == [200, 201]
     assert results[0].json() == results[1].json()
+
+
+async def test_start_and_submit_work_with_info_logging_as_in_production(client, app, student, caplog):
+    """Live 2026-11-27: every start was a 500 in production (LOG_LEVEL=INFO) because the start log's `extra` used
+    `created`, a reserved LogRecord attribute. Tests log at WARNING, so the record was never built here."""
+    caplog.set_level(logging.INFO, logger="app.exams")
+    started = await client.post(EXAMS, json=start_body(), headers=student["headers"])
+    assert started.status_code == 201, started.text
+    exam_id = started.json()["examId"]
+    submitted = await client.post(f"{EXAMS}/{exam_id}/submit", json={"items": []}, headers=student["headers"])
+    assert submitted.status_code == 200, submitted.text
+    assert {"practice exam start", "practice exam submit"} <= {record.getMessage() for record in caplog.records}
 
 
 async def test_too_few_questions_is_a_409_with_the_real_count_and_writes_nothing(client, app, student):
