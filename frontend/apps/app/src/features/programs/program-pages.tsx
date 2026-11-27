@@ -35,6 +35,8 @@ import {
   getProgramMonth,
 } from "@/lib/api/programs";
 import type { NhprepLessonSummary, Uuid } from "@/lib/api/types";
+import { ARROW, CARD, CARD_GRID, FOOT, NUMBER, twoDigits } from "./card-styles";
+import { QuizTopicsView } from "./quiz-topics-view";
 import { PROGRAM_AREAS, type ProgramArea, monthFromParam, programChatPath } from "./program-nav";
 import { refreshPrograms, usePrograms } from "./use-programs";
 
@@ -225,18 +227,6 @@ export function ProgramLanding({ slug }: { slug: string }) {
  * resizable sidebar rather than the window. One surface: white, a hairline edge, a soft tint and a darker edge on hover,
  * a slight give on press.
  */
-const CARD_GRID = "grid max-w-4xl grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-3 sm:gap-4";
-const CARD =
-  "group focus-ring rounded-2xl border border-border bg-card elev-1 transition-[background-color,border-color,transform] duration-fast ease-out hover:border-foreground/15 hover:bg-surface-2/40 active:bg-surface-2/70 motion-safe:active:scale-[0.99]";
-/** A card's place in its sequence (a month, a lesson): "01". */
-const NUMBER =
-  "grid h-8 min-w-8 shrink-0 place-items-center rounded-lg bg-surface-2 px-1.5 text-xs font-semibold tabular-nums tracking-wide text-text-secondary";
-/** The quiet line at a card's foot: what it holds, or what opening it does. */
-const FOOT = "flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border pt-3 text-xs text-text-secondary";
-const ARROW =
-  "h-4 w-4 shrink-0 text-text-secondary transition-[color,transform] duration-fast ease-out group-hover:text-foreground motion-safe:group-hover:translate-x-0.5";
-
-const twoDigits = (n: number) => String(n).padStart(2, "0");
 
 /** A card per month, in the course's order, its whole surface the way into that month's chat. */
 function MonthCards({ program, href, foot }: { program: Program; href: (month: number) => string; foot: (month: ProgramMonth) => ReactNode }) {
@@ -379,13 +369,6 @@ function QuizzesFor({ slug, program }: { slug: string; program: Program }) {
   );
 }
 
-/** The month's topics, grouped by their question track (its name once, not on every row). */
-function byTrack(topics: BankTopic[]): [string, BankTopic[]][] {
-  const groups = new Map<string, BankTopic[]>();
-  for (const topic of topics) groups.set(topic.book, [...(groups.get(topic.book) ?? []), topic]);
-  return [...groups];
-}
-
 function MonthTopics({ slug, month }: { slug: string; month: number }) {
   const [state, retry] = useMonth(slug, month);
   const { chat } = useStores();
@@ -399,43 +382,11 @@ function MonthTopics({ slug, month }: { slug: string; month: number }) {
   return (
     <States state={state} retry={retry}>
       {(detail) =>
-        !detail.quizAvailable ? (
+        !detail.quizAvailable || !detail.topics.length ? (
           <p className="text-sm text-text-secondary">No practice questions are mapped to this month yet.</p>
         ) : (
-          <div className="flex flex-col gap-8">
-            {byTrack(detail.topics).map(([track, topics]) => (
-              <section key={track} aria-label={track}>
-                <h4 className="mb-3 text-sm font-semibold text-foreground">
-                  {track} <span className="font-normal text-text-secondary">({topics.length})</span>
-                </h4>
-                {/* A card per topic; the whole card asks for the quiz (its name says so: "Quiz me on …"). */}
-                <ul className={CARD_GRID}>
-                  {topics.map((topic) => (
-                    <li key={topic.topicId} className="flex">
-                      <button
-                        type="button"
-                        aria-label={`Quiz me on ${topic.title}`}
-                        onClick={() => quiz(topic.title)}
-                        className={`${CARD} flex min-h-32 w-full flex-col p-4 text-left sm:p-5`}
-                      >
-                        <span className="block text-pretty text-sm font-semibold leading-snug text-foreground sm:text-base">{topic.title}</span>
-                        <span className="mt-1 block text-xs text-text-secondary">{topic.chapter}</span>
-                        <span className="mt-auto block w-full pt-4">
-                          <span className={`${FOOT} justify-between`}>
-                            <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
-                              <ListChecks aria-hidden className="h-3.5 w-3.5 shrink-0 text-text-secondary" />
-                              Quiz me
-                            </span>
-                            <ChevronRight aria-hidden className={ARROW} />
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
+          // Topics first, a topic's quizzes on their own view (owner, 2026-11-27): no endless list of cards.
+          <QuizTopicsView month={month} quizzes={detail.topics} onQuiz={quiz} />
         )
       }
     </States>
