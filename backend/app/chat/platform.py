@@ -100,7 +100,7 @@ RULE = (
 )
 # The guide's ceiling with every feature on (tests/test_platform_guide.py; the history budget reserves it). The title
 # caps keep even the worst-case account lines under it: NH has four programs today.
-PLATFORM_MAX_CHARS = 2_900
+PLATFORM_MAX_CHARS = 3_000
 _TITLE_MAX, _TITLES_MAX = 40, 4
 
 
@@ -198,8 +198,8 @@ def platform_block(settings: Settings, account: Sequence[str] = ()) -> str:
         "- Sidebar: New chat, Skills & Certifications, File Library, Lab Activity (Start a lab session)"
         f"{', My Programs' if programs else ''}; account menu: Settings, Archived chats, Log out.",
         f"- Settings sections: {', '.join(SETTINGS_SECTIONS)}.",
-        f"- Settings > Learning Preferences: {', '.join(LEARNING_PREFERENCES)}. Settings > AI Assistant: "
-        f"{', '.join(AI_ASSISTANT)}.",
+        f"- {', '.join(LEARNING_PREFERENCES)}: each is set in Settings > Learning Preferences (not AI Assistant).",
+        f"- {', '.join(AI_ASSISTANT)}: each is set in Settings > AI Assistant.",
         "- Settings > Help & Support: Help & FAQ, About NetSec AI, Contact support (gives a reference number).",
         "- Chat menu: Share, Rename, Pin, Archive, Delete. Reply: Copy reply, Regenerate reply, Good reply, Bad reply.",
         f"- Practice streak: a day (India time) counts when NetSec AI fully answered at least one {question} of "
