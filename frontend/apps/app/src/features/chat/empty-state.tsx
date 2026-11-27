@@ -3,7 +3,6 @@
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
 
 import { placeText } from "@/features/programs/program-nav";
-import { ProgramWelcome } from "@/features/programs/program-welcome";
 import type { ChatPlace } from "@/lib/api/types";
 import { accentWord, pickGreeting } from "@/lib/greeting";
 
@@ -18,8 +17,8 @@ import { accentWord, pickGreeting } from "@/lib/greeting";
  * line (reduced motion: at once). It is one line on every screen: the CSS size is the largest, and
  * a sentence too wide for it is set smaller (fitOneLine).
  *
- * A program chat (`place`) greets with its own place instead ("What shall we learn in Month 2?"), and
- * under it says what the tutor answers from, with a suggestion or two (features/programs/program-welcome.tsx).
+ * A program chat (`place`) greets with its own place instead ("What shall we learn in Month 2?"). No line
+ * under any greeting (owner, 2026-11-27): the greeting only.
  */
 export function ChatEmptyState({
   chatKey,
@@ -62,7 +61,6 @@ export function ChatEmptyState({
           ))
         )}
       </h2>
-      {place && <ProgramWelcome place={place} />}
     </div>
   );
 }

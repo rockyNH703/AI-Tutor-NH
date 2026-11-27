@@ -108,7 +108,9 @@ describe("placeText: what a program chat says about its place", () => {
     expect(text.label).toBeNull(); // the title already says "Month 2"
     expect(text.title).toBe("Month 2");
     expect(text.greeting).toBe("What shall we learn in Month 2?");
-    expect(placeText({ program: "networking-ai", month: null, mode: "tutor" }, null).line).toContain("every month's");
+    expect(placeText({ program: "networking-ai", month: null, mode: "tutor" }, null).greeting).toBe(
+      "Ask anything about your program.",
+    );
   });
 });
 

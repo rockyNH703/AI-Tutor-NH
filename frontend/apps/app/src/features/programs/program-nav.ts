@@ -65,14 +65,12 @@ export type PlaceText = {
   title: string;
   back: { href: string; label: string } | null;
   greeting: string;
-  line: string;
   placeholder: string;
   tabTitle: string;
 };
 
 type ProgramTitles = { title: string; months: { month: number; title: string }[] };
 
-const SOURCES = "NetworkersHome material and shows its sources.";
 
 /** What a program chat says about its place. Before the program's titles arrive (null), nothing is invented. */
 export function placeText(place: ChatPlace, program: ProgramTitles | null): PlaceText {
@@ -82,7 +80,6 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
       title: "Program Q&A",
       back: null,
       greeting: "Ask anything about your program.",
-      line: `Your tutor answers from every month's ${SOURCES}`,
       placeholder: "Ask about any month of your program…",
       tabTitle: "Program Q&A",
     };
@@ -95,7 +92,6 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
       title: topic ? `Mock interview: ${topic}` : "Mock interview",
       back: { href: `/programs/${place.program}/interviews`, label: "Mock Interviews" },
       greeting: `Ready for your Month ${n} mock interview?`,
-      line: "One question at a time, with feedback on each answer.",
       placeholder: "Answer the interviewer, or ask for the next question…",
       tabTitle: `Month ${n} mock interview`,
     };
@@ -105,7 +101,6 @@ export function placeText(place: ChatPlace, program: ProgramTitles | null): Plac
     title: topic ?? `Month ${n}`,
     back: { href: `/programs/${place.program}/modules`, label: "Course Module" },
     greeting: `What shall we learn in Month ${n}?`,
-    line: `Your tutor answers from this month's ${SOURCES}`,
     placeholder: `Ask your Month ${n} tutor…`,
     tabTitle: `Month ${n} tutor`,
   };
