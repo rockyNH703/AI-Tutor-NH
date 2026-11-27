@@ -180,7 +180,10 @@ test("reduced motion, from the OS or from Settings: no movement, and Jump to lat
     if (mode === "settings") await page.evaluate(() => document.documentElement.setAttribute("data-motion", "reduce"));
 
     await bell(page).click();
-    const menu = await page.getByRole("menu").evaluate((element) => {
+    // Two frames: a 0.01 ms animation still shows its first keyframe until the timeline ticks (CI race);
+    // the normal zoom-in lasts far longer, so a menu that animates is still caught scaled.
+    const menu = await page.getByRole("menu").evaluate(async (element) => {
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const style = getComputedStyle(element);
       return { duration: Number.parseFloat(style.animationDuration), transform: style.transform };
     });

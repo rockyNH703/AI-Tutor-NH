@@ -62,6 +62,11 @@ jobs:
       - name: API contract is current (docs/openapi.json)
         run: python scripts/export_openapi.py --check
 
+      - name: OCR engine, as production installs it (deploy-netsec/install.sh)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-hin
+
       - name: Tests (PostgreSQL + pgvector, fake LLM, API end-to-end)
         run: python -m pytest -o addopts="" -ra
 
@@ -132,6 +137,8 @@ jobs:
     env:
       TURBO_TELEMETRY_DISABLED: "1"
       NEXT_TELEMETRY_DISABLED: "1"
+      # Keyword-hash embeddings for the ingest below and the suite's API (Playwright passes the environment on).
+      EMBEDDING_PROVIDER: fake
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -155,6 +162,10 @@ jobs:
           python -m venv .venv
           .venv/bin/python -m pip install --require-hashes -r requirements.lock
           .venv/bin/python -m alembic upgrade head
+
+      - name: One global knowledge source for the citation journey (e2e/p2-headed-verification.e2e.ts)
+        working-directory: backend
+        run: .venv/bin/python scripts/ingest_documents.py --source e2e-osint --global ../frontend/apps/app/e2e/fixtures/osint.md
 
       - name: Frontend dependencies and a browser
         working-directory: frontend

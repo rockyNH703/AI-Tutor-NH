@@ -203,6 +203,8 @@ test("the theme menu: Dark, White, System with a check; saved to the account; ke
   await expect(page.getByRole("menu")).toHaveCount(0);
   await expect(trigger).toBeFocused();
   await trigger.click();
+  // Open first: Radix listens for an outside press only from the tick after the menu mounts (CI race).
+  await expect(page.getByRole("menuitemradio", { name: "Dark" })).toBeVisible();
   await page.mouse.click(10, 400); // outside
   await expect(page.getByRole("menu")).toHaveCount(0);
 

@@ -504,8 +504,8 @@ test("a section that can't load says so, with Try again, and the workspace keeps
 });
 
 test("on a slow network a section shows it is loading, inside the workspace", async ({ page, account: _ }) => {
-  await page.goto("/settings/profile");
-  await expect(heading(page, "Profile")).toBeVisible();
+  // The delay is in place before the page loads: Next prefetches the section links as soon as they render, and a
+  // prefetch that finished before the delay existed served the click from cache, so no loading state ever showed (CI).
   await page.route(
     (url) => url.pathname === "/settings/privacy",
     async (route) => {
@@ -513,6 +513,8 @@ test("on a slow network a section shows it is loading, inside the workspace", as
       await route.continue();
     },
   );
+  await page.goto("/settings/profile");
+  await expect(heading(page, "Profile")).toBeVisible();
   await section(page, "Privacy & Security").click();
   await expect(page.locator('main [aria-busy="true"]')).toBeVisible();
   await expect(panel(page)).toBeVisible();

@@ -327,8 +327,8 @@ def test_the_guide_says_where_each_answer_preference_is_set():
     """Live check 2026-11-27: "where do I change the reply language" was answered with the wrong section."""
     block = platform_block(make_settings(**FLAGS_ON))
     assert (
-        "Reply language, Depth, Pace, Difficulty, Real-world examples, Visual explanations: each is set in Settings > Learning Preferences"
-        in block
+        "Reply language, Depth, Pace, Difficulty, Real-world examples, Visual explanations: "
+        "each is set in Settings > Learning Preferences" in block
     )
     assert "Tone, Answer length" in block and "each is set in Settings > AI Assistant." in block
 

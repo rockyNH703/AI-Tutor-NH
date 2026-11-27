@@ -3,6 +3,9 @@
  *   bunx playwright test p2-headed-verification --project=desktop --headed
  * Pointer clicks, the keyboard, Radix menus, visible focus, Send, streaming, Stop and citations.
  * Every step waits for the state it needs: no fixed waits, no forced clicks, no GPU flags.
+ * Its citation step needs one global knowledge source about OSINT: e2e/fixtures/osint.md, ingested before the suite
+ * (backend: scripts/ingest_documents.py --global --source e2e-osint <that file>, with the suite's fake embeddings;
+ * CI does this in .github/workflows/ci.yml).
  */
 import { expect } from "@playwright/test";
 
