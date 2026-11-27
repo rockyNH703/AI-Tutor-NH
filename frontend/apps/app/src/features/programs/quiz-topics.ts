@@ -47,6 +47,16 @@ export function topicProgress(topic: QuizTopic, states: Map<string, MasteryState
   return { practised: known.length, mastered: known.filter((state) => state === "mastered").length };
 }
 
+/** A track's size and progress, for its collapsed header: topics, quizzes, and quizzes practised. */
+export function trackTotals(track: QuizTrack, states: Map<string, MasteryState>) {
+  const quizzes = track.topics.flatMap((topic) => topic.quizzes);
+  return {
+    topics: track.topics.length,
+    quizzes: quizzes.length,
+    practised: quizzes.filter((quiz) => states.has(quiz.topicId)).length,
+  };
+}
+
 /** Every quiz whose title, domain or track holds each word of the query, in order; [] for an empty query. */
 export function searchQuizzes(tracks: QuizTrack[], query: string): { quiz: BankTopic; topic: QuizTopic }[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);

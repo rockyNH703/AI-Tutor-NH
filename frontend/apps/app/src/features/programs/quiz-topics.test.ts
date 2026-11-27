@@ -2,7 +2,15 @@ import { describe, expect, test } from "bun:test";
 
 import type { BankTopic } from "@/lib/api/programs";
 import type { Mastery, MasteryState } from "@/lib/api/types";
-import { UNCLASSIFIED, groupQuizzes, masteryByTopic, searchQuizzes, topicKey, topicProgress } from "./quiz-topics";
+import {
+  UNCLASSIFIED,
+  groupQuizzes,
+  masteryByTopic,
+  searchQuizzes,
+  topicKey,
+  topicProgress,
+  trackTotals,
+} from "./quiz-topics";
 
 /** Index with a check (the project compiles with noUncheckedIndexedAccess). */
 function at<T>(items: T[], index: number): T {
@@ -92,5 +100,13 @@ describe("searchQuizzes", () => {
   test("an empty query or no match gives nothing", () => {
     expect(searchQuizzes(tracks, "   ")).toEqual([]);
     expect(searchQuizzes(tracks, "bgp")).toEqual([]);
+  });
+});
+
+describe("trackTotals", () => {
+  test("a collapsed track header counts its topics, quizzes and practised quizzes", () => {
+    const track = at(groupQuizzes(MONTH), 0);
+    const states = masteryByTopic(mastery([["T1", "learning"], ["T4", "mastered"], ["T6", "mastered"]]));
+    expect(trackTotals(track, states)).toEqual({ topics: 4, quizzes: 6, practised: 2 });
   });
 });
