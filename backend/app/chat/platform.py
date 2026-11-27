@@ -204,7 +204,8 @@ def platform_block(settings: Settings, account: Sequence[str] = ()) -> str:
         "- Chat menu: Share, Rename, Pin, Archive, Delete. Reply: Copy reply, Regenerate reply, Good reply, Bad reply.",
         f"- Practice streak: a day (India time) counts when NetSec AI fully answered at least one {question} of "
         f"the user's, or they answered {PRACTICE_ANSWERS} practice-test questions in chat; greetings, stopped or "
-        "failed replies and regenerated answers don't.",
+        "failed replies and regenerated answers don't. It shows as the flame count in the header; details in "
+        "Settings > Practice Streak.",
     ]
     if settings.files_enabled:
         lines.append(_files_line())

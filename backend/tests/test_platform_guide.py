@@ -328,3 +328,9 @@ def test_the_guide_says_where_each_answer_preference_is_set():
     block = platform_block(make_settings(**FLAGS_ON))
     assert "Settings > Learning Preferences: Reply language" in block
     assert "Settings > AI Assistant: Tone" in block
+
+
+def test_the_guide_says_where_the_streak_is_shown():
+    """Live check 2026-11-27 (session 31): the streak was placed "in the sidebar"; it is the header pill."""
+    block = platform_block(make_settings(**FLAGS_ON))
+    assert "flame count in the header; details in Settings > Practice Streak" in block
